@@ -1,0 +1,54 @@
+# Composer dependencies
+/vendor/
+
+# Laravel or Symfony cache
+/bootstrap/cache/
+/storage/*.key
+/storage/logs/
+/storage/framework/
+
+# Symfony specific
+/var/
+
+# Laravel environment file
+.env
+.env.*.php
+
+# PHPUnit
+.phpunit.result.cache
+
+# PHPStorm and VSCode
+.idea/
+/.vscode/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Cache
+*.cache
+
+# Node modules (if frontend assets are included)
+node_modules/
+
+# npm/yarn lock files (optional based on preference)
+package-lock.json
+yarn.lock
+
+# SFTP/FTP configuration files
+*.sublime-ftp
+*.ftpconfig
+
+# User-uploaded files
+/public/uploads/
+/public/storage/
+
+# Coverage reports
+coverage/
+
+# Build artifacts
+/build/
+/dist/

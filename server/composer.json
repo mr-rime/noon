@@ -1,0 +1,14 @@
+{
+    "name": "react.js/server",
+    "require": {
+        "webonyx/graphql-php": "^15.20",
+        "hidehalo/nanoid-php": "^2.0",
+        "respect/validation": "^2.4"
+    },
+    "authors": [
+        {
+            "name": "rimex3",
+            "email": "faresahmed51857@gmail.com"
+        }
+    ]
+}
