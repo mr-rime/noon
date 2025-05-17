@@ -1,5 +1,46 @@
 USE noon_db;
 
+-- Orders table
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_orders_payment_status ON orders(payment_status);
+CREATE INDEX idx_orders_created_at ON orders(created_at);
+
+-- Order items table
+CREATE INDEX idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX idx_order_items_product_id ON order_items(product_id);
+CREATE INDEX idx_orders_user_id_status ON orders(user_id, status);
+
+-- Tracking details table
+CREATE INDEX idx_tracking_order_id ON tracking_details(order_id);
+
+-- Categories table: name is unique, so already indexed
+
+-- Products table
+CREATE INDEX idx_products_user_id ON products(user_id);
+CREATE INDEX idx_products_category_id ON products(category_id);
+CREATE INDEX idx_products_name ON products(name);
+CREATE INDEX idx_products_price ON products(price);
+
+-- Product images table
+CREATE INDEX idx_product_images_product_id ON product_images(product_id);
+
+-- Product options table
+CREATE INDEX idx_product_options_product_id ON product_options(product_id);
+
+-- Product specifications table
+CREATE INDEX idx_product_specs_product_id ON product_specifications(product_id);
+
+-- Reviews table
+CREATE INDEX idx_reviews_product_id ON reviews(product_id);
+CREATE INDEX idx_reviews_user_id ON reviews(user_id);
+CREATE INDEX idx_reviews_rating ON reviews(rating);
+CREATE INDEX idx_reviews_created_at ON reviews(created_at);
+
+-- Review helpful votes table
+CREATE INDEX idx_review_helpful_votes_review_id ON review_helpful_votes(review_id);
+CREATE INDEX idx_review_helpful_votes_user_id ON review_helpful_votes(user_id);
+
 CREATE DATABASE noon_db;
 
 CREATE TABLE users (
