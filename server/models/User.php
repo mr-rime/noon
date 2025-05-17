@@ -5,10 +5,10 @@ use Respect\Validation\Exceptions\ValidationException;
 
 class User
 {
-    private $db;
+    private mysqli $db;
 
 
-    public function __construct($db)
+    public function __construct(mysqli $db)
     {
         $this->db = $db;
     }
@@ -23,30 +23,19 @@ class User
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function create($hash, $first_name, $last_name, $email, $passowrd)
+    public function findByEmail(string $email)
     {
-
-        $hashValidator = v::stringType()->notEmpty()->length(1, 21);
-        $firstNameValidator = v::stringType()->notEmpty()->length(1, 50);
-        $lastNameValidator = v::stringType()->length(1, 50);
         $emailValidator = v::email()->notEmpty();
-        $passwordValidator = v::stringType()->notEmpty()->length(6, null);
 
         try {
-            $hashValidator->assert($hash);
-            $firstNameValidator->assert($first_name);
-            $lastNameValidator->assert($last_name);
             $emailValidator->assert($email);
-            $passwordValidator->assert($passowrd);
-        } catch (ValidationException $e) {
-            error_log("Validation failed: " . $e->getMessage());
-
+        } catch (ValidationException $err) {
+            error_log("Validation failed: " . $err->getMessage());
             return null;
         }
 
-        $hashedpassord = password_hash($passowrd, PASSWORD_DEFAULT);
+        $query = 'SELECT * FROM users WHERE email = ?';
 
-        $query = 'INSERT INTO users (hash, first_name, last_name, email, password) VALUES (?, ?, ?, ?, ?)';
         $stmt = $this->db->prepare($query);
 
         if (!$stmt) {
@@ -54,15 +43,75 @@ class User
             return null;
         }
 
-        $stmt->bind_param('sssss', $hash, $first_name, $last_name, $email, $hashedpassord);
+        $stmt->bind_param('s', $email);
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
+
+    public function findById(string $id)
+    {
+        $query = "SELECT * FROM users WHERE id = ?";
+
+        $stmt = $this->db->prepare($query);
+
+        $stmt->bind_param("i", $id);
+
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+
+        return $result->fetch_assoc();
+    }
+
+
+    public function create(array $data)
+    {
+        $validator = v::key('hash', v::stringType()->notEmpty()->length(1, 21))
+            ->key('first_name', v::stringType()->notEmpty()->length(1, 50))
+            ->key('last_name', v::stringType()->length(1, 50))
+            ->key('email', v::email()->notEmpty())
+            ->key('password', v::stringType()->notEmpty()->length(6, null));
+
+        try {
+            $validator->assert($data);
+        } catch (ValidationException $err) {
+            error_log("Validation failed: " . $err->getMessage());
+            return null;
+        }
+
+
+        $query = 'INSERT INTO users (hash, first_name, last_name, email, password) VALUES (?, ?, ?, ?, ?)';
+        $stmt = $this->db->prepare($query);
+
+        if (!$stmt) {
+            error_log("Prepare failed: " . $this->db->error);
+            return null;
+        }
+
+        $stmt->bind_param(
+            'sssss',
+            $data['hash'],
+            $data['first_name'],
+            $data['last_name'],
+            $data['email'],
+            $data['password']
+        );
 
 
         if ($stmt->execute()) {
-            return $this->db->insert_id;
+            $userId = $this->db->insert_id;
+            $user = $this->findById($userId);
+            return $user;
         } else {
-            error_log("Excute failed: " . $stmt->error);
-
+            error_log("Execute failed: " . $stmt->error);
             return null;
         }
+    }
+
+    public function verifyPassword(string $password, string $hashedPassword)
+    {
+        return password_verify($password, $hashedPassword);
     }
 }
