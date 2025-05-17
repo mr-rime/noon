@@ -40,6 +40,11 @@ $MutationType = new ObjectType([
                 'email' => Type::nonNull(Type::string())
             ],
             'resolve' => fn($root, $args, $context) => register(array_merge($args, ['db' => $context['db']]))
+        ],
+
+        'logout' => [
+            'type' => $UserResponseType,
+            'resolve' => fn($root, $args, $context) => logout()
         ]
     ]
 ]);

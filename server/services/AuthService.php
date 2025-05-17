@@ -105,7 +105,7 @@ class AuthService
     public function logout()
     {
 
-        if (session_status() === PHP_SESSION_ACTIVE) {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
             session_unset();
             session_destroy();
