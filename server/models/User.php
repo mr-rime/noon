@@ -55,7 +55,6 @@ class User
         return $result->fetch_assoc() ?: null;
     }
 
-    // Get user by hash
     public function findByHash(string $hash): ?array
     {
         $query = "SELECT * FROM users WHERE hash = ? LIMIT 1";
