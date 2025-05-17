@@ -1,18 +1,37 @@
 <?php
 
+use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+
+$ProductImageType = new ObjectType([
+    'name' => 'ProductImage',
+    'fields' => [
+        'id' => Type::nonNull(Type::int()),
+        'image_url' => Type::nonNull(Type::string()),
+        'is_primary' => Type::boolean()
+    ]
+]);
+
+$ProductImageInputType = new InputObjectType([
+    'name' => 'ProductImageInput',
+    'fields' => [
+        'image_url' => Type::nonNull(Type::string()),
+        'is_primary' => Type::boolean(),
+    ],
+]);
 
 $ProductType = new ObjectType([
     'name' => 'Product',
     'fields' => [
-        'id' => Type::nonNull(Type::int()),
+        'id' => Type::nonNull(Type::string()),
         'name' => Type::nonNull(Type::string()),
         'price' => Type::nonNull(Type::float()),
-        'description' => Type::string(),
         'category_id' => Type::int(),
-        'image' => Type::string(),
-        'created_at' => Type::string()
+        'currency' => Type::string(),
+        'product_overview' => Type::string(),
+        'images' => Type::listOf($ProductImageType),
+        'created_at' => Type::string(),
     ]
 ]);
 

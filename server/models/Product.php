@@ -3,6 +3,8 @@
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\ValidationException;
 
+require_once __DIR__ . '/ProductImage.php';
+
 class Product
 {
     private mysqli $db;
@@ -14,22 +16,59 @@ class Product
 
     public function findAll(): array
     {
-        $query = 'SELECT * FROM products';
-        $result = $this->db->query($query);
+        $query = "
+        SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary
+        FROM products p
+        LEFT JOIN product_images pi ON p.id = pi.product_id
+        ORDER BY p.id
+    ";
 
+        $result = $this->db->query($query);
         if (!$result) {
             error_log("Query failed: " . $this->db->error);
             return [];
         }
 
-        return $result->fetch_all(MYSQLI_ASSOC);
+        $products = [];
+        while ($row = $result->fetch_assoc()) {
+            $productId = $row['id'];
+
+            if (!isset($products[$productId])) {
+                $products[$productId] = [
+                    'id' => $row['id'],
+                    'name' => $row['name'],
+                    'price' => $row['price'],
+                    'currency' => $row['currency'],
+                    'product_overview' => $row['product_overview'],
+                    'images' => []
+                ];
+            }
+
+            if ($row['image_id'] !== null) {
+                $products[$productId]['images'][] = [
+                    'id' => $row['image_id'],
+                    'image_url' => $row['image_url'],
+                    'is_primary' => (bool) $row['is_primary']
+                ];
+            }
+        }
+
+        return array_values($products);
     }
 
     public function findById(string $id): ?array
     {
-        $query = 'SELECT * FROM products WHERE id = ? LIMIT 1';
-        $stmt = $this->db->prepare($query);
+        $query = "
+        SELECT p.*, 
+               pi.id AS image_id, 
+               pi.image_url, 
+               pi.is_primary
+        FROM products p
+        LEFT JOIN product_images pi ON p.id = pi.product_id
+        WHERE p.id = ?
+    ";
 
+        $stmt = $this->db->prepare($query);
         if (!$stmt) {
             error_log("Prepare failed: " . $this->db->error);
             return null;
@@ -39,18 +78,48 @@ class Product
 
         if (!$stmt->execute()) {
             error_log("Execute failed: " . $stmt->error);
+            $stmt->close();
             return null;
         }
 
         $result = $stmt->get_result();
-        return $result->fetch_assoc() ?: null;
+
+        $product = null;
+        while ($row = $result->fetch_assoc()) {
+            if ($product === null) {
+                $product = [
+                    'id' => $row['id'],
+                    'user_id' => $row['user_id'],
+                    'category_id' => $row['category_id'],
+                    'name' => $row['name'],
+                    'price' => $row['price'],
+                    'currency' => $row['currency'],
+                    'product_overview' => $row['product_overview'],
+                    'created_at' => $row['created_at'],
+                    'updated_at' => $row['updated_at'],
+                    'images' => [],
+                ];
+            }
+
+            if ($row['image_id'] !== null) {
+                $product['images'][] = [
+                    'id' => $row['image_id'],
+                    'image_url' => $row['image_url'],
+                    'is_primary' => (bool) $row['is_primary'],
+                ];
+            }
+        }
+
+        $stmt->close();
+
+        return $product;
     }
+
 
     public function create(array $data): ?array
     {
-        $validator = v::key('id', v::stringType()->notEmpty()->length(1, 21))
-            ->key('user_id', v::intVal()->positive())
-            ->key('name', v::stringType()->notEmpty()->length(1, 100))
+        $validator = v::
+            key('name', v::stringType()->notEmpty()->length(1, 100))
             ->key('price', v::floatVal()->positive())
             ->key('currency', v::stringType()->notEmpty()->length(3, 4))
             ->key('product_overview', v::optional(v::stringType()));
@@ -62,7 +131,7 @@ class Product
             return null;
         }
 
-        $query = 'INSERT INTO products (id, user_id, name, price, currency, product_overview) VALUES (?, ?, ?, ?, ?, ?)';
+        $query = 'INSERT INTO products (id,user_id, name, price, currency, product_overview) VALUES (?, ?, ?, ?, ?, ?)';
         $stmt = $this->db->prepare($query);
 
         if (!$stmt) {
@@ -70,12 +139,14 @@ class Product
             return null;
         }
 
+        $hash = generateHash();
+        $userId = $_SESSION['user']['id'];
         $productOverview = $data['product_overview'] ?? null;
 
         $stmt->bind_param(
             'sisdss',
-            $data['id'],
-            $data['user_id'],
+            $hash,
+            $userId,
             $data['name'],
             $data['price'],
             $data['currency'],
@@ -83,7 +154,22 @@ class Product
         );
 
         if ($stmt->execute()) {
-            return $this->findById($data['id']);
+            $product = $this->findById($hash);
+
+            if (!empty($data['images']) && is_array($data['images'])) {
+                $imageModel = new ProductImage($this->db);
+
+                foreach ($data['images'] as $image) {
+                    $imageUrl = $image['image_url'] ?? null;
+                    $isPrimary = $image['is_primary'] ?? false;
+
+                    if ($imageUrl) {
+                        $imageModel->create($hash, $imageUrl, $isPrimary);
+                    }
+                }
+            }
+
+            return $product;
         } else {
             error_log("Execute failed: " . $stmt->error);
             return null;

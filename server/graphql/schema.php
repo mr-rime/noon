@@ -4,10 +4,12 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 
-require_once __DIR__ . '/types/UserTypes.php';
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
+require_once __DIR__ . '/types/UserTypes.php';
+require_once __DIR__ . '/types/ProductTypes.php';
 require_once __DIR__ . '/resolvers/UserResolver.php';
 require_once __DIR__ . '/resolvers/AuthResolver.php';
+require_once __DIR__ . '/resolvers/ProdcutResolver.php';
 
 $QueryType = new ObjectType([
     'name' => 'query',
@@ -15,6 +17,19 @@ $QueryType = new ObjectType([
         'users' => [
             'type' => $UsersResponseType,
             'resolve' => requireAuth(fn($root, $args, $context) => getUsers($context['db']))
+        ],
+
+        'products' => [
+            'type' => $ProductsResponseType,
+            'resolve' => requireAuth(fn($root, $args, $context) => getAllProducts($context['db']))
+        ],
+
+        'product' => [
+            'type' => $ProductResponseType,
+            'args' => [
+                'id' => Type::nonNull(Type::id())
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => getProductById($context['db'], $args['id']))
         ]
     ]
 ]);
@@ -45,6 +60,19 @@ $MutationType = new ObjectType([
         'logout' => [
             'type' => $UserResponseType,
             'resolve' => fn($root, $args, $context) => logout()
+        ],
+
+        'createProduct' => [
+            'type' => $ProductResponseType,
+            'args' => [
+                'name' => Type::nonNull(Type::string()),
+                'price' => Type::nonNull(Type::float()),
+                'category_id' => Type::int(),
+                'currency' => Type::string(),
+                'product_overview' => Type::string(),
+                'images' => Type::listOf($ProductImageInputType),
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => createProduct($context['db'], $args))
         ]
     ]
 ]);

@@ -23,7 +23,7 @@ function getAllProducts(mysqli $db): array
     }
 }
 
-function getProductById(mysqli $db, int $id): array
+function getProductById(mysqli $db, string $id): array
 {
     try {
         $model = new Product($db);
