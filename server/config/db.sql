@@ -14,8 +14,6 @@ CREATE INDEX idx_orders_user_id_status ON orders(user_id, status);
 -- Tracking details table
 CREATE INDEX idx_tracking_order_id ON tracking_details(order_id);
 
--- Categories table: name is unique, so already indexed
-
 -- Products table
 CREATE INDEX idx_products_user_id ON products(user_id);
 CREATE INDEX idx_products_category_id ON products(category_id);
