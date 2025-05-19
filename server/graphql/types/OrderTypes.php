@@ -1,32 +1,15 @@
 <?php
 
+use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-
-$OrderType = new ObjectType([
-    'name' => 'Order',
-    'fields' => [
-        'id' => Type::nonNull(Type::int()),
-        'user_id' => Type::nonNull(Type::int()),
-        'total_amount' => Type::nonNull(Type::float()),
-        'currency' => Type::nonNull(Type::string()),
-        'status' => Type::nonNull(Type::string()),
-        'shipping_address' => Type::string(),
-        'payment_method' => Type::string(),
-        'payment_status' => Type::string(),
-        'created_at' => Type::string(),
-        'updated_at' => Type::string(),
-        'items' => Type::listOf($OrderItemType),
-        'tracking' => $TrackingType,
-    ]
-]);
 
 $OrderItemType = new ObjectType([
     'name' => 'OrderItem',
     'fields' => [
-        'id' => Type::nonNull(Type::int()),
+        'id' => Type::nonNull(Type::string()),
         'product_id' => Type::nonNull(Type::string()),
-        'order_id' => Type::nonNull(Type::int()),
+        'order_id' => Type::nonNull(Type::string()),
         'quantity' => Type::nonNull(Type::int()),
         'price' => Type::nonNull(Type::float()),
         'currency' => Type::nonNull(Type::string()),
@@ -34,6 +17,34 @@ $OrderItemType = new ObjectType([
     ]
 ]);
 
+$OrderType = new ObjectType([
+    'name' => 'Order',
+    'fields' => [
+        'id' => Type::nonNull(Type::string()),
+        'user_id' => Type::int(),
+        'total_amount' => Type::nonNull(Type::float()),
+        'currency' => Type::nonNull(Type::string()),
+        'status' => Type::string(),
+        'shipping_address' => Type::string(),
+        'payment_method' => Type::string(),
+        'payment_status' => Type::string(),
+        'created_at' => Type::string(),
+        'updated_at' => Type::string(),
+        'items' => Type::listOf($OrderItemType),
+    ]
+]);
+
+
+
+$OrderItemInputType = new InputObjectType([
+    'name' => 'OrderItemInput',
+    'fields' => [
+        'product_id' => Type::nonNull(Type::string()),
+        'quantity' => Type::nonNull(Type::int()),
+        'price' => Type::nonNull(Type::float()),
+        'currency' => Type::nonNull(Type::string()),
+    ]
+]);
 
 $TrackingType = new ObjectType([
     'name' => 'TrackingDetail',

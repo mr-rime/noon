@@ -7,9 +7,11 @@ use GraphQL\Type\Schema;
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/types/UserTypes.php';
 require_once __DIR__ . '/types/ProductTypes.php';
+require_once __DIR__ . '/types/OrderTypes.php';
 require_once __DIR__ . '/resolvers/UserResolver.php';
 require_once __DIR__ . '/resolvers/AuthResolver.php';
 require_once __DIR__ . '/resolvers/ProdcutResolver.php';
+require_once __DIR__ . '/resolvers/OrderResolver.php';
 
 $QueryType = new ObjectType([
     'name' => 'query',
@@ -33,6 +35,7 @@ $QueryType = new ObjectType([
         ]
     ]
 ]);
+
 
 $MutationType = new ObjectType([
     'name' => 'mutation',
@@ -73,6 +76,17 @@ $MutationType = new ObjectType([
                 'images' => Type::listOf($ProductImageInputType),
             ],
             'resolve' => requireAuth(fn($root, $args, $context) => createProduct($context['db'], $args))
+        ],
+
+        'createOrder' => [
+            'type' => $OrderResponseType,
+            'args' => [
+                'currency' => Type::nonNull(Type::string()),
+                'shipping_address' => Type::string(),
+                'payment_method' => Type::string(),
+                'items' => Type::listOf($OrderItemInputType),
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => createOrder($context['db'], $args))
         ]
     ]
 ]);

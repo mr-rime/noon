@@ -14,6 +14,8 @@ CREATE INDEX idx_orders_user_id_status ON orders(user_id, status);
 -- Tracking details table
 CREATE INDEX idx_tracking_order_id ON tracking_details(order_id);
 
+-- Categories table: name is unique, so already indexed
+
 -- Products table
 CREATE INDEX idx_products_user_id ON products(user_id);
 CREATE INDEX idx_products_category_id ON products(category_id);
@@ -54,7 +56,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE orders (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id VARCHAR(21) PRIMARY KEY,
     user_id INT NOT NULL,
     total_amount DECIMAL(10 , 2 ) NOT NULL,
     currency VARCHAR(4) NOT NULL,
@@ -71,24 +73,25 @@ CREATE TABLE orders (
 
 
 CREATE TABLE order_items (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    order_id INT NOT NULL,
+    id VARCHAR(21) PRIMARY KEY,
+    order_id VARCHAR(21) NOT NULL,
     product_id VARCHAR(21) NOT NULL,
     quantity INT NOT NULL CHECK (quantity > 0),
-    price DECIMAL(10 , 2 ) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
     currency VARCHAR(4) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id)
-        REFERENCES orders (id)
+        REFERENCES orders(id)
         ON DELETE CASCADE,
     FOREIGN KEY (product_id)
-        REFERENCES products (id)
+        REFERENCES products(id)
         ON DELETE CASCADE
 );
 
+
 CREATE TABLE tracking_details (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    order_id INT NOT NULL,
+    id VARCHAR(21) PRIMARY KEY,
+    order_id VARCHAR(21) NULL,
     shipping_provider VARCHAR(100) NOT NULL,
     tracking_number VARCHAR(100) NOT NULL,
     status VARCHAR(100),
@@ -102,7 +105,7 @@ CREATE TABLE tracking_details (
 );
 
 CREATE TABLE categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id VARCHAR(21) PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
