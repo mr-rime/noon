@@ -1,4 +1,4 @@
-import { useModalDialog } from "../hooks/use-modal-dialog"
+import { useModalDialog } from "../../../hooks/use-modal-dialog"
 import { LoginModalDialog } from "./login-modal-dialog";
 
 

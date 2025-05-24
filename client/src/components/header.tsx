@@ -1,4 +1,4 @@
-import { LoginButtonWithModalDialog } from "./login-button-with-modal-dialog";
+import { LoginButtonWithModalDialog } from "./ui/modal-dialog/login-button-with-modal-dialog";
 import { Search } from "./search";
 
 
