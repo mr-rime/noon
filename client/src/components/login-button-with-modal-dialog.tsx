@@ -8,7 +8,7 @@ export function LoginButtonWithModalDialog() {
     return (
         <>
             <button
-                className="h-[36px] w-[100px] rounded-[7px] bg-[#c7ba00] text-white font-bold"
+                className="h-[36px] w-[100px] rounded-[7px] bg-[#c7ba00] text-white font-bold cursor-pointer"
                 onClick={open}
             >
                 Login

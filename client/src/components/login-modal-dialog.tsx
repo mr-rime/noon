@@ -14,29 +14,71 @@ export function LoginModalDialog({ onClose }: { onClose: () => void }) {
         overlayRef
     } = useCanvasAnimation();
 
-    console.log('renders login modal dialog');
+    const [isClosing, setIsClosing] = useState(false);
 
+
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const handleClose = () => {
+        if (isClosing) return;
+        setIsClosing(true);
+
         if (dialogRef.current && overlayRef.current) {
             const animations = [
-                animateElement(overlayRef.current,
-                    [{ opacity: 0.5 }, { opacity: 0 }],
-                    { duration: 150 }
-                ),
+                animateElement(overlayRef.current, [{ opacity: 0.5 }, { opacity: 0 }], { duration: 150 }),
                 animateElement(dialogRef.current, [
                     { opacity: 1, transform: 'scale(1)' },
                     { opacity: 0, transform: 'scale(0.95)' }
                 ], { duration: 200 })
             ];
-
-            Promise.all(animations.map(a => a.finished)).then(onClose);
+            Promise.all(animations.map(a => a.finished)).then(() => {
+                onClose();
+            });
         } else {
             onClose();
         }
     };
 
-    // juss for ssr
+    useEffect(() => {
+        const firstFocusable = dialogRef.current?.querySelector<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+
+        firstFocusable?.focus();
+
+        const focusTrap = (e: KeyboardEvent) => {
+            if (e.key === 'Tab') {
+                const focusableElements = dialogRef.current?.querySelectorAll<HTMLElement>(
+                    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                );
+
+                if (!focusableElements?.length) return;
+
+                const elements = Array.from(focusableElements);
+                const first = elements[0];
+                const last = elements[elements.length - 1];
+
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
+
+        };
+
+        document.body.style.overflow = 'hidden';
+        document.body.style.paddingRight = '0px';
+        document.addEventListener('keydown', focusTrap);
+        return () => {
+            document.removeEventListener('keydown', focusTrap);
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        };
+    }, []);
+
     if (typeof window === "undefined") return null;
 
     return createPortal(
@@ -46,23 +88,24 @@ export function LoginModalDialog({ onClose }: { onClose: () => void }) {
                 className="fixed top-0 left-0 w-full h-full bg-black opacity-0"
                 style={{ transition: "opacity 150ms ease-out" }}
                 onClick={handleClose}
+                aria-hidden="true"
+                tabIndex={-1}
             />
             <div
                 ref={dialogRef}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="login-dialog-title"
-                className="fixed top-0 left-0 w-full h-full flex items-center justify-center opacity-0"
+                className="fixed inset-0 flex items-center justify-center opacity-0"
                 style={{
                     transform: "scale(0.95)",
-                    transition:
-                        "opacity 200ms ease-out, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",
+                    transition: "opacity 200ms ease-out, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
             >
-                <div className="relative bg-white rounded-lg w-[400px] overflow-hidden transition-all duration-200">
+                <div className="relative bg-white rounded-lg w-[400px] overflow-hidden transition-all duration-200 outline-none">
                     <button
                         onClick={handleClose}
-                        className="absolute top-3 right-3 z-50 p-1 rounded-full bg-gray-100 transition-colors"
+                        className="absolute top-3 right-3 z-50 p-2 rounded-full bg-gray-100 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500 cursor-pointer"
                         aria-label="Close login dialog"
                     >
                         <X />
@@ -71,12 +114,14 @@ export function LoginModalDialog({ onClose }: { onClose: () => void }) {
                     <img
                         ref={imageRef}
                         src="/media/imgs/random-items.png"
-                        alt="Source"
+                        alt=""
+                        aria-hidden="true"
                         className="hidden"
                     />
                     <div
                         ref={containerRef}
                         className="relative h-[200px] overflow-hidden bg-gray-100"
+                        aria-hidden="true"
                     >
                         <canvas ref={canvasRef} className="w-full h-full" />
                     </div>
@@ -84,11 +129,11 @@ export function LoginModalDialog({ onClose }: { onClose: () => void }) {
                     <div className="p-4">
                         <h2
                             id="login-dialog-title"
-                            className="text-xl font-bold mb-4 w-full text-center"
+                            className="text-xl font-bold mb-4 text-center"
                         >
                             Hala! Let's get started
                         </h2>
-                        <FormSwitch />
+                        <FormSwitch inputRef={inputRef} />
                     </div>
                 </div>
             </div>
@@ -97,7 +142,7 @@ export function LoginModalDialog({ onClose }: { onClose: () => void }) {
     );
 }
 
-function FormSwitch() {
+function FormSwitch({ inputRef }: { inputRef: React.RefObject<HTMLInputElement | null> }) {
     const [isLogin, setIsLogin] = useState(true);
     const [direction, setDirection] = useState<'left' | 'right'>('right');
     const formRef = useRef<HTMLDivElement>(null);
@@ -105,6 +150,8 @@ function FormSwitch() {
     const [isPending, startTransition] = useTransition();
 
     const handleSwitch = (login: boolean) => {
+        if (isLogin === login || isPending) return;
+
         startTransition(() => {
             setDirection(login ? 'right' : 'left');
             setIsLogin(login);
@@ -132,10 +179,11 @@ function FormSwitch() {
                     ref={isLogin ? activeTabRef : null}
                     onClick={() => handleSwitch(true)}
                     className={cn(
-                        'relative z-10 text-white p-1 h-full rounded-lg w-1/2 cursor-pointer transition-colors duration-200',
+                        'relative z-10 text-white p-1 h-full rounded-lg w-1/2 cursor-pointer transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white',
                         isLogin && 'text-[#404553]'
                     )}
                     disabled={isPending}
+                    aria-pressed={isLogin}
                 >
                     Log in
                 </button>
@@ -143,10 +191,11 @@ function FormSwitch() {
                     ref={!isLogin ? activeTabRef : null}
                     onClick={() => handleSwitch(false)}
                     className={cn(
-                        'relative z-10 text-white p-1 rounded-lg w-1/2 cursor-pointer transition-colors duration-200',
+                        'relative z-10 text-white p-1 rounded-lg w-1/2 cursor-pointer transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white',
                         !isLogin && 'text-[#404553]'
                     )}
                     disabled={isPending}
+                    aria-pressed={!isLogin}
                 >
                     Sign up
                 </button>
@@ -156,23 +205,30 @@ function FormSwitch() {
                         isLogin ? 'translate-x-0' : 'translate-x-full',
                         isPending ? 'opacity-80' : 'opacity-100'
                     )}
+                    aria-hidden="true"
                 />
             </div>
 
             <div
                 ref={formRef}
-                className='flex flex-col items-center justify-center'
+                className='flex flex-col items-center justify-center w-full'
                 aria-busy={isPending}
             >
-                <FormContent isLogin={isLogin} isPending={isPending} />
+                <FormContent isLogin={isLogin} isPending={isPending} inputRef={inputRef} />
             </div>
         </div>
     );
 }
 
-function FormContent({ isLogin, isPending }: { isLogin: boolean; isPending: boolean }) {
-    const inputRef = useRef<HTMLInputElement>(null);
-
+function FormContent({
+    isLogin,
+    isPending,
+    inputRef
+}: {
+    isLogin: boolean;
+    isPending: boolean;
+    inputRef: React.RefObject<HTMLInputElement | null>;
+}) {
     useEffect(() => {
         if (inputRef.current && !isPending) {
             animateElement(inputRef.current, [
@@ -182,29 +238,25 @@ function FormContent({ isLogin, isPending }: { isLogin: boolean; isPending: bool
         }
     }, [isLogin, isPending]);
 
-    return isLogin ? (
-        <input
-            ref={inputRef}
-            type='text'
-            placeholder='Please enter email'
-            className={cn(
-                'w-full p-2 rounded-lg border outline-none border-gray-300 focus:border-gray-500 transition-all',
-                isPending ? 'opacity-70' : 'opacity-100'
-            )}
-            style={{ transitionDuration: '200ms' }}
-            disabled={isPending}
-        />
-    ) : (
-        <input
-            ref={inputRef}
-            type='text'
-            placeholder='Please enter your email address'
-            className={cn(
-                'w-full p-2 rounded-lg border outline-none border-gray-300 focus:border-gray-500 transition-all',
-                isPending ? 'opacity-70' : 'opacity-100'
-            )}
-            style={{ transitionDuration: '200ms' }}
-            disabled={isPending}
-        />
+    return (
+        <div className="w-full">
+            <label htmlFor="email" className="sr-only">
+                {isLogin ? 'Email for login' : 'Email for sign up'}
+            </label>
+            <input
+                ref={inputRef}
+                id="email"
+                type="email"
+                placeholder={isLogin ? 'Please enter your email' : 'Please enter your email address'}
+                className={cn(
+                    'w-full p-2 rounded-lg border outline-none border-gray-300 focus:border-gray-500 transition-all',
+                    isPending ? 'opacity-70' : 'opacity-100'
+                )}
+                style={{ transitionDuration: '200ms' }}
+                disabled={isPending}
+                autoComplete="email"
+                required
+            />
+        </div>
     );
 }
