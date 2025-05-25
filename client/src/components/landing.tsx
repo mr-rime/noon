@@ -3,8 +3,8 @@ import { GET_USERS } from "../graphql/user"
 import { LOGIN } from "../graphql/auth";
 
 export function Landing() {
-    const { loading, error, data: users } = useQuery(GET_USERS)
-    const [login, { data }] = useMutation(LOGIN);
+    const { data: users } = useQuery(GET_USERS)
+    const [login,] = useMutation(LOGIN);
     console.log(users)
     console.log('renders')
     return (

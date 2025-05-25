@@ -94,6 +94,7 @@ export function LoginModalDialog({ onClose }: { onClose: () => void }) {
             <div
                 ref={dialogRef}
                 role="dialog"
+                id="login-modal"
                 aria-modal="true"
                 aria-labelledby="login-dialog-title"
                 className="fixed inset-0 flex items-center justify-center opacity-0"

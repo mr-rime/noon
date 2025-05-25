@@ -55,6 +55,29 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+CREATE TABLE carts (
+    id VARCHAR(21) PRIMARY KEY,
+    user_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE cart_items (
+    id VARCHAR(21) PRIMARY KEY,
+    cart_id VARCHAR(21) NOT NULL,
+    product_id VARCHAR(21) NOT NULL,
+    quantity INT NOT NULL CHECK (quantity > 0),
+    price DECIMAL(10, 2) NOT NULL,
+    currency VARCHAR(4) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (cart_id) REFERENCES carts(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    UNIQUE (cart_id, product_id)  -- Prevents duplicate products in the same cart
+);
+
+
 CREATE TABLE orders (
     id VARCHAR(21) PRIMARY KEY,
     user_id INT NOT NULL,

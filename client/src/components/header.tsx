@@ -12,9 +12,6 @@ export function Header() {
                 </div>
                 <Search />
                 <LoginButtonWithModalDialog />
-                <div className="text-[25px]">
-                    noon
-                </div>
             </div>
         </header>
     )
