@@ -1,5 +1,7 @@
 import { LoginButtonWithModalDialog } from "./ui/modal-dialog/login-button-with-modal-dialog";
 import { Search } from "./search";
+import { Link } from "@tanstack/react-router";
+import { ShoppingCart } from "lucide-react";
 
 
 
@@ -12,6 +14,10 @@ export function Header() {
                 </div>
                 <Search />
                 <LoginButtonWithModalDialog />
+
+                <Link to={'.'} className="mx-3">
+                    <ShoppingCart  size={20}/>
+                </Link>
             </div>
         </header>
     )

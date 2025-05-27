@@ -15,7 +15,7 @@ export function LoginButtonWithModalDialog() {
                 aria-expanded={isOpen}
                 aria-controls="login-modal"
             >
-                <span>Log in</span> <UserRound size={19} />
+                <span>Log in</span> <UserRound size={16} />
             </button>
 
             {
