@@ -8,10 +8,20 @@ export function Landing() {
     const [,] = useMutation(LOGIN);
     console.log(users)
     console.log('renders')
+
     return (
-        <div>
-            {/* <button onClick={() => login({ variables: { email: "fsares4sdfasdf@gmail.com", password: "ahmed12345" } })} className="cursor-pointer">login</button> */}
-            <div className="w-full flex items-center justify-center mt-10">
+        <div className="flex justify-center w-full min-h-screen">
+            {/* Optional Login Button */}
+            {/* 
+            <button 
+                onClick={() => login({ variables: { email: "fsares4sdfasdf@gmail.com", password: "ahmed12345" } })} 
+                className="cursor-pointer"
+            >
+                login
+            </button> 
+            */}
+
+            <div className="w-full max-w-4xl px-4 mt-10 transition-all duration-300 ease-in-out">
                 <SlideableImages />
             </div>
         </div>
