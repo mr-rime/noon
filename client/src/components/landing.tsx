@@ -21,7 +21,7 @@ export function Landing() {
             </button> 
             */}
 
-            <div className="w-full max-w-4xl px-4 mt-10 transition-all duration-300 ease-in-out">
+            <div className="w-full max-w-[1500px] px-4 mt-10 transition-all duration-300 ease-in-out overflow-x-hidden">
                 <SlideableImages />
             </div>
         </div>
