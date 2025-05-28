@@ -1,9 +1,10 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 
 const realImages = [
     "/media/imgs/slideable-img1.avif",
     "/media/imgs/slideable-img2.avif",
+    "/media/imgs/slideable-img3.avif",
 ];
 
 const images = [
@@ -13,159 +14,209 @@ const images = [
 ];
 
 export function SlideableImages() {
-    const IMAGE_WIDTH = 1000;
+    const IMAGE_WIDTH = 1500;
     const containerRef = useRef<HTMLDivElement>(null);
+    const animationRef = useRef<number | null>(null);
+    const touchStartX = useRef(0);
+    const touchDelta = useRef(0);
 
-    const [index, setIndex] = useState(1); // React state index (user facing)
-    const logicalIndex = useRef(1);       // Ref to track the actual index including clones
-
+    const [index, setIndex] = useState(1);
+    const logicalIndex = useRef(1);
     const isDragging = useRef(false);
     const startX = useRef(0);
-    const currentTranslate = useRef(0);
-    const prevTranslate = useRef(-IMAGE_WIDTH);
+    const currentTranslate = useRef(-IMAGE_WIDTH);
+    const [isAnimating, setIsAnimating] = useState(false);
 
-    // On mount, set initial translate to first real image
-    useEffect(() => {
-        setTranslate(-IMAGE_WIDTH, false);
-    }, []);
-
-    const setTranslate = (value: number, smooth: boolean) => {
+    const setTranslate = useCallback((value: number, smooth: boolean) => {
         if (containerRef.current) {
             containerRef.current.style.transition = smooth ? "transform 0.3s ease" : "none";
             containerRef.current.style.transform = `translateX(${value}px)`;
         }
-    };
+    }, []);
 
-    const goToSlide = (newIndex: number) => {
+    useEffect(() => {
+        setTranslate(-IMAGE_WIDTH, false);
+        currentTranslate.current = -IMAGE_WIDTH;
+
+        return () => {
+            if (animationRef.current) {
+                cancelAnimationFrame(animationRef.current);
+            }
+        };
+    }, [setTranslate]);
+
+    const goToSlide = useCallback((newIndex: number) => {
+        if (isAnimating) return;
+
+        setIsAnimating(true);
+        setIndex(newIndex);
         logicalIndex.current = newIndex;
+
         const newTranslate = -newIndex * IMAGE_WIDTH;
-
+        currentTranslate.current = newTranslate;
         setTranslate(newTranslate, true);
-        prevTranslate.current = newTranslate;
 
-        // Update React state only with "real" indexes (1 or 2)
-        // For clones (0 or last), set state to corresponding real index so UI matches
-        if (newIndex === 0) {
-            setIndex(realImages.length);
-        } else if (newIndex === images.length - 1) {
-            setIndex(1);
-        } else {
-            setIndex(newIndex);
-        }
-    };
+        animationRef.current = requestAnimationFrame(() => {
+            setTimeout(() => {
+                if (newIndex === 0) {
+                    logicalIndex.current = realImages.length;
+                    currentTranslate.current = -realImages.length * IMAGE_WIDTH;
+                    setTranslate(currentTranslate.current, false);
+                    setIndex(realImages.length);
+                } else if (newIndex === images.length - 1) {
+                    logicalIndex.current = 1;
+                    currentTranslate.current = -IMAGE_WIDTH;
+                    setTranslate(currentTranslate.current, false);
+                    setIndex(1);
+                }
+                setIsAnimating(false);
+            }, 300);
+        });
+    }, [isAnimating, setTranslate]);
 
-    const goNext = () => {
-        const nextIndex = logicalIndex.current + 1;
-        if (nextIndex >= images.length) {
-            // If we're at the end, wrap around to the first real slide
-            goToSlide(1);
-        } else {
-            goToSlide(nextIndex);
-        }
-    };
+    const goNext = useCallback(() => {
+        if (!isAnimating && !isDragging.current) goToSlide(logicalIndex.current + 1);
+    }, [isAnimating, goToSlide]);
 
-    const goPrev = () => {
-        const prevIndex = logicalIndex.current - 1;
-        if (prevIndex < 0) {
-            // If we're at the beginning, wrap around to the last real slide
-            goToSlide(realImages.length);
-        } else {
-            goToSlide(prevIndex);
-        }
-    };
+    const goPrev = useCallback(() => {
+        if (!isAnimating && !isDragging.current) goToSlide(logicalIndex.current - 1);
+    }, [isAnimating, goToSlide]);
 
-    const handleMouseDown = (e: React.MouseEvent) => {
+    const handleTouchStart = useCallback((e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX;
         isDragging.current = true;
-        startX.current = e.clientX;
-    };
+        if (containerRef.current) {
+            containerRef.current.style.transition = "none";
+        }
+    }, []);
 
-    const handleMouseMove = (e: React.MouseEvent) => {
+    const handleTouchMove = useCallback((e: React.TouchEvent) => {
         if (!isDragging.current) return;
-        const delta = e.clientX - startX.current;
-        currentTranslate.current = prevTranslate.current + delta;
-        setTranslate(currentTranslate.current, false);
-    };
+        touchDelta.current = e.touches[0].clientX - touchStartX.current;
+        const nextTranslate = currentTranslate.current + touchDelta.current;
+        setTranslate(nextTranslate, false);
+    }, [setTranslate]);
 
-    const handleMouseUp = () => {
+    const handleTouchEnd = useCallback(() => {
         if (!isDragging.current) return;
         isDragging.current = false;
-        const movedBy = currentTranslate.current - prevTranslate.current;
 
-        let newIndex = logicalIndex.current;
-
-        if (movedBy < -IMAGE_WIDTH / 3) {
-            newIndex = logicalIndex.current + 1;
-        } else if (movedBy > IMAGE_WIDTH / 3) {
-            newIndex = logicalIndex.current - 1;
+        let nextIndex = logicalIndex.current;
+        if (touchDelta.current < -IMAGE_WIDTH / 3) {
+            nextIndex++;
+        } else if (touchDelta.current > IMAGE_WIDTH / 3) {
+            nextIndex--;
         }
 
-        // Clamp the index within [0..images.length-1]
-        if (newIndex < 0) newIndex = 0;
-        if (newIndex >= images.length) newIndex = images.length - 1;
+        goToSlide(Math.max(0, Math.min(images.length - 1, nextIndex)));
+        touchDelta.current = 0;
+    }, [goToSlide]);
 
-        goToSlide(newIndex);
-    };
+    const handleMouseDown = useCallback((e: React.MouseEvent) => {
+        isDragging.current = true;
+        startX.current = e.clientX;
+        if (containerRef.current) {
+            containerRef.current.style.transition = "none";
+        }
+    }, []);
 
-    const handleMouseLeave = () => {
+    const handleMouseMove = useCallback((e: React.MouseEvent) => {
+        if (!isDragging.current) return;
+        const delta = e.clientX - startX.current;
+        const nextTranslate = currentTranslate.current + delta;
+        setTranslate(nextTranslate, false);
+    }, [setTranslate]);
+
+    const handleMouseUp = useCallback((e: React.MouseEvent) => {
+        if (!isDragging.current) return;
+        isDragging.current = false;
+
+        const delta = e.clientX - startX.current;
+
+        let nextIndex = logicalIndex.current;
+        if (delta < -IMAGE_WIDTH / 3) {
+            nextIndex++;
+        } else if (delta > IMAGE_WIDTH / 3) {
+            nextIndex--;
+        }
+
+        goToSlide(Math.max(0, Math.min(images.length - 1, nextIndex)));
+    }, [goToSlide]);
+
+    const handleMouseLeave = useCallback(() => {
         if (isDragging.current) {
-            handleMouseUp();
+            isDragging.current = false;
+            goToSlide(logicalIndex.current);
         }
-    };
+    }, [goToSlide]);
 
-    // When transition ends, jump instantly if on clones without changing React state
-    const handleTransitionEnd = () => {
-        if (logicalIndex.current === 0) {
-            // Jump instantly to last real slide (without animation or state update)
-            logicalIndex.current = realImages.length;
-            prevTranslate.current = -logicalIndex.current * IMAGE_WIDTH;
-            setTranslate(prevTranslate.current, false);
-        } else if (logicalIndex.current === images.length - 1) {
-            // Jump instantly to first real slide
-            logicalIndex.current = 1;
-            prevTranslate.current = -IMAGE_WIDTH;
-            setTranslate(prevTranslate.current, false);
-        }
-    };
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (!isAnimating && !isDragging.current) {
+                goNext();
+            }
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [isAnimating, goNext]);
 
     return (
-        <div className="relative w-[1000px] h-[300px]">
+        <div className="relative w-[1500px] h-[340px]">
             <button
                 onClick={goPrev}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-black/75 transition"
+                disabled={isAnimating || isDragging.current}
+                className="flex items-center justify-center absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-black/75 transition disabled:opacity-50 cursor-pointer"
                 aria-label="Previous image"
             >
-                <ChevronLeft />
+                <ChevronLeft size={45} />
             </button>
             <button
                 onClick={goNext}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-black/75 transition"
+                disabled={isAnimating || isDragging.current}
+                className="flex items-center justify-center absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-black/75 transition disabled:opacity-50 cursor-pointer"
                 aria-label="Next image"
             >
-                <ChevronRight />
+                <ChevronRight size={45} />
             </button>
 
             <div
-                className="w-full h-full overflow-hidden cursor-grab select-none"
+                className="w-full h-[300px] overflow-hidden cursor-grab select-none"
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseLeave}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
             >
                 <div
                     ref={containerRef}
-                    className="flex"
-                    onTransitionEnd={handleTransitionEnd}
+                    className="flex will-change-transform"
                     style={{ width: `${images.length * IMAGE_WIDTH}px` }}
                 >
                     {images.map((src, i) => (
                         <img
                             key={i}
                             src={src}
+                            loading={i <= 1 ? "eager" : "lazy"}
                             draggable={false}
-                            className="w-[1000px] h-[300px] object-cover pointer-events-none"
+                            className="w-[1500px] h-[300px] object-cover pointer-events-none"
+                            alt={`Slide ${i}`}
                         />
                     ))}
                 </div>
+            </div>
+
+            <div className="flex justify-center items-center gap-3 mt-3 h-[50px] w-full absolute bottom-[5px] -translate-x-1/2 -translate-y-1/2 left-1/2">
+                {realImages.map((_, i) => (
+                    <button
+                        key={i}
+                        className={`w-[22px] h-[3px] transition-colors duration-300 cursor-pointer ${index === i + 1 ? "bg-[#FEEE00]" : "bg-[#E2E5F1]"
+                            }`}
+                        onClick={() => goToSlide(i + 1)}
+                        aria-label={`Go to slide ${i + 1}`}
+                    />
+                ))}
             </div>
         </div>
     );
