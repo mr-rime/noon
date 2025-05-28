@@ -3,5 +3,7 @@
 @layer base {
     body {
         color: #404553;
+        overflow-x: hidden;
     }
+
 }
