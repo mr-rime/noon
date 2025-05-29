@@ -15,15 +15,17 @@ const mobileImages = [
 export function SlideableImages() {
     return (<>
 
-        <ImageSlider
-            images={images}
-            mobileImages={mobileImages}
-            width={1500}
-            autoPlay={true}
-            autoPlayInterval={3000}
-            showControls={true}
-            showDots={true}
-        />
+        <div className="w-full max-w-[1500px] flex items-center justify-center">
+            <ImageSlider
+                images={images}
+                mobileImages={mobileImages}
+                width={1500}
+                autoPlay={true}
+                autoPlayInterval={3000}
+                showControls={true}
+                showDots={true}
+            />
+        </div>
 
     </>)
 }
