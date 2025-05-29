@@ -1,6 +1,8 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "../../../utils/cn";
+import { removeImageBackground } from "../../../utils/removeImageBackground";
+import { product_icons } from "../../prodcut/constants/icons";
 
 interface ImageSliderProps {
     images: string[];
@@ -12,6 +14,9 @@ interface ImageSliderProps {
     showControls?: boolean;
     showDots?: boolean;
     dotColor?: string;
+    scaleOnHover?: boolean;
+    showProductControls?: boolean;
+    showProductDots?: boolean;
     activeDotColor?: string;
 }
 
@@ -24,8 +29,12 @@ export function ImageSlider({
     autoPlayInterval = 4000,
     showControls = true,
     showDots = true,
+    showProductControls = false,
+    showProductDots = false,
+    scaleOnHover = false,
     dotColor = "#E2E5F1",
     activeDotColor = "#FEEE00",
+
 }: ImageSliderProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const animationRef = useRef<number | null>(null);
@@ -39,6 +48,10 @@ export function ImageSlider({
     const startX = useRef(0);
     const currentTranslate = useRef(0);
     const [isAnimating, setIsAnimating] = useState(false);
+    const [processedImages, setProcessedImages] = useState<string[]>([]);
+
+
+
 
     useEffect(() => {
         const checkIfMobile = () => {
@@ -59,6 +72,19 @@ export function ImageSlider({
         ...displayImages,
         displayImages[0]
     ] : displayImages;
+
+    useEffect(() => {
+        if (!showProductControls) return;
+
+        const processImages = async () => {
+            const result = await Promise.all(
+                displayImages.map((src) => removeImageBackground(src))
+            );
+            setProcessedImages(result);
+        };
+
+        processImages();
+    }, [displayImages, showProductControls]);
 
     const getSliderWidth = () => containerRef.current?.parentElement?.clientWidth || 0;
 
@@ -232,7 +258,6 @@ export function ImageSlider({
             )}
 
             <div
-                className={cn("w-full h-full cursor-grab select-none", !isMobile && "overflow-hidden")}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
@@ -246,27 +271,28 @@ export function ImageSlider({
                     className={cn("flex will-change-transform h-full", isMobile && "gap-2",)}
                     style={{ width: `${!isMobile ? extendedImages.length * 100 : 490}%` }}
                 >
-                    {extendedImages.map((src, i) => (
-                        <div
-                            key={i}
-                            className={cn("w-full flex-shrink-0", isMobile ? "h-full" : "h-[300px]")}
-                            style={{
-                                width: `${100 / extendedImages.length}%`,
-                                ...(isMobile && {
-                                    scale: index === i + 1 ? "1 .9" : "",
-                                    transition: "scale .1s ease"
-                                })
-                            }}
-                        >
-                            <img
-                                src={src}
-                                loading={i <= 1 ? "eager" : "lazy"}
-                                draggable={false}
-                                className="w-full h-full object-cover pointer-events-none"
-                                alt={`Slide ${i}`}
-                            />
-                        </div>
-                    ))}
+                    {extendedImages.map((src, i) => {
+                        return (
+                            <div
+                                key={i}
+                                style={{
+                                    width: `${100 / extendedImages.length}%`,
+                                    ...(isMobile && {
+                                        scale: index === i + 1 ? "1 .9" : "",
+                                        transition: "scale .1s ease"
+                                    })
+                                }}
+                            >
+                                <img
+                                    src={showProductControls ? (processedImages[(i + 1) % displayImages.length] ?? product_icons.noonIcon) : src}
+                                    loading="lazy"
+                                    draggable={false}
+                                    className={cn("w-full h-full object-cover pointer-events-none")}
+                                    alt={`Slide ${i}`}
+                                />
+                            </div>
+                        )
+                    })}
                 </div>
             </div>
 

@@ -19,7 +19,7 @@ export function SlideableImages() {
             images={images}
             mobileImages={mobileImages}
             width={1500}
-            autoPlay={false}
+            autoPlay={true}
             autoPlayInterval={3000}
             showControls={true}
             showDots={true}
