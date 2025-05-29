@@ -231,7 +231,7 @@ export function ImageSlider({
 
     return (
         <div
-            className={cn("relative  select-none", !isMobile ? `overflow-hidden w-[${width}px] h-[${height}px]` : "w-full h-fit")}
+            className={cn("relative  select-none", !isMobile ? `overflow-hidden w-full h-[${height}px]` : "w-full h-fit")}
             onMouseEnter={() => isDragging.current = false}
             onMouseLeave={handleMouseLeave}
             aria-label="Image slider"
@@ -303,11 +303,8 @@ export function ImageSlider({
                     {displayImages.map((_, i) => (
                         <button
                             key={i}
-                            className={`w-[12px] h-[8px] transition-all duration-300 cursor-pointer rounded-full ${index === i + 1 ? "bg-[#FEEE00]" : "bg-[#E2E5F1]"}`}
-                            style={{
-                                width: index === i + 1 ? "24px" : "12px",
-                                backgroundColor: index === i + 1 ? activeDotColor : dotColor,
-                            }}
+                            className={`w-[22px] h-[2px] transition-colors duration-300 cursor-pointer ${index === i + 1 ? "bg-[#FEEE00]" : "bg-[#E2E5F1]"
+                                }`}
                             onClick={() => goToSlide(i + 1)}
                             aria-label={`Go to slide ${i + 1}`}
                         />
