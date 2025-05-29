@@ -27,7 +27,8 @@ export function ProductImage() {
                 showProductControls={true}
                 showProductDots={true}
                 scaleOnHover={true}
-                height={300}
+                height={330}
+                disableDrag
             />
 
             <div className="absolute right-2.5 bottom-2.5 z-10">
