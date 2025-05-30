@@ -5,35 +5,43 @@ export async function removeImageBackground(imageSrc: string): Promise<string> {
         return processedImageCache.get(imageSrc)!;
     }
 
-    const bgR = 255, bgG = 255, bgB = 255, threshold = 10;
-
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = imageSrc;
-
-    await new Promise<void>((resolve) => {
-        img.onload = () => resolve();
-    });
-
+    const img = await loadImage(imageSrc);
+    const scale = 0.5;
     const canvas = document.createElement("canvas");
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+    canvas.width = img.naturalWidth * scale;
+    canvas.height = img.naturalHeight * scale;
     const ctx = canvas.getContext("2d")!;
-    ctx.drawImage(img, 0, 0);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
+    const { data, width, height } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const pixelCount = data.length / 4;
 
-    for (let i = 0; i < data.length; i += 4) {
-        const r = data[i], g = data[i + 1], b = data[i + 2];
-        if (Math.abs(r - bgR) < threshold && Math.abs(g - bgG) < threshold && Math.abs(b - bgB) < threshold) {
-            data[i + 3] = 0;
+    for (let i = 0; i < pixelCount; i++) {
+        const idx = i * 4;
+        const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+        if (Math.abs(r - 255) < 10 && Math.abs(g - 255) < 10 && Math.abs(b - 255) < 10) {
+            data[idx + 3] = 0;
         }
+        if (i % 5000 === 0) await new Promise(r => setTimeout(r, 0));
     }
 
-    ctx.putImageData(imageData, 0, 0);
-    const result = canvas.toDataURL("image/png");
+    ctx.putImageData(new ImageData(data, width, height), 0, 0);
 
-    processedImageCache.set(imageSrc, result);
-    return result;
+    const blob: Blob = await new Promise(resolve =>
+        canvas.toBlob(b => resolve(b!), "image/png")
+    );
+    const url = URL.createObjectURL(blob);
+    processedImageCache.set(imageSrc, url);
+    return url;
+}
+
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+    });
 }

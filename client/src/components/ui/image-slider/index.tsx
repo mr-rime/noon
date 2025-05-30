@@ -30,11 +30,11 @@ export function ImageSlider({
     showControls = true,
     showDots = true,
     showProductControls = false,
-    showProductDots = false,
+    // showProductDots = false,
     scaleOnHover = false,
     disableDrag = false,
-    dotColor = "#E2E5F1",
-    activeDotColor = "#FEEE00",
+    // dotColor = "#E2E5F1",
+    // activeDotColor = "#FEEE00",
 
 }: ImageSliderProps) {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -256,7 +256,7 @@ export function ImageSlider({
                 </>
             )}
 
-            {displayImages.length > 1 && (
+            {!isMobile && showProductControls && displayImages.length > 1 && (
                 <div className="">
                     <button
                         onClick={goPrev}
@@ -288,8 +288,8 @@ export function ImageSlider({
             >
                 <div
                     ref={containerRef}
-                    className={cn("flex will-change-transform h-full", isMobile && "gap-2",)}
-                    style={{ width: `${!isMobile ? extendedImages.length * 100 : 490}%` }}
+                    className={cn("flex will-change-transform h-full", showProductControls || isMobile && "gap-2",)}
+                    style={{ width: `${(showProductControls || !isMobile) ? extendedImages.length * 100 : 490}%` }}
                 >
                     {extendedImages.map((src, i) => {
                         return (
@@ -299,7 +299,7 @@ export function ImageSlider({
                                 style={{
                                     width: `${100 / extendedImages.length}%`,
                                     height: `${height}px`,
-                                    ...(isMobile && {
+                                    ...((!showProductControls && isMobile) && {
                                         scale: index === i + 1 ? "1 .9" : "",
                                         transition: "scale .1s ease"
                                     })
