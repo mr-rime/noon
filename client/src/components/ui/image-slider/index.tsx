@@ -24,7 +24,6 @@ interface ImageSliderProps {
 export function ImageSlider({
     images,
     mobileImages,
-    width = "100%",
     height = "fit-content",
     autoPlay = true,
     autoPlayInterval = 4000,
@@ -231,7 +230,7 @@ export function ImageSlider({
 
     return (
         <div
-            className={cn("relative  select-none", !isMobile ? `overflow-hidden w-full h-[${height}px]` : "w-full h-fit")}
+            className={cn("relative select-none", !isMobile ? `overflow-hidden w-full h-[${height}px]` : "w-full h-fit")}
             onMouseEnter={() => isDragging.current = false}
             onMouseLeave={handleMouseLeave}
             aria-label="Image slider"
@@ -255,6 +254,27 @@ export function ImageSlider({
                         <ChevronRight size={24} />
                     </button>
                 </>
+            )}
+
+            {displayImages.length > 1 && (
+                <div className="">
+                    <button
+                        onClick={goPrev}
+                        disabled={isAnimating || isDragging.current}
+                        className="flex items-center justify-center absolute group-hover:-left-1.5 -left-[31px] top-1/2 rounded-[5px] -translate-y-1/2 z-10 bg-black/50 text-white px-1 py-2 hover:bg-black/75 transition-all disabled:opacity-50 cursor-pointer"
+                        aria-label="Previous image"
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
+                    <button
+                        onClick={goNext}
+                        disabled={isAnimating || isDragging.current}
+                        className="flex items-center justify-center absolute group-hover:-right-1.5 -right-[31px] top-1/2 rounded-[5px] -translate-y-1/2 z-10 bg-black/50 text-white px-1 py-2 hover:bg-black/75 transition-all disabled:opacity-50 cursor-pointer"
+                        aria-label="Next image"
+                    >
+                        <ChevronRight size={20} />
+                    </button>
+                </div>
             )}
 
             <div
