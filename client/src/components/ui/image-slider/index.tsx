@@ -318,6 +318,7 @@ export function ImageSlider({
                 </div>
             </div>
 
+
             {!isMobile && showDots && displayImages.length > 1 && (
                 <div className="flex justify-center items-center gap-3 absolute bottom-4 left-1/2 -translate-x-1/2">
                     {displayImages.map((_, i) => (
