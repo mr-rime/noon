@@ -85,7 +85,7 @@ export function LoginModalDialog({ onClose }: { onClose: () => void }) {
         <>
             <div
                 ref={overlayRef}
-                className="fixed top-0 left-0 w-full h-full bg-black opacity-0"
+                className="fixed top-0 left-0 w-full h-full bg-black opacity-0 z-[9998]"
                 style={{ transition: "opacity 150ms ease-out" }}
                 onClick={handleClose}
                 aria-hidden="true"
@@ -97,7 +97,7 @@ export function LoginModalDialog({ onClose }: { onClose: () => void }) {
                 id="login-modal"
                 aria-modal="true"
                 aria-labelledby="login-dialog-title"
-                className="fixed inset-0 flex items-center justify-center opacity-0"
+                className="fixed inset-0 flex items-center justify-center opacity-0 z-[9999]"
                 style={{
                     transform: "scale(0.95)",
                     transition: "opacity 200ms ease-out, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",

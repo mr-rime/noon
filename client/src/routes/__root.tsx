@@ -10,7 +10,9 @@ function RootComponent() {
     return (
         <React.Fragment>
             <Header />
-            <Outlet />
+            <div className='site-container'>
+                <Outlet />
+            </div>
         </React.Fragment>
     )
 }
