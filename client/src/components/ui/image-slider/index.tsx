@@ -24,18 +24,17 @@ interface ImageSliderProps {
 export function ImageSlider({
     images,
     mobileImages,
-    width = "100%",
     height = "fit-content",
     autoPlay = true,
     autoPlayInterval = 4000,
     showControls = true,
     showDots = true,
     showProductControls = false,
-    showProductDots = false,
+    // showProductDots = false,
     scaleOnHover = false,
     disableDrag = false,
-    dotColor = "#E2E5F1",
-    activeDotColor = "#FEEE00",
+    // dotColor = "#E2E5F1",
+    // activeDotColor = "#FEEE00",
 
 }: ImageSliderProps) {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -231,7 +230,7 @@ export function ImageSlider({
 
     return (
         <div
-            className={cn("relative  select-none", !isMobile ? `overflow-hidden w-full h-[${height}px]` : "w-full h-fit")}
+            className={cn("relative select-none", !isMobile ? `overflow-hidden w-full h-[${height}px]` : "w-full h-fit")}
             onMouseEnter={() => isDragging.current = false}
             onMouseLeave={handleMouseLeave}
             aria-label="Image slider"
@@ -257,6 +256,27 @@ export function ImageSlider({
                 </>
             )}
 
+            {!isMobile && showProductControls && displayImages.length > 1 && (
+                <div className="">
+                    <button
+                        onClick={goPrev}
+                        disabled={isAnimating || isDragging.current}
+                        className="flex items-center justify-center absolute group-hover:-left-1.5 -left-[31px] top-1/2 rounded-[5px] -translate-y-1/2 z-10 bg-black/50 text-white px-1 py-2 hover:bg-black/75 transition-all disabled:opacity-50 cursor-pointer"
+                        aria-label="Previous image"
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
+                    <button
+                        onClick={goNext}
+                        disabled={isAnimating || isDragging.current}
+                        className="flex items-center justify-center absolute group-hover:-right-1.5 -right-[31px] top-1/2 rounded-[5px] -translate-y-1/2 z-10 bg-black/50 text-white px-1 py-2 hover:bg-black/75 transition-all disabled:opacity-50 cursor-pointer"
+                        aria-label="Next image"
+                    >
+                        <ChevronRight size={20} />
+                    </button>
+                </div>
+            )}
+
             <div
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
@@ -268,8 +288,8 @@ export function ImageSlider({
             >
                 <div
                     ref={containerRef}
-                    className={cn("flex will-change-transform h-full", isMobile && "gap-2",)}
-                    style={{ width: `${!isMobile ? extendedImages.length * 100 : 490}%` }}
+                    className={cn("flex will-change-transform h-full", showProductControls || isMobile && "gap-2",)}
+                    style={{ width: `${(showProductControls || !isMobile) ? extendedImages.length * 100 : 490}%` }}
                 >
                     {extendedImages.map((src, i) => {
                         return (
@@ -279,7 +299,7 @@ export function ImageSlider({
                                 style={{
                                     width: `${100 / extendedImages.length}%`,
                                     height: `${height}px`,
-                                    ...(isMobile && {
+                                    ...((!showProductControls && isMobile) && {
                                         scale: index === i + 1 ? "1 .9" : "",
                                         transition: "scale .1s ease"
                                     })
@@ -297,6 +317,7 @@ export function ImageSlider({
                     })}
                 </div>
             </div>
+
 
             {!isMobile && showDots && displayImages.length > 1 && (
                 <div className="flex justify-center items-center gap-3 absolute bottom-4 left-1/2 -translate-x-1/2">
