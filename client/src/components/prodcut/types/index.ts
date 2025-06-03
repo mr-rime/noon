@@ -14,21 +14,21 @@ export type ProductType = {
 
 export type ProductImagesType = {
     id: number
-    product_id: string
+    product_id: ProductType['id']
     image_url: string
     is_primary: boolean
 }
 
 export type ProductOptionsType = {
     id: number
-    product_id: string
+    product_id: ProductType['id']
     name: string
     value: string
 }
 
 export type ProductSpecificationsType = {
     id: number
-    product_id: string
+    product_id: ProductType['id']
     spec_name: string
     spec_value: string
 }
