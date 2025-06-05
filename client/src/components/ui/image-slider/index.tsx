@@ -1,23 +1,20 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "../../../utils/cn";
 import { removeImageBackground } from "../../../utils/removeImageBackground";
 import { product_icons } from "../../prodcut/constants/icons";
 
 interface ImageSliderProps {
     images: string[];
-    mobileImages: string[];
-    width?: number | string;
+    mobileImages?: string[];
     height?: number | string;
     autoPlay?: boolean;
     autoPlayInterval?: number;
     showControls?: boolean;
     showDots?: boolean;
-    dotColor?: string;
     scaleOnHover?: boolean;
     showProductControls?: boolean;
     showProductDots?: boolean;
-    activeDotColor?: string;
     disableDrag?: boolean
 }
 
@@ -33,8 +30,6 @@ export function ImageSlider({
     // showProductDots = false,
     scaleOnHover = false,
     disableDrag = false,
-    // dotColor = "#E2E5F1",
-    // activeDotColor = "#FEEE00",
 
 }: ImageSliderProps) {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -64,7 +59,7 @@ export function ImageSlider({
         };
     }, []);
 
-    const displayImages = isMobile ? mobileImages : images;
+    const displayImages = useMemo(() => (isMobile ? mobileImages : images) ?? [], [isMobile, mobileImages, images]);
     const extendedImages = displayImages.length > 1 ? [
         displayImages[displayImages.length - 1],
         ...displayImages,
@@ -229,109 +224,111 @@ export function ImageSlider({
     }, [autoPlay, autoPlayInterval, isAnimating, goNext, displayImages.length]);
 
     return (
-        <div
-            className={cn("relative select-none", !isMobile ? `overflow-hidden w-full h-[${height}px]` : "w-full h-fit")}
-            onMouseEnter={() => isDragging.current = false}
-            onMouseLeave={handleMouseLeave}
-            aria-label="Image slider"
-        >
-            {!isMobile && showControls && displayImages.length > 1 && (
-                <>
-                    <button
-                        onClick={goPrev}
-                        disabled={isAnimating || isDragging.current}
-                        className="flex items-center justify-center absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-black/75 transition disabled:opacity-50 cursor-pointer"
-                        aria-label="Previous image"
-                    >
-                        <ChevronLeft size={24} />
-                    </button>
-                    <button
-                        onClick={goNext}
-                        disabled={isAnimating || isDragging.current}
-                        className="flex items-center justify-center absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-black/75 transition disabled:opacity-50 cursor-pointer"
-                        aria-label="Next image"
-                    >
-                        <ChevronRight size={24} />
-                    </button>
-                </>
-            )}
-
-            {!isMobile && showProductControls && displayImages.length > 1 && (
-                <div className="">
-                    <button
-                        onClick={goPrev}
-                        disabled={isAnimating || isDragging.current}
-                        className="flex items-center justify-center absolute group-hover:-left-1.5 -left-[31px] top-1/2 rounded-[5px] -translate-y-1/2 z-10 bg-black/50 text-white px-1 py-2 hover:bg-black/75 transition-all disabled:opacity-50 cursor-pointer"
-                        aria-label="Previous image"
-                    >
-                        <ChevronLeft size={20} />
-                    </button>
-                    <button
-                        onClick={goNext}
-                        disabled={isAnimating || isDragging.current}
-                        className="flex items-center justify-center absolute group-hover:-right-1.5 -right-[31px] top-1/2 rounded-[5px] -translate-y-1/2 z-10 bg-black/50 text-white px-1 py-2 hover:bg-black/75 transition-all disabled:opacity-50 cursor-pointer"
-                        aria-label="Next image"
-                    >
-                        <ChevronRight size={20} />
-                    </button>
-                </div>
-            )}
-
+        <div className="w-full h-full group">
             <div
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
+                className={cn("relative select-none", !isMobile ? `overflow-hidden w-full h-[${height}px]` : "w-full h-fit")}
+                onMouseEnter={() => isDragging.current = false}
                 onMouseLeave={handleMouseLeave}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
+                aria-label="Image slider"
             >
-                <div
-                    ref={containerRef}
-                    className={cn("flex will-change-transform h-full", showProductControls || isMobile && "gap-2",)}
-                    style={{ width: `${(showProductControls || !isMobile) ? extendedImages.length * 100 : 490}%` }}
-                >
-                    {extendedImages.map((src, i) => {
-                        return (
-                            <div
-                                key={i}
-                                className={cn("w-full flex-shrink-0", isMobile ? "h-full" : `h-[${height}px]`, scaleOnHover && "hover:scale-[1.07]  transition-transform ease-initial duration-300")}
-                                style={{
-                                    width: `${100 / extendedImages.length}%`,
-                                    height: `${height}px`,
-                                    ...((!showProductControls && isMobile) && {
-                                        scale: index === i + 1 ? "1 .9" : "",
-                                        transition: "scale .1s ease"
-                                    })
-                                }}
-                            >
-                                <img
-                                    src={showProductControls ? (processedImages[(i + 1) % displayImages.length] ?? product_icons.noonIcon) : src}
-                                    loading="lazy"
-                                    draggable={false}
-                                    className={cn("w-full h-full object-cover pointer-events-none")}
-                                    alt={`Slide ${i}`}
-                                />
-                            </div>
-                        )
-                    })}
-                </div>
-            </div>
-
-
-            {!isMobile && showDots && displayImages.length > 1 && (
-                <div className="flex justify-center items-center gap-3 absolute bottom-4 left-1/2 -translate-x-1/2">
-                    {displayImages.map((_, i) => (
+                {!isMobile && showControls && displayImages.length > 1 && (
+                    <>
                         <button
-                            key={i}
-                            className={`w-[22px] h-[2px] transition-colors duration-300 cursor-pointer ${index === i + 1 ? "bg-[#FEEE00]" : "bg-[#E2E5F1]"
-                                }`}
-                            onClick={() => goToSlide(i + 1)}
-                            aria-label={`Go to slide ${i + 1}`}
-                        />
-                    ))}
+                            onClick={goPrev}
+                            disabled={isAnimating || isDragging.current}
+                            className="flex items-center justify-center absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-black/75 transition disabled:opacity-50 cursor-pointer"
+                            aria-label="Previous image"
+                        >
+                            <ChevronLeft size={24} />
+                        </button>
+                        <button
+                            onClick={goNext}
+                            disabled={isAnimating || isDragging.current}
+                            className="flex items-center justify-center absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-black/75 transition disabled:opacity-50 cursor-pointer"
+                            aria-label="Next image"
+                        >
+                            <ChevronRight size={24} />
+                        </button>
+                    </>
+                )}
+
+                {!isMobile && showProductControls && displayImages.length > 1 && (
+                    <div className="">
+                        <button
+                            onClick={goPrev}
+                            disabled={isAnimating || isDragging.current}
+                            className="flex items-center justify-center absolute group-hover:-left-1.5 -left-[31px] top-1/2 rounded-[5px] -translate-y-1/2 z-10 bg-black/50 text-white px-1 py-2 hover:bg-black/75 transition-all disabled:opacity-50 cursor-pointer"
+                            aria-label="Previous image"
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
+                        <button
+                            onClick={goNext}
+                            disabled={isAnimating || isDragging.current}
+                            className="flex items-center justify-center absolute group-hover:-right-1.5 -right-[31px] top-1/2 rounded-[5px] -translate-y-1/2 z-10 bg-black/50 text-white px-1 py-2 hover:bg-black/75 transition-all disabled:opacity-50 cursor-pointer"
+                            aria-label="Next image"
+                        >
+                            <ChevronRight size={20} />
+                        </button>
+                    </div>
+                )}
+
+                <div
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseLeave}
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                >
+                    <div
+                        ref={containerRef}
+                        className={cn("flex will-change-transform h-full", showProductControls || isMobile && "gap-2",)}
+                        style={{ width: `${(showProductControls || !isMobile) ? extendedImages.length * 100 : 490}%` }}
+                    >
+                        {extendedImages.map((src, i) => {
+                            return (
+                                <div
+                                    key={i}
+                                    className={cn("w-full flex-shrink-0", isMobile ? "h-full" : `h-[${height}px]`, scaleOnHover && "hover:scale-[1.07]  transition-transform ease-initial duration-300")}
+                                    style={{
+                                        width: `${100 / extendedImages.length}%`,
+                                        height: `${height}px`,
+                                        ...((!showProductControls && isMobile) && {
+                                            scale: index === i + 1 ? "1 .9" : "",
+                                            transition: "scale .1s ease"
+                                        })
+                                    }}
+                                >
+                                    <img
+                                        src={showProductControls ? (processedImages[(i + 1) % displayImages.length] ?? product_icons.noonIcon) : src}
+                                        loading="lazy"
+                                        draggable={false}
+                                        className={cn("w-full h-full object-cover pointer-events-none")}
+                                        alt={`Slide ${i}`}
+                                    />
+                                </div>
+                            )
+                        })}
+                    </div>
                 </div>
-            )}
+
+
+                {!isMobile && showDots && displayImages.length > 1 && (
+                    <div className="flex justify-center items-center gap-3 absolute bottom-4 left-1/2 -translate-x-1/2">
+                        {displayImages.map((_, i) => (
+                            <button
+                                key={i}
+                                className={`w-[22px] h-[2px] transition-colors duration-300 cursor-pointer ${index === i + 1 ? "bg-[#FEEE00]" : "bg-[#E2E5F1]"
+                                    }`}
+                                onClick={() => goToSlide(i + 1)}
+                                aria-label={`Go to slide ${i + 1}`}
+                            />
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
