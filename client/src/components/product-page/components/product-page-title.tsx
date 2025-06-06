@@ -1,5 +1,4 @@
 
-
 export function ProductPageTitle({ children }: { children?: React.ReactNode }) {
     return (
         <>

@@ -2,10 +2,10 @@ import { Separator } from "../ui/separator";
 import { ProductPageFulfilmentBadge } from "./components/product-page-fulfilment-badge";
 import { ProductPageGallery } from "./components/product-page-gallery";
 import { ProductPageImage } from "./components/product-page-image";
+import { ProductOption } from "./components/product-page-options";
 import { ProdcutPagePrice } from "./components/product-page-price";
 import { ProductPageRates } from "./components/product-page-rates";
 import { ProductPageTitle } from "./components/product-page-title";
-import { ProductSpecifications } from "./components/product-specifications";
 
 export default function ProductPage() {
     return (
@@ -18,7 +18,7 @@ export default function ProductPage() {
                     <ProductPageFulfilmentBadge />
                 </ProductPageTitle>
                 <Separator className="my-5" />
-                <ProductSpecifications />
+                <ProductOption />
             </div>
         </div >
 
