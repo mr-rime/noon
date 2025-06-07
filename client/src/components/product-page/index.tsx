@@ -1,4 +1,5 @@
 import { Separator } from "../ui/separator";
+import { ProductPageDetails } from "./components/product-page-details";
 import { ProductPageFulfilmentBadge } from "./components/product-page-fulfilment-badge";
 import { ProductPageGallery } from "./components/product-page-gallery";
 import { ProductPageImage } from "./components/product-page-image";
@@ -20,6 +21,8 @@ export default function ProductPage() {
                 <Separator className="my-5" />
                 <ProductOption />
             </div>
+
+            <ProductPageDetails />
         </div >
 
     )

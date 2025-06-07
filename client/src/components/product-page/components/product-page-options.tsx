@@ -4,6 +4,7 @@ import { removeImageBackground } from "../../../utils/removeImageBackground";
 export function ProductOption() {
     const img = use(removeImageBackground("/media/imgs/spec-1.avif"))
 
+
     return (
         <div>
             <div className="font-normal text-[14px] uppercase space-x-1">
