@@ -1,10 +1,21 @@
 @import "tailwindcss";
 
 @layer base {
+    * {
+        -webkit-user-drag: none;
+    }
+
     body {
         color: #404553;
         overflow-x: hidden;
     }
+
+    img,
+    a {
+        pointer-events: auto;
+        -webkit-user-drag: none;
+    }
+
 
     .site-container {
         margin-inline: auto;
