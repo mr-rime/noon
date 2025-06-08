@@ -1,6 +1,55 @@
 @import "tailwindcss";
 
 @layer base {
+    @font-face {
+        font-family: 'Proxima Nova';
+        src: url('/fonts/proximanova/proximanova_regular.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    @font-face {
+        font-family: 'Proxima Nova';
+        src: url('/fonts/proximanova/proximanova_light.otf') format('opentype');
+        font-weight: 300;
+        font-style: normal;
+    }
+
+    @font-face {
+        font-family: 'Proxima Nova';
+        src: url('/fonts/proximanova/proximanova_bold.otf') format('opentype');
+        font-weight: 700;
+        font-style: normal;
+    }
+
+    @font-face {
+        font-family: 'Proxima Nova';
+        src: url('/fonts/proximanova/proximanova_boldit.otf') format('opentype');
+        font-weight: 700;
+        font-style: italic;
+    }
+
+    @font-face {
+        font-family: 'Proxima Nova';
+        src: url('/fonts/proximanova/proximanova_black.otf') format('opentype');
+        font-weight: 900;
+        font-style: normal;
+    }
+
+    @font-face {
+        font-family: 'Proxima Nova';
+        src: url('/fonts/proximanova/proximanova_blackit.otf') format('opentype');
+        font-weight: 900;
+        font-style: italic;
+    }
+
+    @font-face {
+        font-family: 'Proxima Nova';
+        src: url('/fonts/proximanova/proximanova_extrabold.otf') format('opentype');
+        font-weight: 800;
+        font-style: normal;
+    }
+
     * {
         -webkit-user-drag: none;
         scroll-behavior: smooth;
@@ -9,6 +58,7 @@
     body {
         color: #404553;
         overflow-x: hidden;
+        font-family: 'Proxima Nova', sans-serif !important;
     }
 
     img,
@@ -16,7 +66,6 @@
         pointer-events: auto;
         -webkit-user-drag: none;
     }
-
 
     .site-container {
         margin-inline: auto;
@@ -28,8 +77,14 @@
         overflow: hidden;
     }
 
+
     .bg-white-blur {
         background: linear-gradient(rgba(255, 255, 255, 0), rgb(255, 255, 255) 60%, rgb(255, 255, 255))
     }
+}
 
+
+
+@theme {
+    --font-proxima: "Proxima Nova", "sans-serif";
 }

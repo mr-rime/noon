@@ -10,9 +10,7 @@ function RootComponent() {
     return (
         <React.Fragment>
             <Header />
-
             <Outlet />
-
         </React.Fragment>
     )
 }
