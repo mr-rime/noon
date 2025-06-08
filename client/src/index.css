@@ -3,6 +3,7 @@
 @layer base {
     * {
         -webkit-user-drag: none;
+        scroll-behavior: smooth;
     }
 
     body {
@@ -26,4 +27,5 @@
     .modal-open {
         overflow: hidden;
     }
+
 }

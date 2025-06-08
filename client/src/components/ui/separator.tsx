@@ -7,7 +7,7 @@ interface SeparatorProps {
 
 export const Separator: React.FC<SeparatorProps> = ({ className }) => {
     return (
-        <hr className={cn(`border-t border-[#EAECF0]`, className)} />
+        <div className={cn(` bg-[#EAECF0] w-full h-[1px]`, className)} />
     );
 };
 
