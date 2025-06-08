@@ -59,7 +59,7 @@ export function ProductOverview() {
                 <section className="w-1/2">
                     <h2 id="specifications-heading" className="font-bold text-[16px] mb-4">Specifications</h2>
                     <SpecificationsTable>
-                        <SpecRow specName="Expandable Memory Type" specValue="No Expandable Memory" />
+                        <SpecRow specName="Expandable Memory Type" specValue="No Expandable Memory" bgColor="#EFF3FD" />
                         <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
                         <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
                         <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
@@ -84,7 +84,6 @@ export function ProductOverview() {
                         <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
                         <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
                         <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
-
                         <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
                         <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
                         <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
