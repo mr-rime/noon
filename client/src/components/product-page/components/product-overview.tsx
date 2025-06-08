@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Separator } from "../../ui/separator"
 import { SpecificationsTable } from "../../ui/specifications-table";
+import { cn } from "../../../utils/cn";
+import { SpecRow } from "../../ui/specifications-table/spec-row";
 
 export function ProductOverview() {
     const [isCollapsible, setIsCollapsible] = useState(false);
@@ -10,7 +12,12 @@ export function ProductOverview() {
                 <h1 id="product-overview-heading" className="font-bold text-[24px]">Product Overview</h1>
             </header>
             <Separator className="my-5" />
-            <section className="flex items-start justify-center gap-[72px]">
+            <section
+                className={cn(
+                    "flex items-start justify-center gap-[72px] overflow-hidden transition-all duration-500",
+                    isCollapsible ? "max-h-[2000px]" : "max-h-[500px]"
+                )}
+            >
                 <section className="w-1/2">
                     <section aria-labelledby="highlights-heading">
                         <h2 id="highlights-heading" className="font-bold text-[16px] mb-4">Highlights</h2>
@@ -51,11 +58,50 @@ export function ProductOverview() {
 
                 <section className="w-1/2">
                     <h2 id="specifications-heading" className="font-bold text-[16px] mb-4">Specifications</h2>
-                    <SpecificationsTable />
+                    <SpecificationsTable>
+                        <SpecRow specName="Expandable Memory Type" specValue="No Expandable Memory" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                        <SpecRow specName="Secondary Camera Resolution" specValue="12 MP" bgColor="#FFF" />
+                        <SpecRow specName="Charging Type" specValue="Type-C" bgColor="#EFF3FD" />
+                    </SpecificationsTable>
                 </section>
             </section>
 
-            <button onClick={() => setIsCollapsible(prev => !prev)} className="absolute left-0 right-0 bottom-[-63px] h-[120px] cursor-pointer w-full flex items-center justify-center bg-white-blur ">
+            <button onClick={() => setIsCollapsible(prev => !prev)} className={cn("absolute left-0 right-0  h-[120px] cursor-pointer w-full flex items-center justify-center", isCollapsible ? "bottom-[-92px]" : "bg-white-blur bottom-[-63px]")}>
                 <span className="border border-[#3866df] text-[#3866df] text-[16px] text-nowrap overflow-hidden p-[6px_30px] max-w-[300px] font-bold bg-white rounded-[4px]">
                     {
                         isCollapsible ? "Show Less" : "View Full Overview"
