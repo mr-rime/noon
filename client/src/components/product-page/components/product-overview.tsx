@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Separator } from "../../ui/separator"
 import { SpecificationsTable } from "../../ui/specifications-table";
 
 export function ProductOverview() {
+    const [isCollapsible, setIsCollapsible] = useState(false);
     return (
-        <section aria-labelledby="product-overview-heading">
+        <section aria-labelledby="product-overview-heading" className="relative">
             <header>
                 <h1 id="product-overview-heading" className="font-bold text-[24px]">Product Overview</h1>
             </header>
@@ -52,6 +54,14 @@ export function ProductOverview() {
                     <SpecificationsTable />
                 </section>
             </section>
-        </section>
+
+            <button onClick={() => setIsCollapsible(prev => !prev)} className="absolute left-0 right-0 bottom-[-63px] h-[120px] cursor-pointer w-full flex items-center justify-center bg-white-blur ">
+                <span className="border border-[#3866df] text-[#3866df] text-[16px] text-nowrap overflow-hidden p-[6px_30px] max-w-[300px] font-bold bg-white rounded-[4px]">
+                    {
+                        isCollapsible ? "Show Less" : "View Full Overview"
+                    }
+                </span>
+            </button>
+        </section >
     );
 }
