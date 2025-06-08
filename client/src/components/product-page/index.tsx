@@ -43,11 +43,11 @@ export default function ProductPage() {
 
                 <ProductPageDetails />
             </section>
-            <section>
-                <Separator className="h-[10px] mt-10 mb-5" />
+            <section id="porduct_overview">
+                <Separator className="h-[9px] mt-16 mb-5 bg-[#F3F4F8]" />
                 <ProductOverviewTabs />
             </section>
-            <section id="porduct_overview" className="mt-10 site-container">
+            <section className="mt-10 site-container">
                 <ProductOverview />
             </section>
         </main>
