@@ -1,3 +1,4 @@
+import { ProductReviews } from "../product-reviews";
 import { Separator } from "../ui/separator";
 import { ProductOverview } from "./components/product-overview";
 import { ProductOverviewTabs } from "./components/product-overview-tabs";
@@ -50,6 +51,9 @@ export default function ProductPage() {
             <section className="mt-10 site-container">
                 <ProductOverview />
             </section>
+
+            <Separator className="h-[9px] mt-20 mb-5 bg-[#F3F4F8]" />
+            <ProductReviews />
         </main>
     );
 }
