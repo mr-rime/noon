@@ -126,13 +126,17 @@ export function ImageSlider({
         });
     }, [isAnimating, setTranslate, displayImages.length, extendedImages.length]);
 
-    const goNext = useCallback(() => {
+    const goNext = useCallback((e: React.MouseEvent | null) => {
+        e?.preventDefault()
+        e?.stopPropagation();
         if (!isAnimating && !isDragging.current && displayImages.length > 1) {
             goToSlide(logicalIndex.current + 1);
         }
     }, [isAnimating, goToSlide, displayImages.length]);
 
-    const goPrev = useCallback(() => {
+    const goPrev = useCallback((e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation();
         if (!isAnimating && !isDragging.current && displayImages.length > 1) {
             goToSlide(logicalIndex.current - 1);
         }
@@ -216,7 +220,7 @@ export function ImageSlider({
 
         const interval = setInterval(() => {
             if (!isAnimating && !isDragging.current) {
-                goNext();
+                goNext(null);
             }
         }, autoPlayInterval);
 

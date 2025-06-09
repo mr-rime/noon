@@ -15,8 +15,8 @@ export function Header() {
                 <Search />
                 <LoginButtonWithModalDialog />
 
-                <Link to={'.'} className="mx-3">
-                    <ShoppingCart  size={20}/>
+                <Link to={'/cart'} className="mx-3">
+                    <ShoppingCart size={20} />
                 </Link>
             </div>
         </header>
