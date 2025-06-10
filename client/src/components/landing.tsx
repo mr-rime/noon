@@ -25,7 +25,7 @@ export function Landing() {
     console.log('renders')
 
     return (
-        <div className="flex flex-col justify-center w-full min-h-screen">
+        <div className="flex flex-col justify-center w-full min-h-screen site-container">
             {/* Optional Login Button */}
             {/* 
             <button 
@@ -38,13 +38,12 @@ export function Landing() {
 
             <div
                 className="w-full flex items-center justify-center px-4 mt-10 overflow-hidden min-h-[300px] max-w-[1500px] m-auto"
-               
+
             >
                 <SlideableImages>
                     <ImageSlider
                         images={images}
                         mobileImages={mobileImages}
-                        width={1500}
                         autoPlay={true}
                         autoPlayInterval={3000}
                         showControls={true}

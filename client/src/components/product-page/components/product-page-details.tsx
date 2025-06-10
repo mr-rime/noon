@@ -5,14 +5,37 @@ import { Separator } from "../../ui/separator";
 export function ProductPageDetails() {
     return (
         <div className="w-full max-w-[312px] border border-[#eceef4] rounded-[8px] ">
-            <div className="flex items-center justify-start space-x-4 py-3 px-4">
-                <img src="/media/imgs/logo-eg.png" alt="logo" className="w-[40px] h-[40px] rounded-[8px]" />
-                <div>
-                    <div className="flex items-center cursor-pointer text-[14px] hover:text-[#3866DF] transition-colors">
-                        Sold by <strong className="ml-1">noon</strong> <ChevronRight size={20} />
+            <div className="flex flex-col items-start justify-start space-x-4 py-3 px-4">
+                <div className="flex items-center justify-start space-x-4 py-3 px-4">
+                    <img src="/media/imgs/logo-eg.png" alt="logo" className="w-[40px] h-[40px] rounded-[8px]" />
+                    <div>
+                        <div className="flex items-center cursor-pointer text-[14px] hover:text-[#3866DF] transition-colors">
+                            Sold by <strong className="ml-1">noon</strong> <ChevronRight size={20} />
+                        </div>
+                        <div className="flex items-center justify-start space-x-1">
+                            <Star fill="#008000" color="#008000" size={16} /> <span className="text-[14px] text-[#008000] font-bold">4.3</span>
+                        </div>
                     </div>
-                    <div className="flex items-center justify-start space-x-1">
-                        <Star fill="#008000" color="#008000" size={16} /> <span className="text-[14px] text-[#008000] font-bold">4.3</span>
+                </div>
+
+                <div className="grid gap-[8px] grid-cols-2 cursor-pointer w-full">
+                    <div className="bg-[#f3f4f8] h-[32px] w-full rounded-[6px] gap-[6px] grid-cols-[span_2/span_2] flex items-center justify-center px-[8px] py-[4px] text-[14px] flex-row flex-nowrap">
+                        <span className="text-ellipsis whitespace-nowrap text-[#404553]">
+                            Item as shown
+                        </span>
+                        <span className="text-[#38AE04] whitespace-nowrap break-keep text-ellipsis font-bold">90%</span>
+                    </div>
+                    <div className="bg-[#f3f4f8] h-[32px] rounded-[6px] gap-[6px] grid-cols-[span_2/span_2] flex items-center justify-center px-[8px] py-[4px] text-[14px]">
+                        <span className="text-ellipsis whitespace-nowrap text-[#404553]">
+                            Partner since
+                        </span>
+                        <span className="text-[#38AE04] whitespace-nowrap break-keep text-ellipsis font-bold">4+ Y</span>
+                    </div>
+
+                    <div className="bg-[#f3f4f8] h-[32px] rounded-[6px] gap-[6px] grid-cols-[span_2/span_2] flex items-center justify-center px-[8px] py-[4px] text-[14px]">
+                        <span className="text-ellipsis whitespace-nowrap text-[#404553]">
+                            Great recent rating
+                        </span>
                     </div>
                 </div>
             </div>

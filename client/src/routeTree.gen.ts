@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
+import { Route as CartIndexImport } from './routes/cart/index'
 import { Route as PProductIdIndexImport } from './routes/p/$productId/index'
 
 // Create/Update Routes
@@ -19,6 +20,12 @@ import { Route as PProductIdIndexImport } from './routes/p/$productId/index'
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CartIndexRoute = CartIndexImport.update({
+  id: '/cart/',
+  path: '/cart/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -39,6 +46,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/cart/': {
+      id: '/cart/'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/p/$productId/': {
       id: '/p/$productId/'
       path: '/p/$productId'
@@ -53,36 +67,41 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cart': typeof CartIndexRoute
   '/p/$productId': typeof PProductIdIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cart': typeof CartIndexRoute
   '/p/$productId': typeof PProductIdIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/cart/': typeof CartIndexRoute
   '/p/$productId/': typeof PProductIdIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/p/$productId'
+  fullPaths: '/' | '/cart' | '/p/$productId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/p/$productId'
-  id: '__root__' | '/' | '/p/$productId/'
+  to: '/' | '/cart' | '/p/$productId'
+  id: '__root__' | '/' | '/cart/' | '/p/$productId/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CartIndexRoute: typeof CartIndexRoute
   PProductIdIndexRoute: typeof PProductIdIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CartIndexRoute: CartIndexRoute,
   PProductIdIndexRoute: PProductIdIndexRoute,
 }
 
@@ -97,11 +116,15 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/cart/",
         "/p/$productId/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/cart/": {
+      "filePath": "cart/index.ts"
     },
     "/p/$productId/": {
       "filePath": "p/$productId/index.tsx"
