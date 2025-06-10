@@ -13,6 +13,7 @@ interface SelectProps {
     defaultValue?: string;
     onChange?: (value: string) => void;
     className?: string
+    children?: React.ReactNode
 }
 
 export function Select({ options, defaultValue, onChange, className }: SelectProps) {

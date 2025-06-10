@@ -47,6 +47,7 @@ export function Landing() {
             <div className="m-5">
                 <Product />
             </div>
+
         </div>
     )
 }
