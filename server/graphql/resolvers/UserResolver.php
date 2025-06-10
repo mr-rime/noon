@@ -30,3 +30,36 @@ function getUsers(mysqli $db): array
         ];
     }
 }
+
+function getUser(mysqli $db, string $hash): array
+{
+    try {
+        $userModel = new User($db);
+
+        $user = $userModel->findByHash($hash);
+
+
+
+        if ($user === null) {
+            return [
+                'success' => false,
+                'message' => 'User not found.',
+                'user' => null
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'User retrieved successfully.',
+            'user' => [$user]
+        ];
+    } catch (Exception $e) {
+        error_log($user);
+        return [
+            'success' => false,
+            'message' => 'Error fetching user: ' . $e->getMessage(),
+            'user' => []
+        ];
+    }
+}
+

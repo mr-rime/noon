@@ -3,7 +3,7 @@ import { animateElement } from "../../../utils/animateElement";
 import { cn } from "../../../utils/cn";
 import { FormContent } from "./form-content";
 
-export function FormSwitch({ inputRef }: { inputRef: React.RefObject<HTMLInputElement | null> }) {
+export function FormSwitch({ inputRef, onClose }: { inputRef: React.RefObject<HTMLInputElement | null>, onClose: () => void }) {
     const [isLogin, setIsLogin] = useState(true);
     const [direction, setDirection] = useState<'left' | 'right'>('right');
     const formRef = useRef<HTMLDivElement>(null);
@@ -75,7 +75,7 @@ export function FormSwitch({ inputRef }: { inputRef: React.RefObject<HTMLInputEl
                 className='flex flex-col items-center justify-center w-full'
                 aria-busy={isPending}
             >
-                <FormContent isLogin={isLogin} isPending={isPending} inputRef={inputRef} />
+                <FormContent isLogin={isLogin} isPending={isPending} inputRef={inputRef} onClose={onClose} />
             </div>
         </div>
     );
