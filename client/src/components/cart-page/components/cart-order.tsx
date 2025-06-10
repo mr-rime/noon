@@ -1,7 +1,7 @@
 import { Heart, Trash2, Truck } from "lucide-react";
 import { Select } from "../../ui/select";
 
-export function CartItem() {
+export function CartOrder() {
     const options = [
         { value: '1', label: '1' },
         { value: '2', label: '2' },
@@ -12,7 +12,7 @@ export function CartItem() {
         console.log('Selected:', value);
     };
     return (
-        <div className="flex items-start w-fit h-fit bg-white p-[15px] rounded-[6px]">
+        <div className="flex items-start w-full h-fit bg-white p-[15px] rounded-[6px]">
             <div className="w-fit h-[200px]">
                 <img src="/media/imgs/product-img1.avif" alt="product-img" loading="lazy" className="w-fit h-full" />
             </div>

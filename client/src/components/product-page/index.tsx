@@ -13,10 +13,10 @@ import { ProductPageTitle } from "./components/product-page-title";
 
 export default function ProductPage() {
     return (
-        <main aria-label="Product Page">
+        <main aria-label="Product Page" className="bg-white">
             <section
                 aria-labelledby="product-main-section"
-                className="site-container w-full flex flex-col lg:flex-row items-start justify-start mt-20 space-y-10 lg:space-y-0 lg:space-x-10 "
+                className="site-container w-full flex flex-col lg:flex-row items-start justify-start pt-10 space-y-10 lg:space-y-0 lg:space-x-10 "
             >
                 <h1 id="product-main-section" className="sr-only">
                     Product Main Section

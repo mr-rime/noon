@@ -60,6 +60,7 @@
         overflow-x: hidden;
         font-family: 'Proxima Nova', sans-serif !important;
         background-color: #F7F7FA;
+        @apply antialiased
     }
 
     img,
