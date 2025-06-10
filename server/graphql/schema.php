@@ -21,6 +21,14 @@ $QueryType = new ObjectType([
             'resolve' => requireAuth(fn($root, $args, $context) => getUsers($context['db']))
         ],
 
+        'user' => [
+            'type' => $UserResponseType,
+            'args' => [
+                'hash' => Type::nonNull(Type::string())
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => getUser($context['db'], $args['hash']))
+        ],
+
         'products' => [
             'type' => $ProductsResponseType,
             'resolve' => requireAuth(fn($root, $args, $context) => getAllProducts($context['db']))

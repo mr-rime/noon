@@ -69,14 +69,12 @@ class AuthService
             ];
         }
 
-        $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
-
         $newUser = $userModel->create([
             'hash' => generateHash(),
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'email' => $data['email'],
-            'password' => $hashedPassword,
+            'password' => $data['password'],
         ]);
 
 

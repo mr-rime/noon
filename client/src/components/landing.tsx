@@ -1,6 +1,3 @@
-import { useMutation, useQuery } from "@apollo/client"
-import { GET_USERS } from "../graphql/user"
-import { LOGIN } from "../graphql/auth";
 import { SlideableImages } from "./slideable-images";
 import { Product } from "./prodcut";
 import { ImageSlider } from "./ui/image-slider";
@@ -19,11 +16,6 @@ const mobileImages = [
 ]
 
 export function Landing() {
-    const { data: users } = useQuery(GET_USERS)
-    const [,] = useMutation(LOGIN);
-    console.log(users)
-    console.log('renders')
-
     return (
         <div className="flex flex-col justify-center w-full min-h-screen site-container">
             {/* Optional Login Button */}

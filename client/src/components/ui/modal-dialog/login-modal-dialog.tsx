@@ -134,7 +134,7 @@ export function LoginModalDialog({ onClose }: { onClose: () => void }) {
                         >
                             Hala! Let's get started
                         </h2>
-                        <FormSwitch inputRef={inputRef} />
+                        <FormSwitch inputRef={inputRef} onClose={onClose} />
                     </div>
                 </div>
             </div>

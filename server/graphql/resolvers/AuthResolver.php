@@ -9,7 +9,8 @@ function login(array $data)
     return $auth->login($data['email'], $data['password']);
 }
 
-function register(array $data) {
+function register(array $data)
+{
     $auth = new AuthService($data['db']);
 
     return $auth->register($data);
