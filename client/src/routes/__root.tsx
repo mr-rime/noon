@@ -12,7 +12,7 @@ function RootComponent() {
         <React.Fragment>
             <Header />
             <Outlet />
-            <Toaster />
+            <Toaster closeButton theme='light' richColors position='top-right' />
 
         </React.Fragment>
     )

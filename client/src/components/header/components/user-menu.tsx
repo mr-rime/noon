@@ -9,10 +9,23 @@ import { useMutation } from "@apollo/client";
 import { LOGOUT } from "../../../graphql/auth";
 import client from "../../../apollo";
 import { GET_USER } from "../../../graphql/user";
-
+import Cookies from "js-cookie"
+import { toast } from "sonner";
 export function UserMenu({ user }: { user: User }) {
     const [logout,] = useMutation(LOGOUT)
     const navigate = useNavigate()
+
+    const handleLogout = async () => {
+        try {
+            const { data } = await logout()
+            await client.refetchQueries({ include: [GET_USER] })
+            Cookies.remove('hash');
+            toast.success(data.logout.message)
+        } catch (e) {
+            console.error(e)
+            toast.error("Something went wrong!")
+        }
+    }
 
     return (
         <Dropdown
@@ -36,10 +49,7 @@ export function UserMenu({ user }: { user: User }) {
                     </span>
                 </button>
                 <Separator className="my-2" />
-                <button onClick={async () => {
-                    await logout()
-                    await client.refetchQueries({include: [GET_USER]})
-                }} className=" w-full  flex items-center justify-center hover:bg-[#F3F4F8] transition-colors cursor-pointer p-[8px_25px] text-center whitespace-nowrap">
+                <button onClick={handleLogout} className=" w-full  flex items-center justify-center hover:bg-[#F3F4F8] transition-colors cursor-pointer p-[8px_25px] text-center whitespace-nowrap">
                     <span className="text-[1rem] text-[#7e859b] text-center ">
                         Sign Out
                     </span>
