@@ -5,7 +5,10 @@ import { LOGIN } from "../../../graphql/auth";
 import { useMutation } from "@apollo/client";
 import { emailRegex } from "../../../constants/validators-regex";
 import Cookies from 'js-cookie';
-
+import client from "../../../apollo";
+import { GET_USER } from "../../../graphql/user";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 export function FormContent({
     isLogin,
     isPending,
@@ -20,7 +23,7 @@ export function FormContent({
     const [email, setEmail] = useState<string>("")
     const [password, setPassword] = useState<string>("")
     const [errors, setErrors] = useState({ email: "", password: "" })
-    const [login,] = useMutation(LOGIN);
+    const [login, { loading }] = useMutation(LOGIN);
 
     const validate = () => {
         const newErrors = { email: "", password: "" };
@@ -41,13 +44,20 @@ export function FormContent({
 
 
     const handleLogin = async () => {
-        if (validate()) {
-            console.log("hi")
-            const { data } = await login({ variables: { email, password } })
-            if (data.login.success) {
-                Cookies.set('hash', data.login.user[0].hash)
-                onClose()
+        try {
+            if (validate()) {
+                console.log("hi")
+                const { data } = await login({ variables: { email, password } })
+                if (data.login.success) {
+                    Cookies.set('hash', data.login.user[0].hash)
+                    await client.refetchQueries({ include: [GET_USER] })
+                    onClose()
+                    toast.success(data.login.message, { position: "top-right" })
+                }
             }
+        } catch (e) {
+            console.error(e)
+            toast.error("Something went wrong!", { position: "top-right" })
         }
     }
 
@@ -100,9 +110,12 @@ export function FormContent({
 
             {
                 (email === "" || password === "") ?
-                    <button className="text-[#7e859b] bg-[#f0f1f4] transition-colors w-full h-[48px] text-[14px] font-bold uppercase p-[16px] rounded-lg mt-2">Continue</button>
-                    : <button onClick={async () => await handleLogin()} className="text-white bg-[#3866df] hover:bg-[#3e72f7] transition-colors cursor-pointer w-full h-[48px] text-[14px] font-bold uppercase p-[16px] rounded-lg mt-2">Continue</button>
+                    <button className="text-[#7e859b] bg-[#f0f1f4] transition-colors w-full h-[48px] text-[14px] font-bold uppercase p-[16px] rounded-lg mt-2">
+                        Continue
+                    </button>
+                    : <button onClick={async () => await handleLogin()} className="text-white bg-[#3866df] hover:bg-[#3e72f7] transition-colors cursor-pointer w-full h-[48px] text-[14px] font-bold uppercase p-[16px] rounded-lg mt-2 flex items-center justify-center"> {loading ? <Loader2 size={20} className="animate-spin transition-all" /> : "Continue"}</button>
             }
+
         </div>
     );
 }
