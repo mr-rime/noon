@@ -12,23 +12,30 @@ interface SelectProps {
     options: SelectOption[];
     defaultValue?: string;
     onChange?: (value: string) => void;
-    className?: string
-    children?: React.ReactNode
+    className?: string;
+    children?: React.ReactNode;
 }
 
 export function Select({ options, defaultValue, onChange, className }: SelectProps) {
+    const isValidDefault = defaultValue && options.some(opt => opt.value === defaultValue);
+    const initial = isValidDefault ? defaultValue : options[0]?.value;
+
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedValue, setSelectedValue] = useState(defaultValue || options[0]?.value);
+    const [selectedValue, setSelectedValue] = useState<string | undefined>(initial);
+
     const selectRef = useRef<HTMLDivElement>(null);
     const optionsRef = useRef<HTMLDivElement>(null);
 
     const selectedOption = options.find(opt => opt.value === selectedValue);
 
-    const toggleDropdown = () => {
-        setIsOpen(!isOpen);
-    };
+    const toggleDropdown = () => setIsOpen(prev => !prev);
 
     const handleSelect = (value: string) => {
+        if (value === selectedValue) {
+            setIsOpen(false);
+            return;
+        }
+
         setSelectedValue(value);
         onChange?.(value);
         setIsOpen(false);
@@ -38,11 +45,12 @@ export function Select({ options, defaultValue, onChange, className }: SelectPro
         if (!optionsRef.current) return;
 
         if (isOpen) {
+            optionsRef.current.style.display = 'block';
             animateElement(optionsRef.current, [
                 { opacity: 0, transform: 'translateY(-10px)' },
                 { opacity: 1, transform: 'translateY(0)' }
             ], { duration: 200 });
-        } else if (optionsRef.current) {
+        } else {
             const animation = animateElement(optionsRef.current, [
                 { opacity: 1, transform: 'translateY(0)' },
                 { opacity: 0, transform: 'translateY(-10px)' }
@@ -57,12 +65,6 @@ export function Select({ options, defaultValue, onChange, className }: SelectPro
     }, [isOpen]);
 
     useEffect(() => {
-        if (isOpen && optionsRef.current) {
-            optionsRef.current.style.display = 'block';
-        }
-    }, [isOpen]);
-
-    useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
@@ -71,8 +73,6 @@ export function Select({ options, defaultValue, onChange, className }: SelectPro
 
         if (isOpen) {
             document.addEventListener('mousedown', handleClickOutside);
-        } else {
-            document.removeEventListener('mousedown', handleClickOutside);
         }
 
         return () => {
@@ -80,10 +80,19 @@ export function Select({ options, defaultValue, onChange, className }: SelectPro
         };
     }, [isOpen]);
 
+    useEffect(() => {
+        if (defaultValue && options.some(opt => opt.value === defaultValue)) {
+            setSelectedValue(defaultValue);
+        }
+    }, [defaultValue, options]);
+
     return (
         <div className="relative" ref={selectRef}>
             <div
-                className={cn("bg-white p-[8px] cursor-pointer border border-[#e2e5f1] capitalize rounded-[8px] flex justify-between items-center", className)}
+                className={cn(
+                    "bg-white p-[8px] cursor-pointer border border-[#e2e5f1] capitalize rounded-[8px] flex justify-between items-center",
+                    className
+                )}
                 onClick={toggleDropdown}
             >
                 <span>{selectedOption?.label || 'Select an option'}</span>
@@ -98,8 +107,10 @@ export function Select({ options, defaultValue, onChange, className }: SelectPro
                 {options.map((option) => (
                     <div
                         key={option.value}
-                        className={`p-[8px] hover:bg-gray-100 cursor-pointer  ${selectedValue === option.value ? 'bg-blue-50 text-blue-600' : ''
-                            }`}
+                        className={cn(
+                            "p-[8px] hover:bg-gray-100 cursor-pointer",
+                            selectedValue === option.value && "bg-blue-50 text-blue-600"
+                        )}
                         onClick={() => handleSelect(option.value)}
                     >
                         {option.label}

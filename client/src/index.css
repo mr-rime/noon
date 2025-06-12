@@ -83,6 +83,19 @@
     .bg-white-blur {
         background: linear-gradient(rgba(255, 255, 255, 0), rgb(255, 255, 255) 60%, rgb(255, 255, 255))
     }
+
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+
+    .animate-ripple {
+        animation: ripple 600ms linear;
+        transform: scale(0);
+    }
+
 }
 
 
