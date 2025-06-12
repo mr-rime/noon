@@ -41,7 +41,7 @@ export function UserMenu({ user }: { user: User }) {
             )}
         >
             <div className="w-48 py-2 bg-white">
-                <button onClick={() => navigate({ to: "/p/$productId", params: { productId: "1" }, resetScroll: true })} className=" w-full hover:bg-[#F3F4F8] transition-colors cursor-pointer flex items-center p-[8px_25px] text-center whitespace-nowrap">
+                <button onClick={() => navigate({ to: "/orders", resetScroll: true })} className=" w-full hover:bg-[#F3F4F8] transition-colors cursor-pointer flex items-center p-[8px_25px] text-center whitespace-nowrap">
                     {header_icons.ordersIcon}
 
                     <span className="text-[1rem] ml-2">

@@ -8,14 +8,28 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createFileRoute } from '@tanstack/react-router'
+
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
 import { Route as CartIndexImport } from './routes/cart/index'
+import { Route as profileProfileLayoutImport } from './routes/(profile)/_profileLayout'
 import { Route as PProductIdIndexImport } from './routes/p/$productId/index'
+import { Route as profileProfileLayoutReturnsIndexImport } from './routes/(profile)/_profileLayout/returns/index'
+import { Route as profileProfileLayoutOrdersIndexImport } from './routes/(profile)/_profileLayout/orders/index'
+
+// Create Virtual Routes
+
+const profileImport = createFileRoute('/(profile)')()
 
 // Create/Update Routes
+
+const profileRoute = profileImport.update({
+  id: '/(profile)',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -29,11 +43,30 @@ const CartIndexRoute = CartIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const profileProfileLayoutRoute = profileProfileLayoutImport.update({
+  id: '/_profileLayout',
+  getParentRoute: () => profileRoute,
+} as any)
+
 const PProductIdIndexRoute = PProductIdIndexImport.update({
   id: '/p/$productId/',
   path: '/p/$productId/',
   getParentRoute: () => rootRoute,
 } as any)
+
+const profileProfileLayoutReturnsIndexRoute =
+  profileProfileLayoutReturnsIndexImport.update({
+    id: '/returns/',
+    path: '/returns/',
+    getParentRoute: () => profileProfileLayoutRoute,
+  } as any)
+
+const profileProfileLayoutOrdersIndexRoute =
+  profileProfileLayoutOrdersIndexImport.update({
+    id: '/orders/',
+    path: '/orders/',
+    getParentRoute: () => profileProfileLayoutRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -45,6 +78,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
+    }
+    '/(profile)': {
+      id: '/(profile)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof profileImport
+      parentRoute: typeof rootRoute
+    }
+    '/(profile)/_profileLayout': {
+      id: '/(profile)/_profileLayout'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof profileProfileLayoutImport
+      parentRoute: typeof profileRoute
     }
     '/cart/': {
       id: '/cart/'
@@ -60,47 +107,103 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PProductIdIndexImport
       parentRoute: typeof rootRoute
     }
+    '/(profile)/_profileLayout/orders/': {
+      id: '/(profile)/_profileLayout/orders/'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof profileProfileLayoutOrdersIndexImport
+      parentRoute: typeof profileProfileLayoutImport
+    }
+    '/(profile)/_profileLayout/returns/': {
+      id: '/(profile)/_profileLayout/returns/'
+      path: '/returns'
+      fullPath: '/returns'
+      preLoaderRoute: typeof profileProfileLayoutReturnsIndexImport
+      parentRoute: typeof profileProfileLayoutImport
+    }
   }
 }
 
 // Create and export the route tree
 
+interface profileProfileLayoutRouteChildren {
+  profileProfileLayoutOrdersIndexRoute: typeof profileProfileLayoutOrdersIndexRoute
+  profileProfileLayoutReturnsIndexRoute: typeof profileProfileLayoutReturnsIndexRoute
+}
+
+const profileProfileLayoutRouteChildren: profileProfileLayoutRouteChildren = {
+  profileProfileLayoutOrdersIndexRoute: profileProfileLayoutOrdersIndexRoute,
+  profileProfileLayoutReturnsIndexRoute: profileProfileLayoutReturnsIndexRoute,
+}
+
+const profileProfileLayoutRouteWithChildren =
+  profileProfileLayoutRoute._addFileChildren(profileProfileLayoutRouteChildren)
+
+interface profileRouteChildren {
+  profileProfileLayoutRoute: typeof profileProfileLayoutRouteWithChildren
+}
+
+const profileRouteChildren: profileRouteChildren = {
+  profileProfileLayoutRoute: profileProfileLayoutRouteWithChildren,
+}
+
+const profileRouteWithChildren =
+  profileRoute._addFileChildren(profileRouteChildren)
+
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof profileProfileLayoutRouteWithChildren
   '/cart': typeof CartIndexRoute
   '/p/$productId': typeof PProductIdIndexRoute
+  '/orders': typeof profileProfileLayoutOrdersIndexRoute
+  '/returns': typeof profileProfileLayoutReturnsIndexRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof profileProfileLayoutRouteWithChildren
   '/cart': typeof CartIndexRoute
   '/p/$productId': typeof PProductIdIndexRoute
+  '/orders': typeof profileProfileLayoutOrdersIndexRoute
+  '/returns': typeof profileProfileLayoutReturnsIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/(profile)': typeof profileRouteWithChildren
+  '/(profile)/_profileLayout': typeof profileProfileLayoutRouteWithChildren
   '/cart/': typeof CartIndexRoute
   '/p/$productId/': typeof PProductIdIndexRoute
+  '/(profile)/_profileLayout/orders/': typeof profileProfileLayoutOrdersIndexRoute
+  '/(profile)/_profileLayout/returns/': typeof profileProfileLayoutReturnsIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cart' | '/p/$productId'
+  fullPaths: '/' | '/cart' | '/p/$productId' | '/orders' | '/returns'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cart' | '/p/$productId'
-  id: '__root__' | '/' | '/cart/' | '/p/$productId/'
+  to: '/' | '/cart' | '/p/$productId' | '/orders' | '/returns'
+  id:
+    | '__root__'
+    | '/'
+    | '/(profile)'
+    | '/(profile)/_profileLayout'
+    | '/cart/'
+    | '/p/$productId/'
+    | '/(profile)/_profileLayout/orders/'
+    | '/(profile)/_profileLayout/returns/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  profileRoute: typeof profileRouteWithChildren
   CartIndexRoute: typeof CartIndexRoute
   PProductIdIndexRoute: typeof PProductIdIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  profileRoute: profileRouteWithChildren,
   CartIndexRoute: CartIndexRoute,
   PProductIdIndexRoute: PProductIdIndexRoute,
 }
@@ -116,6 +219,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/(profile)",
         "/cart/",
         "/p/$productId/"
       ]
@@ -123,11 +227,33 @@ export const routeTree = rootRoute
     "/": {
       "filePath": "index.tsx"
     },
+    "/(profile)": {
+      "filePath": "(profile)",
+      "children": [
+        "/(profile)/_profileLayout"
+      ]
+    },
+    "/(profile)/_profileLayout": {
+      "filePath": "(profile)/_profileLayout.tsx",
+      "parent": "/(profile)",
+      "children": [
+        "/(profile)/_profileLayout/orders/",
+        "/(profile)/_profileLayout/returns/"
+      ]
+    },
     "/cart/": {
       "filePath": "cart/index.ts"
     },
     "/p/$productId/": {
       "filePath": "p/$productId/index.tsx"
+    },
+    "/(profile)/_profileLayout/orders/": {
+      "filePath": "(profile)/_profileLayout/orders/index.ts",
+      "parent": "/(profile)/_profileLayout"
+    },
+    "/(profile)/_profileLayout/returns/": {
+      "filePath": "(profile)/_profileLayout/returns/index.ts",
+      "parent": "/(profile)/_profileLayout"
     }
   }
 }
