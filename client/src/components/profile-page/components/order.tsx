@@ -8,7 +8,7 @@ export function Order() {
 
     const handleClick = () => {
         if (buttonRef.current) {
-            navigate({ to: "/" })
+            navigate({ to: "/orders/track/order/$orderId", params: { orderId: "1" } })
             const ripple = document.createElement("span");
             ripple.className = "absolute bg-[#F6F8FD] rounded-full animate-ripple";
 
