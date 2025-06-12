@@ -8,9 +8,9 @@ export function ProfileMenu() {
 
     return (
         <section className="p-[8px] flex flex-col items-start gap-[4px] rounded-[12px] bg-white">
-            <ul className="w-full">
+            <ul className="w-full space-y-1.5">
                 <li className="w-full">
-                    <button onClick={() => navigate({ to: "/orders" })} className={cn("flex items-center h-[48px] w-full p-[0_8px] space-x-[16px] cursor-pointer", pathname === "/orders" && "font-bold bg-[#fffcd1] rounded-[8px]")}>
+                    <button onClick={() => navigate({ to: "/orders" })} className={cn("flex items-center h-[48px] hover:bg-[#f2f2f2cc] w-full p-[0_8px] space-x-[16px] rounded-[8px] transition-colors cursor-pointer", pathname === "/orders" && "font-bold bg-[#fffcd1] hover:bg-[#fffcd1] ")}>
                         {profile_page_icons.bookIcon}
                         <span>
                             Orders
@@ -18,7 +18,7 @@ export function ProfileMenu() {
                     </button>
                 </li>
                 <li>
-                    <button onClick={() => navigate({ to: "/returns" })} className={cn("flex items-center h-[48px] w-full p-[0_8px] space-x-[16px] cursor-pointer", pathname === "/returns" && "font-bold bg-[#fffcd1] rounded-[8px]")}>
+                    <button onClick={() => navigate({ to: "/returns" })} className={cn("flex items-center h-[48px] hover:bg-[#f2f2f2cc] w-full p-[0_8px] space-x-[16px] rounded-[8px] transition-colors cursor-pointer", pathname === "/returns" && "font-bold bg-[#fffcd1] hover:bg-[#fffcd1] ")}>
                         {profile_page_icons.eyeArrowIcon}
                         <span>
                             Returns

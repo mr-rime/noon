@@ -91,9 +91,25 @@
         }
     }
 
+    @keyframes progress {
+        50% {
+            opacity: 1;
+            height: 100%;
+        }
+
+        100% {
+            opacity: 0;
+            height: 100%;
+        }
+    }
+
     .animate-ripple {
         animation: ripple 600ms linear;
         transform: scale(0);
+    }
+
+    .animate-timeline {
+        animation: 2s linear 0s infinite normal none running progress;
     }
 
 }
