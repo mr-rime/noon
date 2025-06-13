@@ -25,6 +25,8 @@ export function FormContent({
     const [errors, setErrors] = useState({ email: "", password: "" })
     const [login, { loading }] = useMutation(LOGIN);
 
+    console.log(errors)
+
     const validate = () => {
         const newErrors = { email: "", password: "" };
         let isValid = true;

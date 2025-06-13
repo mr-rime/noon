@@ -15,7 +15,7 @@ type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "className" 
 export function Input({ className, input, button = false, icon, iconDirection, buttonDirection = "right", ...rest }: InputProps) {
     return (
         <div className={cn("relative flex items-center", className, buttonDirection === "left" ? "flex-row-reverse" : "flex-row")}>
-            <div className={cn(`absolute top-1/2 transform -translate-y-1/2 ${iconDirection}-[7px] w-fit`)}>
+            <div className={cn(`absolute top-1/2 transform -translate-y-1/2 w-fit`, iconDirection === "left" ? "left-[7px]" : "right-[15px]")}>
                 {icon}
             </div>
             <input className={cn("text-[16px] w-full h-[40px] outline-none border indent-1 border-[#E2E5F1] py-[10px] px-[10px]", input?.className, (icon && (iconDirection === "left" || iconDirection === "right")) && "px-[25px]", (button && buttonDirection === "left") ? "rounded-r-[6px]" : (button && buttonDirection === "right") && "rounded-l-[6px]")} {...rest} />

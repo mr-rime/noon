@@ -1,4 +1,4 @@
-import { ConfirmedIcon, DeliveredIcon, DispatchedIcon, PlacedIcon, Processing } from "./components";
+import { ConfirmedIcon, DeliveredIcon, DispatchedIcon, PlacedIcon, Processing, ReturnableIcon } from "./components";
 
 
 export const tarcking_icons = {
@@ -6,5 +6,6 @@ export const tarcking_icons = {
     processingIcon: <Processing />,
     confirmedIcon: <ConfirmedIcon />,
     dispatchedIcon: <DispatchedIcon />,
-    deliverdIcon: <DeliveredIcon />
+    deliverdIcon: <DeliveredIcon />,
+    returnableIcon: <ReturnableIcon />
 }

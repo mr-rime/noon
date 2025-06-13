@@ -23,6 +23,7 @@ import { Route as profileProfileLayoutProfileIndexImport } from './routes/(profi
 import { Route as profileProfileLayoutPaymentsIndexImport } from './routes/(profile)/_profileLayout/payments/index'
 import { Route as profileProfileLayoutOrdersIndexImport } from './routes/(profile)/_profileLayout/orders/index'
 import { Route as profileProfileLayoutAddressesIndexImport } from './routes/(profile)/_profileLayout/addresses/index'
+import { Route as profileProfileLayoutOrdersOrderIdIndexImport } from './routes/(profile)/_profileLayout/orders/$orderId/index'
 import { Route as profileProfileLayoutOrdersTrackOrderOrderIdIndexImport } from './routes/(profile)/_profileLayout/orders/track/order/$orderId/index'
 
 // Create Virtual Routes
@@ -98,6 +99,13 @@ const profileProfileLayoutAddressesIndexRoute =
   profileProfileLayoutAddressesIndexImport.update({
     id: '/addresses/',
     path: '/addresses/',
+    getParentRoute: () => profileProfileLayoutRoute,
+  } as any)
+
+const profileProfileLayoutOrdersOrderIdIndexRoute =
+  profileProfileLayoutOrdersOrderIdIndexImport.update({
+    id: '/orders/$orderId/',
+    path: '/orders/$orderId/',
     getParentRoute: () => profileProfileLayoutRoute,
   } as any)
 
@@ -189,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof profileProfileLayoutSecuritySettingsIndexImport
       parentRoute: typeof profileProfileLayoutImport
     }
+    '/(profile)/_profileLayout/orders/$orderId/': {
+      id: '/(profile)/_profileLayout/orders/$orderId/'
+      path: '/orders/$orderId'
+      fullPath: '/orders/$orderId'
+      preLoaderRoute: typeof profileProfileLayoutOrdersOrderIdIndexImport
+      parentRoute: typeof profileProfileLayoutImport
+    }
     '/(profile)/_profileLayout/orders/track/order/$orderId/': {
       id: '/(profile)/_profileLayout/orders/track/order/$orderId/'
       path: '/orders/track/order/$orderId'
@@ -208,6 +223,7 @@ interface profileProfileLayoutRouteChildren {
   profileProfileLayoutProfileIndexRoute: typeof profileProfileLayoutProfileIndexRoute
   profileProfileLayoutReturnsIndexRoute: typeof profileProfileLayoutReturnsIndexRoute
   profileProfileLayoutSecuritySettingsIndexRoute: typeof profileProfileLayoutSecuritySettingsIndexRoute
+  profileProfileLayoutOrdersOrderIdIndexRoute: typeof profileProfileLayoutOrdersOrderIdIndexRoute
   profileProfileLayoutOrdersTrackOrderOrderIdIndexRoute: typeof profileProfileLayoutOrdersTrackOrderOrderIdIndexRoute
 }
 
@@ -221,6 +237,8 @@ const profileProfileLayoutRouteChildren: profileProfileLayoutRouteChildren = {
   profileProfileLayoutReturnsIndexRoute: profileProfileLayoutReturnsIndexRoute,
   profileProfileLayoutSecuritySettingsIndexRoute:
     profileProfileLayoutSecuritySettingsIndexRoute,
+  profileProfileLayoutOrdersOrderIdIndexRoute:
+    profileProfileLayoutOrdersOrderIdIndexRoute,
   profileProfileLayoutOrdersTrackOrderOrderIdIndexRoute:
     profileProfileLayoutOrdersTrackOrderOrderIdIndexRoute,
 }
@@ -249,6 +267,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof profileProfileLayoutProfileIndexRoute
   '/returns': typeof profileProfileLayoutReturnsIndexRoute
   '/security-settings': typeof profileProfileLayoutSecuritySettingsIndexRoute
+  '/orders/$orderId': typeof profileProfileLayoutOrdersOrderIdIndexRoute
   '/orders/track/order/$orderId': typeof profileProfileLayoutOrdersTrackOrderOrderIdIndexRoute
 }
 
@@ -262,6 +281,7 @@ export interface FileRoutesByTo {
   '/profile': typeof profileProfileLayoutProfileIndexRoute
   '/returns': typeof profileProfileLayoutReturnsIndexRoute
   '/security-settings': typeof profileProfileLayoutSecuritySettingsIndexRoute
+  '/orders/$orderId': typeof profileProfileLayoutOrdersOrderIdIndexRoute
   '/orders/track/order/$orderId': typeof profileProfileLayoutOrdersTrackOrderOrderIdIndexRoute
 }
 
@@ -278,6 +298,7 @@ export interface FileRoutesById {
   '/(profile)/_profileLayout/profile/': typeof profileProfileLayoutProfileIndexRoute
   '/(profile)/_profileLayout/returns/': typeof profileProfileLayoutReturnsIndexRoute
   '/(profile)/_profileLayout/security-settings/': typeof profileProfileLayoutSecuritySettingsIndexRoute
+  '/(profile)/_profileLayout/orders/$orderId/': typeof profileProfileLayoutOrdersOrderIdIndexRoute
   '/(profile)/_profileLayout/orders/track/order/$orderId/': typeof profileProfileLayoutOrdersTrackOrderOrderIdIndexRoute
 }
 
@@ -293,6 +314,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/returns'
     | '/security-settings'
+    | '/orders/$orderId'
     | '/orders/track/order/$orderId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -305,6 +327,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/returns'
     | '/security-settings'
+    | '/orders/$orderId'
     | '/orders/track/order/$orderId'
   id:
     | '__root__'
@@ -319,6 +342,7 @@ export interface FileRouteTypes {
     | '/(profile)/_profileLayout/profile/'
     | '/(profile)/_profileLayout/returns/'
     | '/(profile)/_profileLayout/security-settings/'
+    | '/(profile)/_profileLayout/orders/$orderId/'
     | '/(profile)/_profileLayout/orders/track/order/$orderId/'
   fileRoutesById: FileRoutesById
 }
@@ -372,6 +396,7 @@ export const routeTree = rootRoute
         "/(profile)/_profileLayout/profile/",
         "/(profile)/_profileLayout/returns/",
         "/(profile)/_profileLayout/security-settings/",
+        "/(profile)/_profileLayout/orders/$orderId/",
         "/(profile)/_profileLayout/orders/track/order/$orderId/"
       ]
     },
@@ -403,6 +428,10 @@ export const routeTree = rootRoute
     },
     "/(profile)/_profileLayout/security-settings/": {
       "filePath": "(profile)/_profileLayout/security-settings/index.tsx",
+      "parent": "/(profile)/_profileLayout"
+    },
+    "/(profile)/_profileLayout/orders/$orderId/": {
+      "filePath": "(profile)/_profileLayout/orders/$orderId/index.tsx",
       "parent": "/(profile)/_profileLayout"
     },
     "/(profile)/_profileLayout/orders/track/order/$orderId/": {

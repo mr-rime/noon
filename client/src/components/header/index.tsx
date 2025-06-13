@@ -7,6 +7,7 @@ import Cookies from 'js-cookie';
 import { UserMenu } from "./components/user-menu";
 import { header_icons } from "./constants/icons";
 import { Separator } from "../ui/separator";
+import { matchesExpectedRoute } from "../../utils/matchesExpectedRoute";
 
 const expectedRoutes = [
     '/orders',
@@ -14,9 +15,9 @@ const expectedRoutes = [
     '/profile',
     '/addresses',
     '/payments',
-    '/security-settings'
+    '/security-settings',
+    '/orders/track/order/:orderId'
 ]
-
 
 export function Header() {
     const { data } = useQuery(GET_USER, { variables: { hash: Cookies.get('hash') } })
@@ -33,7 +34,7 @@ export function Header() {
                 </div>
                 <SearchInput />
                 {
-                    expectedRoutes.includes(pathname) ? <button className="cursor-pointer" onClick={() => navigate({ to: "/" })}>
+                    matchesExpectedRoute(pathname, expectedRoutes) ? <button className="cursor-pointer" onClick={() => navigate({ to: "/" })}>
                         {header_icons.homeIcon}
                     </button> : !user ? <LoginButtonWithModalDialog /> : <UserMenu user={user} />
                 }
@@ -42,7 +43,7 @@ export function Header() {
 
                 {
 
-                    !expectedRoutes.includes(pathname) && <><Link to={'/'} className="mx-3">
+                    !matchesExpectedRoute(pathname, expectedRoutes) && <><Link to={'/'} className="mx-3">
                         {user ? <div>
                             {header_icons.heartIcon}
                         </div> : <LoginButtonWithModalDialog>
