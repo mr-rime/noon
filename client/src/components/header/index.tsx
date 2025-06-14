@@ -3,11 +3,12 @@ import { SearchInput } from "./components/search";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@apollo/client";
 import { GET_USER } from "../../graphql/user";
-import Cookies from 'js-cookie';
 import { UserMenu } from "./components/user-menu";
 import { header_icons } from "./constants/icons";
 import { Separator } from "../ui/separator";
 import { matchesExpectedRoute } from "../../utils/matchesExpectedRoute";
+import { userHash } from "../../constants/cookies";
+import { useMemo } from "react";
 
 const expectedRoutes = [
     '/orders',
@@ -20,10 +21,10 @@ const expectedRoutes = [
 ]
 
 export function Header() {
-    const { data } = useQuery(GET_USER, { variables: { hash: Cookies.get('hash') } })
+    const { data } = useQuery(GET_USER, { variables: { hash: userHash } })
     const { pathname } = useLocation();
     const navigate = useNavigate();
-    const user = data?.user.user?.[0];
+    const user = useMemo(() => data?.user.user?.[0], [data?.user.user]);
 
     return (
         <header className="bg-[#FEEE00] h-[64px] w-full flex items-center justify-center">

@@ -30,8 +30,20 @@ export function PersonalInformation() {
                         </span>
                     </div>
                     <div className="flex items-center space-x-4">
-                        <Radio label="Male" name="gender" value="male" checked={selected === "male"} onChange={(e) => setSelected(e.target.value)} />
-                        <Radio label="Female" name="gender" value="female" checked={selected === "female"} onChange={(e) => setSelected(e.target.value)} />
+                        <Radio
+                            label="Male"
+                            name="gender"
+                            value="male"
+                            checked={selected === "male"}
+                            onChange={(e) => setSelected(e.target.value)}
+                        />
+                        <Radio
+                            label="Female"
+                            name="gender"
+                            value="female"
+                            checked={selected === "female"}
+                            onChange={(e) => setSelected(e.target.value)}
+                        />
                     </div>
                 </div>
             </div>
