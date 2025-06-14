@@ -23,7 +23,7 @@ export function ProductImage() {
                 ]}
                 autoPlay={false}
                 showDots={true}
-                dotsTheme="theme2"
+                dotsTheme="theme3"
                 showControls={false}
                 showProductControls={true}
                 showProductDots={true}
