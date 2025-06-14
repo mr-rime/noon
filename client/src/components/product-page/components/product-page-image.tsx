@@ -29,6 +29,7 @@ export function ProductPageImage({ gallery }: ProductPageImageProps) {
                 images={images}
                 mobileImages={images}
                 showProductControls
+
                 autoPlay={false}
                 showControls={false}
                 showDots={false}

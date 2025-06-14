@@ -22,7 +22,8 @@ export function ProductImage() {
                     "/media/imgs/product-img2.avif"
                 ]}
                 autoPlay={false}
-                showDots={false}
+                showDots={true}
+                dotsTheme="theme3"
                 showControls={false}
                 showProductControls={true}
                 showProductDots={true}
