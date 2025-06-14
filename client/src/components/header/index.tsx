@@ -29,9 +29,9 @@ export function Header() {
         <header className="bg-[#FEEE00] h-[64px] w-full flex items-center justify-center">
 
             <div className="flex items-center justify-center w-[70%]  site-container">
-                <div className="text-[25px]">
+                <Link to="/" className="text-[25px]">
                     noon
-                </div>
+                </Link>
                 <SearchInput />
                 {
                     matchesExpectedRoute(pathname, expectedRoutes) ? <button className="cursor-pointer" onClick={() => navigate({ to: "/" })}>
