@@ -23,7 +23,7 @@ export function ItemSummary() {
                         This item is returnable
                     </span>
 
-                    <div className="text-[16px] font-bold mt-5">
+                    <div className="text-[16px] font-bold mt-5 space-x-1">
                         <span>EGP</span>
                         <span>399.00</span>
                     </div>

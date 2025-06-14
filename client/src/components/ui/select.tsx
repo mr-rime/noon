@@ -8,15 +8,16 @@ interface SelectOption {
     label: string;
 }
 
-interface SelectProps {
+type SelectProps = {
     options: SelectOption[];
     defaultValue?: string;
     onChange?: (value: string) => void;
     className?: string;
     children?: React.ReactNode;
+    labelContent?: string
 }
 
-export function Select({ options, defaultValue, onChange, className }: SelectProps) {
+export function Select({ options, defaultValue, onChange, className, labelContent }: SelectProps) {
     const isValidDefault = defaultValue && options.some(opt => opt.value === defaultValue);
     const initial = isValidDefault ? defaultValue : options[0]?.value;
 
@@ -88,6 +89,11 @@ export function Select({ options, defaultValue, onChange, className }: SelectPro
 
     return (
         <div className="relative" ref={selectRef}>
+            {labelContent && (
+                <label className="text-[16px]">
+                    {labelContent}
+                </label>
+            )}
             <div
                 className={cn(
                     "bg-white p-[8px] cursor-pointer border border-[#e2e5f1] capitalize rounded-[8px] flex justify-between items-center",
