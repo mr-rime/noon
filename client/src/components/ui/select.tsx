@@ -101,7 +101,7 @@ export function Select({ options, defaultValue, onChange, className, labelConten
                 )}
                 onClick={toggleDropdown}
             >
-                <span>{selectedOption?.label || 'Select an option'}</span>
+                <span className="mr-[3px]">{selectedOption?.label || 'Select an option'}</span>
                 <ChevronDown size={17} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </div>
 

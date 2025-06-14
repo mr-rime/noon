@@ -2,8 +2,9 @@ import { useLocation, useNavigate } from "@tanstack/react-router";
 import { profile_page_icons } from "../constants/icons";
 import { cn } from "../../../utils/cn";
 import { matchesExpectedRoute } from "../../../utils/matchesExpectedRoute";
+import { memo } from "react";
 
-export function ProfileMenu() {
+export const ProfileMenu = memo(() => {
     const navigate = useNavigate();
     const { pathname } = useLocation();
 
@@ -30,4 +31,4 @@ export function ProfileMenu() {
             </ul>
         </section>
     )
-}
+})
