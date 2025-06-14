@@ -5,7 +5,7 @@ import { Order } from "./order";
 
 export function Orders() {
     return (
-        <section className="w-full">
+        <section className="w-full h-screen">
             <div className="w-full">
                 <h1 className="font-bold text-[28px]">
                     Orders

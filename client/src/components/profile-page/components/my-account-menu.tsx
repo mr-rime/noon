@@ -1,8 +1,9 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { cn } from "../../../utils/cn";
 import { profile_page_icons } from "../constants/icons";
+import { memo } from "react";
 
-export function MyAccountMenu() {
+export const MyAccountMenu = memo(() => {
     const navigate = useNavigate();
     const { pathname } = useLocation();
 
@@ -48,4 +49,4 @@ export function MyAccountMenu() {
             </ul>
         </section>
     )
-}
+})

@@ -35,7 +35,7 @@ export function Order() {
         <button
             ref={buttonRef}
             onClick={handleClick}
-            className="relative overflow-hidden  bg-white cursor-pointer py-5 px-8 border w-full border-[#dadce3] hover:border-[#9ba0b1] rounded-[8px] transition-colors flex items-center justify-between"
+            className="relative overflow-hidden  bg-white cursor-pointer py-10 px-8 border w-full border-[#dadce3] hover:border-[#9ba0b1] rounded-[8px] transition-colors flex items-center justify-between"
         >
             <div className="z-[2]">
                 <div className="flex items-center space-x-1">

@@ -5,41 +5,43 @@ import { ChevronUp } from "lucide-react";
 import { TimelineStatus } from "./timeline-status";
 
 export function OrderTimeline() {
-    const [isCollapsible, setIsCollapsible] = useState(false);
+    const [isCollapsible, setIsCollapsible] = useState(true);
 
     return (
-        <section className="mt-5 bg-white h-fit transition-all p-[16px_16px_0px]">
-            <TimelineStatus isCompleted={true} icon={tarcking_icons.placeIcon} statusName="Placed" statusDate="12th Jun" />
-            <div
-                className={`transition-all duration-200 overflow-hidden ${isCollapsible ? "max-h-[500px]" : "max-h-0"
-                    }`}
-            >
-                <TimelineStatus isCompleted={true} icon={tarcking_icons.processingIcon} statusName="Processing" statusDate="12th Jun" />
-            </div>
-            <TimelineStatus isCompleted={true} icon={tarcking_icons.confirmedIcon} statusName="Confirmed" statusDate="12th Jun" isCurrent statusDesc="Your order is going through its packaging process. We will email you when it is packed and dispatched to the final hub" />
-
-            <div
-                className={`transition-all duration-200 overflow-hidden ${isCollapsible ? "max-h-[500px]" : "max-h-0"
-                    }`}
-            >
-                <TimelineStatus icon={tarcking_icons.dispatchedIcon} statusName="Dispatched" statusDate="12th Jun" />
-            </div>
-
-            <TimelineStatus icon={tarcking_icons.deliverdIcon} statusName="Delivery" deliveryByDate="Sunday, 15th Jun" isLast statusDate="12th Jun" />
-
-            <Separator className="mt-3" />
-
-            <button
-                onClick={() => setIsCollapsible((prev) => !prev)}
-                className="hover:underline text-[14px] text-[#7e859b] cursor-pointer w-full flex items-center justify-center py-[10px]"
-            >
-                {isCollapsible ? "Hide full tracking" : "Show full tracking"}
-                <ChevronUp
-                    size={20}
-                    className={`mx-2 transition-transform duration-300 ${isCollapsible ? "rotate-180" : ""
+        <div>
+            <section className="mt-5 bg-white h-fit transition-all p-[16px_16px_0px] w-full">
+                <TimelineStatus isCompleted={true} icon={tarcking_icons.placeIcon} statusName="Placed" statusDate="12th Jun" />
+                <div
+                    className={`transition-all duration-200 overflow-hidden ${isCollapsible ? "max-h-[500px]" : "max-h-0"
                         }`}
-                />
-            </button>
-        </section>
+                >
+                    <TimelineStatus isCompleted={true} icon={tarcking_icons.processingIcon} statusName="Processing" statusDate="12th Jun" />
+                </div>
+                <TimelineStatus isCompleted={true} icon={tarcking_icons.confirmedIcon} statusName="Confirmed" statusDate="12th Jun" isCurrent statusDesc="Your order is going through its packaging process. We will email you when it is packed and dispatched to the final hub" />
+
+                <div
+                    className={`transition-all duration-200 overflow-hidden ${isCollapsible ? "max-h-[500px]" : "max-h-0"
+                        }`}
+                >
+                    <TimelineStatus icon={tarcking_icons.dispatchedIcon} statusName="Dispatched" statusDate="12th Jun" />
+                </div>
+
+                <TimelineStatus icon={tarcking_icons.deliverdIcon} statusName="Delivery" deliveryByDate="Sunday, 15th Jun" isLast statusDate="12th Jun" />
+
+                <Separator className="mt-3" />
+
+                <button
+                    onClick={() => setIsCollapsible((prev) => !prev)}
+                    className="hover:underline text-[14px] text-[#7e859b] cursor-pointer w-full flex items-center justify-center py-[10px]"
+                >
+                    {isCollapsible ? "Hide full tracking" : "Show full tracking"}
+                    <ChevronUp
+                        size={20}
+                        className={`mx-2 transition-transform duration-300 ${isCollapsible ? "rotate-180" : ""
+                            }`}
+                    />
+                </button>
+            </section>
+        </div>
     );
 }
