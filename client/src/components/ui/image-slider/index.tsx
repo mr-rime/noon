@@ -228,7 +228,7 @@ export function ImageSlider({
     }, [autoPlay, autoPlayInterval, isAnimating, goNext, displayImages.length]);
 
     return (
-        <div className="w-full h-full group">
+        <div className="w-full h-full group touch-none">
             <div
                 className={cn("relative select-none", !isMobile ? `overflow-hidden w-full h-[${height}px]` : "w-full h-fit")}
                 onMouseEnter={() => isDragging.current = false}
