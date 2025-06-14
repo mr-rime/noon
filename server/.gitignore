@@ -11,8 +11,8 @@
 /var/
 
 # Laravel environment file
-.env
-.env.*.php
+# .env
+# .env.*.php
 
 # PHPUnit
 .phpunit.result.cache
