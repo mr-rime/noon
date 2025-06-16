@@ -38,8 +38,6 @@ function getUser(mysqli $db, string $hash): array
 
         $user = $userModel->findByHash($hash);
 
-
-
         if ($user === null) {
             return [
                 'success' => false,
@@ -51,15 +49,16 @@ function getUser(mysqli $db, string $hash): array
         return [
             'success' => true,
             'message' => 'User retrieved successfully.',
-            'user' => [$user]
+            'user' => $user
         ];
     } catch (Exception $e) {
-        error_log($user);
+        error_log('Error in getUser(): ' . $e->getMessage());
         return [
             'success' => false,
             'message' => 'Error fetching user: ' . $e->getMessage(),
-            'user' => []
+            'user' => null
         ];
     }
 }
+
 

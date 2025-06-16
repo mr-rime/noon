@@ -21,7 +21,7 @@ $QueryType = new ObjectType([
             'resolve' => requireAuth(fn($root, $args, $context) => getUsers($context['db']))
         ],
 
-        'user' => [
+        'getUser' => [
             'type' => $UserResponseType,
             'args' => [
                 'hash' => Type::nonNull(Type::string())

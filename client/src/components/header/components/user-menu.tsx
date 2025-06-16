@@ -12,6 +12,8 @@ import { GET_USER } from "../../../graphql/user";
 import Cookies from "js-cookie"
 import { toast } from "sonner";
 import { memo } from "react";
+
+
 export const UserMenu = memo(({ user }: { user: User }) => {
     const [logout,] = useMutation(LOGOUT)
     const navigate = useNavigate()

@@ -9,6 +9,8 @@ import { Separator } from "../ui/separator";
 import { matchesExpectedRoute } from "../../utils/matchesExpectedRoute";
 import { userHash } from "../../constants/cookies";
 import { useMemo } from "react";
+import { Skeleton } from "../ui/skeleton";
+import type { User } from "../../types";
 
 const expectedRoutes = [
     '/orders',
@@ -21,10 +23,10 @@ const expectedRoutes = [
 ]
 
 export function Header() {
-    const { data } = useQuery(GET_USER, { variables: { hash: userHash } })
+    const { data, loading } = useQuery<{ getUser: { user: User } }>(GET_USER, { variables: { hash: userHash } })
     const { pathname } = useLocation();
     const navigate = useNavigate();
-    const user = useMemo(() => data?.user.user?.[0], [data?.user.user]);
+    const user = useMemo(() => data?.getUser.user, [data?.getUser.user]);
 
     const memoizedSearchInput = useMemo(() => <SearchInput />, [])
 
@@ -37,9 +39,10 @@ export function Header() {
                 </Link>
                 {memoizedSearchInput}
                 {
-                    matchesExpectedRoute(pathname, expectedRoutes) ? <button className="cursor-pointer" onClick={() => navigate({ to: "/" })}>
-                        {header_icons.homeIcon}
-                    </button> : !user ? <LoginButtonWithModalDialog /> : <UserMenu user={user} />
+                    loading ? <Skeleton className="h-[20px] w-[160px] rounded-[2px] bg-[#d4d4d46b]" /> :
+                        matchesExpectedRoute(pathname, expectedRoutes) ? <button className="cursor-pointer" onClick={() => navigate({ to: "/" })}>
+                            {header_icons.homeIcon}
+                        </button> : !user ? <LoginButtonWithModalDialog /> : <UserMenu user={user} />
                 }
 
                 <Separator className=" w-[1px] h-[20px] mx-3 bg-[#404553] opacity-[0.2]" />

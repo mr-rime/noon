@@ -21,15 +21,17 @@ export const GET_USERS =
 export const GET_USER =
     gql`
         query($hash:String!) {
-        user(hash: $hash) {
-            success
-            message
-            user {
-                id
-                hash
-                first_name
-                birthday
+            getUser(hash: $hash) {
+                success
+                message
+                user {
+                    id
+                    hash
+                    email
+                    phone_number
+                    first_name
+                    birthday
+                }
             }
         }
-    }
     `

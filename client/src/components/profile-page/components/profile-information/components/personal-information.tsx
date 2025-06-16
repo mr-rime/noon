@@ -4,8 +4,10 @@ import { Select } from "../../../../ui/select";
 import { profil_information_icons } from "../constants/icons";
 import { Radio } from "../../../../ui/radio";
 import { useState } from "react";
+import type { User } from "../../../../../types";
+import { Skeleton } from "../../../../ui/skeleton";
 
-export function PersonalInformation() {
+export function PersonalInformation({ user, loading }: { user: User | undefined, loading: boolean }) {
     const [selected, setSelected] = useState("male")
 
     return (
@@ -15,8 +17,12 @@ export function PersonalInformation() {
             </h2>
 
             <div className="mt-5 flex items-center space-x-6 flex-wrap">
-                <Input id="firstName" name="firstName" labelContent="First name" icon={<Pencil size={14} color="#7E859B" />} iconDirection="right" placeholder="First Name" input={{ className: "bg-white rounded-[12px] w-[300px] h-[58px] p-[8px_12px] indent-0 focus:border-[#00f]" }} />
-                <Input id="lastName" name="lastName" labelContent="Last name" icon={<Pencil size={14} color="#7E859B" />} iconDirection="right" placeholder="First Name" input={{ className: "bg-white rounded-[12px] w-[300px] h-[58px] p-[8px_12px] indent-0 focus:border-[#00f]" }} />
+                {
+                    loading ? <Skeleton className="rounded-[12px] w-[300px] h-[58px] p-[8px_12px] mt-8" /> : <Input id="firstName" name="firstName" defaultValue={user?.first_name} labelContent="First name" icon={<Pencil size={14} color="#7E859B" />} iconDirection="right" placeholder="First Name" input={{ className: "bg-white rounded-[12px] w-[300px] h-[58px] p-[8px_12px] indent-0 focus:border-[#00f]" }} />
+                }
+                {
+                    loading ? <Skeleton className="rounded-[12px] w-[300px] h-[58px] p-[8px_12px] mt-8" /> : <Input id="lastName" name="lastName" defaultValue={user?.last_name} labelContent="Last name" icon={<Pencil size={14} color="#7E859B" />} iconDirection="right" placeholder="Last Name" input={{ className: "bg-white rounded-[12px] w-[300px] h-[58px] p-[8px_12px] indent-0 focus:border-[#00f]" }} />
+                }
                 <Select options={[]} labelContent="Nationality" className="bg-white rounded-[12px] w-[300px] h-[58px] p-[8px_12px]" />
 
                 <div className="mt-10 flex items-center space-x-6">
