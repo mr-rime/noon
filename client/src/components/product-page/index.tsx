@@ -11,7 +11,7 @@ import { ProdcutPagePrice } from "./components/product-page-price";
 import { ProductPageRates } from "./components/product-page-rates";
 import { ProductPageTitle } from "./components/product-page-title";
 
-export default function ProductPage() {
+export function ProductPage() {
     return (
         <main aria-label="Product Page" className="bg-white">
             <section

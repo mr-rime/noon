@@ -4,6 +4,8 @@ import { cn } from "../../../utils/cn";
 import { removeImageBackground } from "../../../utils/removeImageBackground";
 import { product_icons } from "../../prodcut/constants/icons";
 
+type DotsThemeType = "theme1" | "theme2" | "theme3"
+
 interface ImageSliderProps {
     images: string[];
     mobileImages?: string[];
@@ -16,6 +18,7 @@ interface ImageSliderProps {
     showProductControls?: boolean;
     showProductDots?: boolean;
     disableDrag?: boolean
+    dotsTheme?: DotsThemeType
 }
 
 export function ImageSlider({
@@ -30,7 +33,7 @@ export function ImageSlider({
     // showProductDots = false,
     scaleOnHover = false,
     disableDrag = false,
-
+    dotsTheme = "theme1"
 }: ImageSliderProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const animationRef = useRef<number | null>(null);
@@ -227,6 +230,58 @@ export function ImageSlider({
         return () => clearInterval(interval);
     }, [autoPlay, autoPlayInterval, isAnimating, goNext, displayImages.length]);
 
+
+    const dotsRender = () => {
+        switch (dotsTheme) {
+            case "theme1":
+                return (
+                    <div className="flex justify-center items-center gap-3 absolute bottom-4 left-1/2 -translate-x-1/2">
+                        {displayImages.map((_, i) => (
+                            <button
+                                key={i}
+                                className={`w-[22px] h-[2px] transition-colors duration-300 cursor-pointer ${index === i + 1 ? "bg-[#FEEE00]" : "bg-[#E2E5F1]"
+                                    }`}
+                                onClick={() => goToSlide(i + 1)}
+                                aria-label={`Go to slide ${i + 1}`}
+                            />
+                        ))}
+                    </div>
+                );
+            case "theme2":
+                return (
+                    <div className="min-h-[calc(4px * 4)] w-fit px-2 py-[5px] bg-[#ECEDF2] rounded-full  opacity-[1] visible transition-opacity duration-300 gap-[4px] flex items-center justify-center absolute bottom-5 left-1/2 -translate-x-1/2">
+                        {displayImages.map((_, i) => (
+                            <button
+                                key={i}
+                                className={cn(`w-[4px] h-[4px] cursor-pointer rounded-full transition-all duration-300 `, index === i + 1 ? "bg-[#34353a] w-[12px]" : "bg-[#b6b6b9]")}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    goToSlide(i + 1)
+                                }}
+                                aria-label={`Go to slide ${i + 1}`}
+                            />
+                        ))}
+                    </div>
+                );
+            case "theme3":
+                return (
+                    <div className="min-h-[calc(4px * 4)] w-fit px-2 py-[5px] bg-transparent rounded-full  opacity-[1] visible transition-opacity duration-300 gap-[4px] flex items-center justify-center absolute bottom-5 left-1/2 -translate-x-1/2">
+                        {displayImages.map((_, i) => (
+                            <button
+                                key={i}
+                                className={cn(`w-[6px] h-[6px] cursor-pointer rounded-full transition-all ease-in-out border border-[#404553]`, index === i + 1 ? "bg-[#34353a]" : "bg-transparent")}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    goToSlide(i + 1)
+                                }}
+                                aria-label={`Go to slide ${i + 1}`}
+                            />
+                        ))}
+                    </div>
+                );
+        }
+    }
+
     return (
         <div className="w-full h-full group touch-none">
             <div
@@ -319,19 +374,7 @@ export function ImageSlider({
                 </div>
 
 
-                {!isMobile && showDots && displayImages.length > 1 && (
-                    <div className="flex justify-center items-center gap-3 absolute bottom-4 left-1/2 -translate-x-1/2">
-                        {displayImages.map((_, i) => (
-                            <button
-                                key={i}
-                                className={`w-[22px] h-[2px] transition-colors duration-300 cursor-pointer ${index === i + 1 ? "bg-[#FEEE00]" : "bg-[#E2E5F1]"
-                                    }`}
-                                onClick={() => goToSlide(i + 1)}
-                                aria-label={`Go to slide ${i + 1}`}
-                            />
-                        ))}
-                    </div>
-                )}
+                {showDots && displayImages.length > 1 && dotsRender()}
             </div>
         </div>
     );

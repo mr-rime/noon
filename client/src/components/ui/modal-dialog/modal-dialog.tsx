@@ -1,23 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { animateElement } from '../../../utils/animateElement';
-import { useCanvasAnimation } from '../../../hooks/use-canvas-animation';
 import { X } from 'lucide-react';
 import { createPortal } from 'react-dom';
-import { FormSwitch } from './form-switch';
 
-export function LoginModalDialog({ onClose }: { onClose: () => void }) {
-    const {
-        containerRef,
-        imageRef,
-        canvasRef,
-        dialogRef,
-        overlayRef
-    } = useCanvasAnimation();
+type ModalDialogProps = {
+    onClose: () => void;
+    header?: ReactNode;
+    content?: ReactNode;
+    footer?: ReactNode;
+};
+
+export function ModalDialog({ onClose, header, content, footer }: ModalDialogProps) {
+    const dialogRef = useRef<HTMLDivElement>(null);
+    const overlayRef = useRef<HTMLDivElement>(null);
 
     const [isClosing, setIsClosing] = useState(false);
-
-
-    const inputRef = useRef<HTMLInputElement>(null);
 
     const handleClose = () => {
         if (isClosing) return;
@@ -40,10 +37,22 @@ export function LoginModalDialog({ onClose }: { onClose: () => void }) {
     };
 
     useEffect(() => {
+        if (overlayRef.current) {
+            animateElement(overlayRef.current, [{ opacity: 0 }, { opacity: 0.5 }], { duration: 150 });
+        }
+
+        if (dialogRef.current) {
+            animateElement(dialogRef.current, [
+                { opacity: 0, transform: 'scale(0.95)' },
+                { opacity: 1, transform: 'scale(1)' }
+            ], { duration: 200 });
+        }
+    }, [])
+
+    useEffect(() => {
         const firstFocusable = dialogRef.current?.querySelector<HTMLElement>(
             'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         );
-
         firstFocusable?.focus();
 
         const focusTrap = (e: KeyboardEvent) => {
@@ -51,7 +60,6 @@ export function LoginModalDialog({ onClose }: { onClose: () => void }) {
                 const focusableElements = dialogRef.current?.querySelectorAll<HTMLElement>(
                     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
                 );
-
                 if (!focusableElements?.length) return;
 
                 const elements = Array.from(focusableElements);
@@ -66,7 +74,6 @@ export function LoginModalDialog({ onClose }: { onClose: () => void }) {
                     first.focus();
                 }
             }
-
         };
 
         document.body.style.overflow = 'hidden';
@@ -94,47 +101,26 @@ export function LoginModalDialog({ onClose }: { onClose: () => void }) {
             <div
                 ref={dialogRef}
                 role="dialog"
-                id="login-modal"
                 aria-modal="true"
-                aria-labelledby="login-dialog-title"
                 className="fixed inset-0 flex items-center justify-center opacity-0 z-[9999]"
                 style={{
                     transform: "scale(0.95)",
-                    transition: "opacity 200ms ease-out, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",
+                    transition: "opacity 200ms ease-out, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)"
                 }}
             >
-                <div className="relative bg-white rounded-lg w-[400px] overflow-hidden transition-all duration-200 outline-none">
+                <div className="relative bg-white rounded-lg w-[400px] overflow-hidden outline-none">
                     <button
                         onClick={handleClose}
                         className="absolute top-3 right-3 z-50 p-2 rounded-full bg-gray-100 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500 cursor-pointer"
-                        aria-label="Close login dialog"
+                        aria-label="Close dialog"
                     >
                         <X />
                     </button>
 
-                    <img
-                        ref={imageRef}
-                        src="/media/imgs/random-items.png"
-                        alt=""
-                        aria-hidden="true"
-                        className="hidden"
-                    />
-                    <div
-                        ref={containerRef}
-                        className="relative h-[200px] overflow-hidden bg-gray-100"
-                        aria-hidden="true"
-                    >
-                        <canvas ref={canvasRef} className="w-full h-full" />
-                    </div>
-
-                    <div className="p-4">
-                        <h2
-                            id="login-dialog-title"
-                            className="text-xl font-bold mb-4 text-center"
-                        >
-                            Hala! Let's get started
-                        </h2>
-                        <FormSwitch inputRef={inputRef} onClose={onClose} />
+                    {header && <div>{header}</div>}
+                    <div className="p-4 space-y-4">
+                        {content && <div>{content}</div>}
+                        {footer && <div>{footer}</div>}
                     </div>
                 </div>
             </div>

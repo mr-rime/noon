@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { cn } from '../../utils/cn';
 
 interface SeparatorProps {
     className?: string;
 }
 
-export const Separator: React.FC<SeparatorProps> = ({ className }) => {
+export const Separator: React.FC<SeparatorProps> = memo(({ className }) => {
     return (
         <div className={cn(` bg-[#EAECF0] w-full h-[1px]`, className)} />
     );
-};
-
+});

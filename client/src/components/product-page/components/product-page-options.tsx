@@ -1,9 +1,5 @@
-import { use } from "react";
-import { removeImageBackground } from "../../../utils/removeImageBackground";
 
 export function ProductOption() {
-    const img = use(removeImageBackground("/media/imgs/spec-1.avif"))
-
 
     return (
         <div>
@@ -12,9 +8,8 @@ export function ProductOption() {
             </div>
             <div className="mt-3 flex items-center space-x-3">
                 <div className="w-full max-w-[70px] h-[70px] p-2 border border-[#EAECF0] rounded-[10px] flex items-center justify-center cursor-pointer">
-                    <img src={img} alt="Desert Titanium" className="h-[55px] select-none" draggable={false} />
+                    <img src={"/media/imgs/spec-1.avif"} alt="Desert Titanium" className="h-[55px] select-none" draggable={false} />
                 </div>
-
             </div>
         </div>
     )

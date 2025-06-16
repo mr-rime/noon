@@ -336,7 +336,7 @@ export function ElementSlider({
         >
             <div
                 ref={sliderRef}
-                className="flex will-change-transform"
+                className="flex will-change-transform snap-x snap-mandatory scroll-smooth"
                 style={{
                     gap: `${gap}px`,
                     transform: `translateX(${currentTranslate}px)`,

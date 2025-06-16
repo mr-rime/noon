@@ -11,7 +11,10 @@ import client from "../../../apollo";
 import { GET_USER } from "../../../graphql/user";
 import Cookies from "js-cookie"
 import { toast } from "sonner";
-export function UserMenu({ user }: { user: User }) {
+import { memo } from "react";
+
+
+export const UserMenu = memo(({ user }: { user: User }) => {
     const [logout,] = useMutation(LOGOUT)
     const navigate = useNavigate()
 
@@ -57,4 +60,4 @@ export function UserMenu({ user }: { user: User }) {
             </div>
         </Dropdown>
     )
-}
+})

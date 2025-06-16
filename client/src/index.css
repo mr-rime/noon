@@ -113,6 +113,29 @@
         animation: 2s linear 0s infinite normal none running progress;
     }
 
+    @keyframes shimmer {
+        0% {
+            transform: translateX(-100%);
+        }
+
+        100% {
+            transform: translateX(100%);
+        }
+    }
+
+    .shimmer-overlay {
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        animation: shimmer 1.5s infinite;
+        background: linear-gradient(to right,
+                transparent,
+                rgba(255, 255, 255, 0.6),
+                transparent);
+        z-index: 1;
+        pointer-events: none;
+    }
+
 }
 
 

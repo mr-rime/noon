@@ -8,7 +8,7 @@ import { ItemSummary } from "./components/item-summary";
 export function TrackingDetails() {
     const navigate = useNavigate();
     return (
-        <section className="w-full ">
+        <section className="w-full h-screen">
             <button onClick={() => navigate({ to: "/orders" })} className="text-[14px] text-[#7e859b] cursor-pointer hover:underline flex items-center space-x-1">
                 <ArrowLeft size={18} color="#7e859b" />
                 <span>Back to orders</span>

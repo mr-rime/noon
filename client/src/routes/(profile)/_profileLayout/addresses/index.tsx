@@ -1,9 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { Addresses } from '../../../../components/profile-page/components/addresses'
 
 export const Route = createFileRoute('/(profile)/_profileLayout/addresses/')({
-  component: RouteComponent,
+  component: Addresses,
 })
-
-function RouteComponent() {
-  return <div>Hello "/(profile)/_profileLayout/addresses/"!</div>
-}

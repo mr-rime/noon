@@ -1,5 +1,6 @@
 import { ChevronRight, Container, Redo2, ShieldCheck, Star } from "lucide-react";
 import { Separator } from "../../ui/separator";
+import { Link } from "@tanstack/react-router";
 
 
 export function ProductPageDetails() {
@@ -9,9 +10,11 @@ export function ProductPageDetails() {
                 <div className="flex items-center justify-start space-x-4 py-3 px-4">
                     <img src="/media/imgs/logo-eg.png" alt="logo" className="w-[40px] h-[40px] rounded-[8px]" />
                     <div>
-                        <div className="flex items-center cursor-pointer text-[14px] hover:text-[#3866DF] transition-colors">
-                            Sold by <strong className="ml-1">noon</strong> <ChevronRight size={20} />
-                        </div>
+                        <Link to={"/seller/$sellerId"} params={{ sellerId: "1" }}>
+                            <div className="flex items-center cursor-pointer text-[14px] hover:text-[#3866DF] transition-colors">
+                                Sold by <strong className="ml-1">noon</strong> <ChevronRight size={20} />
+                            </div>
+                        </Link>
                         <div className="flex items-center justify-start space-x-1">
                             <Star fill="#008000" color="#008000" size={16} /> <span className="text-[14px] text-[#008000] font-bold">4.3</span>
                         </div>

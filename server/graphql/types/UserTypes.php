@@ -5,14 +5,15 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 
 $UserType = new ObjectType([
-    'name' => 'user',
+    'name' => 'User',
     'fields' => [
         'id' => Type::nonNull(Type::int()),
         'hash' => Type::nonNull(Type::string()),
         'first_name' => Type::nonNull(Type::string()),
         'last_name' => Type::string(),
         'birthday' => Type::string(),
-        'email' => Type::nonNull(Type::string())
+        'email' => Type::nonNull(Type::string()),
+        'phone_number' => Type::string(),
     ]
 ]);
 
@@ -32,9 +33,10 @@ $UserResponseType = new ObjectType([
     'fields' => [
         'success' => Type::nonNull(Type::boolean()),
         'message' => Type::string(),
-        'user' => Type::listOf($UserType),
+        'user' => $UserType,
     ]
 ]);
+
 
 $UsersResponseType = new ObjectType([
     'name' => 'UsersResponse',

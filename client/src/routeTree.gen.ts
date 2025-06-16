@@ -16,6 +16,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
 import { Route as CartIndexImport } from './routes/cart/index'
 import { Route as profileProfileLayoutImport } from './routes/(profile)/_profileLayout'
+import { Route as SellerSellerIdIndexImport } from './routes/seller/$sellerId/index'
 import { Route as PProductIdIndexImport } from './routes/p/$productId/index'
 import { Route as profileProfileLayoutSecuritySettingsIndexImport } from './routes/(profile)/_profileLayout/security-settings/index'
 import { Route as profileProfileLayoutReturnsIndexImport } from './routes/(profile)/_profileLayout/returns/index'
@@ -52,6 +53,12 @@ const CartIndexRoute = CartIndexImport.update({
 const profileProfileLayoutRoute = profileProfileLayoutImport.update({
   id: '/_profileLayout',
   getParentRoute: () => profileRoute,
+} as any)
+
+const SellerSellerIdIndexRoute = SellerSellerIdIndexImport.update({
+  id: '/seller/$sellerId/',
+  path: '/seller/$sellerId/',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const PProductIdIndexRoute = PProductIdIndexImport.update({
@@ -153,6 +160,13 @@ declare module '@tanstack/react-router' {
       path: '/p/$productId'
       fullPath: '/p/$productId'
       preLoaderRoute: typeof PProductIdIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/seller/$sellerId/': {
+      id: '/seller/$sellerId/'
+      path: '/seller/$sellerId'
+      fullPath: '/seller/$sellerId'
+      preLoaderRoute: typeof SellerSellerIdIndexImport
       parentRoute: typeof rootRoute
     }
     '/(profile)/_profileLayout/addresses/': {
@@ -261,6 +275,7 @@ export interface FileRoutesByFullPath {
   '/': typeof profileProfileLayoutRouteWithChildren
   '/cart': typeof CartIndexRoute
   '/p/$productId': typeof PProductIdIndexRoute
+  '/seller/$sellerId': typeof SellerSellerIdIndexRoute
   '/addresses': typeof profileProfileLayoutAddressesIndexRoute
   '/orders': typeof profileProfileLayoutOrdersIndexRoute
   '/payments': typeof profileProfileLayoutPaymentsIndexRoute
@@ -275,6 +290,7 @@ export interface FileRoutesByTo {
   '/': typeof profileProfileLayoutRouteWithChildren
   '/cart': typeof CartIndexRoute
   '/p/$productId': typeof PProductIdIndexRoute
+  '/seller/$sellerId': typeof SellerSellerIdIndexRoute
   '/addresses': typeof profileProfileLayoutAddressesIndexRoute
   '/orders': typeof profileProfileLayoutOrdersIndexRoute
   '/payments': typeof profileProfileLayoutPaymentsIndexRoute
@@ -292,6 +308,7 @@ export interface FileRoutesById {
   '/(profile)/_profileLayout': typeof profileProfileLayoutRouteWithChildren
   '/cart/': typeof CartIndexRoute
   '/p/$productId/': typeof PProductIdIndexRoute
+  '/seller/$sellerId/': typeof SellerSellerIdIndexRoute
   '/(profile)/_profileLayout/addresses/': typeof profileProfileLayoutAddressesIndexRoute
   '/(profile)/_profileLayout/orders/': typeof profileProfileLayoutOrdersIndexRoute
   '/(profile)/_profileLayout/payments/': typeof profileProfileLayoutPaymentsIndexRoute
@@ -308,6 +325,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cart'
     | '/p/$productId'
+    | '/seller/$sellerId'
     | '/addresses'
     | '/orders'
     | '/payments'
@@ -321,6 +339,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cart'
     | '/p/$productId'
+    | '/seller/$sellerId'
     | '/addresses'
     | '/orders'
     | '/payments'
@@ -336,6 +355,7 @@ export interface FileRouteTypes {
     | '/(profile)/_profileLayout'
     | '/cart/'
     | '/p/$productId/'
+    | '/seller/$sellerId/'
     | '/(profile)/_profileLayout/addresses/'
     | '/(profile)/_profileLayout/orders/'
     | '/(profile)/_profileLayout/payments/'
@@ -352,6 +372,7 @@ export interface RootRouteChildren {
   profileRoute: typeof profileRouteWithChildren
   CartIndexRoute: typeof CartIndexRoute
   PProductIdIndexRoute: typeof PProductIdIndexRoute
+  SellerSellerIdIndexRoute: typeof SellerSellerIdIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -359,6 +380,7 @@ const rootRouteChildren: RootRouteChildren = {
   profileRoute: profileRouteWithChildren,
   CartIndexRoute: CartIndexRoute,
   PProductIdIndexRoute: PProductIdIndexRoute,
+  SellerSellerIdIndexRoute: SellerSellerIdIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -374,7 +396,8 @@ export const routeTree = rootRoute
         "/",
         "/(profile)",
         "/cart/",
-        "/p/$productId/"
+        "/p/$productId/",
+        "/seller/$sellerId/"
       ]
     },
     "/": {
@@ -405,6 +428,9 @@ export const routeTree = rootRoute
     },
     "/p/$productId/": {
       "filePath": "p/$productId/index.tsx"
+    },
+    "/seller/$sellerId/": {
+      "filePath": "seller/$sellerId/index.tsx"
     },
     "/(profile)/_profileLayout/addresses/": {
       "filePath": "(profile)/_profileLayout/addresses/index.tsx",
