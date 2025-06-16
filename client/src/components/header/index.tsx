@@ -26,6 +26,8 @@ export function Header() {
     const navigate = useNavigate();
     const user = useMemo(() => data?.user.user?.[0], [data?.user.user]);
 
+    const memoizedSearchInput = useMemo(() => <SearchInput />, [])
+
     return (
         <header className="bg-[#FEEE00] h-[64px] w-full flex items-center justify-center">
 
@@ -33,7 +35,7 @@ export function Header() {
                 <Link to="/" className="text-[25px]">
                     noon
                 </Link>
-                <SearchInput />
+                {memoizedSearchInput}
                 {
                     matchesExpectedRoute(pathname, expectedRoutes) ? <button className="cursor-pointer" onClick={() => navigate({ to: "/" })}>
                         {header_icons.homeIcon}

@@ -21,7 +21,7 @@ export function PersonalInformation() {
 
                 <div className="mt-10 flex items-center space-x-6">
                     <div>
-                        <Input id="birthday" name="birthday" labelContent="Birthday" readOnly icon={<Calendar size={20} color="#7E859B" />} iconDirection="right" value={"01/01/2007"} placeholder="birthday" input={{ className: "bg-[#f3f4f8] rounded-[12px] w-[300px] h-[58px] p-[8px_12px] indent-0 " }} />
+                        <Input id="birthday" name="birthday" labelContent="Birthday" readOnly icon={<Calendar size={20} color="#7E859B" />} iconDirection="right" value={"01 / 01 / 2007"} placeholder="birthday" input={{ className: "bg-[#f3f4f8] rounded-[12px] font-bold w-[300px] h-[58px] p-[8px_12px] indent-0 cursor-not-allowed" }} />
                         <span className="text-[#008000] flex items-center space-x-2 text-[12px] mt-3">
                             {profil_information_icons.discountTagIcon}
                             <span>
