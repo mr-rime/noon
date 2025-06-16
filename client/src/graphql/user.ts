@@ -30,6 +30,7 @@ export const GET_USER =
                     email
                     phone_number
                     first_name
+                    last_name
                     birthday
                 }
             }
