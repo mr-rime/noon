@@ -1,11 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { SecuritySettings } from '../../../../components/profile-page/components/security-settings'
 
 export const Route = createFileRoute(
   '/(profile)/_profileLayout/security-settings/',
 )({
-  component: RouteComponent,
+  component: SecuritySettings,
 })
-
-function RouteComponent() {
-  return <div>Hello "/(profile)/_profileLayout/security-settings/"!</div>
-}

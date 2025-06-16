@@ -1,4 +1,4 @@
-import { LoginButtonWithModalDialog } from "../ui/modal-dialog/login-button-with-modal-dialog";
+import { LoginButtonWithModalDialog } from "../login-modal/components/login-button-with-modal-dialog";
 import { SearchInput } from "./components/search";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@apollo/client";
