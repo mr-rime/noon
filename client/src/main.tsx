@@ -6,7 +6,7 @@ import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { ApolloProvider } from '@apollo/client'
 import client from './apollo'
 
-const router = createRouter({ routeTree });
+const router = createRouter({ routeTree, scrollRestoration: true });
 
 
 declare module '@tanstack/react-router' {

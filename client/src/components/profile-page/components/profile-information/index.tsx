@@ -3,11 +3,11 @@ import { Button } from "../../../ui/button";
 import { ContactInformation } from "./components/contact-information";
 import { PersonalInformation } from "./components/personal-information";
 import { GET_USER } from "../../../../graphql/user";
-import { userHash } from "../../../../constants/cookies";
 import type { User } from "../../../../types";
+import Cookies from "js-cookie"
 
 export function ProfileInformation() {
-    const { data, loading } = useQuery<{ getUser: { user: User } }>(GET_USER, { variables: { hash: userHash } })
+    const { data, loading } = useQuery<{ getUser: { user: User } }>(GET_USER, { variables: { hash: Cookies.get('hash') || "" } })
     return (
         <section className="w-full h-screen">
             <h1 className="font-bold text-[28px]">

@@ -46,9 +46,32 @@ export const UserMenu = memo(({ user }: { user: User }) => {
             <div className="w-48 py-2 bg-white">
                 <button onClick={() => navigate({ to: "/orders", resetScroll: true })} className=" w-full hover:bg-[#F3F4F8] transition-colors cursor-pointer flex items-center p-[8px_25px] text-center whitespace-nowrap">
                     {header_icons.ordersIcon}
-
                     <span className="text-[1rem] ml-2">
                         Orders
+                    </span>
+                </button>
+                <button onClick={() => navigate({ to: "/addresses", resetScroll: true })} className=" w-full hover:bg-[#F3F4F8] transition-colors cursor-pointer flex items-center p-[8px_25px] text-center whitespace-nowrap">
+                    {header_icons.addressesIcon}
+                    <span className="text-[1rem] ml-2">
+                        Addresses
+                    </span>
+                </button>
+                <button onClick={() => navigate({ to: "/payments", resetScroll: true })} className=" w-full hover:bg-[#F3F4F8] transition-colors cursor-pointer flex items-center p-[8px_25px] text-center whitespace-nowrap">
+                    {header_icons.paymentsIcon}
+                    <span className="text-[1rem] ml-2">
+                        Payments
+                    </span>
+                </button>
+                <button onClick={() => navigate({ to: "/returns", resetScroll: true })} className=" w-full hover:bg-[#F3F4F8] transition-colors cursor-pointer flex items-center p-[8px_25px] text-center whitespace-nowrap">
+                    {header_icons.returnsIcon}
+                    <span className="text-[1rem] ml-2">
+                        Returns
+                    </span>
+                </button>
+                <button onClick={() => navigate({ to: "/profile", resetScroll: true })} className=" w-full hover:bg-[#F3F4F8] transition-colors cursor-pointer flex items-center p-[8px_25px] text-center whitespace-nowrap">
+                    {header_icons.profileIcon}
+                    <span className="text-[1rem] ml-2">
+                        Profile
                     </span>
                 </button>
                 <Separator className="my-2" />
