@@ -52,7 +52,6 @@
 
     * {
         -webkit-user-drag: none;
-        scroll-behavior: smooth;
     }
 
 
@@ -83,6 +82,10 @@
 
     .bg-white-blur {
         background: linear-gradient(rgba(255, 255, 255, 0), rgb(255, 255, 255) 60%, rgb(255, 255, 255))
+    }
+
+    .gray-filter {
+        filter: brightness(0) saturate(100%) invert(53%) sepia(13%) saturate(528%) hue-rotate(188deg) brightness(97%) contrast(86%);
     }
 
     @keyframes ripple {
@@ -142,4 +145,5 @@
 
 @theme {
     --font-proxima: "Proxima Nova", "sans-serif";
+    --font-cairo: "Cairo", "sans-serif";
 }

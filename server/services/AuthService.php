@@ -52,7 +52,7 @@ class AuthService
         return [
             'success' => true,
             'message' => 'Login successful',
-            'user' => [$currentUser],
+            'user' => $currentUser,
         ];
     }
 

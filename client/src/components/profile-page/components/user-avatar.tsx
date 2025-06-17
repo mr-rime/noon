@@ -1,10 +1,9 @@
 import { useQuery } from "@apollo/client"
 import { GET_USER } from "../../../graphql/user"
-import { userHash } from "../../../constants/cookies";
 import { Skeleton } from "../../ui/skeleton";
-
+import Cookies from "js-cookie"
 export function UserAvatar() {
-    const { data, loading } = useQuery(GET_USER, { variables: { hash: userHash } });
+    const { data, loading } = useQuery(GET_USER, { variables: { hash: Cookies.get('hash') || "" } });
 
     return (
         <div className="bg-white flex items-center space-x-2 rounded-[12px] w-full p-[12px_12px_24px]">

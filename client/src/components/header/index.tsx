@@ -7,11 +7,10 @@ import { UserMenu } from "./components/user-menu";
 import { header_icons } from "./constants/icons";
 import { Separator } from "../ui/separator";
 import { matchesExpectedRoute } from "../../utils/matchesExpectedRoute";
-import { userHash } from "../../constants/cookies";
 import { useMemo } from "react";
 import { Skeleton } from "../ui/skeleton";
 import type { User } from "../../types";
-
+import Cookies from "js-cookie"
 const expectedRoutes = [
     '/orders',
     '/returns',
@@ -23,7 +22,7 @@ const expectedRoutes = [
 ]
 
 export function Header() {
-    const { data, loading } = useQuery<{ getUser: { user: User } }>(GET_USER, { variables: { hash: userHash } })
+    const { data, loading } = useQuery<{ getUser: { user: User } }>(GET_USER, { variables: { hash: Cookies.get('hash') || "" }, pollInterval: 1000 * 10 })
     const { pathname } = useLocation();
     const navigate = useNavigate();
     const user = useMemo(() => data?.getUser.user, [data?.getUser.user]);
@@ -32,7 +31,6 @@ export function Header() {
 
     return (
         <header className="bg-[#FEEE00] h-[64px] w-full flex items-center justify-center">
-
             <div className="flex items-center justify-center w-[70%]  site-container">
                 <Link to="/" className="text-[25px]">
                     noon
