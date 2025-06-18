@@ -15,6 +15,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRoute } from './routes/__root'
 import { Route as mainHomeLayoutImport } from './routes/(main)/_homeLayout'
 import { Route as mainHomeLayoutIndexImport } from './routes/(main)/_homeLayout/index'
+import { Route as dashboardDashboardIndexImport } from './routes/(dashboard)/dashboard/index'
 import { Route as mainHomeLayoutCartIndexImport } from './routes/(main)/_homeLayout/cart/index'
 import { Route as dashboardDashboardPartnersIndexImport } from './routes/(dashboard)/dashboard/partners/index'
 import { Route as mainHomeLayoutprofileProfileLayoutImport } from './routes/(main)/_homeLayout/(profile)/_profileLayout'
@@ -57,6 +58,12 @@ const mainHomeLayoutIndexRoute = mainHomeLayoutIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => mainHomeLayoutRoute,
+} as any)
+
+const dashboardDashboardIndexRoute = dashboardDashboardIndexImport.update({
+  id: '/(dashboard)/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const mainHomeLayoutCartIndexRoute = mainHomeLayoutCartIndexImport.update({
@@ -165,6 +172,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof mainHomeLayoutImport
       parentRoute: typeof mainRoute
+    }
+    '/(dashboard)/dashboard/': {
+      id: '/(dashboard)/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof dashboardDashboardIndexImport
+      parentRoute: typeof rootRoute
     }
     '/(main)/_homeLayout/': {
       id: '/(main)/_homeLayout/'
@@ -359,6 +373,7 @@ const mainRouteWithChildren = mainRoute._addFileChildren(mainRouteChildren)
 
 export interface FileRoutesByFullPath {
   '/': typeof mainHomeLayoutprofileProfileLayoutRouteWithChildren
+  '/dashboard': typeof dashboardDashboardIndexRoute
   '/dashboard/partners': typeof dashboardDashboardPartnersIndexRoute
   '/cart': typeof mainHomeLayoutCartIndexRoute
   '/p/$productId': typeof mainHomeLayoutPProductIdIndexRoute
@@ -374,6 +389,7 @@ export interface FileRoutesByFullPath {
 }
 
 export interface FileRoutesByTo {
+  '/dashboard': typeof dashboardDashboardIndexRoute
   '/': typeof mainHomeLayoutprofileProfileLayoutRouteWithChildren
   '/dashboard/partners': typeof dashboardDashboardPartnersIndexRoute
   '/cart': typeof mainHomeLayoutCartIndexRoute
@@ -393,6 +409,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/(main)': typeof mainRouteWithChildren
   '/(main)/_homeLayout': typeof mainHomeLayoutRouteWithChildren
+  '/(dashboard)/dashboard/': typeof dashboardDashboardIndexRoute
   '/(main)/_homeLayout/': typeof mainHomeLayoutIndexRoute
   '/(main)/_homeLayout/(profile)': typeof mainHomeLayoutprofileRouteWithChildren
   '/(main)/_homeLayout/(profile)/_profileLayout': typeof mainHomeLayoutprofileProfileLayoutRouteWithChildren
@@ -414,6 +431,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/dashboard'
     | '/dashboard/partners'
     | '/cart'
     | '/p/$productId'
@@ -428,6 +446,7 @@ export interface FileRouteTypes {
     | '/orders/track/order/$orderId'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/dashboard'
     | '/'
     | '/dashboard/partners'
     | '/cart'
@@ -445,6 +464,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/(main)'
     | '/(main)/_homeLayout'
+    | '/(dashboard)/dashboard/'
     | '/(main)/_homeLayout/'
     | '/(main)/_homeLayout/(profile)'
     | '/(main)/_homeLayout/(profile)/_profileLayout'
@@ -465,11 +485,13 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   mainRoute: typeof mainRouteWithChildren
+  dashboardDashboardIndexRoute: typeof dashboardDashboardIndexRoute
   dashboardDashboardPartnersIndexRoute: typeof dashboardDashboardPartnersIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   mainRoute: mainRouteWithChildren,
+  dashboardDashboardIndexRoute: dashboardDashboardIndexRoute,
   dashboardDashboardPartnersIndexRoute: dashboardDashboardPartnersIndexRoute,
 }
 
@@ -484,6 +506,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/(main)",
+        "/(dashboard)/dashboard/",
         "/(dashboard)/dashboard/partners/"
       ]
     },
@@ -503,6 +526,9 @@ export const routeTree = rootRoute
         "/(main)/_homeLayout/p/$productId/",
         "/(main)/_homeLayout/seller/$sellerId/"
       ]
+    },
+    "/(dashboard)/dashboard/": {
+      "filePath": "(dashboard)/dashboard/index.tsx"
     },
     "/(main)/_homeLayout/": {
       "filePath": "(main)/_homeLayout/index.tsx",

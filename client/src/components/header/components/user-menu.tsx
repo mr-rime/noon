@@ -12,9 +12,10 @@ import { GET_USER } from "../../../graphql/user";
 import Cookies from "js-cookie"
 import { toast } from "sonner";
 import { memo } from "react";
+import { Skeleton } from "../../ui/skeleton";
 
 
-export const UserMenu = memo(({ user }: { user: User }) => {
+export const UserMenu = memo(({ user, loading }: { user: User, loading: boolean }) => {
     const [logout,] = useMutation(LOGOUT)
     const navigate = useNavigate()
 
@@ -74,12 +75,16 @@ export const UserMenu = memo(({ user }: { user: User }) => {
                         Profile
                     </span>
                 </button>
-                <button onClick={() => navigate({ to: "/dashboard/partners", resetScroll: true })} className=" w-full hover:bg-[#F3F4F8] transition-colors cursor-pointer flex items-center p-[8px_25px] text-center whitespace-nowrap">
-                    {header_icons.dashboardIcon}
-                    <span className="text-[1rem] ml-4">
-                        Dashboard
-                    </span>
-                </button>
+                {
+                    !loading ? (user && <button onClick={() => navigate({ to: "/dashboard/partners", resetScroll: true })} className=" w-full hover:bg-[#F3F4F8] transition-colors cursor-pointer flex items-center p-[8px_25px] text-center whitespace-nowrap">
+                        {header_icons.dashboardIcon}
+                        <span className="text-[1rem] ml-4">
+                            Dashboard
+                        </span>
+                    </button>) : <div className="mx-6 mt-1">
+                        <Skeleton className=" w-full flex items-center p-[8px_25px] h-[25px] rounded-[3px]" />
+                    </div>
+                }
                 <Separator className="my-2" />
                 <button onClick={handleLogout} className=" w-full  flex items-center justify-center hover:bg-[#F3F4F8] transition-colors cursor-pointer p-[8px_25px] text-center whitespace-nowrap">
                     <span className="text-[1rem] text-[#7e859b] text-center ">

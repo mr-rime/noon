@@ -26,6 +26,7 @@ export function Header() {
     const { pathname } = useLocation();
     const navigate = useNavigate();
     const user = useMemo(() => data?.getUser.user, [data?.getUser.user]);
+    const isLoading = useMemo(() => loading, [loading])
 
     const memoizedSearchInput = useMemo(() => <SearchInput />, [])
 
@@ -40,7 +41,7 @@ export function Header() {
                     loading ? <Skeleton className="h-[20px] w-[160px] rounded-[2px] bg-[#d4d4d46b]" /> :
                         matchesExpectedRoute(pathname, expectedRoutes) ? <button className="cursor-pointer" onClick={() => navigate({ to: "/" })}>
                             {header_icons.homeIcon}
-                        </button> : !user ? <LoginButtonWithModalDialog /> : <UserMenu user={user} />
+                        </button> : !user ? <LoginButtonWithModalDialog /> : <UserMenu user={user} loading={isLoading} />
                 }
 
                 <Separator className=" w-[1px] h-[20px] mx-3 bg-[#404553] opacity-[0.2]" />
