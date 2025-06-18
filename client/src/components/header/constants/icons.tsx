@@ -1,4 +1,4 @@
-import { HeartIcon, CartIcon, HomeIcon, OrdersIcon, AddressesIcon, ReturnsIcon, ProfileIcon, PaymentsIcon } from "./components";
+import { HeartIcon, CartIcon, HomeIcon, OrdersIcon, AddressesIcon, ReturnsIcon, ProfileIcon, PaymentsIcon, DashboardIcon } from "./components";
 
 export const header_icons = {
     ordersIcon: <OrdersIcon />,
@@ -8,5 +8,6 @@ export const header_icons = {
     addressesIcon: <AddressesIcon />,
     paymentsIcon: <PaymentsIcon />,
     returnsIcon: <ReturnsIcon />,
-    profileIcon: <ProfileIcon />
+    profileIcon: <ProfileIcon />,
+    dashboardIcon: <DashboardIcon />
 }

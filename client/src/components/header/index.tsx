@@ -22,7 +22,7 @@ const expectedRoutes = [
 ]
 
 export function Header() {
-    const { data, loading } = useQuery<{ getUser: { user: User } }>(GET_USER, { variables: { hash: Cookies.get('hash') || "" }, pollInterval: 1000 * 10 })
+    const { data, loading } = useQuery<{ getUser: { user: User } }>(GET_USER, { variables: { hash: Cookies.get('hash') || "" } })
     const { pathname } = useLocation();
     const navigate = useNavigate();
     const user = useMemo(() => data?.getUser.user, [data?.getUser.user]);
@@ -46,7 +46,6 @@ export function Header() {
                 <Separator className=" w-[1px] h-[20px] mx-3 bg-[#404553] opacity-[0.2]" />
 
                 {
-
                     !matchesExpectedRoute(pathname, expectedRoutes) && <><Link to={'/'} className="mx-3">
                         {user ? <div>
                             {header_icons.heartIcon}
@@ -59,15 +58,11 @@ export function Header() {
                         </LoginButtonWithModalDialog>}
                     </Link>
                     </>
-
                 }
-
                 <Link to={'/cart'} className="mx-1">
                     {header_icons.cartIcon}
                 </Link>
-
             </div>
-
         </header >
     )
 }
