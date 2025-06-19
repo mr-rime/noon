@@ -6,9 +6,11 @@ use GraphQL\Type\Schema;
 
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/types/UserTypes.php';
+require_once __DIR__ . '/types/PartnerTypes.php';
 require_once __DIR__ . '/types/ProductTypes.php';
 require_once __DIR__ . '/types/OrderTypes.php';
 require_once __DIR__ . '/resolvers/UserResolver.php';
+require_once __DIR__ . '/resolvers/PartnerResolver.php';
 require_once __DIR__ . '/resolvers/AuthResolver.php';
 require_once __DIR__ . '/resolvers/ProdcutResolver.php';
 require_once __DIR__ . '/resolvers/OrderResolver.php';
@@ -16,7 +18,7 @@ require_once __DIR__ . '/resolvers/OrderResolver.php';
 $QueryType = new ObjectType([
     'name' => 'query',
     'fields' => [
-        'users' => [
+        'getUsers' => [
             'type' => $UsersResponseType,
             'resolve' => requireAuth(fn($root, $args, $context) => getUsers($context['db']))
         ],
@@ -27,6 +29,14 @@ $QueryType = new ObjectType([
                 'hash' => Type::nonNull(Type::string())
             ],
             'resolve' => requireAuth(fn($root, $args, $context) => getUser($context['db'], $args['hash']))
+        ],
+
+        'getPartner' => [
+            'type' => $PartnerResponseType,
+            'args' => [
+                'id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => getPartner($context['db'], $args))
         ],
 
         'products' => [
@@ -71,6 +81,26 @@ $MutationType = new ObjectType([
         'logout' => [
             'type' => $UserResponseType,
             'resolve' => fn($root, $args, $context) => logout()
+        ],
+
+        'createPartner' => [
+            'type' => $PartnerResponseType,
+            'args' => [
+                'business_email' => Type::nonNull(Type::string()),
+                'store_name' => Type::nonNull(Type::string()),
+                'business_phone' => Type::string(),
+                'password' => Type::nonNull(Type::string()),
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => createPartner($context['db'], $args))
+        ],
+
+        'loginPartner' => [
+            'type' => $PartnerResponseType,
+            'args' => [
+                'business_email' => Type::nonNull(Type::string()),
+                'password' => Type::nonNull(Type::string())
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => loginPartner($context['db'], $args))
         ],
 
         'createProduct' => [

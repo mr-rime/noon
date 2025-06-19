@@ -49,11 +49,27 @@ CREATE TABLE users (
     fist_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50),
     email VARCHAR(254) NOT NULL UNIQUE,
+    phone_number VARCHAR(20),
     password VARCHAR(255) NOT NULL,
     birthday DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+CREATE TABLE partners (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    store_name VARCHAR(100) NOT NULL,
+    business_email VARCHAR(254) NOT NULL,
+    business_phone VARCHAR(20),
+	password VARCHAR(255) NOT NULL,
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_partners_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 
 CREATE TABLE carts (
     id VARCHAR(21) PRIMARY KEY,
@@ -137,7 +153,7 @@ CREATE TABLE categories (
 CREATE TABLE products (
     id VARCHAR(21) UNIQUE,
     user_id INT NOT NULL,
-    category_id INT,
+    category_id VARCHAR(21),
     name VARCHAR(100) NOT NULL,
     price DECIMAL(10 , 2 ) NOT NULL,
     currency VARCHAR(4) NOT NULL,

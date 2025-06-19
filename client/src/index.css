@@ -75,6 +75,21 @@
         width: 100%;
     }
 
+    .partner-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        box-sizing: border-box;
+        min-height: 100vh;
+        line-height: 1.5;
+        background-image: url('/media/imgs/partner-login.png');
+        background-size: 100%;
+        background-repeat: no-repeat;
+        background-position: top;
+        background-color: var(--color-alice);
+    }
+
     .modal-open {
         overflow: hidden;
     }
