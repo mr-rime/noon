@@ -11,9 +11,9 @@ export function UserAvatar() {
                 AH
             </div>
             <div>
-                <p className="text-[18px]">
+                <div className="text-[18px]">
                     <strong className="flex items-center"><span className="mr-1">Hala</span> {loading ? <Skeleton className="h-[15px] rounded-[3px]" /> : `${data.getUser.user.first_name}!`}</strong>
-                </p>
+                </div>
                 <p className="text-[14px] text-[#404553] w-[212px] truncate flex">
                     oms51857@gmail.com
                 </p>
