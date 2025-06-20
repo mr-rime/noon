@@ -10,13 +10,11 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import type { User } from "../../../types";
 import { useForm, type SubmitHandler } from "react-hook-form"
+import { LoginFormSchema, type LoginFormSchemaType } from "../schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-type FormContentInputs = {
-    email: string
-    password: string
-}
 
-export function FormContent({
+export function LoginFormContent({
     isLogin,
     isPending,
     inputRef,
@@ -30,7 +28,9 @@ export function FormContent({
     const {
         register,
         handleSubmit,
-        watch } = useForm<FormContentInputs>()
+        watch } = useForm<LoginFormSchemaType>({
+            resolver: zodResolver(LoginFormSchema)
+        })
     const [login, { loading }] = useMutation<{
         login: {
             success: boolean,
@@ -39,10 +39,8 @@ export function FormContent({
         }
     }>(LOGIN);
 
-    console.log('render')
 
-
-    const handleLogin: SubmitHandler<FormContentInputs> = async ({ email, password }) => {
+    const handleLogin: SubmitHandler<LoginFormSchemaType> = async ({ email, password }) => {
         try {
             const { data } = await login({ variables: { email, password } })
             if (data?.login.success) {
@@ -105,7 +103,7 @@ export function FormContent({
             {
                 (watch("email") === "" || watch("password") === "") ?
                     <button type="button" className="text-[#7e859b] bg-[#f0f1f4] transition-colors w-full h-[48px] text-[14px] font-bold uppercase p-[16px] rounded-lg mt-2">
-                        Continue
+                        Log in
                     </button>
                     : <button type="submit" className="text-white bg-[#3866df] hover:bg-[#3e72f7] transition-colors cursor-pointer w-full h-[48px] text-[14px] font-bold uppercase p-[16px] rounded-lg mt-2 flex items-center justify-center"> {loading ? <Loader2 size={20} className="animate-spin transition-all" /> : "Continue"}</button>
             }

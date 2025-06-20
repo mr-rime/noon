@@ -1,7 +1,8 @@
 import { useState, useTransition, useRef } from "react";
 import { animateElement } from "../../../utils/animateElement";
 import { cn } from "../../../utils/cn";
-import { FormContent } from "./form-content";
+import { LoginFormContent } from "./login-form-content";
+import { SignupFormContent } from "./signup-form-content";
 
 export function FormSwitch({ inputRef, onClose }: { inputRef: React.RefObject<HTMLInputElement | null>, onClose: () => void }) {
     const [isLogin, setIsLogin] = useState(true);
@@ -75,7 +76,9 @@ export function FormSwitch({ inputRef, onClose }: { inputRef: React.RefObject<HT
                 className='flex flex-col items-center justify-center w-full'
                 aria-busy={isPending}
             >
-                <FormContent isLogin={isLogin} isPending={isPending} inputRef={inputRef} onClose={onClose} />
+                {
+                    isLogin ? <LoginFormContent isLogin={isLogin} isPending={isPending} inputRef={inputRef} onClose={onClose} /> : <SignupFormContent isLogin={isLogin} isPending={isPending} inputRef={inputRef} onClose={onClose} />
+                }
             </div>
         </div>
     );
