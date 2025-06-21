@@ -15,7 +15,7 @@ export const SidebarLinks = memo(() => {
             <ul className="w-full ml-3 space-y-4">
                 <li className="w-full">
                     <button onClick={() => navigate({ to: "/dashboard" })} className={cn("flex items-center h-[48px] hover:bg-[#f2f2f2cc] w-full p-[0_8px] space-x-[10px] rounded-[8px] transition-colors cursor-pointer", pathname === "/dashboard" && "font-bold bg-[#fffcd1] hover:bg-[#fffcd1] ")}>
-                        <ChartColumnBig className={cn(pathname === "/dashboard" && "text-[#544e03]")} />
+                        <ChartColumnBig size={22} className={cn(pathname === "/dashboard" && "text-[#544e03]")} />
                         <span>
                             Dashboard
                         </span>
@@ -23,7 +23,7 @@ export const SidebarLinks = memo(() => {
                 </li>
                 <li className="w-full">
                     <button onClick={() => navigate({ to: "/dashboard/products" })} className={cn("flex items-center h-[48px] hover:bg-[#f2f2f2cc] w-full p-[0_8px] space-x-[10px] rounded-[8px] transition-colors cursor-pointer", pathname === "/dashboard/products" && "font-bold bg-[#fffcd1] hover:bg-[#fffcd1] ")}>
-                        <Package className={cn(pathname === "/dashboard/products" && "text-[#544e03]")} />
+                        <Package size={22} className={cn(pathname === "/dashboard/products" && "text-[#544e03]")} />
                         <span>
                             Products
                         </span>
@@ -31,8 +31,8 @@ export const SidebarLinks = memo(() => {
                 </li>
 
                 <li className="w-full">
-                    <button onClick={() => navigate({ to: "/profile" })} className={cn("flex items-center h-[48px] hover:bg-[#f2f2f2cc] w-full p-[0_8px] space-x-[10px] rounded-[8px] transition-colors cursor-pointer", pathname === "/profile" && "font-bold bg-[#fffcd1] hover:bg-[#fffcd1] ")}>
-                        <ShoppingBag />
+                    <button onClick={() => navigate({ to: "/dashboard/orders" })} className={cn("flex items-center h-[48px] hover:bg-[#f2f2f2cc] w-full p-[0_8px] space-x-[10px] rounded-[8px] transition-colors cursor-pointer", pathname === "/dashboard/orders" && "font-bold bg-[#fffcd1] hover:bg-[#fffcd1] ")}>
+                        <ShoppingBag size={22} className={cn(pathname === "/dashboard/orders" && "text-[#544e03]")} />
                         <span>
                             Orders
                         </span>

@@ -23,6 +23,7 @@ import { Route as mainHomeLayoutprofileProfileLayoutImport } from './routes/(mai
 import { Route as mainHomeLayoutSellerSellerIdIndexImport } from './routes/(main)/_homeLayout/seller/$sellerId/index'
 import { Route as mainHomeLayoutPProductIdIndexImport } from './routes/(main)/_homeLayout/p/$productId/index'
 import { Route as dashboardDashboardLayoutDashboardProductsIndexImport } from './routes/(dashboard)/_dashboardLayout/dashboard/products/index'
+import { Route as dashboardDashboardLayoutDashboardOrdersIndexImport } from './routes/(dashboard)/_dashboardLayout/dashboard/orders/index'
 import { Route as mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexImport } from './routes/(main)/_homeLayout/(profile)/_profileLayout/security-settings/index'
 import { Route as mainHomeLayoutprofileProfileLayoutReturnsIndexImport } from './routes/(main)/_homeLayout/(profile)/_profileLayout/returns/index'
 import { Route as mainHomeLayoutprofileProfileLayoutProfileIndexImport } from './routes/(main)/_homeLayout/(profile)/_profileLayout/profile/index'
@@ -116,6 +117,13 @@ const dashboardDashboardLayoutDashboardProductsIndexRoute =
   dashboardDashboardLayoutDashboardProductsIndexImport.update({
     id: '/dashboard/products/',
     path: '/dashboard/products/',
+    getParentRoute: () => dashboardDashboardLayoutRoute,
+  } as any)
+
+const dashboardDashboardLayoutDashboardOrdersIndexRoute =
+  dashboardDashboardLayoutDashboardOrdersIndexImport.update({
+    id: '/dashboard/orders/',
+    path: '/dashboard/orders/',
     getParentRoute: () => dashboardDashboardLayoutRoute,
   } as any)
 
@@ -249,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof mainHomeLayoutCartIndexImport
       parentRoute: typeof mainHomeLayoutImport
     }
+    '/(dashboard)/_dashboardLayout/dashboard/orders/': {
+      id: '/(dashboard)/_dashboardLayout/dashboard/orders/'
+      path: '/dashboard/orders'
+      fullPath: '/dashboard/orders'
+      preLoaderRoute: typeof dashboardDashboardLayoutDashboardOrdersIndexImport
+      parentRoute: typeof dashboardDashboardLayoutImport
+    }
     '/(dashboard)/_dashboardLayout/dashboard/products/': {
       id: '/(dashboard)/_dashboardLayout/dashboard/products/'
       path: '/dashboard/products'
@@ -333,6 +348,7 @@ declare module '@tanstack/react-router' {
 
 interface dashboardDashboardLayoutRouteChildren {
   dashboardDashboardLayoutDashboardIndexRoute: typeof dashboardDashboardLayoutDashboardIndexRoute
+  dashboardDashboardLayoutDashboardOrdersIndexRoute: typeof dashboardDashboardLayoutDashboardOrdersIndexRoute
   dashboardDashboardLayoutDashboardProductsIndexRoute: typeof dashboardDashboardLayoutDashboardProductsIndexRoute
 }
 
@@ -340,6 +356,8 @@ const dashboardDashboardLayoutRouteChildren: dashboardDashboardLayoutRouteChildr
   {
     dashboardDashboardLayoutDashboardIndexRoute:
       dashboardDashboardLayoutDashboardIndexRoute,
+    dashboardDashboardLayoutDashboardOrdersIndexRoute:
+      dashboardDashboardLayoutDashboardOrdersIndexRoute,
     dashboardDashboardLayoutDashboardProductsIndexRoute:
       dashboardDashboardLayoutDashboardProductsIndexRoute,
   }
@@ -449,6 +467,7 @@ export interface FileRoutesByFullPath {
   '/partners': typeof dashboardPartnersIndexRoute
   '/dashboard': typeof dashboardDashboardLayoutDashboardIndexRoute
   '/cart': typeof mainHomeLayoutCartIndexRoute
+  '/dashboard/orders': typeof dashboardDashboardLayoutDashboardOrdersIndexRoute
   '/dashboard/products': typeof dashboardDashboardLayoutDashboardProductsIndexRoute
   '/p/$productId': typeof mainHomeLayoutPProductIdIndexRoute
   '/seller/$sellerId': typeof mainHomeLayoutSellerSellerIdIndexRoute
@@ -467,6 +486,7 @@ export interface FileRoutesByTo {
   '/partners': typeof dashboardPartnersIndexRoute
   '/dashboard': typeof dashboardDashboardLayoutDashboardIndexRoute
   '/cart': typeof mainHomeLayoutCartIndexRoute
+  '/dashboard/orders': typeof dashboardDashboardLayoutDashboardOrdersIndexRoute
   '/dashboard/products': typeof dashboardDashboardLayoutDashboardProductsIndexRoute
   '/p/$productId': typeof mainHomeLayoutPProductIdIndexRoute
   '/seller/$sellerId': typeof mainHomeLayoutSellerSellerIdIndexRoute
@@ -492,6 +512,7 @@ export interface FileRoutesById {
   '/(main)/_homeLayout/(profile)/_profileLayout': typeof mainHomeLayoutprofileProfileLayoutRouteWithChildren
   '/(dashboard)/_dashboardLayout/dashboard/': typeof dashboardDashboardLayoutDashboardIndexRoute
   '/(main)/_homeLayout/cart/': typeof mainHomeLayoutCartIndexRoute
+  '/(dashboard)/_dashboardLayout/dashboard/orders/': typeof dashboardDashboardLayoutDashboardOrdersIndexRoute
   '/(dashboard)/_dashboardLayout/dashboard/products/': typeof dashboardDashboardLayoutDashboardProductsIndexRoute
   '/(main)/_homeLayout/p/$productId/': typeof mainHomeLayoutPProductIdIndexRoute
   '/(main)/_homeLayout/seller/$sellerId/': typeof mainHomeLayoutSellerSellerIdIndexRoute
@@ -512,6 +533,7 @@ export interface FileRouteTypes {
     | '/partners'
     | '/dashboard'
     | '/cart'
+    | '/dashboard/orders'
     | '/dashboard/products'
     | '/p/$productId'
     | '/seller/$sellerId'
@@ -529,6 +551,7 @@ export interface FileRouteTypes {
     | '/partners'
     | '/dashboard'
     | '/cart'
+    | '/dashboard/orders'
     | '/dashboard/products'
     | '/p/$productId'
     | '/seller/$sellerId'
@@ -552,6 +575,7 @@ export interface FileRouteTypes {
     | '/(main)/_homeLayout/(profile)/_profileLayout'
     | '/(dashboard)/_dashboardLayout/dashboard/'
     | '/(main)/_homeLayout/cart/'
+    | '/(dashboard)/_dashboardLayout/dashboard/orders/'
     | '/(dashboard)/_dashboardLayout/dashboard/products/'
     | '/(main)/_homeLayout/p/$productId/'
     | '/(main)/_homeLayout/seller/$sellerId/'
@@ -602,6 +626,7 @@ export const routeTree = rootRoute
       "parent": "/(dashboard)",
       "children": [
         "/(dashboard)/_dashboardLayout/dashboard/",
+        "/(dashboard)/_dashboardLayout/dashboard/orders/",
         "/(dashboard)/_dashboardLayout/dashboard/products/"
       ]
     },
@@ -658,6 +683,10 @@ export const routeTree = rootRoute
     "/(main)/_homeLayout/cart/": {
       "filePath": "(main)/_homeLayout/cart/index.ts",
       "parent": "/(main)/_homeLayout"
+    },
+    "/(dashboard)/_dashboardLayout/dashboard/orders/": {
+      "filePath": "(dashboard)/_dashboardLayout/dashboard/orders/index.tsx",
+      "parent": "/(dashboard)/_dashboardLayout"
     },
     "/(dashboard)/_dashboardLayout/dashboard/products/": {
       "filePath": "(dashboard)/_dashboardLayout/dashboard/products/index.tsx",
