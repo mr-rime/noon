@@ -1,5 +1,5 @@
+import { animateElement } from '@/utils/animateElement';
 import React, { useRef, useState } from 'react';
-import { animateElement } from '../../utils/animateElement';
 
 interface ExpandableAreaProps {
     children: React.ReactNode;
