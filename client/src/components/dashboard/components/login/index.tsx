@@ -16,7 +16,7 @@ export default function Login({ setForm }: { setForm: React.Dispatch<React.SetSt
         resolver: zodResolver(PartnerLoginSchema)
     });
     const [createPartner, { loading }] = useMutation<{ loginPartner: { success: boolean, message: string } }>(LOGIN_PARTNER)
-    const navigate = useNavigate({ from: "/dashboard/partners" });
+    const navigate = useNavigate({ from: "/partners" });
 
     const handleLogin: SubmitHandler<PartnerLoginSchemaType> = async ({ email, password }) => {
         try {

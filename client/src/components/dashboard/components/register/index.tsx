@@ -16,7 +16,7 @@ export default function Register({ setForm }: { setForm: React.Dispatch<React.Se
         resolver: zodResolver(PartnerRegisterSchema)
     })
     const [createPartner, { loading }] = useMutation<{ createPartner: { success: boolean, message: string } }>(CREATE_PARTNER);
-    const navigate = useNavigate({ from: "/dashboard/partners" });
+    const navigate = useNavigate({ from: "/partners" });
     const handleCreatePartner: SubmitHandler<PartnerRegisterSchemaType> = async ({ email, password, storeName }) => {
         try {
             const { data } = await createPartner({ variables: { business_email: email, store_name: storeName, password: password } })

@@ -21,7 +21,7 @@ if (!rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <ApolloProvider client={client}>
-        <RouterProvider router={router} />
+        <RouterProvider router={router} defaultPendingMinMs={0} defaultPendingMs={0} />
       </ApolloProvider>
     </StrictMode>,
   )

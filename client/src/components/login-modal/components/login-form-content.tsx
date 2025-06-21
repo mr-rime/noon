@@ -10,13 +10,12 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import type { User } from "../../../types";
 import { useForm, type SubmitHandler } from "react-hook-form"
+import { LoginFormSchema, type LoginFormSchemaType } from "../schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "../../ui/input";
 
-type FormContentInputs = {
-    email: string
-    password: string
-}
 
-export function FormContent({
+export function LoginFormContent({
     isLogin,
     isPending,
     inputRef,
@@ -30,7 +29,9 @@ export function FormContent({
     const {
         register,
         handleSubmit,
-        watch } = useForm<FormContentInputs>()
+        watch } = useForm<LoginFormSchemaType>({
+            resolver: zodResolver(LoginFormSchema)
+        })
     const [login, { loading }] = useMutation<{
         login: {
             success: boolean,
@@ -39,10 +40,8 @@ export function FormContent({
         }
     }>(LOGIN);
 
-    console.log('render')
 
-
-    const handleLogin: SubmitHandler<FormContentInputs> = async ({ email, password }) => {
+    const handleLogin: SubmitHandler<LoginFormSchemaType> = async ({ email, password }) => {
         try {
             const { data } = await login({ variables: { email, password } })
             if (data?.login.success) {
@@ -73,28 +72,32 @@ export function FormContent({
             <label htmlFor="email" className="sr-only">
                 {isLogin ? 'Email for login' : 'Email for sign up'}
             </label>
-            <input
+            <Input
                 id="email"
                 type="email"
                 placeholder={isLogin ? 'Please enter your email' : 'Please enter your email address'}
-                className={cn(
-                    'w-full p-2 rounded-lg h-[48px] border outline-none border-gray-300 focus:border-gray-500 transition-all',
-                    isPending ? 'opacity-70' : 'opacity-100'
-                )}
+                input={{
+                    className: cn(
+                        'w-full p-2 rounded-lg h-[48px] border outline-none border-gray-300 focus:border-gray-500 transition-all',
+                        isPending ? 'opacity-70' : 'opacity-100'
+                    )
+                }}
                 {...register("email")}
                 style={{ transitionDuration: '200ms' }}
                 disabled={isPending}
                 autoComplete="email"
                 required
             />
-            <input
+            <Input
                 id="password"
                 type="text"
                 placeholder={'Please enter your password'}
-                className={cn(
-                    'w-full p-2 rounded-lg h-[48px] mt-4 border outline-none border-gray-300 focus:border-gray-500 transition-all',
-                    isPending ? 'opacity-70' : 'opacity-100'
-                )}
+                input={{
+                    className: cn(
+                        'w-full p-2 rounded-lg h-[48px] mt-4 border outline-none border-gray-300 focus:border-gray-500 transition-all',
+                        isPending ? 'opacity-70' : 'opacity-100'
+                    )
+                }}
                 {...register("password")}
                 style={{ transitionDuration: '200ms' }}
                 disabled={isPending}
@@ -104,10 +107,10 @@ export function FormContent({
 
             {
                 (watch("email") === "" || watch("password") === "") ?
-                    <button type="button" className="text-[#7e859b] bg-[#f0f1f4] transition-colors w-full h-[48px] text-[14px] font-bold uppercase p-[16px] rounded-lg mt-2">
-                        Continue
+                    <button type="button" className="text-[#7e859b] mt-4 bg-[#f0f1f4] transition-colors w-full h-[48px] text-[14px] font-bold uppercase p-[16px] rounded-lg ">
+                        Log in
                     </button>
-                    : <button type="submit" className="text-white bg-[#3866df] hover:bg-[#3e72f7] transition-colors cursor-pointer w-full h-[48px] text-[14px] font-bold uppercase p-[16px] rounded-lg mt-2 flex items-center justify-center"> {loading ? <Loader2 size={20} className="animate-spin transition-all" /> : "Continue"}</button>
+                    : <button type="submit" className="text-white mt-4 bg-[#3866df] hover:bg-[#3e72f7] transition-colors cursor-pointer w-full h-[48px] text-[14px] font-bold uppercase p-[16px] rounded-lg  flex items-center justify-center"> {loading ? <Loader2 size={20} className="animate-spin transition-all" /> : "Continue"}</button>
             }
 
         </form>

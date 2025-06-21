@@ -5,7 +5,7 @@ import { useSearch } from "@tanstack/react-router"
 
 
 export function PartnerPage() {
-    const page = useSearch({ from: "/(dashboard)/dashboard/partners/", select: (state) => state.page });
+    const page = useSearch({ from: "/(dashboard)/partners/", select: (state) => state.page });
     const [form, setForm] = useState<"login" | "register">(page || "login")
     return (
         <div className="partner-container">

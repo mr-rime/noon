@@ -76,7 +76,7 @@ export const UserMenu = memo(({ user, loading }: { user: User, loading: boolean 
                     </span>
                 </button>
                 {
-                    !loading ? (user && <button onClick={() => navigate({ to: "/dashboard/partners", resetScroll: true })} className=" w-full hover:bg-[#F3F4F8] transition-colors cursor-pointer flex items-center p-[8px_25px] text-center whitespace-nowrap">
+                    !loading ? (user && <button onClick={() => navigate({ to: "/partners", resetScroll: true })} className=" w-full hover:bg-[#F3F4F8] transition-colors cursor-pointer flex items-center p-[8px_25px] text-center whitespace-nowrap">
                         {header_icons.dashboardIcon}
                         <span className="text-[1rem] ml-4">
                             Dashboard
