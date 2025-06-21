@@ -1,16 +1,19 @@
 
+import { cn } from "@/utils/cn";
 import React, { useState, useCallback } from "react";
 
 type DropzoneProps = {
     onFilesDrop?: (files: File[]) => void;
     multiple?: boolean;
     accept?: string;
+    className?: string
 };
 
 export const Dropzone: React.FC<DropzoneProps> = ({
     onFilesDrop,
     multiple = true,
     accept,
+    className
 }) => {
     const [isDragging, setIsDragging] = useState(false);
 
@@ -31,8 +34,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
 
     return (
         <div
-            className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300"
-                }`}
+            className={cn(`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors`, className, isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300")}
             onDragOver={(e) => {
                 e.preventDefault();
                 setIsDragging(true);
