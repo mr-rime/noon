@@ -90,7 +90,7 @@ export function Select({ options, defaultValue, onChange, className, labelConten
     return (
         <div className="relative" ref={selectRef}>
             {labelContent && (
-                <label className="text-[16px]">
+                <label className="text-[16px] ">
                     {labelContent}
                 </label>
             )}

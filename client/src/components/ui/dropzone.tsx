@@ -34,7 +34,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
 
     return (
         <div
-            className={cn(`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors`, className, isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300")}
+            className={cn(`flex items-center justify-center border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors`, className, isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300")}
             onDragOver={(e) => {
                 e.preventDefault();
                 setIsDragging(true);

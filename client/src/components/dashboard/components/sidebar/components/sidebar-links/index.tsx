@@ -1,11 +1,12 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { memo } from "react";
-import { cn } from "../../../../../../utils/cn";
 import { ChartColumnBig, Package, ShoppingBag } from "lucide-react";
+import { cn } from "@/utils/cn";
 
 export const SidebarLinks = memo(() => {
     const navigate = useNavigate();
     const { pathname } = useLocation();
+    const normalizedPath = pathname.replace(/\/+$/, "");
 
     return (
         <section className="p-[8px] flex flex-col items-start gap-[4px] rounded-[12px] bg-white">
@@ -14,31 +15,48 @@ export const SidebarLinks = memo(() => {
             </h3>
             <ul className="w-full ml-3 space-y-4">
                 <li className="w-full">
-                    <button onClick={() => navigate({ to: "/dashboard" })} className={cn("flex items-center h-[48px] hover:bg-[#f2f2f2cc] w-full p-[0_8px] space-x-[10px] rounded-[8px] transition-colors cursor-pointer", pathname === "/dashboard" && "font-bold bg-[#fffcd1] hover:bg-[#fffcd1] ")}>
-                        <ChartColumnBig size={22} className={cn(pathname === "/dashboard" && "text-[#544e03]")} />
-                        <span>
-                            Dashboard
-                        </span>
+                    <button
+                        onClick={() => navigate({ to: "/dashboard" })}
+                        className={cn(
+                            "flex items-center h-[48px] w-full p-[0_8px] space-x-[10px] rounded-[8px] transition-colors cursor-pointer",
+                            normalizedPath === "/dashboard"
+                                ? "font-bold bg-[#fffcd1] text-[#544e03]"
+                                : "hover:bg-[#f2f2f2cc]"
+                        )}
+                    >
+                        <ChartColumnBig size={22} />
+                        <span>Dashboard</span>
                     </button>
                 </li>
                 <li className="w-full">
-                    <button onClick={() => navigate({ to: "/dashboard/products" })} className={cn("flex items-center h-[48px] hover:bg-[#f2f2f2cc] w-full p-[0_8px] space-x-[10px] rounded-[8px] transition-colors cursor-pointer", (pathname === "/dashboard/products" || pathname === "/dashboard/products/new") && "font-bold bg-[#fffcd1] hover:bg-[#fffcd1] ")}>
-                        <Package size={22} className={cn((pathname === "/dashboard/products" || pathname === "/dashboard/products/new") && "text-[#544e03]")} />
-                        <span>
-                            Products
-                        </span>
+                    <button
+                        onClick={() => navigate({ to: "/dashboard/products" })}
+                        className={cn(
+                            "flex items-center h-[48px] w-full p-[0_8px] space-x-[10px] rounded-[8px] transition-colors cursor-pointer",
+                            normalizedPath.startsWith("/dashboard/products")
+                                ? "font-bold bg-[#fffcd1] text-[#544e03]"
+                                : "hover:bg-[#f2f2f2cc]"
+                        )}
+                    >
+                        <Package size={22} />
+                        <span>Products</span>
                     </button>
                 </li>
-
                 <li className="w-full">
-                    <button onClick={() => navigate({ to: "/dashboard/orders" })} className={cn("flex items-center h-[48px] hover:bg-[#f2f2f2cc] w-full p-[0_8px] space-x-[10px] rounded-[8px] transition-colors cursor-pointer", pathname === "/dashboard/orders" && "font-bold bg-[#fffcd1] hover:bg-[#fffcd1] ")}>
-                        <ShoppingBag size={22} className={cn(pathname === "/dashboard/orders" && "text-[#544e03]")} />
-                        <span>
-                            Orders
-                        </span>
+                    <button
+                        onClick={() => navigate({ to: "/dashboard/orders" })}
+                        className={cn(
+                            "flex items-center h-[48px] w-full p-[0_8px] space-x-[10px] rounded-[8px] transition-colors cursor-pointer",
+                            normalizedPath.startsWith("/dashboard/orders")
+                                ? "font-bold bg-[#fffcd1] text-[#544e03]"
+                                : "hover:bg-[#f2f2f2cc]"
+                        )}
+                    >
+                        <ShoppingBag size={22} />
+                        <span>Orders</span>
                     </button>
                 </li>
             </ul>
         </section>
-    )
-})
+    );
+});
