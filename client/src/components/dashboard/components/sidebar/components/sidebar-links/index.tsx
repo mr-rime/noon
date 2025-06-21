@@ -22,8 +22,8 @@ export const SidebarLinks = memo(() => {
                     </button>
                 </li>
                 <li className="w-full">
-                    <button onClick={() => navigate({ to: "/dashboard/products" })} className={cn("flex items-center h-[48px] hover:bg-[#f2f2f2cc] w-full p-[0_8px] space-x-[10px] rounded-[8px] transition-colors cursor-pointer", pathname === "/dashboard/products" && "font-bold bg-[#fffcd1] hover:bg-[#fffcd1] ")}>
-                        <Package size={22} className={cn(pathname === "/dashboard/products" && "text-[#544e03]")} />
+                    <button onClick={() => navigate({ to: "/dashboard/products" })} className={cn("flex items-center h-[48px] hover:bg-[#f2f2f2cc] w-full p-[0_8px] space-x-[10px] rounded-[8px] transition-colors cursor-pointer", (pathname === "/dashboard/products" || pathname === "/dashboard/products/new") && "font-bold bg-[#fffcd1] hover:bg-[#fffcd1] ")}>
+                        <Package size={22} className={cn((pathname === "/dashboard/products" || pathname === "/dashboard/products/new") && "text-[#544e03]")} />
                         <span>
                             Products
                         </span>

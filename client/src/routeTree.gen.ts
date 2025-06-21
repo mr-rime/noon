@@ -30,6 +30,7 @@ import { Route as mainHomeLayoutprofileProfileLayoutProfileIndexImport } from '.
 import { Route as mainHomeLayoutprofileProfileLayoutPaymentsIndexImport } from './routes/(main)/_homeLayout/(profile)/_profileLayout/payments/index'
 import { Route as mainHomeLayoutprofileProfileLayoutOrdersIndexImport } from './routes/(main)/_homeLayout/(profile)/_profileLayout/orders/index'
 import { Route as mainHomeLayoutprofileProfileLayoutAddressesIndexImport } from './routes/(main)/_homeLayout/(profile)/_profileLayout/addresses/index'
+import { Route as dashboardDashboardLayoutDashboardProductsNewIndexImport } from './routes/(dashboard)/_dashboardLayout/dashboard/products/new/index'
 import { Route as mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexImport } from './routes/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/index'
 import { Route as mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexImport } from './routes/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/index'
 
@@ -169,6 +170,13 @@ const mainHomeLayoutprofileProfileLayoutAddressesIndexRoute =
     getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
   } as any)
 
+const dashboardDashboardLayoutDashboardProductsNewIndexRoute =
+  dashboardDashboardLayoutDashboardProductsNewIndexImport.update({
+    id: '/dashboard/products/new/',
+    path: '/dashboard/products/new/',
+    getParentRoute: () => dashboardDashboardLayoutRoute,
+  } as any)
+
 const mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexRoute =
   mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexImport.update({
     id: '/orders/$orderId/',
@@ -285,6 +293,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof mainHomeLayoutSellerSellerIdIndexImport
       parentRoute: typeof mainHomeLayoutImport
     }
+    '/(dashboard)/_dashboardLayout/dashboard/products/new/': {
+      id: '/(dashboard)/_dashboardLayout/dashboard/products/new/'
+      path: '/dashboard/products/new'
+      fullPath: '/dashboard/products/new'
+      preLoaderRoute: typeof dashboardDashboardLayoutDashboardProductsNewIndexImport
+      parentRoute: typeof dashboardDashboardLayoutImport
+    }
     '/(main)/_homeLayout/(profile)/_profileLayout/addresses/': {
       id: '/(main)/_homeLayout/(profile)/_profileLayout/addresses/'
       path: '/addresses'
@@ -350,6 +365,7 @@ interface dashboardDashboardLayoutRouteChildren {
   dashboardDashboardLayoutDashboardIndexRoute: typeof dashboardDashboardLayoutDashboardIndexRoute
   dashboardDashboardLayoutDashboardOrdersIndexRoute: typeof dashboardDashboardLayoutDashboardOrdersIndexRoute
   dashboardDashboardLayoutDashboardProductsIndexRoute: typeof dashboardDashboardLayoutDashboardProductsIndexRoute
+  dashboardDashboardLayoutDashboardProductsNewIndexRoute: typeof dashboardDashboardLayoutDashboardProductsNewIndexRoute
 }
 
 const dashboardDashboardLayoutRouteChildren: dashboardDashboardLayoutRouteChildren =
@@ -360,6 +376,8 @@ const dashboardDashboardLayoutRouteChildren: dashboardDashboardLayoutRouteChildr
       dashboardDashboardLayoutDashboardOrdersIndexRoute,
     dashboardDashboardLayoutDashboardProductsIndexRoute:
       dashboardDashboardLayoutDashboardProductsIndexRoute,
+    dashboardDashboardLayoutDashboardProductsNewIndexRoute:
+      dashboardDashboardLayoutDashboardProductsNewIndexRoute,
   }
 
 const dashboardDashboardLayoutRouteWithChildren =
@@ -471,6 +489,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/products': typeof dashboardDashboardLayoutDashboardProductsIndexRoute
   '/p/$productId': typeof mainHomeLayoutPProductIdIndexRoute
   '/seller/$sellerId': typeof mainHomeLayoutSellerSellerIdIndexRoute
+  '/dashboard/products/new': typeof dashboardDashboardLayoutDashboardProductsNewIndexRoute
   '/addresses': typeof mainHomeLayoutprofileProfileLayoutAddressesIndexRoute
   '/orders': typeof mainHomeLayoutprofileProfileLayoutOrdersIndexRoute
   '/payments': typeof mainHomeLayoutprofileProfileLayoutPaymentsIndexRoute
@@ -490,6 +509,7 @@ export interface FileRoutesByTo {
   '/dashboard/products': typeof dashboardDashboardLayoutDashboardProductsIndexRoute
   '/p/$productId': typeof mainHomeLayoutPProductIdIndexRoute
   '/seller/$sellerId': typeof mainHomeLayoutSellerSellerIdIndexRoute
+  '/dashboard/products/new': typeof dashboardDashboardLayoutDashboardProductsNewIndexRoute
   '/addresses': typeof mainHomeLayoutprofileProfileLayoutAddressesIndexRoute
   '/orders': typeof mainHomeLayoutprofileProfileLayoutOrdersIndexRoute
   '/payments': typeof mainHomeLayoutprofileProfileLayoutPaymentsIndexRoute
@@ -516,6 +536,7 @@ export interface FileRoutesById {
   '/(dashboard)/_dashboardLayout/dashboard/products/': typeof dashboardDashboardLayoutDashboardProductsIndexRoute
   '/(main)/_homeLayout/p/$productId/': typeof mainHomeLayoutPProductIdIndexRoute
   '/(main)/_homeLayout/seller/$sellerId/': typeof mainHomeLayoutSellerSellerIdIndexRoute
+  '/(dashboard)/_dashboardLayout/dashboard/products/new/': typeof dashboardDashboardLayoutDashboardProductsNewIndexRoute
   '/(main)/_homeLayout/(profile)/_profileLayout/addresses/': typeof mainHomeLayoutprofileProfileLayoutAddressesIndexRoute
   '/(main)/_homeLayout/(profile)/_profileLayout/orders/': typeof mainHomeLayoutprofileProfileLayoutOrdersIndexRoute
   '/(main)/_homeLayout/(profile)/_profileLayout/payments/': typeof mainHomeLayoutprofileProfileLayoutPaymentsIndexRoute
@@ -537,6 +558,7 @@ export interface FileRouteTypes {
     | '/dashboard/products'
     | '/p/$productId'
     | '/seller/$sellerId'
+    | '/dashboard/products/new'
     | '/addresses'
     | '/orders'
     | '/payments'
@@ -555,6 +577,7 @@ export interface FileRouteTypes {
     | '/dashboard/products'
     | '/p/$productId'
     | '/seller/$sellerId'
+    | '/dashboard/products/new'
     | '/addresses'
     | '/orders'
     | '/payments'
@@ -579,6 +602,7 @@ export interface FileRouteTypes {
     | '/(dashboard)/_dashboardLayout/dashboard/products/'
     | '/(main)/_homeLayout/p/$productId/'
     | '/(main)/_homeLayout/seller/$sellerId/'
+    | '/(dashboard)/_dashboardLayout/dashboard/products/new/'
     | '/(main)/_homeLayout/(profile)/_profileLayout/addresses/'
     | '/(main)/_homeLayout/(profile)/_profileLayout/orders/'
     | '/(main)/_homeLayout/(profile)/_profileLayout/payments/'
@@ -627,7 +651,8 @@ export const routeTree = rootRoute
       "children": [
         "/(dashboard)/_dashboardLayout/dashboard/",
         "/(dashboard)/_dashboardLayout/dashboard/orders/",
-        "/(dashboard)/_dashboardLayout/dashboard/products/"
+        "/(dashboard)/_dashboardLayout/dashboard/products/",
+        "/(dashboard)/_dashboardLayout/dashboard/products/new/"
       ]
     },
     "/(main)": {
@@ -699,6 +724,10 @@ export const routeTree = rootRoute
     "/(main)/_homeLayout/seller/$sellerId/": {
       "filePath": "(main)/_homeLayout/seller/$sellerId/index.tsx",
       "parent": "/(main)/_homeLayout"
+    },
+    "/(dashboard)/_dashboardLayout/dashboard/products/new/": {
+      "filePath": "(dashboard)/_dashboardLayout/dashboard/products/new/index.tsx",
+      "parent": "/(dashboard)/_dashboardLayout"
     },
     "/(main)/_homeLayout/(profile)/_profileLayout/addresses/": {
       "filePath": "(main)/_homeLayout/(profile)/_profileLayout/addresses/index.tsx",
