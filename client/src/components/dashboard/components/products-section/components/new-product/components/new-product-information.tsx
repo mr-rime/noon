@@ -1,9 +1,14 @@
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { AddOptionSection } from "./add-option-section";
+import { AddSpecSection } from "./add-spec-section";
+
 
 export function NewProductInformation() {
+
     return (
-        <form className="w-1/2 border border-[#E4E4E7] p-5 rounded-xl min-h-full h-[calc(100vh-160px)]">
+        <form className="w-1/2 border border-[#E4E4E7] p-5 rounded-xl min-h-full h-[calc(100vh-160px)] overflow-auto space-y-4">
             <Input
                 labelContent="Product Name"
                 className="mb-4"
@@ -50,6 +55,10 @@ export function NewProductInformation() {
                     rows={4}
                 />
             </div>
+            <Separator className="my-7" />
+            <AddOptionSection />
+            <Separator className="my-7" />
+            <AddSpecSection />
         </form>
-    )
+    );
 }

@@ -47,7 +47,10 @@ export function NewProductImages() {
     };
 
     return (
-        <div className="w-1/2 border border-[#E4E4E7] p-5 rounded-xl min-h-full h-[calc(100vh-160px)]">
+        <div className="w-1/2 border border-[#E4E4E7] p-5 rounded-xl min-h-[calc(100vh-160px)]">
+            <div className="mb-2 text-[#6B6D6E]">
+                Add Images
+            </div>
             <Dropzone accept="image/*" onFilesDrop={handleFiles} className="w-full h-[250px]" />
             <div className="flex flex-col items-start justify-center mt-8 space-y-3">
                 {files.map((file, idx) => (
