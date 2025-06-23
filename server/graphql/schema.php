@@ -8,12 +8,16 @@ require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/types/UserTypes.php';
 require_once __DIR__ . '/types/PartnerTypes.php';
 require_once __DIR__ . '/types/ProductTypes.php';
+require_once __DIR__ . '/types/ProductOptionTypes.php';
+require_once __DIR__ . '/types/ProductSpecificationTypes.php';
 require_once __DIR__ . '/types/OrderTypes.php';
+require_once __DIR__ . '/types/UploadTypes.php';
 require_once __DIR__ . '/resolvers/UserResolver.php';
 require_once __DIR__ . '/resolvers/PartnerResolver.php';
 require_once __DIR__ . '/resolvers/AuthResolver.php';
 require_once __DIR__ . '/resolvers/ProdcutResolver.php';
 require_once __DIR__ . '/resolvers/OrderResolver.php';
+require_once __DIR__ . '/resolvers/UploadResolver.php';
 
 $QueryType = new ObjectType([
     'name' => 'query',
@@ -39,7 +43,7 @@ $QueryType = new ObjectType([
             'resolve' => requireAuth(fn($root, $args, $context) => getPartner($context['db'], $args))
         ],
 
-        'products' => [
+        'getProducts' => [
             'type' => $ProductsResponseType,
             'resolve' => requireAuth(fn($root, $args, $context) => getAllProducts($context['db']))
         ],
@@ -108,10 +112,12 @@ $MutationType = new ObjectType([
             'args' => [
                 'name' => Type::nonNull(Type::string()),
                 'price' => Type::nonNull(Type::float()),
-                'category_id' => Type::int(),
+                'category_id' => Type::string(),
                 'currency' => Type::string(),
                 'product_overview' => Type::string(),
                 'images' => Type::listOf($ProductImageInputType),
+                'productOptions' => Type::listOf($ProductOptionInputType),
+                'productSpecifications' => Type::listOf($ProductSpecInputType),
             ],
             'resolve' => requireAuth(fn($root, $args, $context) => createProduct($context['db'], $args))
         ],
@@ -125,6 +131,14 @@ $MutationType = new ObjectType([
                 'items' => Type::listOf($OrderItemInputType),
             ],
             'resolve' => requireAuth(fn($root, $args, $context) => createOrder($context['db'], $args))
+        ],
+
+        'uploadImage' => [
+            'type' => $UploadResponseType,
+            'args' => [
+                'file' => Type::nonNull($UploadScalar),
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => uploadImageResolver($args))
         ]
     ]
 ]);

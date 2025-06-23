@@ -1,5 +1,8 @@
 import { Dropzone } from "@/components/ui/dropzone";
-import { getImageBase64 } from "@/utils/get-image-base-64";
+import { Skeleton } from "@/components/ui/skeleton";
+import { UPLOAD_FILE } from "@/graphql/upload-file";
+import { useProductStore } from "@/store/create-product-store";
+import { useMutation } from "@apollo/client";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 
@@ -9,45 +12,102 @@ type ProductImageFile = {
     name: string;
     size: string;
     type: string;
+    loading: boolean;
 };
 
 export function NewProductImages() {
+    const [uploadImage] = useMutation(UPLOAD_FILE)
     const [files, setFiles] = useState<ProductImageFile[]>([]);
+    const addImage = useProductStore(state => state.addImage)
+    const setProduct = useProductStore(state => state.setProduct);
 
     const handleFiles = async (incomingFiles: File[]) => {
         try {
-            const base64Images = await Promise.all(
-                incomingFiles.map(file => getImageBase64(file))
-            );
+            const existingFileNames = new Set(files.map((f) => f.name));
 
-            const newFileObjects: ProductImageFile[] = incomingFiles.map((file, idx) => ({
-                file,
-                imgUrl: base64Images[idx],
-                name: file.name,
-                size:
-                    file.size > 1024 * 1024
-                        ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
-                        : `${(file.size / 1024).toFixed(2)} KB`,
-                type: file.type,
-            }));
+            const newUniqueFiles = incomingFiles.filter(file => !existingFileNames.has(file.name));
+            if (newUniqueFiles.length === 0) return;
 
-            const existingBase64 = new Set(files.map(f => f.imgUrl));
-            const uniqueFiles = newFileObjects.filter(f => !existingBase64.has(f.imgUrl));
+            setFiles(prev => [
+                ...prev,
+                ...newUniqueFiles.map(file => ({
+                    file,
+                    imgUrl: "",
+                    name: file.name,
+                    size: "",
+                    type: file.type,
+                    loading: true,
+                }))
+            ]);
 
-            if (uniqueFiles.length === 0) return;
+            const uploadPromises = newUniqueFiles.map(async (file) => {
+                const { data } = await uploadImage({
+                    variables: { file },
+                });
 
-            setFiles(prev => [...prev, ...uniqueFiles]);
+                const uploadedUrl = data?.uploadImage?.url;
+                if (!uploadedUrl) return null;
+
+                return {
+                    file,
+                    imgUrl: uploadedUrl,
+                    name: file.name,
+                    size:
+                        file.size > 1024 * 1024
+                            ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
+                            : `${(file.size / 1024).toFixed(2)} KB`,
+                    type: file.type,
+                    loading: false,
+                };
+            });
+
+            const uploadedFiles = await Promise.all(uploadPromises);
+            const validFiles = uploadedFiles.filter((f): f is ProductImageFile => !!f);
+
+            setFiles(prev => {
+                const updated = prev.map((p) => {
+                    const match = validFiles.find(v => v.name === p.name);
+                    return match ? match : p;
+                });
+                return updated;
+            });
+
+            validFiles.forEach((f, idx) => {
+                addImage({
+                    image_url: f.imgUrl,
+                    is_primary: idx === 0,
+                });
+            });
         } catch (err) {
-            console.error("Error processing files:", err);
+            console.error("Error uploading files:", err);
         }
     };
 
+
     const handleDelete = (idx: number) => {
-        setFiles(prev => prev.filter((_, i) => i !== idx));
+        setFiles(prev => {
+            const updated = [...prev];
+            const [removed] = updated.splice(idx, 1);
+
+            if (removed?.imgUrl) {
+                setProduct({
+                    images: (files
+                        .filter((_, i) => i !== idx)
+                        .filter(f => !!f.imgUrl)
+                        .map(f => ({
+                            image_url: f.imgUrl,
+                            is_primary: false
+                        }))
+                    )
+                });
+            }
+
+            return updated;
+        });
     };
 
     return (
-        <div className="w-1/2 border border-[#E4E4E7] p-5 rounded-xl min-h-[calc(100vh-160px)]">
+        <div className="w-1/2 border border-[#E4E4E7] p-5 rounded-xl h-[calc(100vh-160px)] overflow-y-auto">
             <div className="mb-2 text-[#6B6D6E]">
                 Add Images
             </div>
@@ -69,24 +129,35 @@ function ProductImageFile({
     name,
     size,
     imgUrl,
+    loading,
     onDelete
 }: ProductImageFile & { onDelete: () => void }) {
     return (
         <div className="flex items-center justify-between border p-2 border-[#E4E4E7] w-full rounded-[10px]">
             <div className="flex items-center space-x-2">
-                <div className="w-[70px] h-[70px] p-2 rounded-[10px] overflow-hidden bg-[#F8F8F8]">
-                    <img src={imgUrl} alt={imgUrl} className="w-full h-full object-cover" />
-                </div>
+                {loading ? (
+                    <Skeleton className="w-[70px] h-[70px] rounded-[10px] flex items-center justify-center" />
+                ) : (
+                    <div className="w-[70px] h-[70px] p-2 rounded-[10px] overflow-hidden bg-[#F8F8F8]">
+                        <img src={imgUrl} alt={imgUrl} className="w-full h-full object-cover" />
+                    </div>
+                )}
                 <div>
                     <div className="text-[17px]">{name}</div>
                     <div className="text-[14px] text-[#B1B5B4]">{size}</div>
                 </div>
             </div>
-            <Trash2
-                size={22}
-                className="cursor-pointer text-[#7A7E83] transition-colors hover:text-red-400"
-                onClick={onDelete}
-            />
+            {
+                loading ? <Trash2
+                    size={22}
+                    className="cursor-not-allowed text-[#7A7E83] transition-colors "
+                /> : <Trash2
+                    size={22}
+                    className="cursor-pointer text-[#7A7E83] transition-colors hover:text-red-400"
+                    onClick={onDelete}
+                />
+            }
         </div>
     );
 }
+

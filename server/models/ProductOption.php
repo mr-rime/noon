@@ -26,25 +26,26 @@ class ProductOption
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function create(string $productId, string $name, string $value): ?array
+    public function create(string $productId, string $name, string $value, string $type): ?array
     {
         $validator = v::stringType()->notEmpty();
         try {
             $validator->assert($productId);
             $validator->assert($name);
             $validator->assert($value);
+            $validator->assert($type);
         } catch (ValidationException $err) {
             error_log("Validation failed: " . $err->getMessage());
             return null;
         }
 
-        $query = 'INSERT INTO product_options (product_id, name, value) VALUES (?, ?, ?)';
+        $query = 'INSERT INTO product_options (product_id, name, value, type) VALUES (?, ?, ?, ?)';
         $stmt = $this->db->prepare($query);
         if (!$stmt) {
             error_log("Prepare failed: " . $this->db->error);
             return null;
         }
-        $stmt->bind_param('sss', $productId, $name, $value);
+        $stmt->bind_param('ssss', $productId, $name, $value, $type);
         if ($stmt->execute()) {
             $id = $stmt->insert_id;
             return $this->findById($id);

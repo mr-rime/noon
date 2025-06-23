@@ -1,30 +1,34 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useProductStore } from "@/store/create-product-store";
 import { Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
-
-type ProductSpecification = {
-    spec_name: string;
-    spec_value: string;
-};
-
 
 export function AddSpecSection() {
-    const [specs, setSpecs] = useState<ProductSpecification[]>([]);
+    const {
+        product,
+        setProduct,
+        addSpecification
+    } = useProductStore();
 
+    const specs = product.productSpecifications;
 
-    const handleSpecChange = (index: number, key: keyof ProductSpecification, value: string) => {
-        setSpecs(prev =>
-            prev.map((spec, i) => (i === index ? { ...spec, [key]: value } : spec))
-        );
+    const handleSpecChange = (
+        index: number,
+        key: keyof typeof specs[number],
+        value: string
+    ) => {
+        const updatedSpecs = [...specs];
+        updatedSpecs[index] = { ...updatedSpecs[index], [key]: value };
+        setProduct({ productSpecifications: updatedSpecs });
     };
 
-    const addSpec = () => {
-        setSpecs(prev => [...prev, { spec_name: "", spec_value: "" }]);
+    const handleAddSpec = () => {
+        addSpecification({ spec_name: "", spec_value: "" });
     };
 
-    const removeSpec = (index: number) => {
-        setSpecs(prev => prev.filter((_, i) => i !== index));
+    const handleRemoveSpec = (index: number) => {
+        const updatedSpecs = specs.filter((_, i) => i !== index);
+        setProduct({ productSpecifications: updatedSpecs });
     };
 
     return (
@@ -33,7 +37,7 @@ export function AddSpecSection() {
                 <h3 className="text-lg font-semibold">Product Specifications</h3>
                 <Button
                     type="button"
-                    onClick={addSpec}
+                    onClick={handleAddSpec}
                     className="flex items-center gap-1 h-[40px]"
                 >
                     <Plus className="w-4 h-4" />
@@ -65,7 +69,7 @@ export function AddSpecSection() {
 
                     <Button
                         type="button"
-                        onClick={() => removeSpec(index)}
+                        onClick={() => handleRemoveSpec(index)}
                         className="flex items-center gap-1 bg-red-500 hover:bg-red-600 h-[40px]"
                     >
                         <Trash2 size={20} />
@@ -74,5 +78,5 @@ export function AddSpecSection() {
                 </div>
             ))}
         </div>
-    )
+    );
 }

@@ -3,7 +3,8 @@
     "require": {
         "webonyx/graphql-php": "^15.20",
         "hidehalo/nanoid-php": "^2.0",
-        "respect/validation": "^2.4"
+        "respect/validation": "^2.4",
+        "symfony/http-foundation": "^7.3"
     },
     "authors": [
         {
