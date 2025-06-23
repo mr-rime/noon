@@ -4,6 +4,8 @@ use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\ValidationException;
 
 require_once __DIR__ . '/ProductImage.php';
+require_once __DIR__ . '/ProductOption.php';
+require_once __DIR__ . '/ProductSpecification.php';
 
 class Product
 {
@@ -40,7 +42,9 @@ class Product
                     'price' => $row['price'],
                     'currency' => $row['currency'],
                     'product_overview' => $row['product_overview'],
-                    'images' => []
+                    'created_at' => $row['created_at'],
+                    'updated_at' => $row['updated_at'],
+                    'images' => [],
                 ];
             }
 
@@ -48,13 +52,22 @@ class Product
                 $products[$productId]['images'][] = [
                     'id' => $row['image_id'],
                     'image_url' => $row['image_url'],
-                    'is_primary' => (bool) $row['is_primary']
+                    'is_primary' => (bool) $row['is_primary'],
                 ];
             }
         }
 
+        $optionModel = new ProductOption($this->db);
+        $specModel = new ProductSpecification($this->db);
+
+        foreach ($products as $productId => &$product) {
+            $product['productOptions'] = $optionModel->findByProductId($productId);
+            $product['productSpecifications'] = $specModel->findByProductId($productId);
+        }
+
         return array_values($products);
     }
+
 
     public function findById(string $id): ?array
     {
@@ -112,14 +125,22 @@ class Product
 
         $stmt->close();
 
+        if ($product !== null) {
+            $optionModel = new ProductOption($this->db);
+            $specModel = new ProductSpecification($this->db);
+
+            $product['productOptions'] = $optionModel->findByProductId($id);
+            $product['productSpecifications'] = $specModel->findByProductId($id);
+        }
+
         return $product;
     }
 
 
+
     public function create(array $data): ?array
     {
-        $validator = v::
-            key('name', v::stringType()->notEmpty()->length(1, 100))
+        $validator = v::key('name', v::stringType()->notEmpty()->length(1, 100))
             ->key('price', v::floatVal()->positive())
             ->key('currency', v::stringType()->notEmpty()->length(3, 4))
             ->key('product_overview', v::optional(v::stringType()));
@@ -131,7 +152,7 @@ class Product
             return null;
         }
 
-        $query = 'INSERT INTO products (id,user_id, name, price, currency, product_overview) VALUES (?, ?, ?, ?, ?, ?)';
+        $query = 'INSERT INTO products (id, user_id, name, price, currency, product_overview) VALUES (?, ?, ?, ?, ?, ?)';
         $stmt = $this->db->prepare($query);
 
         if (!$stmt) {
@@ -153,28 +174,52 @@ class Product
             $productOverview
         );
 
-        if ($stmt->execute()) {
-            $product = $this->findById($hash);
-
-            if (!empty($data['images']) && is_array($data['images'])) {
-                $imageModel = new ProductImage($this->db);
-
-                foreach ($data['images'] as $image) {
-                    $imageUrl = $image['image_url'] ?? null;
-                    $isPrimary = $image['is_primary'] ?? false;
-
-                    if ($imageUrl) {
-                        $imageModel->create($hash, $imageUrl, $isPrimary);
-                    }
-                }
-            }
-
-            return $product;
-        } else {
+        if (!$stmt->execute()) {
             error_log("Execute failed: " . $stmt->error);
             return null;
         }
+
+        if (!empty($data['images']) && is_array($data['images'])) {
+            $imageModel = new ProductImage($this->db);
+            foreach ($data['images'] as $image) {
+                $imageUrl = $image['image_url'] ?? null;
+                $isPrimary = $image['is_primary'] ?? false;
+
+                if ($imageUrl) {
+                    $imageModel->create($hash, $imageUrl, $isPrimary);
+                }
+            }
+        }
+
+        if (!empty($data['productOptions']) && is_array($data['productOptions'])) {
+            $optionModel = new ProductOption($this->db);
+            foreach ($data['productOptions'] as $option) {
+                $name = $option['name'] ?? null;
+                $value = $option['value'] ?? null;
+                $type = $option['type'] ?? null;
+
+                if ($name && $value && $type && in_array($type, ['text', 'image'])) {
+                    $optionModel->create($hash, $name, $value, $type);
+                }
+            }
+        }
+
+        if (!empty($data['productSpecifications']) && is_array($data['productSpecifications'])) {
+            $specModel = new ProductSpecification($this->db);
+            foreach ($data['productSpecifications'] as $spec) {
+                $specName = $spec['spec_name'] ?? null;
+                $specValue = $spec['spec_value'] ?? null;
+
+                if ($specName && $specValue) {
+                    $specModel->create($hash, $specName, $specValue);
+                }
+            }
+        }
+
+        return $this->findById($hash);
     }
+
+
 
     public function update(string $id, array $data): ?array
     {

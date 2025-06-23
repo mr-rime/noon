@@ -64,7 +64,8 @@ export function Input({
                     </div>
                     <input
                         className={cn(
-                            "text-[16px] w-full h-[40px] border border-[#E2E5F1] outline-none rounded-[6px] px-3",
+                            "text-[16px] w-full border border-[#E2E5F1] outline-none rounded-[6px] px-3",
+                            "pt-[10px] pb-[10px] leading-[1.2]",
                             iconLeft && "pl-10",
                             iconRight && "pr-10",
                             input?.className,

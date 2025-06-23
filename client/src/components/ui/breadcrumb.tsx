@@ -9,12 +9,14 @@ type BreadcrumbItem = {
 
 type BreadcrumbProps = {
     items?: BreadcrumbItem[];
+    onClick?: () => void;
     separator?: React.ReactNode;
     className?: string;
 };
 
 export const Breadcrumb: React.FC<BreadcrumbProps> = ({
     items,
+    onClick,
     separator = <ChevronRight className="w-4 h-4 text-gray-400" />,
     className = "",
 }) => {
@@ -39,7 +41,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
                 {finalItems.map((item, index) => {
                     const isLast = index === finalItems.length - 1;
                     return (
-                        <li key={index} className="flex items-center">
+                        <li onClick={onClick} key={index} className="flex items-center">
                             {!isLast ? (
                                 <Link to={item.href!} className="hover:underline text-blue-600">
                                     {item.label}

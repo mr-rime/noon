@@ -3,6 +3,7 @@
     "private": true,
     "version": "0.0.0",
     "type": "module",
+   
     "scripts": {
         "dev": "vite",
         "build": "tsc -b && vite build",
@@ -16,6 +17,7 @@
         "@tanstack/react-router": "^1.120.5",
         "@tanstack/react-router-devtools": "^1.120.6",
         "@types/js-cookie": "^3.0.6",
+        "apollo-upload-client": "^18.0.1",
         "clsx": "^2.1.1",
         "graphql": "^16.11.0",
         "js-cookie": "^3.0.5",
@@ -27,12 +29,14 @@
         "sonner": "^2.0.5",
         "tailwind-merge": "^3.3.0",
         "tailwindcss": "^4.1.7",
-        "zod": "^3.25.67"
+        "zod": "^3.25.67",
+        "zustand": "^5.0.5"
     },
     "devDependencies": {
         "@eslint/js": "^9.25.0",
         "@napi-rs/canvas": "^0.1.70",
         "@tanstack/router-plugin": "^1.120.5",
+        "@types/apollo-upload-client": "^18.0.0",
         "@types/node": "^22.15.23",
         "@types/react": "^19.1.2",
         "@types/react-dom": "^19.1.2",
