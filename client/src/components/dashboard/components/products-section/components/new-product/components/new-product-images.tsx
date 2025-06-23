@@ -107,7 +107,7 @@ export function NewProductImages() {
     };
 
     return (
-        <div className="w-1/2 border border-[#E4E4E7] p-5 rounded-xl h-[calc(100vh-160px)] overflow-y-auto">
+        <div className="md:w-1/2 w-full border border-[#E4E4E7] p-5 rounded-xl md:h-[calc(100vh-160px)] overflow-y-auto">
             <div className="mb-2 text-[#6B6D6E]">
                 Add Images
             </div>

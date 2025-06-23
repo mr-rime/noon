@@ -41,12 +41,12 @@ export function AddOptionSection() {
 
     return (
         <div>
-            <div className="flex items-center justify-between mb-5">
+            <div className="flex max-md:flex-col items-center justify-between mb-5">
                 <h3 className="text-lg font-semibold">Product Options</h3>
                 <Button
                     type="button"
                     onClick={handleAddOption}
-                    className="flex items-center gap-1 h-[40px]"
+                    className="flex items-center gap-1 h-[40px] max-md:w-full max-md:mt-3 justify-center"
                 >
                     <Plus className="w-4 h-4" />
                     Add Option
@@ -96,9 +96,9 @@ export function AddOptionSection() {
                             />
                             {option.value && (
                                 <div className="mt-2">
-                                    <img 
-                                        src={option.value as string} 
-                                        alt="Option preview" 
+                                    <img
+                                        src={option.value as string}
+                                        alt="Option preview"
                                         className="h-20 w-20 object-cover rounded"
                                     />
                                 </div>
@@ -109,7 +109,7 @@ export function AddOptionSection() {
                     <Button
                         type="button"
                         onClick={() => handleRemoveOption(index)}
-                        className="flex items-center gap-1 bg-red-500 hover:bg-red-600 h-[40px]"
+                        className="flex items-center justify-center max-md:w-full gap-1 bg-red-500 hover:bg-red-600 h-[40px]"
                     >
                         <Trash2 size={20} />
                         Remove

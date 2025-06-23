@@ -60,7 +60,7 @@ export function NewProductInformation() {
     };
 
     return (
-        <div className="w-1/2 border border-[#E4E4E7] p-5 rounded-xl min-h-full h-[calc(100vh-160px)] overflow-auto space-y-4">
+        <div className="md:w-1/2 w-full border border-[#E4E4E7] p-5 rounded-xl min-h-full h-[calc(100vh-160px)] overflow-auto space-y-4">
             <Input
                 labelContent="Product Name"
                 className="mb-2"

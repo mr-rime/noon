@@ -33,12 +33,12 @@ export function AddSpecSection() {
 
     return (
         <div>
-            <div className="flex items-center justify-between mb-5">
+            <div className="flex max-md:flex-col items-center justify-between mb-5">
                 <h3 className="text-lg font-semibold">Product Specifications</h3>
                 <Button
                     type="button"
                     onClick={handleAddSpec}
-                    className="flex items-center gap-1 h-[40px]"
+                    className="flex items-center justify-center max-md:w-full max-md:mt-3 gap-1 h-[40px]"
                 >
                     <Plus className="w-4 h-4" />
                     Add Specification
@@ -70,7 +70,7 @@ export function AddSpecSection() {
                     <Button
                         type="button"
                         onClick={() => handleRemoveSpec(index)}
-                        className="flex items-center gap-1 bg-red-500 hover:bg-red-600 h-[40px]"
+                        className="flex items-center justify-center max-md:w-full gap-1 bg-red-500 hover:bg-red-600 h-[40px]"
                     >
                         <Trash2 size={20} />
                         Remove
