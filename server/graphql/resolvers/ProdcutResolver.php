@@ -3,11 +3,11 @@
 require_once __DIR__ . '/../../models/Product.php';
 
 
-function getAllProducts(mysqli $db): array
+function getAllProducts(mysqli $db, array $data): array
 {
     try {
         $model = new Product($db);
-        $products = $model->findAll();
+        $products = $model->findAll($data['limit'], $data['offset']);
 
         return [
             'success' => true,

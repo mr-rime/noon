@@ -2,11 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Dropzone } from "@/components/ui/dropzone";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { UPLOAD_FILE } from "@/graphql/upload-file";
 import { useProductStore } from "@/store/create-product-store";
-import { getImageBlobURL } from "@/utils/get-image-blob-url";
+import { useMutation } from "@apollo/client";
 import { Plus, Trash2 } from "lucide-react";
 
 export function AddOptionSection() {
+    const [uploadImage] = useMutation(UPLOAD_FILE)
     const options = useProductStore((state) => state.product.productOptions);
     const setProduct = useProductStore((state) => state.setProduct);
     const addOption = useProductStore((state) => state.addOption);
@@ -18,12 +20,11 @@ export function AddOptionSection() {
     ) => {
         const updatedOptions = [...options];
         updatedOptions[index] = { ...updatedOptions[index], [key]: value };
-        console.log(updatedOptions)
         setProduct({ productOptions: updatedOptions });
     };
 
     const handleAddOption = () => {
-        addOption({ name: "", type: "text", value: "" });
+        addOption({ name: "", type: "text", value: "", image_url: "" });
     };
 
     const handleRemoveOption = (index: number) => {
@@ -33,9 +34,9 @@ export function AddOptionSection() {
 
     const handleImageDrop = async (files: File[], index: number) => {
         if (files.length === 0) return;
-        const base64 = await getImageBlobURL(files[0]);
-        if (base64) {
-            handleOptionChange(index, "value", base64);
+        const { data } = await uploadImage({ variables: { file: files[0] } });
+        if (data.uploadImage) {
+            handleOptionChange(index, "image_url", data.uploadImage.url);
         }
     };
 
@@ -43,14 +44,6 @@ export function AddOptionSection() {
         <div>
             <div className="flex max-md:flex-col items-center justify-between mb-5">
                 <h3 className="text-lg font-semibold">Product Options</h3>
-                <Button
-                    type="button"
-                    onClick={handleAddOption}
-                    className="flex items-center gap-1 h-[40px] max-md:w-full max-md:mt-3 justify-center"
-                >
-                    <Plus className="w-4 h-4" />
-                    Add Option
-                </Button>
             </div>
 
             {options.map((option, index) => (
@@ -89,15 +82,26 @@ export function AddOptionSection() {
                         />
                     ) : (
                         <div className="flex flex-col gap-1">
-                            <label className="text-sm">Upload Image</label>
-                            <Dropzone
-                                accept="image/*"
-                                onFilesDrop={files => handleImageDrop(files, index)}
+                            <Input
+                                labelContent="Value"
+                                placeholder="Enter value (e.g. Red, Large)"
+                                value={option.value as string}
+                                onChange={e =>
+                                    handleOptionChange(index, "value", e.target.value)
+                                }
                             />
-                            {option.value && (
+
+                            <div className="mt-3">
+                                <label className="text-sm">Upload Image</label>
+                                <Dropzone
+                                    accept="image/*"
+                                    onFilesDrop={files => handleImageDrop(files, index)}
+                                />
+                            </div>
+                            {option.image_url && (
                                 <div className="mt-2">
                                     <img
-                                        src={option.value as string}
+                                        src={option.image_url}
                                         alt="Option preview"
                                         className="h-20 w-20 object-cover rounded"
                                     />
@@ -116,6 +120,14 @@ export function AddOptionSection() {
                     </Button>
                 </div>
             ))}
+            <Button
+                type="button"
+                onClick={handleAddOption}
+                className="flex items-center gap-1 h-[40px] w-full max-w-[220px] max-md:w-full max-md:mt-3 justify-center"
+            >
+                <Plus className="w-4 h-4" />
+                Add Option
+            </Button>
         </div>
     );
 }

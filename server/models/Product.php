@@ -16,16 +16,25 @@ class Product
         $this->db = $db;
     }
 
-    public function findAll(): array
+    public function findAll(int $limit = 10, int $offset = 0): array
     {
-        $query = "
+        $stmt = $this->db->prepare("
         SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary
         FROM products p
         LEFT JOIN product_images pi ON p.id = pi.product_id
         ORDER BY p.id
-    ";
+        LIMIT ? OFFSET ?
+    ");
 
-        $result = $this->db->query($query);
+        if (!$stmt) {
+            error_log("Prepare failed: " . $this->db->error);
+            return [];
+        }
+
+        $stmt->bind_param("ii", $limit, $offset);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
         if (!$result) {
             error_log("Query failed: " . $this->db->error);
             return [];
@@ -67,6 +76,7 @@ class Product
 
         return array_values($products);
     }
+
 
 
     public function findById(string $id): ?array
@@ -140,7 +150,7 @@ class Product
 
     public function create(array $data): ?array
     {
-        $validator = v::key('name', v::stringType()->notEmpty()->length(1, 100))
+        $validator = v::key('name', v::stringType()->notEmpty()->length(1, 500))
             ->key('price', v::floatVal()->positive())
             ->key('currency', v::stringType()->notEmpty()->length(3, 4))
             ->key('product_overview', v::optional(v::stringType()));
@@ -148,7 +158,7 @@ class Product
         try {
             $validator->assert($data);
         } catch (ValidationException $err) {
-            error_log("Validation failed: " . $err->getMessage());
+            error_log("Validation failed looooool: " . $err->getMessage());
             return null;
         }
 
@@ -196,10 +206,11 @@ class Product
             foreach ($data['productOptions'] as $option) {
                 $name = $option['name'] ?? null;
                 $value = $option['value'] ?? null;
+                $image_url = $option['image_url'] ?? null;
                 $type = $option['type'] ?? null;
 
                 if ($name && $value && $type && in_array($type, ['text', 'image'])) {
-                    $optionModel->create($hash, $name, $value, $type);
+                    $optionModel->create($hash, $name, $value, $image_url, $type);
                 }
             }
         }
@@ -218,8 +229,6 @@ class Product
 
         return $this->findById($hash);
     }
-
-
 
     public function update(string $id, array $data): ?array
     {

@@ -13,12 +13,17 @@ export type User = {
 }
 
 export type ProductOption = {
+    id: string;
+    product_id: ProductType["id"];
     name: string;
     value: string;
+    image_url: string
     type: 'text' | 'image';
 };
 
 export type ProductSpecification = {
+    id: string;
+    product_id: ProductType["id"]
     spec_name: string;
     spec_value: string;
 };
@@ -29,6 +34,7 @@ export type ProductImage = {
 };
 
 export type ProductType = {
+    id: string;
     name: string;
     price: number;
     currency: string;

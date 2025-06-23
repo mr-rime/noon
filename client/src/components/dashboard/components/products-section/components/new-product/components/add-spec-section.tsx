@@ -35,14 +35,6 @@ export function AddSpecSection() {
         <div>
             <div className="flex max-md:flex-col items-center justify-between mb-5">
                 <h3 className="text-lg font-semibold">Product Specifications</h3>
-                <Button
-                    type="button"
-                    onClick={handleAddSpec}
-                    className="flex items-center justify-center max-md:w-full max-md:mt-3 gap-1 h-[40px]"
-                >
-                    <Plus className="w-4 h-4" />
-                    Add Specification
-                </Button>
             </div>
 
             {specs.map((spec, index) => (
@@ -77,6 +69,14 @@ export function AddSpecSection() {
                     </Button>
                 </div>
             ))}
+            <Button
+                type="button"
+                onClick={handleAddSpec}
+                className="flex items-center justify-center w-full max-w-[220px] max-md:w-full max-md:mt-3 gap-1 h-[40px]"
+            >
+                <Plus className="w-4 h-4" />
+                Add Specification
+            </Button>
         </div>
     );
 }

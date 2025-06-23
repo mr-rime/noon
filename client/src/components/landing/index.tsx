@@ -1,6 +1,6 @@
-import { SlideableImages } from "./slideable-images";
-import { Product } from "./prodcut";
-import { ImageSlider } from "./ui/image-slider";
+import { SlideableImages } from "../slideable-images";
+import { ImageSlider } from "../ui/image-slider";
+import { RecommendedProducts } from "./components/recommended-products";
 
 const images = [
     "/media/imgs/slideable-img1.avif",
@@ -18,19 +18,8 @@ const mobileImages = [
 export function Landing() {
     return (
         <div className="flex flex-col justify-center w-full min-h-screen site-container">
-            {/* Optional Login Button */}
-            {/* 
-            <button 
-                onClick={() => login({ variables: { email: "fsares4sdfasdf@gmail.com", password: "ahmed12345" } })} 
-                className="cursor-pointer"
-            >
-                login
-            </button> 
-            */}
-
             <div
                 className="w-full flex items-center justify-center px-4 mt-10 overflow-hidden min-h-[300px] max-w-[1500px] m-auto"
-
             >
                 <SlideableImages>
                     <ImageSlider
@@ -44,8 +33,8 @@ export function Landing() {
                 </SlideableImages>
             </div>
 
-            <div className="m-5">
-                <Product />
+            <div className="m-5 min-h-[467px]">
+                <RecommendedProducts />
             </div>
 
         </div>
