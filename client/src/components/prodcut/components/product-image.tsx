@@ -5,7 +5,7 @@ import { ProductWishlistButton } from "./product-wishlist-button";
 export function ProductImage({ images }: { images: string[] }) {
     return (
         <div
-            className="relative w-full h-[316px] rounded-[12px] overflow-hidden bg-[#F8F8F9]"
+            className="relative w-full h-[316px] rounded-[12px] bg-[#F6F6F7]"
             aria-label="Product image section"
         >
             <div className="absolute right-2.5 top-2.5 z-10">
@@ -23,7 +23,6 @@ export function ProductImage({ images }: { images: string[] }) {
                 showProductDots={true}
                 scaleOnHover={true}
                 height={330}
-                disableDrag
             />
 
             <div className="absolute right-2.5 bottom-2.5 z-10">

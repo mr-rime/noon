@@ -29,7 +29,6 @@ export function ImageSlider({
     showControls = true,
     showDots = true,
     showProductControls = false,
-    // showProductDots = false,
     scaleOnHover = false,
     disableDrag = false,
     dotsTheme = "theme1"
@@ -67,8 +66,6 @@ export function ImageSlider({
         displayImages[0]
     ] : displayImages;
 
-
-
     const getSliderWidth = () => containerRef.current?.parentElement?.clientWidth || 0;
 
     const setTranslate = useCallback((value: number, smooth: boolean) => {
@@ -77,6 +74,11 @@ export function ImageSlider({
             containerRef.current.style.transform = `translateX(${value}px)`;
         }
     }, []);
+
+    const stopEventPropagation = (e: React.SyntheticEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
 
     useEffect(() => {
         if (displayImages.length > 1) {
@@ -117,24 +119,22 @@ export function ImageSlider({
     }, [isAnimating, setTranslate, displayImages.length, extendedImages.length]);
 
     const goNext = useCallback((e: React.MouseEvent | null) => {
-        e?.preventDefault()
-        e?.stopPropagation();
+        if (e) stopEventPropagation(e);
         if (!isAnimating && !isDragging.current && displayImages.length > 1) {
             goToSlide(logicalIndex.current + 1);
         }
     }, [isAnimating, goToSlide, displayImages.length]);
 
     const goPrev = useCallback((e: React.MouseEvent) => {
-        e.preventDefault()
-        e.stopPropagation();
+        stopEventPropagation(e);
         if (!isAnimating && !isDragging.current && displayImages.length > 1) {
             goToSlide(logicalIndex.current - 1);
         }
     }, [isAnimating, goToSlide, displayImages.length]);
 
-
     const handleTouchStart = useCallback((e: React.TouchEvent) => {
         if (displayImages.length <= 1 || disableDrag) return;
+        stopEventPropagation(e);
         touchStartX.current = e.touches[0].clientX;
         isDragging.current = true;
         if (containerRef.current) {
@@ -144,13 +144,15 @@ export function ImageSlider({
 
     const handleTouchMove = useCallback((e: React.TouchEvent) => {
         if (!isDragging.current || displayImages.length <= 1 || disableDrag) return;
+        stopEventPropagation(e);
         touchDelta.current = e.touches[0].clientX - touchStartX.current;
         const nextTranslate = currentTranslate.current + touchDelta.current;
         setTranslate(nextTranslate, false);
     }, [setTranslate, displayImages.length, disableDrag]);
 
-    const handleTouchEnd = useCallback(() => {
+    const handleTouchEnd = useCallback((e: React.TouchEvent) => {
         if (!isDragging.current || displayImages.length <= 1 || disableDrag) return;
+        stopEventPropagation(e);
         isDragging.current = false;
 
         const sliderWidth = getSliderWidth();
@@ -167,6 +169,7 @@ export function ImageSlider({
 
     const handleMouseDown = useCallback((e: React.MouseEvent) => {
         if (displayImages.length <= 1 || disableDrag) return;
+        stopEventPropagation(e);
         isDragging.current = true;
         startX.current = e.clientX;
         if (containerRef.current) {
@@ -176,6 +179,7 @@ export function ImageSlider({
 
     const handleMouseMove = useCallback((e: React.MouseEvent) => {
         if (!isDragging.current || displayImages.length <= 1 || disableDrag) return;
+        stopEventPropagation(e);
         const delta = e.clientX - startX.current;
         const nextTranslate = currentTranslate.current + delta;
         setTranslate(nextTranslate, false);
@@ -183,6 +187,7 @@ export function ImageSlider({
 
     const handleMouseUp = useCallback((e: React.MouseEvent) => {
         if (!isDragging.current || displayImages.length <= 1 || disableDrag) return;
+        stopEventPropagation(e);
         isDragging.current = false;
 
         const delta = e.clientX - startX.current;
@@ -217,7 +222,6 @@ export function ImageSlider({
         return () => clearInterval(interval);
     }, [autoPlay, autoPlayInterval, isAnimating, goNext, displayImages.length]);
 
-
     const dotsRender = () => {
         switch (dotsTheme) {
             case "theme1":
@@ -236,7 +240,7 @@ export function ImageSlider({
                 );
             case "theme2":
                 return (
-                    <div className=" group-hover:opacity-100 opacity-0 min-h-[calc(4px * 4)] w-fit px-2 py-[5px] bg-[#ECEDF2] rounded-full visible transition-opacity duration-300 gap-[4px] flex items-center justify-center absolute bottom-5 left-1/2 -translate-x-1/2">
+                    <div className={cn(" min-h-[calc(4px * 4)] w-fit px-2 py-[5px] bg-[#ECEDF2] rounded-full transition-opacity duration-300 gap-[4px] flex items-center justify-center absolute bottom-5 left-1/2 -translate-x-1/2", isMobile && "opacity-100")}>
                         {displayImages.map((_, i) => (
                             <button
                                 key={i}
@@ -272,7 +276,7 @@ export function ImageSlider({
     return (
         <div className="w-full h-full group touch-none">
             <div
-                className={cn("relative select-none", !isMobile ? `overflow-hidden w-full h-[${height}px]` : "w-full h-fit")}
+                className={cn("relative select-none overflow-hidden rounded-[12px]", !isMobile ? `overflow-hidden w-full h-[${height}px]` : "w-full h-fit")}
                 onMouseEnter={() => isDragging.current = false}
                 onMouseLeave={handleMouseLeave}
                 aria-label="Image slider"
@@ -345,20 +349,20 @@ export function ImageSlider({
                                 <div
                                     key={i}
                                     className={cn(
-                                        "flex-shrink-0 transition-transform",
+                                        "flex-shrink-0 transition-transform  bg-[#F6F6F7] w-full overflow-hidden",
                                         isMobile ? "h-full" : "",
-                                        scaleOnHover && "hover:scale-[1.07] duration-300 ease-in-out"
                                     )}
                                     style={{
                                         width: `${100 / extendedImages.length}%`,
-                                        height: `${height}px`,
+                                        height: "fit-content",
                                         ...(isMobile && !showProductControls && {
                                             scale: isCenter ? "1 .9" : "",
                                             transition: "scale .1s ease"
                                         })
                                     }}
                                 >
-                                    <div className={cn(showProductControls ? "flex items-center w-full justify-center bg-[#F6F6F7] overflow-hidden" : "w-full h-full bg-gray-100 overflow-hidden")}>
+
+                                    <div className={cn(showProductControls ? "flex items-center bg-[#F6F6F7] w-full justify-center " : "w-full h-full overflow-hidden", scaleOnHover && "hover:scale-[1.1] duration-300 ease-in-out")}>
                                         <img
                                             src={
                                                 showProductControls
@@ -380,7 +384,6 @@ export function ImageSlider({
                     </div>
 
                 </div>
-
 
                 {showDots && displayImages.length > 1 && dotsRender()}
             </div>

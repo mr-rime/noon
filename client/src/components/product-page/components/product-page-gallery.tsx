@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { ElementSlider } from "../../ui/elements-slider";
+import { Carousel } from "../../ui/carousel";
 
 type ProductPageGalleryProps = {
     images?: string[]
@@ -15,9 +15,9 @@ export function ProductPageGallery({ images }: ProductPageGalleryProps) {
     }, [images])
 
     return (
-        <ElementSlider itemWidth={76}>
+        <Carousel itemWidth={76}>
             {items}
-        </ElementSlider>
+        </Carousel>
     )
 }
 
