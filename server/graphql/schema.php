@@ -52,7 +52,7 @@ $QueryType = new ObjectType([
             'resolve' => fn($root, $args, $context) => getAllProducts($context['db'], $args)
         ],
 
-        'product' => [
+        'getProduct' => [
             'type' => $ProductResponseType,
             'args' => [
                 'id' => Type::nonNull(Type::id())

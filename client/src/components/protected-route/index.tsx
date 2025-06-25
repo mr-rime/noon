@@ -1,6 +1,3 @@
-
 export function ProtectedRoute() {
-    return (
-        <div>index</div>
-    )
+	return <div>index</div>;
 }

@@ -1,0 +1,61 @@
+{
+    "$schema": "https://biomejs.dev/schemas/2.0.5/schema.json",
+    "vcs": {
+        "enabled": false,
+        "clientKind": "git",
+        "useIgnoreFile": false
+    },
+
+    "files": {
+        "ignoreUnknown": false
+    },
+    "formatter": {
+        "includes": ["**", "!**/*.css", "!**/node_modules/**", "!**/dist/**", "!**/build/**"],
+        "enabled": true,
+        "indentStyle": "tab",
+        "indentWidth": 4,
+        "lineWidth": 130
+    },
+    "linter": {
+        "enabled": true,
+        "includes": ["**", "!**/*.css", "!**/node_modules/**", "!**/dist/**", "!**/build/**"],
+        "rules": {
+            "recommended": false,
+            "complexity": {
+                "noForEach": "error",
+                "noStaticOnlyClass": "error",
+                "noUselessSwitchCase": "error",
+                "useFlatMap": "error",
+                "useWhile": "error"
+            },
+            "style": {
+                "noNegationElse": "error",
+                "useNodejsImportProtocol": "error",
+                "useNumberNamespace": "error",
+                "useConst": "error",
+                "noNonNullAssertion": "off",
+                "useDefaultSwitchClause": "error"
+            },
+            "suspicious": {
+                "noDoubleEquals": "error",
+                "noThenProperty": "error",
+                "useIsArray": "error",
+                "useGetterReturn": "error",
+                "noVar": "error"
+            }
+        }
+    },
+    "javascript": {
+        "formatter": {
+            "quoteStyle": "double"
+        }
+    },
+    "assist": {
+        "enabled": true,
+        "actions": {
+            "source": {
+                "organizeImports": "on"
+            }
+        }
+    }
+}

@@ -1,6 +1,5 @@
 import { gql } from "@apollo/client";
 
-
 export const CREATE_PRODUCT = gql`
     mutation(
             $name: String!
@@ -51,7 +50,7 @@ export const CREATE_PRODUCT = gql`
         }
         }
     }
-`
+`;
 
 export const GET_PRODUCTS = gql`
         query($limit:Int, $offset:Int){
@@ -85,4 +84,36 @@ export const GET_PRODUCTS = gql`
             }
     }
 
-`
+`;
+
+export const GET_PRODUCT = gql`
+
+query ($id: ID!) {
+    getProduct(id: $id) {
+        product {
+        id
+        name
+        price
+        currency
+        product_overview
+        images {
+            id
+            image_url
+        }
+        productSpecifications {
+            id
+            spec_name
+            spec_value
+        }
+
+        productOptions {
+            id
+            image_url
+            name
+            value
+            type
+        }
+        }
+    }
+    }
+`;

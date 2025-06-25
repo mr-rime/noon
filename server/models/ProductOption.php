@@ -26,7 +26,7 @@ class ProductOption
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function create(string $productId, string $name, string $value, string $image_url, string $type): ?array
+    public function create(string $productId, string $name, string $value, string $image_url, string $type, string $link): ?array
     {
         $validator = v::stringType()->notEmpty();
         try {
@@ -39,13 +39,13 @@ class ProductOption
             return null;
         }
 
-        $query = 'INSERT INTO product_options (product_id, name, value, image_url, type) VALUES (?, ?, ?, ?, ?)';
+        $query = 'INSERT INTO product_options (product_id, name, value, image_url, type, link) VALUES (?, ?, ?, ?, ?, ?)';
         $stmt = $this->db->prepare($query);
         if (!$stmt) {
             error_log("Prepare failed: " . $this->db->error);
             return null;
         }
-        $stmt->bind_param('sssss', $productId, $name, $value, $image_url, $type);
+        $stmt->bind_param('ssssss', $productId, $name, $value, $image_url, $type, $link);
         if ($stmt->execute()) {
             $id = $stmt->insert_id;
             return $this->findById($id);
