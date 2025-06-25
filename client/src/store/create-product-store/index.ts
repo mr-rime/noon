@@ -11,6 +11,7 @@ type ProductStore = {
 };
 
 const defaultProduct: ProductType = {
+    id: '',
     name: '',
     price: 0,
     stock: 0,

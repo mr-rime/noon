@@ -49,7 +49,7 @@ $QueryType = new ObjectType([
                 'limit' => Type::int(),
                 'offset' => Type::int()
             ],
-            'resolve' => requireAuth(fn($root, $args, $context) => getAllProducts($context['db'], $args))
+            'resolve' => fn($root, $args, $context) => getAllProducts($context['db'], $args)
         ],
 
         'product' => [

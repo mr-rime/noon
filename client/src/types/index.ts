@@ -13,8 +13,8 @@ export type User = {
 }
 
 export type ProductOption = {
-    id: string;
-    product_id: ProductType["id"];
+    id?: string;
+    product_id?: ProductType["id"];
     name: string;
     value: string;
     image_url: string
@@ -22,8 +22,8 @@ export type ProductOption = {
 };
 
 export type ProductSpecification = {
-    id: string;
-    product_id: ProductType["id"]
+    id?: string;
+    product_id?: ProductType["id"]
     spec_name: string;
     spec_value: string;
 };

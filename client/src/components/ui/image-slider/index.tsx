@@ -16,8 +16,9 @@ interface ImageSliderProps {
     scaleOnHover?: boolean;
     showProductControls?: boolean;
     showProductDots?: boolean;
-    disableDrag?: boolean
     dotsTheme?: DotsThemeType
+    disableDragDesktop?: boolean
+    disableDragMobile?: boolean
 }
 
 export function ImageSlider({
@@ -30,7 +31,8 @@ export function ImageSlider({
     showDots = true,
     showProductControls = false,
     scaleOnHover = false,
-    disableDrag = false,
+    disableDragDesktop = false,
+    disableDragMobile = false,
     dotsTheme = "theme1"
 }: ImageSliderProps) {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -45,6 +47,9 @@ export function ImageSlider({
     const startX = useRef(0);
     const currentTranslate = useRef(0);
     const [isAnimating, setIsAnimating] = useState(false);
+
+    const isDragDisabled = isMobile ? disableDragMobile : disableDragDesktop;
+
 
     useEffect(() => {
         const checkIfMobile = () => {
@@ -76,7 +81,6 @@ export function ImageSlider({
     }, []);
 
     const stopEventPropagation = (e: React.SyntheticEvent) => {
-        e.preventDefault();
         e.stopPropagation();
     };
 
@@ -119,7 +123,10 @@ export function ImageSlider({
     }, [isAnimating, setTranslate, displayImages.length, extendedImages.length]);
 
     const goNext = useCallback((e: React.MouseEvent | null) => {
-        if (e) stopEventPropagation(e);
+        if (e) {
+            e.preventDefault();
+            stopEventPropagation(e)
+        };
         if (!isAnimating && !isDragging.current && displayImages.length > 1) {
             goToSlide(logicalIndex.current + 1);
         }
@@ -127,31 +134,32 @@ export function ImageSlider({
 
     const goPrev = useCallback((e: React.MouseEvent) => {
         stopEventPropagation(e);
+        e.preventDefault();
         if (!isAnimating && !isDragging.current && displayImages.length > 1) {
             goToSlide(logicalIndex.current - 1);
         }
     }, [isAnimating, goToSlide, displayImages.length]);
 
     const handleTouchStart = useCallback((e: React.TouchEvent) => {
-        if (displayImages.length <= 1 || disableDrag) return;
+        if (displayImages.length <= 1 || isDragDisabled) return;
         stopEventPropagation(e);
         touchStartX.current = e.touches[0].clientX;
         isDragging.current = true;
         if (containerRef.current) {
             containerRef.current.style.transition = "none";
         }
-    }, [displayImages.length, disableDrag]);
+    }, [displayImages.length, isDragDisabled]);
 
     const handleTouchMove = useCallback((e: React.TouchEvent) => {
-        if (!isDragging.current || displayImages.length <= 1 || disableDrag) return;
+        if (!isDragging.current || displayImages.length <= 1 || isDragDisabled) return;
         stopEventPropagation(e);
         touchDelta.current = e.touches[0].clientX - touchStartX.current;
         const nextTranslate = currentTranslate.current + touchDelta.current;
         setTranslate(nextTranslate, false);
-    }, [setTranslate, displayImages.length, disableDrag]);
+    }, [setTranslate, displayImages.length, isDragDisabled]);
 
     const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-        if (!isDragging.current || displayImages.length <= 1 || disableDrag) return;
+        if (!isDragging.current || displayImages.length <= 1 || isDragDisabled) return;
         stopEventPropagation(e);
         isDragging.current = false;
 
@@ -165,28 +173,28 @@ export function ImageSlider({
 
         goToSlide(Math.max(0, Math.min(extendedImages.length - 1, nextIndex)));
         touchDelta.current = 0;
-    }, [goToSlide, displayImages.length, extendedImages.length, disableDrag]);
+    }, [goToSlide, displayImages.length, extendedImages.length, isDragDisabled]);
 
     const handleMouseDown = useCallback((e: React.MouseEvent) => {
-        if (displayImages.length <= 1 || disableDrag) return;
+        if (displayImages.length <= 1 || isDragDisabled) return;
         stopEventPropagation(e);
         isDragging.current = true;
         startX.current = e.clientX;
         if (containerRef.current) {
             containerRef.current.style.transition = "none";
         }
-    }, [displayImages.length, disableDrag]);
+    }, [displayImages.length, isDragDisabled]);
 
     const handleMouseMove = useCallback((e: React.MouseEvent) => {
-        if (!isDragging.current || displayImages.length <= 1 || disableDrag) return;
+        if (!isDragging.current || displayImages.length <= 1 || isDragDisabled) return;
         stopEventPropagation(e);
         const delta = e.clientX - startX.current;
         const nextTranslate = currentTranslate.current + delta;
         setTranslate(nextTranslate, false);
-    }, [setTranslate, displayImages.length, disableDrag]);
+    }, [setTranslate, displayImages.length, isDragDisabled]);
 
     const handleMouseUp = useCallback((e: React.MouseEvent) => {
-        if (!isDragging.current || displayImages.length <= 1 || disableDrag) return;
+        if (!isDragging.current || displayImages.length <= 1 || isDragDisabled) return;
         stopEventPropagation(e);
         isDragging.current = false;
 
@@ -201,14 +209,14 @@ export function ImageSlider({
         }
 
         goToSlide(Math.max(0, Math.min(extendedImages.length - 1, nextIndex)));
-    }, [goToSlide, displayImages.length, extendedImages.length, disableDrag]);
+    }, [goToSlide, displayImages.length, extendedImages.length, isDragDisabled]);
 
     const handleMouseLeave = useCallback(() => {
-        if (isDragging.current && displayImages.length > 1 && !disableDrag) {
+        if (isDragging.current && displayImages.length > 1 && !isDragDisabled) {
             isDragging.current = false;
             goToSlide(logicalIndex.current);
         }
-    }, [goToSlide, displayImages.length, disableDrag]);
+    }, [goToSlide, displayImages.length, isDragDisabled]);
 
     useEffect(() => {
         if (!autoPlay || displayImages.length <= 1) return;
@@ -240,7 +248,7 @@ export function ImageSlider({
                 );
             case "theme2":
                 return (
-                    <div className={cn(" min-h-[calc(4px * 4)] w-fit px-2 py-[5px] bg-[#ECEDF2] rounded-full transition-opacity duration-300 gap-[4px] flex items-center justify-center absolute bottom-5 left-1/2 -translate-x-1/2", isMobile && "opacity-100")}>
+                    <div className={cn("group-hover:opacity-100 opacity-0 min-h-[calc(4px * 4)] w-fit px-2 py-[5px] bg-[#ECEDF2] rounded-full transition-opacity duration-300 gap-[4px] flex items-center justify-center absolute bottom-2 left-1/2 -translate-x-1/2", isMobile && "opacity-100")}>
                         {displayImages.map((_, i) => (
                             <button
                                 key={i}

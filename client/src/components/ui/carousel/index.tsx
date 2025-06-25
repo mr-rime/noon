@@ -102,14 +102,11 @@ export function Carousel({
 
     const smoothScrollTo = useCallback((targetTranslate: number, transition = true) => {
         if (!sliderRef.current) return;
-
         const clampedTranslate = getClampedTranslate(targetTranslate);
-
         sliderRef.current.style.transition = transition ? 'transform 0.3s ease' : 'none';
         sliderRef.current.style.transform = `translateX(${clampedTranslate}px)`;
         setCurrentTranslate(clampedTranslate);
     }, [getClampedTranslate]);
-
 
     const getTranslateForIndex = useCallback((index: number) => {
         let translate = 0;
@@ -124,7 +121,6 @@ export function Carousel({
 
     const handlePrev = useCallback(() => {
         if (children.length <= 1) return;
-
         let newIndex = currentIndex - 1;
         let newTranslate = 0;
 
@@ -146,7 +142,6 @@ export function Carousel({
 
     const handleNext = useCallback(() => {
         if (children.length <= 1) return;
-
         let newIndex = currentIndex + 1;
         let newTranslate = 0;
 
@@ -168,7 +163,6 @@ export function Carousel({
 
     const goToIndex = useCallback((index: number) => {
         if (index < 0 || index >= children.length) return;
-
         const newTranslate = getTranslateForIndex(index);
         setCurrentIndex(index);
         smoothScrollTo(newTranslate);
@@ -183,41 +177,29 @@ export function Carousel({
         dragVelocity.current = 0;
         dragOffset.current = currentTranslate;
         setIsTransitionEnabled(false);
-
-        if (autoPlayRef.current) {
-            clearInterval(autoPlayRef.current);
-        }
+        if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     };
 
     const handleDragMove = (clientX: number) => {
         if (!isDragging || !sliderRef.current || children.length <= 1) return;
-
         const now = Date.now();
         const deltaTime = now - lastDragTime.current;
-
         if (deltaTime > 0) {
             const deltaX = clientX - lastDragPosition.current;
             dragVelocity.current = deltaX / deltaTime;
         }
-
         lastDragPosition.current = clientX;
         lastDragTime.current = now;
-
         const moveX = clientX - startX;
         const newTranslate = dragOffset.current + moveX;
-
-        // Apply rubber band effect if not looping
         let boundedTranslate = newTranslate;
         if (!loop) {
             const maxTranslate = getMaxTranslate();
-
-            if (newTranslate > 0) {
-                boundedTranslate = newTranslate * 0.5;
-            } else if (newTranslate < -maxTranslate) {
+            if (newTranslate > 0) boundedTranslate = newTranslate * 0.5;
+            else if (newTranslate < -maxTranslate) {
                 boundedTranslate = -maxTranslate + (newTranslate + maxTranslate) * 0.5;
             }
         }
-
         sliderRef.current.style.transform = `translateX(${boundedTranslate}px)`;
         setCurrentTranslate(boundedTranslate);
     };
@@ -228,62 +210,77 @@ export function Carousel({
             setIsTransitionEnabled(true);
             return;
         }
-
         setIsDragging(false);
         setIsTransitionEnabled(true);
-
         const momentumThreshold = 0.3;
         const momentumMultiplier = 50;
         let targetTranslate = currentTranslate;
-
         if (Math.abs(dragVelocity.current) > momentumThreshold) {
             targetTranslate += dragVelocity.current * momentumMultiplier;
         }
-
         let closestIndex = 0;
         let smallestDistance = Infinity;
-
         for (let i = 0; i < children.length; i++) {
             const itemTranslate = getTranslateForIndex(i);
             const distance = Math.abs(targetTranslate - itemTranslate);
-
             if (distance < smallestDistance) {
                 smallestDistance = distance;
                 closestIndex = i;
             }
         }
-
         if (loop) {
             const firstItemTranslate = 0;
             const lastItemTranslate = getTranslateForIndex(children.length - 1);
-
-            if (Math.abs(targetTranslate - firstItemTranslate) < Math.abs(targetTranslate - lastItemTranslate)) {
-                closestIndex = 0;
-            } else {
-                closestIndex = children.length - 1;
-            }
+            closestIndex = Math.abs(targetTranslate - firstItemTranslate) < Math.abs(targetTranslate - lastItemTranslate)
+                ? 0 : children.length - 1;
         }
-
         const finalTranslate = getTranslateForIndex(closestIndex);
         setCurrentIndex(closestIndex);
         smoothScrollTo(finalTranslate);
-
         if (autoPlay && !autoPlayRef.current) {
-            autoPlayRef.current = setInterval(() => {
-                handleNext();
-            }, autoPlayInterval);
+            autoPlayRef.current = setInterval(() => handleNext(), autoPlayInterval);
         }
     };
 
-    const handleTouchStart = (e: React.TouchEvent) => handleDragStart(e.touches[0].clientX);
-    const handleTouchMove = (e: React.TouchEvent) => handleDragMove(e.touches[0].clientX);
-    const handleMouseDown = (e: React.MouseEvent) => handleDragStart(e.clientX);
-    const handleMouseMove = (e: React.MouseEvent) => isDragging && handleDragMove(e.clientX);
+    const stopPropagation = (e: React.TouchEvent | React.MouseEvent) => e.stopPropagation();
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        stopPropagation(e);
+        handleDragStart(e.touches[0].clientX);
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        stopPropagation(e);
+        handleDragMove(e.touches[0].clientX);
+    };
+
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        stopPropagation(e);
+        handleDragEnd();
+    };
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        stopPropagation(e);
+        handleDragStart(e.clientX);
+    };
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        stopPropagation(e);
+        if (isDragging) handleDragMove(e.clientX);
+    };
+
+    const handleMouseUp = (e: React.MouseEvent) => {
+        stopPropagation(e);
+        handleDragEnd();
+    };
+
+    const handleMouseLeave = (e: React.MouseEvent) => {
+        stopPropagation(e);
+        handleDragEnd();
+    };
 
     const addToItemsRef = (el: HTMLDivElement | null, index: number) => {
-        if (el && !itemsRef.current.includes(el)) {
-            itemsRef.current[index] = el;
-        }
+        if (el) itemsRef.current[index] = el;
     };
 
     const showPrevControl = showControls && (loop || currentIndex > 0);
@@ -301,20 +298,17 @@ export function Carousel({
                 }}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
-                onTouchEnd={handleDragEnd}
+                onTouchEnd={handleTouchEnd}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
-                onMouseUp={handleDragEnd}
-                onMouseLeave={handleDragEnd}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseLeave}
             >
                 {children.map((child, index) => (
                     <div
                         key={index}
                         ref={(el) => addToItemsRef(el, index)}
-                        className={cn(
-                            "flex-shrink-0",
-                            itemsPerView === 'auto' && !fixedItemWidth ? 'w-auto' : ''
-                        )}
+                        className={cn("flex-shrink-0", itemsPerView === 'auto' && !fixedItemWidth ? 'w-auto' : '')}
                         style={{
                             width: fixedItemWidth
                                 ? `${fixedItemWidth}px`
@@ -359,8 +353,7 @@ export function Carousel({
                     {children.map((_, index) => (
                         <button
                             key={index}
-                            className={`w-3 h-3 rounded-full transition-colors duration-300 cursor-pointer ${currentIndex === index ? "bg-black" : "bg-gray-300"
-                                }`}
+                            className={`w-3 h-3 rounded-full transition-colors duration-300 cursor-pointer ${currentIndex === index ? "bg-black" : "bg-gray-300"}`}
                             onClick={() => goToIndex(index)}
                             aria-label={`Go to slide ${index + 1}`}
                         />

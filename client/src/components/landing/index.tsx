@@ -1,40 +1,23 @@
-import { SlideableImages } from "../slideable-images";
-import { ImageSlider } from "../ui/image-slider";
-import { RecommendedProducts } from "./components/recommended-products";
+import { lazy, Suspense } from "react";
+import HeroSection from "./components/hero-section";
+import { ProductsListSkeleton } from "../ui/products-list-skeleton";
 
-const images = [
-    "/media/imgs/slideable-img1.avif",
-    "/media/imgs/slideable-img2.avif",
-    "/media/imgs/slideable-img3.avif",
-    "/media/imgs/slideable-img7.avif",
-];
 
-const mobileImages = [
-    "/media/imgs/slideable-img4.avif",
-    "/media/imgs/slideable-img5.avif",
-    "/media/imgs/slideable-img6.avif",
-]
+const LazyRecommendedProducts = lazy(() => import("./components/recommended-products"))
 
 export function Landing() {
     return (
         <div className="flex flex-col justify-center w-full min-h-screen site-container">
-            <div
-                className="w-full flex items-center justify-center px-4 mt-10 overflow-hidden min-h-[300px] max-w-[1500px] m-auto"
-            >
-                <SlideableImages>
-                    <ImageSlider
-                        images={images}
-                        mobileImages={mobileImages}
-                        autoPlay={true}
-                        autoPlayInterval={3000}
-                        showControls={true}
-                        showDots={true}
-                    />
-                </SlideableImages>
-            </div>
-
-            <div className="m-5 min-h-[467px]">
-                <RecommendedProducts />
+            <HeroSection />
+            <div className="bg-white min-h-[467px] ">
+                <h3 className="uppercase font-extrabold text-[50px] my-2  text-center select-none">
+                    <span className="text-black">Recommended</span> <span className="text-[#E4041B]">for you</span>
+                </h3>
+                <Suspense fallback={<div className="p-4">
+                    <ProductsListSkeleton />
+                </div>}>
+                    <LazyRecommendedProducts />
+                </Suspense>
             </div>
 
         </div>
