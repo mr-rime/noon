@@ -8,632 +8,711 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
 
 // Import Routes
 
-import { Route as rootRoute } from "./routes/__root";
-import { Route as dashboardDashboardLayoutImport } from "./routes/(dashboard)/_dashboardLayout";
-import { Route as dashboardDashboardLayoutDashboardIndexImport } from "./routes/(dashboard)/_dashboardLayout/dashboard/index";
-import { Route as dashboardDashboardLayoutDashboardOrdersIndexImport } from "./routes/(dashboard)/_dashboardLayout/dashboard/orders/index";
-import { Route as dashboardDashboardLayoutDashboardProductsIndexImport } from "./routes/(dashboard)/_dashboardLayout/dashboard/products/index";
-import { Route as dashboardDashboardLayoutDashboardProductsNewIndexImport } from "./routes/(dashboard)/_dashboardLayout/dashboard/products/new/index";
-import { Route as dashboardPartnersIndexImport } from "./routes/(dashboard)/partners/index";
-import { Route as mainHomeLayoutImport } from "./routes/(main)/_homeLayout";
-import { Route as mainHomeLayoutprofileProfileLayoutImport } from "./routes/(main)/_homeLayout/(profile)/_profileLayout";
-import { Route as mainHomeLayoutIndexImport } from "./routes/(main)/_homeLayout/index";
+import { Route as rootRoute } from './routes/__root'
+import { Route as mainHomeLayoutImport } from './routes/(main)/_homeLayout'
+import { Route as dashboardDashboardLayoutImport } from './routes/(dashboard)/_dashboardLayout'
+import { Route as mainHomeLayoutIndexImport } from './routes/(main)/_homeLayout/index'
+import { Route as dashboardPartnersIndexImport } from './routes/(dashboard)/partners/index'
+import { Route as dashboardDashboardLayoutDashboardIndexImport } from './routes/(dashboard)/_dashboardLayout/dashboard/index'
+import { Route as mainHomeLayoutprofileProfileLayoutImport } from './routes/(main)/_homeLayout/(profile)/_profileLayout'
+import { Route as dashboardDashboardLayoutDashboardProductsIndexImport } from './routes/(dashboard)/_dashboardLayout/dashboard/products/index'
+import { Route as dashboardDashboardLayoutDashboardOrdersIndexImport } from './routes/(dashboard)/_dashboardLayout/dashboard/orders/index'
+import { Route as dashboardDashboardLayoutDashboardProductsNewIndexImport } from './routes/(dashboard)/_dashboardLayout/dashboard/products/new/index'
 
 // Create Virtual Routes
 
-const mainImport = createFileRoute("/(main)")();
-const dashboardImport = createFileRoute("/(dashboard)")();
-const mainHomeLayoutprofileImport = createFileRoute("/(main)/_homeLayout/(profile)")();
-const mainHomeLayoutCartIndexLazyImport = createFileRoute("/(main)/_homeLayout/cart/")();
-const mainHomeLayoutSellerSellerIdIndexLazyImport = createFileRoute("/(main)/_homeLayout/seller/$sellerId/")();
-const mainHomeLayoutTitleProductIdIndexLazyImport = createFileRoute("/(main)/_homeLayout/$title/$productId/")();
-const mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyImport = createFileRoute(
-	"/(main)/_homeLayout/(profile)/_profileLayout/security-settings/",
-)();
-const mainHomeLayoutprofileProfileLayoutReturnsIndexLazyImport = createFileRoute(
-	"/(main)/_homeLayout/(profile)/_profileLayout/returns/",
-)();
-const mainHomeLayoutprofileProfileLayoutProfileIndexLazyImport = createFileRoute(
-	"/(main)/_homeLayout/(profile)/_profileLayout/profile/",
-)();
-const mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyImport = createFileRoute(
-	"/(main)/_homeLayout/(profile)/_profileLayout/payments/",
-)();
+const mainImport = createFileRoute('/(main)')()
+const dashboardImport = createFileRoute('/(dashboard)')()
+const mainHomeLayoutprofileImport = createFileRoute(
+  '/(main)/_homeLayout/(profile)',
+)()
+const mainHomeLayoutCartIndexLazyImport = createFileRoute(
+  '/(main)/_homeLayout/cart/',
+)()
+const mainHomeLayoutSellerSellerIdIndexLazyImport = createFileRoute(
+  '/(main)/_homeLayout/seller/$sellerId/',
+)()
+const mainHomeLayoutTitleProductIdIndexLazyImport = createFileRoute(
+  '/(main)/_homeLayout/$title/$productId/',
+)()
+const mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyImport =
+  createFileRoute(
+    '/(main)/_homeLayout/(profile)/_profileLayout/security-settings/',
+  )()
+const mainHomeLayoutprofileProfileLayoutReturnsIndexLazyImport =
+  createFileRoute('/(main)/_homeLayout/(profile)/_profileLayout/returns/')()
+const mainHomeLayoutprofileProfileLayoutProfileIndexLazyImport =
+  createFileRoute('/(main)/_homeLayout/(profile)/_profileLayout/profile/')()
+const mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyImport =
+  createFileRoute('/(main)/_homeLayout/(profile)/_profileLayout/payments/')()
 const mainHomeLayoutprofileProfileLayoutOrdersIndexLazyImport = createFileRoute(
-	"/(main)/_homeLayout/(profile)/_profileLayout/orders/",
-)();
-const mainHomeLayoutprofileProfileLayoutAddressesIndexLazyImport = createFileRoute(
-	"/(main)/_homeLayout/(profile)/_profileLayout/addresses/",
-)();
-const mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyImport = createFileRoute(
-	"/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/",
-)();
-const mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyImport = createFileRoute(
-	"/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/",
-)();
+  '/(main)/_homeLayout/(profile)/_profileLayout/orders/',
+)()
+const mainHomeLayoutprofileProfileLayoutAddressesIndexLazyImport =
+  createFileRoute('/(main)/_homeLayout/(profile)/_profileLayout/addresses/')()
+const mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyImport =
+  createFileRoute(
+    '/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/',
+  )()
+const mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyImport =
+  createFileRoute(
+    '/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/',
+  )()
 
 // Create/Update Routes
 
 const mainRoute = mainImport.update({
-	id: "/(main)",
-	getParentRoute: () => rootRoute,
-} as any);
+  id: '/(main)',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const dashboardRoute = dashboardImport.update({
-	id: "/(dashboard)",
-	getParentRoute: () => rootRoute,
-} as any);
+  id: '/(dashboard)',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const mainHomeLayoutRoute = mainHomeLayoutImport.update({
-	id: "/_homeLayout",
-	getParentRoute: () => mainRoute,
-} as any);
+  id: '/_homeLayout',
+  getParentRoute: () => mainRoute,
+} as any)
 
 const dashboardDashboardLayoutRoute = dashboardDashboardLayoutImport.update({
-	id: "/_dashboardLayout",
-	getParentRoute: () => dashboardRoute,
-} as any);
+  id: '/_dashboardLayout',
+  getParentRoute: () => dashboardRoute,
+} as any)
 
 const mainHomeLayoutprofileRoute = mainHomeLayoutprofileImport.update({
-	id: "/(profile)",
-	getParentRoute: () => mainHomeLayoutRoute,
-} as any);
+  id: '/(profile)',
+  getParentRoute: () => mainHomeLayoutRoute,
+} as any)
 
 const mainHomeLayoutIndexRoute = mainHomeLayoutIndexImport.update({
-	id: "/",
-	path: "/",
-	getParentRoute: () => mainHomeLayoutRoute,
-} as any);
+  id: '/',
+  path: '/',
+  getParentRoute: () => mainHomeLayoutRoute,
+} as any)
 
 const dashboardPartnersIndexRoute = dashboardPartnersIndexImport.update({
-	id: "/partners/",
-	path: "/partners/",
-	getParentRoute: () => dashboardRoute,
-} as any);
+  id: '/partners/',
+  path: '/partners/',
+  getParentRoute: () => dashboardRoute,
+} as any)
 
 const mainHomeLayoutCartIndexLazyRoute = mainHomeLayoutCartIndexLazyImport
-	.update({
-		id: "/cart/",
-		path: "/cart/",
-		getParentRoute: () => mainHomeLayoutRoute,
-	} as any)
-	.lazy(() => import("./routes/(main)/_homeLayout/cart/index.lazy").then((d) => d.Route));
+  .update({
+    id: '/cart/',
+    path: '/cart/',
+    getParentRoute: () => mainHomeLayoutRoute,
+  } as any)
+  .lazy(() =>
+    import('./routes/(main)/_homeLayout/cart/index.lazy').then((d) => d.Route),
+  )
 
-const dashboardDashboardLayoutDashboardIndexRoute = dashboardDashboardLayoutDashboardIndexImport.update({
-	id: "/dashboard/",
-	path: "/dashboard/",
-	getParentRoute: () => dashboardDashboardLayoutRoute,
-} as any);
+const dashboardDashboardLayoutDashboardIndexRoute =
+  dashboardDashboardLayoutDashboardIndexImport.update({
+    id: '/dashboard/',
+    path: '/dashboard/',
+    getParentRoute: () => dashboardDashboardLayoutRoute,
+  } as any)
 
-const mainHomeLayoutprofileProfileLayoutRoute = mainHomeLayoutprofileProfileLayoutImport.update({
-	id: "/_profileLayout",
-	getParentRoute: () => mainHomeLayoutprofileRoute,
-} as any);
+const mainHomeLayoutprofileProfileLayoutRoute =
+  mainHomeLayoutprofileProfileLayoutImport.update({
+    id: '/_profileLayout',
+    getParentRoute: () => mainHomeLayoutprofileRoute,
+  } as any)
 
-const mainHomeLayoutSellerSellerIdIndexLazyRoute = mainHomeLayoutSellerSellerIdIndexLazyImport
-	.update({
-		id: "/seller/$sellerId/",
-		path: "/seller/$sellerId/",
-		getParentRoute: () => mainHomeLayoutRoute,
-	} as any)
-	.lazy(() => import("./routes/(main)/_homeLayout/seller/$sellerId/index.lazy").then((d) => d.Route));
+const mainHomeLayoutSellerSellerIdIndexLazyRoute =
+  mainHomeLayoutSellerSellerIdIndexLazyImport
+    .update({
+      id: '/seller/$sellerId/',
+      path: '/seller/$sellerId/',
+      getParentRoute: () => mainHomeLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import('./routes/(main)/_homeLayout/seller/$sellerId/index.lazy').then(
+        (d) => d.Route,
+      ),
+    )
 
-const mainHomeLayoutTitleProductIdIndexLazyRoute = mainHomeLayoutTitleProductIdIndexLazyImport
-	.update({
-		id: "/$title/$productId/",
-		path: "/$title/$productId/",
-		getParentRoute: () => mainHomeLayoutRoute,
-	} as any)
-	.lazy(() => import("./routes/(main)/_homeLayout/$title/$productId/index.lazy").then((d) => d.Route));
+const mainHomeLayoutTitleProductIdIndexLazyRoute =
+  mainHomeLayoutTitleProductIdIndexLazyImport
+    .update({
+      id: '/$title/$productId/',
+      path: '/$title/$productId/',
+      getParentRoute: () => mainHomeLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import('./routes/(main)/_homeLayout/$title/$productId/index.lazy').then(
+        (d) => d.Route,
+      ),
+    )
 
-const dashboardDashboardLayoutDashboardProductsIndexRoute = dashboardDashboardLayoutDashboardProductsIndexImport.update({
-	id: "/dashboard/products/",
-	path: "/dashboard/products/",
-	getParentRoute: () => dashboardDashboardLayoutRoute,
-} as any);
+const dashboardDashboardLayoutDashboardProductsIndexRoute =
+  dashboardDashboardLayoutDashboardProductsIndexImport.update({
+    id: '/dashboard/products/',
+    path: '/dashboard/products/',
+    getParentRoute: () => dashboardDashboardLayoutRoute,
+  } as any)
 
-const dashboardDashboardLayoutDashboardOrdersIndexRoute = dashboardDashboardLayoutDashboardOrdersIndexImport.update({
-	id: "/dashboard/orders/",
-	path: "/dashboard/orders/",
-	getParentRoute: () => dashboardDashboardLayoutRoute,
-} as any);
+const dashboardDashboardLayoutDashboardOrdersIndexRoute =
+  dashboardDashboardLayoutDashboardOrdersIndexImport.update({
+    id: '/dashboard/orders/',
+    path: '/dashboard/orders/',
+    getParentRoute: () => dashboardDashboardLayoutRoute,
+  } as any)
 
 const mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute =
-	mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyImport
-		.update({
-			id: "/security-settings/",
-			path: "/security-settings/",
-			getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
-		} as any)
-		.lazy(() =>
-			import("./routes/(main)/_homeLayout/(profile)/_profileLayout/security-settings/index.lazy").then((d) => d.Route),
-		);
+  mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyImport
+    .update({
+      id: '/security-settings/',
+      path: '/security-settings/',
+      getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/security-settings/index.lazy'
+      ).then((d) => d.Route),
+    )
 
-const mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute = mainHomeLayoutprofileProfileLayoutReturnsIndexLazyImport
-	.update({
-		id: "/returns/",
-		path: "/returns/",
-		getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
-	} as any)
-	.lazy(() => import("./routes/(main)/_homeLayout/(profile)/_profileLayout/returns/index.lazy").then((d) => d.Route));
+const mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute =
+  mainHomeLayoutprofileProfileLayoutReturnsIndexLazyImport
+    .update({
+      id: '/returns/',
+      path: '/returns/',
+      getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/returns/index.lazy'
+      ).then((d) => d.Route),
+    )
 
-const mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute = mainHomeLayoutprofileProfileLayoutProfileIndexLazyImport
-	.update({
-		id: "/profile/",
-		path: "/profile/",
-		getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
-	} as any)
-	.lazy(() => import("./routes/(main)/_homeLayout/(profile)/_profileLayout/profile/index.lazy").then((d) => d.Route));
+const mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute =
+  mainHomeLayoutprofileProfileLayoutProfileIndexLazyImport
+    .update({
+      id: '/profile/',
+      path: '/profile/',
+      getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/profile/index.lazy'
+      ).then((d) => d.Route),
+    )
 
-const mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute = mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyImport
-	.update({
-		id: "/payments/",
-		path: "/payments/",
-		getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
-	} as any)
-	.lazy(() => import("./routes/(main)/_homeLayout/(profile)/_profileLayout/payments/index.lazy").then((d) => d.Route));
+const mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute =
+  mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyImport
+    .update({
+      id: '/payments/',
+      path: '/payments/',
+      getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/payments/index.lazy'
+      ).then((d) => d.Route),
+    )
 
-const mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute = mainHomeLayoutprofileProfileLayoutOrdersIndexLazyImport
-	.update({
-		id: "/orders/",
-		path: "/orders/",
-		getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
-	} as any)
-	.lazy(() => import("./routes/(main)/_homeLayout/(profile)/_profileLayout/orders/index.lazy").then((d) => d.Route));
+const mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute =
+  mainHomeLayoutprofileProfileLayoutOrdersIndexLazyImport
+    .update({
+      id: '/orders/',
+      path: '/orders/',
+      getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/orders/index.lazy'
+      ).then((d) => d.Route),
+    )
 
-const mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute = mainHomeLayoutprofileProfileLayoutAddressesIndexLazyImport
-	.update({
-		id: "/addresses/",
-		path: "/addresses/",
-		getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
-	} as any)
-	.lazy(() => import("./routes/(main)/_homeLayout/(profile)/_profileLayout/addresses/index.lazy").then((d) => d.Route));
+const mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute =
+  mainHomeLayoutprofileProfileLayoutAddressesIndexLazyImport
+    .update({
+      id: '/addresses/',
+      path: '/addresses/',
+      getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/addresses/index.lazy'
+      ).then((d) => d.Route),
+    )
 
-const dashboardDashboardLayoutDashboardProductsNewIndexRoute = dashboardDashboardLayoutDashboardProductsNewIndexImport.update({
-	id: "/dashboard/products/new/",
-	path: "/dashboard/products/new/",
-	getParentRoute: () => dashboardDashboardLayoutRoute,
-} as any);
+const dashboardDashboardLayoutDashboardProductsNewIndexRoute =
+  dashboardDashboardLayoutDashboardProductsNewIndexImport.update({
+    id: '/dashboard/products/new/',
+    path: '/dashboard/products/new/',
+    getParentRoute: () => dashboardDashboardLayoutRoute,
+  } as any)
 
 const mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute =
-	mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyImport
-		.update({
-			id: "/orders/$orderId/",
-			path: "/orders/$orderId/",
-			getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
-		} as any)
-		.lazy(() =>
-			import("./routes/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/index.lazy").then((d) => d.Route),
-		);
+  mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyImport
+    .update({
+      id: '/orders/$orderId/',
+      path: '/orders/$orderId/',
+      getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/index.lazy'
+      ).then((d) => d.Route),
+    )
 
 const mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute =
-	mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyImport
-		.update({
-			id: "/orders/track/order/$orderId/",
-			path: "/orders/track/order/$orderId/",
-			getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
-		} as any)
-		.lazy(() =>
-			import("./routes/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/index.lazy").then(
-				(d) => d.Route,
-			),
-		);
+  mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyImport
+    .update({
+      id: '/orders/track/order/$orderId/',
+      path: '/orders/track/order/$orderId/',
+      getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/index.lazy'
+      ).then((d) => d.Route),
+    )
 
 // Populate the FileRoutesByPath interface
 
-declare module "@tanstack/react-router" {
-	interface FileRoutesByPath {
-		"/(dashboard)": {
-			id: "/(dashboard)";
-			path: "/";
-			fullPath: "/";
-			preLoaderRoute: typeof dashboardImport;
-			parentRoute: typeof rootRoute;
-		};
-		"/(dashboard)/_dashboardLayout": {
-			id: "/(dashboard)/_dashboardLayout";
-			path: "/";
-			fullPath: "/";
-			preLoaderRoute: typeof dashboardDashboardLayoutImport;
-			parentRoute: typeof dashboardRoute;
-		};
-		"/(main)": {
-			id: "/(main)";
-			path: "/";
-			fullPath: "/";
-			preLoaderRoute: typeof mainImport;
-			parentRoute: typeof rootRoute;
-		};
-		"/(main)/_homeLayout": {
-			id: "/(main)/_homeLayout";
-			path: "/";
-			fullPath: "/";
-			preLoaderRoute: typeof mainHomeLayoutImport;
-			parentRoute: typeof mainRoute;
-		};
-		"/(dashboard)/partners/": {
-			id: "/(dashboard)/partners/";
-			path: "/partners";
-			fullPath: "/partners";
-			preLoaderRoute: typeof dashboardPartnersIndexImport;
-			parentRoute: typeof dashboardImport;
-		};
-		"/(main)/_homeLayout/": {
-			id: "/(main)/_homeLayout/";
-			path: "/";
-			fullPath: "/";
-			preLoaderRoute: typeof mainHomeLayoutIndexImport;
-			parentRoute: typeof mainHomeLayoutImport;
-		};
-		"/(main)/_homeLayout/(profile)": {
-			id: "/(main)/_homeLayout/(profile)";
-			path: "/";
-			fullPath: "/";
-			preLoaderRoute: typeof mainHomeLayoutprofileImport;
-			parentRoute: typeof mainHomeLayoutImport;
-		};
-		"/(main)/_homeLayout/(profile)/_profileLayout": {
-			id: "/(main)/_homeLayout/(profile)/_profileLayout";
-			path: "/";
-			fullPath: "/";
-			preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutImport;
-			parentRoute: typeof mainHomeLayoutprofileRoute;
-		};
-		"/(dashboard)/_dashboardLayout/dashboard/": {
-			id: "/(dashboard)/_dashboardLayout/dashboard/";
-			path: "/dashboard";
-			fullPath: "/dashboard";
-			preLoaderRoute: typeof dashboardDashboardLayoutDashboardIndexImport;
-			parentRoute: typeof dashboardDashboardLayoutImport;
-		};
-		"/(main)/_homeLayout/cart/": {
-			id: "/(main)/_homeLayout/cart/";
-			path: "/cart";
-			fullPath: "/cart";
-			preLoaderRoute: typeof mainHomeLayoutCartIndexLazyImport;
-			parentRoute: typeof mainHomeLayoutImport;
-		};
-		"/(dashboard)/_dashboardLayout/dashboard/orders/": {
-			id: "/(dashboard)/_dashboardLayout/dashboard/orders/";
-			path: "/dashboard/orders";
-			fullPath: "/dashboard/orders";
-			preLoaderRoute: typeof dashboardDashboardLayoutDashboardOrdersIndexImport;
-			parentRoute: typeof dashboardDashboardLayoutImport;
-		};
-		"/(dashboard)/_dashboardLayout/dashboard/products/": {
-			id: "/(dashboard)/_dashboardLayout/dashboard/products/";
-			path: "/dashboard/products";
-			fullPath: "/dashboard/products";
-			preLoaderRoute: typeof dashboardDashboardLayoutDashboardProductsIndexImport;
-			parentRoute: typeof dashboardDashboardLayoutImport;
-		};
-		"/(main)/_homeLayout/$title/$productId/": {
-			id: "/(main)/_homeLayout/$title/$productId/";
-			path: "/$title/$productId";
-			fullPath: "/$title/$productId";
-			preLoaderRoute: typeof mainHomeLayoutTitleProductIdIndexLazyImport;
-			parentRoute: typeof mainHomeLayoutImport;
-		};
-		"/(main)/_homeLayout/seller/$sellerId/": {
-			id: "/(main)/_homeLayout/seller/$sellerId/";
-			path: "/seller/$sellerId";
-			fullPath: "/seller/$sellerId";
-			preLoaderRoute: typeof mainHomeLayoutSellerSellerIdIndexLazyImport;
-			parentRoute: typeof mainHomeLayoutImport;
-		};
-		"/(dashboard)/_dashboardLayout/dashboard/products/new/": {
-			id: "/(dashboard)/_dashboardLayout/dashboard/products/new/";
-			path: "/dashboard/products/new";
-			fullPath: "/dashboard/products/new";
-			preLoaderRoute: typeof dashboardDashboardLayoutDashboardProductsNewIndexImport;
-			parentRoute: typeof dashboardDashboardLayoutImport;
-		};
-		"/(main)/_homeLayout/(profile)/_profileLayout/addresses/": {
-			id: "/(main)/_homeLayout/(profile)/_profileLayout/addresses/";
-			path: "/addresses";
-			fullPath: "/addresses";
-			preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutAddressesIndexLazyImport;
-			parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport;
-		};
-		"/(main)/_homeLayout/(profile)/_profileLayout/orders/": {
-			id: "/(main)/_homeLayout/(profile)/_profileLayout/orders/";
-			path: "/orders";
-			fullPath: "/orders";
-			preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersIndexLazyImport;
-			parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport;
-		};
-		"/(main)/_homeLayout/(profile)/_profileLayout/payments/": {
-			id: "/(main)/_homeLayout/(profile)/_profileLayout/payments/";
-			path: "/payments";
-			fullPath: "/payments";
-			preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyImport;
-			parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport;
-		};
-		"/(main)/_homeLayout/(profile)/_profileLayout/profile/": {
-			id: "/(main)/_homeLayout/(profile)/_profileLayout/profile/";
-			path: "/profile";
-			fullPath: "/profile";
-			preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutProfileIndexLazyImport;
-			parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport;
-		};
-		"/(main)/_homeLayout/(profile)/_profileLayout/returns/": {
-			id: "/(main)/_homeLayout/(profile)/_profileLayout/returns/";
-			path: "/returns";
-			fullPath: "/returns";
-			preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutReturnsIndexLazyImport;
-			parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport;
-		};
-		"/(main)/_homeLayout/(profile)/_profileLayout/security-settings/": {
-			id: "/(main)/_homeLayout/(profile)/_profileLayout/security-settings/";
-			path: "/security-settings";
-			fullPath: "/security-settings";
-			preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyImport;
-			parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport;
-		};
-		"/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/": {
-			id: "/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/";
-			path: "/orders/$orderId";
-			fullPath: "/orders/$orderId";
-			preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyImport;
-			parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport;
-		};
-		"/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/": {
-			id: "/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/";
-			path: "/orders/track/order/$orderId";
-			fullPath: "/orders/track/order/$orderId";
-			preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyImport;
-			parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport;
-		};
-	}
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/(dashboard)': {
+      id: '/(dashboard)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof dashboardImport
+      parentRoute: typeof rootRoute
+    }
+    '/(dashboard)/_dashboardLayout': {
+      id: '/(dashboard)/_dashboardLayout'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof dashboardDashboardLayoutImport
+      parentRoute: typeof dashboardRoute
+    }
+    '/(main)': {
+      id: '/(main)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof mainImport
+      parentRoute: typeof rootRoute
+    }
+    '/(main)/_homeLayout': {
+      id: '/(main)/_homeLayout'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof mainHomeLayoutImport
+      parentRoute: typeof mainRoute
+    }
+    '/(dashboard)/partners/': {
+      id: '/(dashboard)/partners/'
+      path: '/partners'
+      fullPath: '/partners'
+      preLoaderRoute: typeof dashboardPartnersIndexImport
+      parentRoute: typeof dashboardImport
+    }
+    '/(main)/_homeLayout/': {
+      id: '/(main)/_homeLayout/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof mainHomeLayoutIndexImport
+      parentRoute: typeof mainHomeLayoutImport
+    }
+    '/(main)/_homeLayout/(profile)': {
+      id: '/(main)/_homeLayout/(profile)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof mainHomeLayoutprofileImport
+      parentRoute: typeof mainHomeLayoutImport
+    }
+    '/(main)/_homeLayout/(profile)/_profileLayout': {
+      id: '/(main)/_homeLayout/(profile)/_profileLayout'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutImport
+      parentRoute: typeof mainHomeLayoutprofileRoute
+    }
+    '/(dashboard)/_dashboardLayout/dashboard/': {
+      id: '/(dashboard)/_dashboardLayout/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof dashboardDashboardLayoutDashboardIndexImport
+      parentRoute: typeof dashboardDashboardLayoutImport
+    }
+    '/(main)/_homeLayout/cart/': {
+      id: '/(main)/_homeLayout/cart/'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof mainHomeLayoutCartIndexLazyImport
+      parentRoute: typeof mainHomeLayoutImport
+    }
+    '/(dashboard)/_dashboardLayout/dashboard/orders/': {
+      id: '/(dashboard)/_dashboardLayout/dashboard/orders/'
+      path: '/dashboard/orders'
+      fullPath: '/dashboard/orders'
+      preLoaderRoute: typeof dashboardDashboardLayoutDashboardOrdersIndexImport
+      parentRoute: typeof dashboardDashboardLayoutImport
+    }
+    '/(dashboard)/_dashboardLayout/dashboard/products/': {
+      id: '/(dashboard)/_dashboardLayout/dashboard/products/'
+      path: '/dashboard/products'
+      fullPath: '/dashboard/products'
+      preLoaderRoute: typeof dashboardDashboardLayoutDashboardProductsIndexImport
+      parentRoute: typeof dashboardDashboardLayoutImport
+    }
+    '/(main)/_homeLayout/$title/$productId/': {
+      id: '/(main)/_homeLayout/$title/$productId/'
+      path: '/$title/$productId'
+      fullPath: '/$title/$productId'
+      preLoaderRoute: typeof mainHomeLayoutTitleProductIdIndexLazyImport
+      parentRoute: typeof mainHomeLayoutImport
+    }
+    '/(main)/_homeLayout/seller/$sellerId/': {
+      id: '/(main)/_homeLayout/seller/$sellerId/'
+      path: '/seller/$sellerId'
+      fullPath: '/seller/$sellerId'
+      preLoaderRoute: typeof mainHomeLayoutSellerSellerIdIndexLazyImport
+      parentRoute: typeof mainHomeLayoutImport
+    }
+    '/(dashboard)/_dashboardLayout/dashboard/products/new/': {
+      id: '/(dashboard)/_dashboardLayout/dashboard/products/new/'
+      path: '/dashboard/products/new'
+      fullPath: '/dashboard/products/new'
+      preLoaderRoute: typeof dashboardDashboardLayoutDashboardProductsNewIndexImport
+      parentRoute: typeof dashboardDashboardLayoutImport
+    }
+    '/(main)/_homeLayout/(profile)/_profileLayout/addresses/': {
+      id: '/(main)/_homeLayout/(profile)/_profileLayout/addresses/'
+      path: '/addresses'
+      fullPath: '/addresses'
+      preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutAddressesIndexLazyImport
+      parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport
+    }
+    '/(main)/_homeLayout/(profile)/_profileLayout/orders/': {
+      id: '/(main)/_homeLayout/(profile)/_profileLayout/orders/'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersIndexLazyImport
+      parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport
+    }
+    '/(main)/_homeLayout/(profile)/_profileLayout/payments/': {
+      id: '/(main)/_homeLayout/(profile)/_profileLayout/payments/'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyImport
+      parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport
+    }
+    '/(main)/_homeLayout/(profile)/_profileLayout/profile/': {
+      id: '/(main)/_homeLayout/(profile)/_profileLayout/profile/'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutProfileIndexLazyImport
+      parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport
+    }
+    '/(main)/_homeLayout/(profile)/_profileLayout/returns/': {
+      id: '/(main)/_homeLayout/(profile)/_profileLayout/returns/'
+      path: '/returns'
+      fullPath: '/returns'
+      preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutReturnsIndexLazyImport
+      parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport
+    }
+    '/(main)/_homeLayout/(profile)/_profileLayout/security-settings/': {
+      id: '/(main)/_homeLayout/(profile)/_profileLayout/security-settings/'
+      path: '/security-settings'
+      fullPath: '/security-settings'
+      preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyImport
+      parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport
+    }
+    '/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/': {
+      id: '/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/'
+      path: '/orders/$orderId'
+      fullPath: '/orders/$orderId'
+      preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyImport
+      parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport
+    }
+    '/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/': {
+      id: '/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/'
+      path: '/orders/track/order/$orderId'
+      fullPath: '/orders/track/order/$orderId'
+      preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyImport
+      parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport
+    }
+  }
 }
 
 // Create and export the route tree
 
 interface dashboardDashboardLayoutRouteChildren {
-	dashboardDashboardLayoutDashboardIndexRoute: typeof dashboardDashboardLayoutDashboardIndexRoute;
-	dashboardDashboardLayoutDashboardOrdersIndexRoute: typeof dashboardDashboardLayoutDashboardOrdersIndexRoute;
-	dashboardDashboardLayoutDashboardProductsIndexRoute: typeof dashboardDashboardLayoutDashboardProductsIndexRoute;
-	dashboardDashboardLayoutDashboardProductsNewIndexRoute: typeof dashboardDashboardLayoutDashboardProductsNewIndexRoute;
+  dashboardDashboardLayoutDashboardIndexRoute: typeof dashboardDashboardLayoutDashboardIndexRoute
+  dashboardDashboardLayoutDashboardOrdersIndexRoute: typeof dashboardDashboardLayoutDashboardOrdersIndexRoute
+  dashboardDashboardLayoutDashboardProductsIndexRoute: typeof dashboardDashboardLayoutDashboardProductsIndexRoute
+  dashboardDashboardLayoutDashboardProductsNewIndexRoute: typeof dashboardDashboardLayoutDashboardProductsNewIndexRoute
 }
 
-const dashboardDashboardLayoutRouteChildren: dashboardDashboardLayoutRouteChildren = {
-	dashboardDashboardLayoutDashboardIndexRoute: dashboardDashboardLayoutDashboardIndexRoute,
-	dashboardDashboardLayoutDashboardOrdersIndexRoute: dashboardDashboardLayoutDashboardOrdersIndexRoute,
-	dashboardDashboardLayoutDashboardProductsIndexRoute: dashboardDashboardLayoutDashboardProductsIndexRoute,
-	dashboardDashboardLayoutDashboardProductsNewIndexRoute: dashboardDashboardLayoutDashboardProductsNewIndexRoute,
-};
+const dashboardDashboardLayoutRouteChildren: dashboardDashboardLayoutRouteChildren =
+  {
+    dashboardDashboardLayoutDashboardIndexRoute:
+      dashboardDashboardLayoutDashboardIndexRoute,
+    dashboardDashboardLayoutDashboardOrdersIndexRoute:
+      dashboardDashboardLayoutDashboardOrdersIndexRoute,
+    dashboardDashboardLayoutDashboardProductsIndexRoute:
+      dashboardDashboardLayoutDashboardProductsIndexRoute,
+    dashboardDashboardLayoutDashboardProductsNewIndexRoute:
+      dashboardDashboardLayoutDashboardProductsNewIndexRoute,
+  }
 
-const dashboardDashboardLayoutRouteWithChildren = dashboardDashboardLayoutRoute._addFileChildren(
-	dashboardDashboardLayoutRouteChildren,
-);
+const dashboardDashboardLayoutRouteWithChildren =
+  dashboardDashboardLayoutRoute._addFileChildren(
+    dashboardDashboardLayoutRouteChildren,
+  )
 
 interface dashboardRouteChildren {
-	dashboardDashboardLayoutRoute: typeof dashboardDashboardLayoutRouteWithChildren;
-	dashboardPartnersIndexRoute: typeof dashboardPartnersIndexRoute;
+  dashboardDashboardLayoutRoute: typeof dashboardDashboardLayoutRouteWithChildren
+  dashboardPartnersIndexRoute: typeof dashboardPartnersIndexRoute
 }
 
 const dashboardRouteChildren: dashboardRouteChildren = {
-	dashboardDashboardLayoutRoute: dashboardDashboardLayoutRouteWithChildren,
-	dashboardPartnersIndexRoute: dashboardPartnersIndexRoute,
-};
-
-const dashboardRouteWithChildren = dashboardRoute._addFileChildren(dashboardRouteChildren);
-
-interface mainHomeLayoutprofileProfileLayoutRouteChildren {
-	mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute;
-	mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute;
-	mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute;
-	mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute;
-	mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute;
-	mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute;
-	mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute;
-	mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute;
+  dashboardDashboardLayoutRoute: dashboardDashboardLayoutRouteWithChildren,
+  dashboardPartnersIndexRoute: dashboardPartnersIndexRoute,
 }
 
-const mainHomeLayoutprofileProfileLayoutRouteChildren: mainHomeLayoutprofileProfileLayoutRouteChildren = {
-	mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute: mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute,
-	mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute: mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute,
-	mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute: mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute,
-	mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute: mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute,
-	mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute: mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute,
-	mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute:
-		mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute,
-	mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute: mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute,
-	mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute:
-		mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute,
-};
+const dashboardRouteWithChildren = dashboardRoute._addFileChildren(
+  dashboardRouteChildren,
+)
 
-const mainHomeLayoutprofileProfileLayoutRouteWithChildren = mainHomeLayoutprofileProfileLayoutRoute._addFileChildren(
-	mainHomeLayoutprofileProfileLayoutRouteChildren,
-);
+interface mainHomeLayoutprofileProfileLayoutRouteChildren {
+  mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute
+  mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute
+  mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute
+  mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute
+  mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute
+  mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute
+  mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute
+  mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute
+}
+
+const mainHomeLayoutprofileProfileLayoutRouteChildren: mainHomeLayoutprofileProfileLayoutRouteChildren =
+  {
+    mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute,
+    mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute,
+    mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute,
+    mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute,
+    mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute,
+    mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute,
+    mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute,
+    mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute,
+  }
+
+const mainHomeLayoutprofileProfileLayoutRouteWithChildren =
+  mainHomeLayoutprofileProfileLayoutRoute._addFileChildren(
+    mainHomeLayoutprofileProfileLayoutRouteChildren,
+  )
 
 interface mainHomeLayoutprofileRouteChildren {
-	mainHomeLayoutprofileProfileLayoutRoute: typeof mainHomeLayoutprofileProfileLayoutRouteWithChildren;
+  mainHomeLayoutprofileProfileLayoutRoute: typeof mainHomeLayoutprofileProfileLayoutRouteWithChildren
 }
 
 const mainHomeLayoutprofileRouteChildren: mainHomeLayoutprofileRouteChildren = {
-	mainHomeLayoutprofileProfileLayoutRoute: mainHomeLayoutprofileProfileLayoutRouteWithChildren,
-};
+  mainHomeLayoutprofileProfileLayoutRoute:
+    mainHomeLayoutprofileProfileLayoutRouteWithChildren,
+}
 
-const mainHomeLayoutprofileRouteWithChildren = mainHomeLayoutprofileRoute._addFileChildren(mainHomeLayoutprofileRouteChildren);
+const mainHomeLayoutprofileRouteWithChildren =
+  mainHomeLayoutprofileRoute._addFileChildren(
+    mainHomeLayoutprofileRouteChildren,
+  )
 
 interface mainHomeLayoutRouteChildren {
-	mainHomeLayoutIndexRoute: typeof mainHomeLayoutIndexRoute;
-	mainHomeLayoutprofileRoute: typeof mainHomeLayoutprofileRouteWithChildren;
-	mainHomeLayoutCartIndexLazyRoute: typeof mainHomeLayoutCartIndexLazyRoute;
-	mainHomeLayoutTitleProductIdIndexLazyRoute: typeof mainHomeLayoutTitleProductIdIndexLazyRoute;
-	mainHomeLayoutSellerSellerIdIndexLazyRoute: typeof mainHomeLayoutSellerSellerIdIndexLazyRoute;
+  mainHomeLayoutIndexRoute: typeof mainHomeLayoutIndexRoute
+  mainHomeLayoutprofileRoute: typeof mainHomeLayoutprofileRouteWithChildren
+  mainHomeLayoutCartIndexLazyRoute: typeof mainHomeLayoutCartIndexLazyRoute
+  mainHomeLayoutTitleProductIdIndexLazyRoute: typeof mainHomeLayoutTitleProductIdIndexLazyRoute
+  mainHomeLayoutSellerSellerIdIndexLazyRoute: typeof mainHomeLayoutSellerSellerIdIndexLazyRoute
 }
 
 const mainHomeLayoutRouteChildren: mainHomeLayoutRouteChildren = {
-	mainHomeLayoutIndexRoute: mainHomeLayoutIndexRoute,
-	mainHomeLayoutprofileRoute: mainHomeLayoutprofileRouteWithChildren,
-	mainHomeLayoutCartIndexLazyRoute: mainHomeLayoutCartIndexLazyRoute,
-	mainHomeLayoutTitleProductIdIndexLazyRoute: mainHomeLayoutTitleProductIdIndexLazyRoute,
-	mainHomeLayoutSellerSellerIdIndexLazyRoute: mainHomeLayoutSellerSellerIdIndexLazyRoute,
-};
+  mainHomeLayoutIndexRoute: mainHomeLayoutIndexRoute,
+  mainHomeLayoutprofileRoute: mainHomeLayoutprofileRouteWithChildren,
+  mainHomeLayoutCartIndexLazyRoute: mainHomeLayoutCartIndexLazyRoute,
+  mainHomeLayoutTitleProductIdIndexLazyRoute:
+    mainHomeLayoutTitleProductIdIndexLazyRoute,
+  mainHomeLayoutSellerSellerIdIndexLazyRoute:
+    mainHomeLayoutSellerSellerIdIndexLazyRoute,
+}
 
-const mainHomeLayoutRouteWithChildren = mainHomeLayoutRoute._addFileChildren(mainHomeLayoutRouteChildren);
+const mainHomeLayoutRouteWithChildren = mainHomeLayoutRoute._addFileChildren(
+  mainHomeLayoutRouteChildren,
+)
 
 interface mainRouteChildren {
-	mainHomeLayoutRoute: typeof mainHomeLayoutRouteWithChildren;
+  mainHomeLayoutRoute: typeof mainHomeLayoutRouteWithChildren
 }
 
 const mainRouteChildren: mainRouteChildren = {
-	mainHomeLayoutRoute: mainHomeLayoutRouteWithChildren,
-};
+  mainHomeLayoutRoute: mainHomeLayoutRouteWithChildren,
+}
 
-const mainRouteWithChildren = mainRoute._addFileChildren(mainRouteChildren);
+const mainRouteWithChildren = mainRoute._addFileChildren(mainRouteChildren)
 
 export interface FileRoutesByFullPath {
-	"/": typeof mainHomeLayoutprofileProfileLayoutRouteWithChildren;
-	"/partners": typeof dashboardPartnersIndexRoute;
-	"/dashboard": typeof dashboardDashboardLayoutDashboardIndexRoute;
-	"/cart": typeof mainHomeLayoutCartIndexLazyRoute;
-	"/dashboard/orders": typeof dashboardDashboardLayoutDashboardOrdersIndexRoute;
-	"/dashboard/products": typeof dashboardDashboardLayoutDashboardProductsIndexRoute;
-	"/$title/$productId": typeof mainHomeLayoutTitleProductIdIndexLazyRoute;
-	"/seller/$sellerId": typeof mainHomeLayoutSellerSellerIdIndexLazyRoute;
-	"/dashboard/products/new": typeof dashboardDashboardLayoutDashboardProductsNewIndexRoute;
-	"/addresses": typeof mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute;
-	"/orders": typeof mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute;
-	"/payments": typeof mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute;
-	"/profile": typeof mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute;
-	"/returns": typeof mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute;
-	"/security-settings": typeof mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute;
-	"/orders/$orderId": typeof mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute;
-	"/orders/track/order/$orderId": typeof mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute;
+  '/': typeof mainHomeLayoutprofileProfileLayoutRouteWithChildren
+  '/partners': typeof dashboardPartnersIndexRoute
+  '/dashboard': typeof dashboardDashboardLayoutDashboardIndexRoute
+  '/cart': typeof mainHomeLayoutCartIndexLazyRoute
+  '/dashboard/orders': typeof dashboardDashboardLayoutDashboardOrdersIndexRoute
+  '/dashboard/products': typeof dashboardDashboardLayoutDashboardProductsIndexRoute
+  '/$title/$productId': typeof mainHomeLayoutTitleProductIdIndexLazyRoute
+  '/seller/$sellerId': typeof mainHomeLayoutSellerSellerIdIndexLazyRoute
+  '/dashboard/products/new': typeof dashboardDashboardLayoutDashboardProductsNewIndexRoute
+  '/addresses': typeof mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute
+  '/orders': typeof mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute
+  '/payments': typeof mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute
+  '/profile': typeof mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute
+  '/returns': typeof mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute
+  '/security-settings': typeof mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute
+  '/orders/$orderId': typeof mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute
+  '/orders/track/order/$orderId': typeof mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
-	"/": typeof mainHomeLayoutprofileProfileLayoutRouteWithChildren;
-	"/partners": typeof dashboardPartnersIndexRoute;
-	"/dashboard": typeof dashboardDashboardLayoutDashboardIndexRoute;
-	"/cart": typeof mainHomeLayoutCartIndexLazyRoute;
-	"/dashboard/orders": typeof dashboardDashboardLayoutDashboardOrdersIndexRoute;
-	"/dashboard/products": typeof dashboardDashboardLayoutDashboardProductsIndexRoute;
-	"/$title/$productId": typeof mainHomeLayoutTitleProductIdIndexLazyRoute;
-	"/seller/$sellerId": typeof mainHomeLayoutSellerSellerIdIndexLazyRoute;
-	"/dashboard/products/new": typeof dashboardDashboardLayoutDashboardProductsNewIndexRoute;
-	"/addresses": typeof mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute;
-	"/orders": typeof mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute;
-	"/payments": typeof mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute;
-	"/profile": typeof mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute;
-	"/returns": typeof mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute;
-	"/security-settings": typeof mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute;
-	"/orders/$orderId": typeof mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute;
-	"/orders/track/order/$orderId": typeof mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute;
+  '/': typeof mainHomeLayoutprofileProfileLayoutRouteWithChildren
+  '/partners': typeof dashboardPartnersIndexRoute
+  '/dashboard': typeof dashboardDashboardLayoutDashboardIndexRoute
+  '/cart': typeof mainHomeLayoutCartIndexLazyRoute
+  '/dashboard/orders': typeof dashboardDashboardLayoutDashboardOrdersIndexRoute
+  '/dashboard/products': typeof dashboardDashboardLayoutDashboardProductsIndexRoute
+  '/$title/$productId': typeof mainHomeLayoutTitleProductIdIndexLazyRoute
+  '/seller/$sellerId': typeof mainHomeLayoutSellerSellerIdIndexLazyRoute
+  '/dashboard/products/new': typeof dashboardDashboardLayoutDashboardProductsNewIndexRoute
+  '/addresses': typeof mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute
+  '/orders': typeof mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute
+  '/payments': typeof mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute
+  '/profile': typeof mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute
+  '/returns': typeof mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute
+  '/security-settings': typeof mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute
+  '/orders/$orderId': typeof mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute
+  '/orders/track/order/$orderId': typeof mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute
 }
 
 export interface FileRoutesById {
-	__root__: typeof rootRoute;
-	"/(dashboard)": typeof dashboardRouteWithChildren;
-	"/(dashboard)/_dashboardLayout": typeof dashboardDashboardLayoutRouteWithChildren;
-	"/(main)": typeof mainRouteWithChildren;
-	"/(main)/_homeLayout": typeof mainHomeLayoutRouteWithChildren;
-	"/(dashboard)/partners/": typeof dashboardPartnersIndexRoute;
-	"/(main)/_homeLayout/": typeof mainHomeLayoutIndexRoute;
-	"/(main)/_homeLayout/(profile)": typeof mainHomeLayoutprofileRouteWithChildren;
-	"/(main)/_homeLayout/(profile)/_profileLayout": typeof mainHomeLayoutprofileProfileLayoutRouteWithChildren;
-	"/(dashboard)/_dashboardLayout/dashboard/": typeof dashboardDashboardLayoutDashboardIndexRoute;
-	"/(main)/_homeLayout/cart/": typeof mainHomeLayoutCartIndexLazyRoute;
-	"/(dashboard)/_dashboardLayout/dashboard/orders/": typeof dashboardDashboardLayoutDashboardOrdersIndexRoute;
-	"/(dashboard)/_dashboardLayout/dashboard/products/": typeof dashboardDashboardLayoutDashboardProductsIndexRoute;
-	"/(main)/_homeLayout/$title/$productId/": typeof mainHomeLayoutTitleProductIdIndexLazyRoute;
-	"/(main)/_homeLayout/seller/$sellerId/": typeof mainHomeLayoutSellerSellerIdIndexLazyRoute;
-	"/(dashboard)/_dashboardLayout/dashboard/products/new/": typeof dashboardDashboardLayoutDashboardProductsNewIndexRoute;
-	"/(main)/_homeLayout/(profile)/_profileLayout/addresses/": typeof mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute;
-	"/(main)/_homeLayout/(profile)/_profileLayout/orders/": typeof mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute;
-	"/(main)/_homeLayout/(profile)/_profileLayout/payments/": typeof mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute;
-	"/(main)/_homeLayout/(profile)/_profileLayout/profile/": typeof mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute;
-	"/(main)/_homeLayout/(profile)/_profileLayout/returns/": typeof mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute;
-	"/(main)/_homeLayout/(profile)/_profileLayout/security-settings/": typeof mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute;
-	"/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/": typeof mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute;
-	"/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/": typeof mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute;
+  __root__: typeof rootRoute
+  '/(dashboard)': typeof dashboardRouteWithChildren
+  '/(dashboard)/_dashboardLayout': typeof dashboardDashboardLayoutRouteWithChildren
+  '/(main)': typeof mainRouteWithChildren
+  '/(main)/_homeLayout': typeof mainHomeLayoutRouteWithChildren
+  '/(dashboard)/partners/': typeof dashboardPartnersIndexRoute
+  '/(main)/_homeLayout/': typeof mainHomeLayoutIndexRoute
+  '/(main)/_homeLayout/(profile)': typeof mainHomeLayoutprofileRouteWithChildren
+  '/(main)/_homeLayout/(profile)/_profileLayout': typeof mainHomeLayoutprofileProfileLayoutRouteWithChildren
+  '/(dashboard)/_dashboardLayout/dashboard/': typeof dashboardDashboardLayoutDashboardIndexRoute
+  '/(main)/_homeLayout/cart/': typeof mainHomeLayoutCartIndexLazyRoute
+  '/(dashboard)/_dashboardLayout/dashboard/orders/': typeof dashboardDashboardLayoutDashboardOrdersIndexRoute
+  '/(dashboard)/_dashboardLayout/dashboard/products/': typeof dashboardDashboardLayoutDashboardProductsIndexRoute
+  '/(main)/_homeLayout/$title/$productId/': typeof mainHomeLayoutTitleProductIdIndexLazyRoute
+  '/(main)/_homeLayout/seller/$sellerId/': typeof mainHomeLayoutSellerSellerIdIndexLazyRoute
+  '/(dashboard)/_dashboardLayout/dashboard/products/new/': typeof dashboardDashboardLayoutDashboardProductsNewIndexRoute
+  '/(main)/_homeLayout/(profile)/_profileLayout/addresses/': typeof mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute
+  '/(main)/_homeLayout/(profile)/_profileLayout/orders/': typeof mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute
+  '/(main)/_homeLayout/(profile)/_profileLayout/payments/': typeof mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute
+  '/(main)/_homeLayout/(profile)/_profileLayout/profile/': typeof mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute
+  '/(main)/_homeLayout/(profile)/_profileLayout/returns/': typeof mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute
+  '/(main)/_homeLayout/(profile)/_profileLayout/security-settings/': typeof mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute
+  '/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/': typeof mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute
+  '/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/': typeof mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute
 }
 
 export interface FileRouteTypes {
-	fileRoutesByFullPath: FileRoutesByFullPath;
-	fullPaths:
-		| "/"
-		| "/partners"
-		| "/dashboard"
-		| "/cart"
-		| "/dashboard/orders"
-		| "/dashboard/products"
-		| "/$title/$productId"
-		| "/seller/$sellerId"
-		| "/dashboard/products/new"
-		| "/addresses"
-		| "/orders"
-		| "/payments"
-		| "/profile"
-		| "/returns"
-		| "/security-settings"
-		| "/orders/$orderId"
-		| "/orders/track/order/$orderId";
-	fileRoutesByTo: FileRoutesByTo;
-	to:
-		| "/"
-		| "/partners"
-		| "/dashboard"
-		| "/cart"
-		| "/dashboard/orders"
-		| "/dashboard/products"
-		| "/$title/$productId"
-		| "/seller/$sellerId"
-		| "/dashboard/products/new"
-		| "/addresses"
-		| "/orders"
-		| "/payments"
-		| "/profile"
-		| "/returns"
-		| "/security-settings"
-		| "/orders/$orderId"
-		| "/orders/track/order/$orderId";
-	id:
-		| "__root__"
-		| "/(dashboard)"
-		| "/(dashboard)/_dashboardLayout"
-		| "/(main)"
-		| "/(main)/_homeLayout"
-		| "/(dashboard)/partners/"
-		| "/(main)/_homeLayout/"
-		| "/(main)/_homeLayout/(profile)"
-		| "/(main)/_homeLayout/(profile)/_profileLayout"
-		| "/(dashboard)/_dashboardLayout/dashboard/"
-		| "/(main)/_homeLayout/cart/"
-		| "/(dashboard)/_dashboardLayout/dashboard/orders/"
-		| "/(dashboard)/_dashboardLayout/dashboard/products/"
-		| "/(main)/_homeLayout/$title/$productId/"
-		| "/(main)/_homeLayout/seller/$sellerId/"
-		| "/(dashboard)/_dashboardLayout/dashboard/products/new/"
-		| "/(main)/_homeLayout/(profile)/_profileLayout/addresses/"
-		| "/(main)/_homeLayout/(profile)/_profileLayout/orders/"
-		| "/(main)/_homeLayout/(profile)/_profileLayout/payments/"
-		| "/(main)/_homeLayout/(profile)/_profileLayout/profile/"
-		| "/(main)/_homeLayout/(profile)/_profileLayout/returns/"
-		| "/(main)/_homeLayout/(profile)/_profileLayout/security-settings/"
-		| "/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/"
-		| "/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/";
-	fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/partners'
+    | '/dashboard'
+    | '/cart'
+    | '/dashboard/orders'
+    | '/dashboard/products'
+    | '/$title/$productId'
+    | '/seller/$sellerId'
+    | '/dashboard/products/new'
+    | '/addresses'
+    | '/orders'
+    | '/payments'
+    | '/profile'
+    | '/returns'
+    | '/security-settings'
+    | '/orders/$orderId'
+    | '/orders/track/order/$orderId'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/partners'
+    | '/dashboard'
+    | '/cart'
+    | '/dashboard/orders'
+    | '/dashboard/products'
+    | '/$title/$productId'
+    | '/seller/$sellerId'
+    | '/dashboard/products/new'
+    | '/addresses'
+    | '/orders'
+    | '/payments'
+    | '/profile'
+    | '/returns'
+    | '/security-settings'
+    | '/orders/$orderId'
+    | '/orders/track/order/$orderId'
+  id:
+    | '__root__'
+    | '/(dashboard)'
+    | '/(dashboard)/_dashboardLayout'
+    | '/(main)'
+    | '/(main)/_homeLayout'
+    | '/(dashboard)/partners/'
+    | '/(main)/_homeLayout/'
+    | '/(main)/_homeLayout/(profile)'
+    | '/(main)/_homeLayout/(profile)/_profileLayout'
+    | '/(dashboard)/_dashboardLayout/dashboard/'
+    | '/(main)/_homeLayout/cart/'
+    | '/(dashboard)/_dashboardLayout/dashboard/orders/'
+    | '/(dashboard)/_dashboardLayout/dashboard/products/'
+    | '/(main)/_homeLayout/$title/$productId/'
+    | '/(main)/_homeLayout/seller/$sellerId/'
+    | '/(dashboard)/_dashboardLayout/dashboard/products/new/'
+    | '/(main)/_homeLayout/(profile)/_profileLayout/addresses/'
+    | '/(main)/_homeLayout/(profile)/_profileLayout/orders/'
+    | '/(main)/_homeLayout/(profile)/_profileLayout/payments/'
+    | '/(main)/_homeLayout/(profile)/_profileLayout/profile/'
+    | '/(main)/_homeLayout/(profile)/_profileLayout/returns/'
+    | '/(main)/_homeLayout/(profile)/_profileLayout/security-settings/'
+    | '/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/'
+    | '/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/'
+  fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-	dashboardRoute: typeof dashboardRouteWithChildren;
-	mainRoute: typeof mainRouteWithChildren;
+  dashboardRoute: typeof dashboardRouteWithChildren
+  mainRoute: typeof mainRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
-	dashboardRoute: dashboardRouteWithChildren,
-	mainRoute: mainRouteWithChildren,
-};
+  dashboardRoute: dashboardRouteWithChildren,
+  mainRoute: mainRouteWithChildren,
+}
 
-export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>();
+export const routeTree = rootRoute
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
 
 /* ROUTE_MANIFEST_START
 {
