@@ -1,22 +1,23 @@
-import { cn } from "../../utils/cn"
+import { cn } from "../../utils/cn";
 
-
-type ProgressColorType = "#38AE04" | "#82ae04" | "#F3AC30" | "#F36C32"
+type ProgressColorType = "#38AE04" | "#82ae04" | "#F3AC30" | "#F36C32";
 
 type ProgressProps = {
-    progressPercentage: string | number
-    progressColor?: ProgressColorType
-    className?: string
-}
+	progressPercentage: string | number;
+	progressColor?: ProgressColorType;
+	className?: string;
+};
 
 export function Progress({ progressPercentage, progressColor = "#38AE04", className }: ProgressProps) {
-    return (
-        <div className={cn("relative bg-[#f3f4f8] min-w-[60px] w-full h-[8px] rounded-[50px] overflow-hidden", className)}>
-            <div className="absolute  h-full rounded-[50px]" style={{
-                width: progressPercentage ?? "100%",
-                backgroundColor: progressColor
-            }}>
-            </div>
-        </div>
-    )
+	return (
+		<div className={cn("relative bg-[#f3f4f8] min-w-[60px] w-full h-[8px] rounded-[50px] overflow-hidden", className)}>
+			<div
+				className="absolute  h-full rounded-[50px]"
+				style={{
+					width: progressPercentage ?? "100%",
+					backgroundColor: progressColor,
+				}}
+			></div>
+		</div>
+	);
 }

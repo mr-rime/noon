@@ -10,6 +10,7 @@ $ProductOptionType = new ObjectType([
         'id' => Type::nonNull(Type::int()),
         'name' => Type::nonNull(Type::string()),
         'value' => Type::nonNull(Type::string()),
+        'image_url' => Type::string(),
         'type' => Type::nonNull(Type::string()), // text or image
     ],
 ]);
@@ -19,6 +20,7 @@ $ProductOptionInputType = new InputObjectType([
     'fields' => [
         'name' => Type::nonNull(Type::string()),
         'value' => Type::nonNull(Type::string()),
-        'type' => Type::nonNull(Type::string()), 
+        'image_url' => Type::string(),
+        'type' => Type::nonNull(Type::string()),
     ],
 ]);

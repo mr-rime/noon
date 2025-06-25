@@ -153,10 +153,7 @@
         z-index: 1;
         pointer-events: none;
     }
-
 }
-
-
 
 @theme {
     --font-proxima: "Proxima Nova", "sans-serif";

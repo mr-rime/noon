@@ -1,7 +1,6 @@
 import { gql } from "@apollo/client";
 
-export const GET_USERS =
-    gql`
+export const GET_USERS = gql`
         query {
             users {
                 success
@@ -16,10 +15,9 @@ export const GET_USERS =
                 }
         }
         }
-    `
+    `;
 
-export const GET_USER =
-    gql`
+export const GET_USER = gql`
         query($hash:String!) {
             getUser(hash: $hash) {
                 success
@@ -35,4 +33,4 @@ export const GET_USER =
                 }
             }
         }
-    `
+    `;
