@@ -1,0 +1,39 @@
+#!/usr/bin/env sh
+
+# 🎶✨ Husky x Biome: Code Check Jam™ 🎧🧪
+
+echo ""
+echo "🎛️ [husky] Booting beats, no bugs allowed..."
+echo "🔎 [sys] Peeking under the OS cloud..."
+
+IS_LINUX=false
+
+case "$(uname -s)" in
+  Linux*)     IS_LINUX=true ;;
+  *)          IS_LINUX=false ;;
+esac
+
+if [ "$IS_LINUX" = true ]; then
+  RUN="sudo pnpm"
+  echo "🐧 [env] Linux power — root on the hour ⏱️"
+else
+  RUN="pnpm"
+  echo "🍎 [env] Mac or Windows — smooth like wind flows 💨"
+fi
+
+echo ""
+echo "🧠 [biome] Spinning up scans like a data DJ..."
+echo "🧪 [lint] Checking code before it goes cray."
+
+$RUN biome lint --write ./src
+echo "✅ [check] Bars aligned — your syntax is refined 🛠️"
+
+echo ""
+echo "🎨 [format] Brushing your files with that pixel-perfect feel..."
+$RUN biome format --write ./src
+echo "✨ [shine] Lines divine — your code's dressed to kill 🧥"
+
+echo ""
+echo "🚀 [husky] Mic drop: checks are done, no bugs in sight."
+echo "🎤 [done] Push with pride — your code's airtight. ✅"
+echo ""

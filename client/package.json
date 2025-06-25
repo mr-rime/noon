@@ -8,7 +8,8 @@
 		"build": "tsc -b && vite build",
 		"lint": "pnpm exec biome lint --write ./src",
 		"format": "pnpm exec biome format --write ./src",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"prepare": "husky"
 	},
 	"dependencies": {
 		"@apollo/client": "^3.13.8",
@@ -32,6 +33,7 @@
 		"zod": "^3.25.67",
 		"zustand": "^5.0.5"
 	},
+	
 	"devDependencies": {
 		"@biomejs/biome": "2.0.5",
 		"@napi-rs/canvas": "^0.1.70",

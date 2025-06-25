@@ -22,3 +22,20 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Composer dependencies
+/vendor/
+
+# Laravel or Symfony cache
+/bootstrap/cache/
+/storage/*.key
+/storage/logs/
+/storage/framework/
+# Symfony specific
+/var/
+
+# PHPUnit
+.phpunit.result.cache
+
+# PHPStorm and VSCode
+/.vscode/
