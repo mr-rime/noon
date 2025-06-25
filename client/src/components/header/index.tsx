@@ -55,21 +55,19 @@ export function Header() {
 				<Separator className=" w-[1px] h-[20px] mx-3 bg-[#404553] opacity-[0.2]" />
 
 				{!matchesExpectedRoute(pathname, expectedRoutes) && (
-					<>
-						<Link to={"/"} className="mx-3">
-							{user ? (
-								<div>{header_icons.heartIcon}</div>
-							) : (
-								<LoginButtonWithModalDialog>
-									{({ open, isOpen }) => (
-										<div onClick={open} aria-expanded={isOpen}>
-											{header_icons.heartIcon}
-										</div>
-									)}
-								</LoginButtonWithModalDialog>
-							)}
-						</Link>
-					</>
+					<Link to={"/"} className="mx-3">
+						{user ? (
+							<div>{header_icons.heartIcon}</div>
+						) : (
+							<LoginButtonWithModalDialog>
+								{({ open, isOpen }) => (
+									<div onClick={open} aria-expanded={isOpen}>
+										{header_icons.heartIcon}
+									</div>
+								)}
+							</LoginButtonWithModalDialog>
+						)}
+					</Link>
 				)}
 				<Link to={"/cart"} className="mx-1">
 					{header_icons.cartIcon}
