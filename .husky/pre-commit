@@ -22,18 +22,19 @@ else
 fi
 
 echo ""
-echo "🧠 [biome] Spinning up scans like a data DJ..."
-echo "🧪 [lint] Checking code before it goes cray."
+echo "🎧 [track] Entering client directory to drop some lines..."
+cd client || exit 1
 
-$RUN biome lint --write ./src
-echo "✅ [check] Bars aligned — your syntax is refined 🛠️"
-
-echo ""
-echo "🎨 [format] Brushing your files with that pixel-perfect feel..."
-$RUN biome format --write ./src
-echo "✨ [shine] Lines divine — your code's dressed to kill 🧥"
+echo "🧪 [lint] Spinning up biome to check for crimes..."
+$RUN biome lint --write ./src || exit 1
+echo "✅ [clean] Syntax is crisp — no broken rhymes 🛠️"
 
 echo ""
-echo "🚀 [husky] Mic drop: checks are done, no bugs in sight."
-echo "🎤 [done] Push with pride — your code's airtight. ✅"
+echo "🎨 [style] Giving files a formatting spell..."
+$RUN biome format --write ./src || exit 1
+echo "✨ [fresh] Code is sharp — looking fly as well 🧥"
+
+echo ""
+echo "🚀 [husky] Mic drop: pre-commit track is tight."
+echo "🎤 [done] Push with pride — your code’s airtight. ✅"
 echo ""
