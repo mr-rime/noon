@@ -96,11 +96,11 @@ export function Select({ options, defaultValue, onChange, className, labelConten
 	}, [defaultValue, options]);
 
 	return (
-		<div className="relative" ref={selectRef}>
+		<div className="relative flex flex-col items-start justify-center gap-2 " ref={selectRef}>
 			{labelContent && <label className="text-[16px] ">{labelContent}</label>}
 			<div
 				className={cn(
-					"bg-white p-[8px] cursor-pointer border border-[#e2e5f1] capitalize rounded-[8px] flex justify-between items-center",
+					"bg-white w-full p-[8px] px-3 pt-[10px] pb-[10px] cursor-pointer border border-[#e2e5f1] capitalize rounded-[8px] flex justify-between items-center",
 					className,
 				)}
 				onClick={toggleDropdown}
@@ -111,7 +111,7 @@ export function Select({ options, defaultValue, onChange, className, labelConten
 
 			<div
 				ref={optionsRef}
-				className="absolute top-full left-0 right-0 mt-1 bg-white border border-[#e2e5f1] rounded-[8px] shadow-lg z-10 overflow-hidden opacity-0"
+				className="absolute top-full left-0 right-0 mt-1  bg-white border border-[#e2e5f1] rounded-[8px] shadow-lg z-10 overflow-hidden opacity-0 "
 				style={{ display: isOpen ? "block" : "none" }}
 			>
 				{options.map((option) => (

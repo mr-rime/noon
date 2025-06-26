@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronRight, Container, Redo2, ShieldCheck, Star } from "lucide-react";
+import { ChevronRight, Star } from "lucide-react";
 import { Separator } from "../../ui/separator";
+import { product_page_icon } from "../constants/icons";
 
 export function ProductPageDetails() {
 	return (
@@ -40,16 +41,20 @@ export function ProductPageDetails() {
 			{/* Name of this section is Support Details */}
 			<div className="py-3 px-4">
 				<ul className="space-y-3">
-					<li className="flex items-center space-x-2 text-[14px] text-black hover:text-[#3866DF] cursor-pointer ">
-						<Container size={20} color="#7F7F7F" /> <span>Free delivery on Lockers</span>
+					<li className="flex items-center space-x-2 text-[14px] text-[#7F7F7F] hover:text-[#3866DF] cursor-pointer ">
+						<div>{product_page_icon.lockerDeliveryIcon}</div>
+
+						<span>Free delivery on Lockers</span>
 					</li>
 
-					<li className="flex items-center space-x-2 text-[14px] text-black hover:text-[#3866DF] cursor-pointer ">
-						<Redo2 size={20} color="#7F7F7F" /> <span>This item is eligible for fre returns</span>
+					<li className="flex items-center space-x-2 text-[14px]  text-[#7F7F7F] hover:text-[#3866DF]  cursor-pointer ">
+						<div>{product_page_icon.returnableIcon}</div>
+						<span>This item is eligible for fre returns</span>
 					</li>
 
-					<li className="flex items-center space-x-2 text-[14px] text-black hover:text-[#3866DF] cursor-pointer ">
-						<ShieldCheck size={20} color="#7F7F7F" /> <span>Secure Payments</span>
+					<li className="flex items-center space-x-2 text-[14px] text-[#7F7F7F] hover:text-[#3866DF] cursor-pointer ">
+						<div>{product_page_icon.securePaymentsIcon}</div>
+						<span>Secure Payments</span>
 					</li>
 				</ul>
 			</div>

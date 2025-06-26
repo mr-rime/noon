@@ -1,7 +1,6 @@
 import type { ProductOption } from "@/types";
 
 export function ProductOption({ name, type, value, image_url }: ProductOption) {
-	console.log(value);
 	return (
 		<div>
 			<div className="font-normal text-[14px] uppercase space-x-1">

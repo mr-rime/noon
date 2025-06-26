@@ -1,9 +1,8 @@
 import { useMutation } from "@apollo/client";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dropzone } from "@/components/ui/dropzone";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { UPLOAD_FILE } from "@/graphql/upload-file";
 import { useProductStore } from "@/store/create-product-store";
 
@@ -50,43 +49,40 @@ export function AddOptionSection() {
 						value={option.name}
 						onChange={(e) => handleOptionChange(index, "name", e.target.value)}
 					/>
-					<Select
-						labelContent="Type"
-						options={[
-							{ label: "Text", value: "text" },
-							{ label: "Image", value: "image" },
-						]}
-						defaultValue={option.type}
-						onChange={(value) => handleOptionChange(index, "type", value)}
-					/>
-
-					{option.type === "link" ? (
+					<div className="flex flex-col gap-1">
 						<Input
 							labelContent="Value"
 							placeholder="Enter value (e.g. Red, Large)"
 							value={option.value as string}
 							onChange={(e) => handleOptionChange(index, "value", e.target.value)}
 						/>
-					) : (
-						<div className="flex flex-col gap-1">
-							<Input
-								labelContent="Value"
-								placeholder="Enter value (e.g. Red, Large)"
-								value={option.value as string}
-								onChange={(e) => handleOptionChange(index, "value", e.target.value)}
-							/>
+						<Input
+							labelContent="Link"
+							placeholder="Enter value (e.g. /product/123)"
+							value={option.link as string}
+							onChange={(e) => handleOptionChange(index, "link", e.target.value)}
+						/>
 
-							<div className="mt-3">
-								<label className="text-sm">Upload Image</label>
-								<Dropzone accept="image/*" onFilesDrop={(files) => handleImageDrop(files, index)} />
-							</div>
-							{option.image_url && (
-								<div className="mt-2">
-									<img src={option.image_url} alt="Option preview" className="h-20 w-20 object-cover rounded" />
-								</div>
-							)}
+						<div className="mt-3">
+							<label className="text-sm">Upload Image</label>
+							<Dropzone accept="image/*" onFilesDrop={(files) => handleImageDrop(files, index)} />
 						</div>
-					)}
+						{option.image_url && (
+							<div
+								onClick={() => handleOptionChange(0, "image_url", "")}
+								className="relative group mt-2 h-fit cursor-pointer w-fit"
+							>
+								<div className="absolute transition-colors group-hover:bg-[#ffa2a29e] h-full w-20 rounded top-0 left-0 flex items-center justify-center">
+									<X
+										size={30}
+										className="text-red-500 opacity-0 scale-50 transition-all group-hover:opacity-100 group-hover:scale-100"
+										fill="#fb2c36"
+									/>
+								</div>
+								<img src={option.image_url} alt="Option preview" className="w-20 object-fill rounded" />
+							</div>
+						)}
+					</div>
 
 					<Button
 						type="button"

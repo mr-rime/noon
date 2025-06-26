@@ -2,6 +2,7 @@
 
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\ValidationException;
+require_once __DIR__ . '/../utils/generateHash.php';
 
 class Category
 {

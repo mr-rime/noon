@@ -26,7 +26,6 @@ export function ProductPage() {
 		};
 	}>(GET_PRODUCT, { variables: { id: productId } });
 
-	console.log(data?.getProduct.product.productOptions);
 	return (
 		<main aria-label="Product Page" className="bg-white">
 			<section
@@ -52,6 +51,8 @@ export function ProductPage() {
 						<ProdcutPagePrice
 							price={data?.getProduct.product.price as number}
 							currency={data?.getProduct.product.currency as string}
+							discount_percentage={data?.getProduct.product.discount_percentage}
+							final_price={data?.getProduct.product.final_price}
 						/>
 						<ProductPageFulfilmentBadge />
 					</ProductPageTitle>

@@ -40,8 +40,21 @@ export type ProductType = {
 	currency: string;
 	product_overview: string;
 	category_id: string;
+	is_returnable: boolean;
+	discount_percentage?: number;
+	final_price?: number;
 	stock: number;
+	discount?: DiscountType | null;
 	images: ProductImage[];
 	productOptions: ProductOption[];
 	productSpecifications: ProductSpecification[];
+};
+
+export type DiscountType = {
+	id: string;
+	prodcut_id: string;
+	type: "percentage" | "fixed";
+	value: number;
+	starts_at: Date;
+	ends_at: Date;
 };
