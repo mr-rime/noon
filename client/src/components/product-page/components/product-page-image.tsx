@@ -5,7 +5,6 @@ type ProductPageImageProps = {
 	images: string[];
 };
 
-
 export function ProductPageImage({ images }: ProductPageImageProps) {
 	return (
 		<div className="md:w-[calc(300/1200*100%)]  w-full">

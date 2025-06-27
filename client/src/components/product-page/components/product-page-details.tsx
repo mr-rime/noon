@@ -4,9 +4,9 @@ import { Separator } from "../../ui/separator";
 import { product_page_icon } from "../constants/icons";
 import { Button } from "@/components/ui/button";
 
-export function ProductPageDetails({ theme = "desktop" }: { theme?: 'mobile' | 'desktop' }) {
-	return (
-		theme === "desktop" ? <div className="w-full max-w-[312px] border border-[#eceef4] rounded-[8px]">
+export function ProductPageDetails({ theme = "desktop" }: { theme?: "mobile" | "desktop" }) {
+	return theme === "desktop" ? (
+		<div className="w-full max-w-[312px] border border-[#eceef4] rounded-[8px]">
 			<div className="flex flex-col items-start justify-start space-x-4 py-3 px-4">
 				<div className="flex items-center justify-start space-x-4 py-3 px-4">
 					<img src="/media/imgs/logo-eg.png" alt="logo" className="w-[40px] h-[40px] rounded-[8px]" />
@@ -67,9 +67,15 @@ export function ProductPageDetails({ theme = "desktop" }: { theme?: 'mobile' | '
 					Add to cart
 				</Button>
 			</div>
-		</div> : <div className="flex flex-col w-full bg-white p-[10px] rounded-[8px] border border-[#f3f4f8] shadow-[0_2px_8px_0_rgba(0,0,0,.05)]">
+		</div>
+	) : (
+		<div className="flex flex-col w-full bg-white p-[10px] rounded-[8px] border border-[#f3f4f8] shadow-[0_2px_8px_0_rgba(0,0,0,.05)]">
 			<button className="flex items-center gap-3">
-				<Link className="flex items-center justify-between gap-3 w-full" to={"/seller/$sellerId"} params={{ sellerId: "1" }}>
+				<Link
+					className="flex items-center justify-between gap-3 w-full"
+					to={"/seller/$sellerId"}
+					params={{ sellerId: "1" }}
+				>
 					<div className="flex items-center gap-3">
 						<div className="w-[48px] h-[48px] bg-[#f3f4f8] flex items-center justify-center rounded-full">
 							{product_page_icon.coloredSellerIcon}
@@ -80,11 +86,10 @@ export function ProductPageDetails({ theme = "desktop" }: { theme?: 'mobile' | '
 							</div>
 							<div className="flex items-center gap-[8px] mt-2">
 								<div className="h-[17px] w-fit bg-[#38AE04] text-[14px] text-white py-[2px] px-[4px] flex items-center justify-center rounded-full gap-[2px]">
-									<span>4.7</span><Star fill="white" color="white" size={9} />
+									<span>4.7</span>
+									<Star fill="white" color="white" size={9} />
 								</div>
-								<div className="text-[12px]">
-									96% Positive Ratings
-								</div>
+								<div className="text-[12px]">96% Positive Ratings</div>
 							</div>
 						</div>
 					</div>

@@ -81,4 +81,3 @@ export function ProductOverview({ specs, overview }: { specs: ProductSpecificati
 		</section>
 	);
 }
-

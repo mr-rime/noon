@@ -5,5 +5,5 @@ export const product_page_icon = {
 	securePaymentsIcon: <SecurePaymentsIcon />,
 	returnableIcon: <ReturnableIcon />,
 	nonReturnableIcon: <NonReturnableIcon />,
-	coloredSellerIcon: <ColoredSellerIcon />
+	coloredSellerIcon: <ColoredSellerIcon />,
 };

@@ -1,6 +1,3 @@
-
 export function Review() {
-    return (
-        <div>review</div>
-    )
+	return <div>review</div>;
 }

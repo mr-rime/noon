@@ -37,12 +37,8 @@ export function ProductPage() {
 			>
 				<div className="fixed flex items-center  z-10 left-0 bottom-0  bg-white w-full py-2 px-2">
 					<button className="w-[55px] h-[60px] p-[3px] bg-white px-[10px] border text-inherit border-[#f1f3f9] flex flex-col items-center justify-center">
-						<span className="text-[1rem] text-[#8d94a7]">
-							Qty
-						</span>
-						<span className="text-[1.5rem] font-bold text-inherit">
-							1
-						</span>
+						<span className="text-[1rem] text-[#8d94a7]">Qty</span>
+						<span className="text-[1.5rem] font-bold text-inherit">1</span>
 					</button>
 					<Button className="bg-[#2B4CD7] hover:bg-[#6079E1] transition-colors text-white w-full h-[48px] rounded-[4px] cursor-pointer uppercase font-bold text-[14px]">
 						Add to cart
