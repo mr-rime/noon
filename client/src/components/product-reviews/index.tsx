@@ -5,7 +5,7 @@ import { Reviews } from "./components/reviews";
 
 export function ProductReviews() {
 	return (
-		<section id="porduct_reviews" className="site-container mt-10 min-h-[330px] p-5">
+		<section id="porduct_reviews" className="site-container mt-10 min-h-[330px] p-5 overflow-x-hidden">
 			<div className="text-[24px] font-bold">Product Ratings & Reviews</div>
 			<Separator className="my-5" />
 
@@ -24,6 +24,7 @@ export function ProductReviews() {
 					<span>Based on 22 ratings</span>
 				</div>
 			</div>
+			<Reviews />
 			<section className="items-start hidden md:flex">
 				<OverallRating />
 				<Separator className="bg-[#f3f4f8] min-h-[330px] h-auto w-[1px] rounded-full mx-10" />

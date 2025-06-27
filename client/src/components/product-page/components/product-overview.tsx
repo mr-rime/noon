@@ -25,7 +25,7 @@ export function ProductOverview({ specs, overview }: { specs: ProductSpecificati
 					isCollapsible ? "max-h-[2000px]" : "max-h-[500px]",
 				)}
 			>
-				<section className="w-full">
+				<section className="w-full ">
 					<section aria-labelledby="overview-heading">
 						<h2 id="overview-heading" className="font-bold text-[16px] mb-4">
 							Overview
