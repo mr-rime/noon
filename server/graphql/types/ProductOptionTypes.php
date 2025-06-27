@@ -11,7 +11,7 @@ $ProductOptionType = new ObjectType([
         'name' => Type::nonNull(Type::string()),
         'value' => Type::nonNull(Type::string()),
         'image_url' => Type::string(),
-        'link' => Type::string(),
+        'linked_product_id' => Type::string(),
         'type' => Type::nonNull(Type::string()), // link or image
     ],
 ]);
@@ -22,7 +22,7 @@ $ProductOptionInputType = new InputObjectType([
         'name' => Type::nonNull(Type::string()),
         'value' => Type::nonNull(Type::string()),
         'image_url' => Type::string(),
-        'link' => Type::string(),
+        'linked_product_id' => Type::string(),
         'type' => Type::nonNull(Type::string()),
     ],
 ]);

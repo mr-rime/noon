@@ -255,7 +255,7 @@ class Product
         if (!empty($data['productOptions'])) {
             $optionModel = new ProductOption($this->db);
             foreach ($data['productOptions'] as $opt) {
-                $optionModel->create($hash, $opt['name'], $opt['value'], $opt['image_url'] ?? null, $opt['type'], $opt['link'] ?? null);
+                $optionModel->create($hash, $opt['name'], $opt['value'], $opt['image_url'] ?? null, $opt['type'], $opt['linked_product_id'] ?? null);
             }
         }
 

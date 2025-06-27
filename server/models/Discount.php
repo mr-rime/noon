@@ -45,6 +45,38 @@ class Discount
         return $result->fetch_assoc() ?: null;
     }
 
+    public function findById(string $id)
+    {
+        $validator = v::key('id', v::stringType()->notEmpty());
+
+        try {
+            $validator->assert(['id' => $id]);
+        } catch (ValidationException $err) {
+            error_log("Validation failed DscFindById: " . $err->getMessage());
+            return null;
+        }
+
+        $stmt = $this->db->prepare('SELECT * FROM discounts WHERE id IS NOT NULL AND id = ?');
+
+        if (!$stmt) {
+            error_log("Prepare failed" . $this->db->error);
+
+            return null;
+        }
+
+        $stmt->bind_param('s', $id);
+
+        if (!$stmt->execute()) {
+            error_log("Execute failed" . $stmt->error);
+
+            return null;
+        }
+
+        $result = $stmt->get_result();
+
+        return $result->fetch_assoc() ?: null;
+    }
+
     public function create(array $data)
     {
 
@@ -64,7 +96,7 @@ class Discount
         $startsAt = date('Y-m-d H:i:s', strtotime($data['starts_at']));
         $endsAt = date('Y-m-d H:i:s', strtotime($data['ends_at']));
 
-        $stmt = $this->db->prepare('INSERT INTO discounts (id, product_id, type, value, starts_at, ends_at) VALUES (?, ?, ?, ?, ?, ?)');
+        $stmt = $this->db->prepare('INSERT INTO discounts (id, product_id, type, value, linked_product_id, starts_at, ends_at) VALUES (?, ?, ?, ?, ?, ?, ?)');
 
         if (!$stmt) {
             error_log("Prepare failed" . $this->db->error);
@@ -79,6 +111,7 @@ class Discount
             $data['product_id'],
             $data['type'],
             $data['value'],
+            $data['linked_product_id'],
             $startsAt,
             $endsAt
         );

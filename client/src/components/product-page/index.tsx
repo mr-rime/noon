@@ -13,6 +13,7 @@ import { ProductOption } from "./components/product-page-options";
 import { ProdcutPagePrice } from "./components/product-page-price";
 import { ProductPageRates } from "./components/product-page-rates";
 import { ProductPageTitle } from "./components/product-page-title";
+import { getMergedOptions } from "./utils/get-merged-options";
 
 export function ProductPage() {
 	const { productId } = useParams({
@@ -25,6 +26,8 @@ export function ProductPage() {
 			product: ProductType;
 		};
 	}>(GET_PRODUCT, { variables: { id: productId } });
+
+
 
 	return (
 		<main aria-label="Product Page" className="bg-white">
@@ -59,10 +62,11 @@ export function ProductPage() {
 
 					<Separator className="my-5" />
 					<div className="flex flex-col items-start justify-center space-y-5">
-						{data?.getProduct.product.productOptions.map((option) => (
-							<ProductOption key={option.id} {...option} />
+						{getMergedOptions(data?.getProduct.product.productOptions || []).map((option) => (
+							<ProductOption key={option.name} name={option.name} values={option.values} />
 						))}
 					</div>
+
 				</div>
 
 				<ProductPageDetails />

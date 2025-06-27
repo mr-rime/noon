@@ -10,7 +10,7 @@ export type User = {
 	updated_at?: Date;
 };
 
-export type ProductOption = {
+export type ProductOptionType = {
 	id?: string;
 	product_id?: ProductType["id"];
 	name: string;
@@ -46,7 +46,7 @@ export type ProductType = {
 	stock: number;
 	discount?: DiscountType | null;
 	images: ProductImage[];
-	productOptions: ProductOption[];
+	productOptions: ProductOptionType[];
 	productSpecifications: ProductSpecification[];
 };
 

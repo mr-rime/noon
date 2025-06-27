@@ -64,7 +64,11 @@ export function ImageSlider({
 	}, []);
 
 	const displayImages = useMemo(() => (isMobile ? mobileImages : images) ?? [], [isMobile, mobileImages, images]);
-	const extendedImages = displayImages.length > 1 ? [displayImages[0], ...displayImages, displayImages[0]] : displayImages;
+	const extendedImages = displayImages.length > 1 ? [
+		displayImages[displayImages.length - 1],
+		...displayImages,
+		displayImages[0]
+	] : displayImages;
 
 	const getSliderWidth = () => containerRef.current?.parentElement?.clientWidth || 0;
 
@@ -399,9 +403,9 @@ export function ImageSlider({
 										height: "fit-content",
 										...(isMobile &&
 											!showProductControls && {
-												scale: isCenter ? "1 .9" : "",
-												transition: "scale .1s ease",
-											}),
+											scale: isCenter ? "1 .9" : "",
+											transition: "scale .1s ease",
+										}),
 									}}
 								>
 									<div

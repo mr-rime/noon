@@ -81,7 +81,7 @@ export const GET_PRODUCTS = gql`
                         id
                         name
                         value
-                        link
+                        linked_product_id
                         image_url
                         type
                     }
@@ -121,7 +121,7 @@ query ($id: ID!) {
 
         productOptions {
             id
-            link
+            linked_product_id
             image_url
             name
             value
