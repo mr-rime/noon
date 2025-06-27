@@ -12,12 +12,14 @@ require_once __DIR__ . '/types/ProductOptionTypes.php';
 require_once __DIR__ . '/types/ProductSpecificationTypes.php';
 require_once __DIR__ . '/types/OrderTypes.php';
 require_once __DIR__ . '/types/UploadTypes.php';
+require_once __DIR__ . '/types/DiscountTypes.php';
 require_once __DIR__ . '/resolvers/UserResolver.php';
 require_once __DIR__ . '/resolvers/PartnerResolver.php';
 require_once __DIR__ . '/resolvers/AuthResolver.php';
 require_once __DIR__ . '/resolvers/ProdcutResolver.php';
 require_once __DIR__ . '/resolvers/OrderResolver.php';
 require_once __DIR__ . '/resolvers/UploadResolver.php';
+require_once __DIR__ . '/resolvers/DiscountResolver.php';
 
 $QueryType = new ObjectType([
     'name' => 'query',
@@ -58,6 +60,14 @@ $QueryType = new ObjectType([
                 'id' => Type::nonNull(Type::id())
             ],
             'resolve' => requireAuth(fn($root, $args, $context) => getProductById($context['db'], $args['id']))
+        ],
+
+        'getDiscount' => [
+            'type' => $DiscountResponseType,
+            'args' => [
+                'id' => Type::nonNull(Type::id())
+            ],
+            'resolve' => fn($root, $args, $context) => getDiscount($context['db'], $args['id'])
         ]
     ]
 ]);
@@ -118,7 +128,9 @@ $MutationType = new ObjectType([
                 'price' => Type::nonNull(Type::float()),
                 'category_id' => Type::string(),
                 'currency' => Type::string(),
+                'is_returnable' => Type::nonNull(Type::boolean()),
                 'product_overview' => Type::string(),
+                'discount' => $DiscountInputType,
                 'images' => Type::listOf($ProductImageInputType),
                 'productOptions' => Type::listOf($ProductOptionInputType),
                 'productSpecifications' => Type::listOf($ProductSpecInputType),
@@ -143,6 +155,16 @@ $MutationType = new ObjectType([
                 'file' => Type::nonNull($UploadScalar),
             ],
             'resolve' => requireAuth(fn($root, $args, $context) => uploadImageResolver($args))
+        ],
+        'createDiscount' => [
+            'type' => $DiscountResponseType,
+            'args' => [
+                'product_id' => Type::nonNull(Type::string()),
+                'type' => Type::nonNull(Type::string()),
+                'value' => Type::nonNull(Type::float()),
+                'starts_at' => Type::nonNull(Type::string()),
+                'ends_at' => Type::nonNull(Type::string())
+            ]
         ]
     ]
 ]);

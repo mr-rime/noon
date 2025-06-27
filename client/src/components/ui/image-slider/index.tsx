@@ -65,9 +65,7 @@ export function ImageSlider({
 
 	const displayImages = useMemo(() => (isMobile ? mobileImages : images) ?? [], [isMobile, mobileImages, images]);
 	const extendedImages =
-		displayImages.length > 1 ? [displayImages[0], ...displayImages, displayImages[displayImages.length - 1]] : displayImages;
-
-	console.log(displayImages);
+		displayImages.length > 1 ? [displayImages[displayImages.length - 1], ...displayImages, displayImages[0]] : displayImages;
 
 	const getSliderWidth = () => containerRef.current?.parentElement?.clientWidth || 0;
 
@@ -418,8 +416,9 @@ export function ImageSlider({
 										<img
 											src={
 												showProductControls
-													? ((i === 0 ? images[0] : images[(i - 1) % displayImages.length]) ??
-														product_icons.noonIcon)
+													? ((i === 0
+															? images[displayImages.length - 1]
+															: images[(i - 1) % displayImages.length]) ?? product_icons.noonIcon)
 													: src
 											}
 											style={{

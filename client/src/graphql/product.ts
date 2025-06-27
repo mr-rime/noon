@@ -7,6 +7,8 @@ export const CREATE_PRODUCT = gql`
             $currency: String!
             $product_overview: String
             $category_id: String
+            $discount: DiscountInput
+            $is_returnable: Boolean!
             $images: [ProductImageInput]
             $productOptions: [ProductOptionInput]
             $productSpecifications: [ProductSpecificationInput]
@@ -18,6 +20,8 @@ export const CREATE_PRODUCT = gql`
             product_overview: $product_overview
             category_id: $category_id
             images: $images
+            is_returnable: $is_returnable
+            discount: $discount
             productOptions: $productOptions
             productSpecifications: $productSpecifications
         ) {
@@ -30,6 +34,7 @@ export const CREATE_PRODUCT = gql`
                     currency
                     product_overview
                     category_id
+                    is_returnable
                     created_at
                 images {
                     id
@@ -39,6 +44,7 @@ export const CREATE_PRODUCT = gql`
                 productOptions {
                     id
                     name
+                    link
                     value
                     type
                 }
@@ -63,6 +69,9 @@ export const GET_PRODUCTS = gql`
                     price
                     currency
                     product_overview
+                    is_returnable
+                    final_price
+                    discount_percentage
                     images {
                         id
                         image_url
@@ -72,6 +81,7 @@ export const GET_PRODUCTS = gql`
                         id
                         name
                         value
+                        linked_product_id
                         image_url
                         type
                     }
@@ -95,6 +105,9 @@ query ($id: ID!) {
         name
         price
         currency
+        is_returnable
+        final_price
+        discount_percentage
         product_overview
         images {
             id
@@ -108,6 +121,7 @@ query ($id: ID!) {
 
         productOptions {
             id
+            linked_product_id
             image_url
             name
             value

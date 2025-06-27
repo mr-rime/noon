@@ -13,6 +13,9 @@ import { ProductOption } from "./components/product-page-options";
 import { ProdcutPagePrice } from "./components/product-page-price";
 import { ProductPageRates } from "./components/product-page-rates";
 import { ProductPageTitle } from "./components/product-page-title";
+import { getMergedOptions } from "./utils/get-merged-options";
+import { Button } from "../ui/button";
+import { AddToWishlistButton } from "./components/add-to-wishlist-button";
 
 export function ProductPage() {
 	const { productId } = useParams({
@@ -26,45 +29,44 @@ export function ProductPage() {
 		};
 	}>(GET_PRODUCT, { variables: { id: productId } });
 
-	console.log(data?.getProduct.product.productOptions);
 	return (
-		<main aria-label="Product Page" className="bg-white">
+		<main aria-label="Product Page" className="bg-white overflow-x-hidden">
 			<section
 				aria-labelledby="product-main-section"
-				className="site-container w-full flex flex-col lg:flex-row items-start justify-start pt-10 space-y-10 lg:space-y-0 lg:space-x-10 "
+				className="site-container relative w-full flex flex-col lg:flex-row items-start justify-start pt-10 space-y-10 lg:space-y-0 lg:space-x-10 px-5 "
 			>
-				<h1 id="product-main-section" className="sr-only">
-					Product Main Section
-				</h1>
-
 				<ProductPageImage images={data?.getProduct.product.images.map((image) => image.image_url) || [""]} />
 
 				<div
 					className="flex flex-col items-start justify-center w-full lg:w-[calc(500/1200*100%)]"
 					aria-labelledby="product-info-section"
 				>
-					<h2 id="product-info-section" className="sr-only">
-						Product Information
-					</h2>
-
-					<ProductPageTitle title={data?.getProduct.product.name as string}>
+					<ProductPageTitle className="hidden md:block" title={data?.getProduct.product.name as string} />
+					<div className="hidden md:block">
 						<ProductPageRates />
-						<ProdcutPagePrice
-							price={data?.getProduct.product.price as number}
-							currency={data?.getProduct.product.currency as string}
-						/>
-						<ProductPageFulfilmentBadge />
-					</ProductPageTitle>
-
+					</div>
+					<ProdcutPagePrice
+						price={data?.getProduct.product.price as number}
+						currency={data?.getProduct.product.currency as string}
+						discount_percentage={data?.getProduct.product.discount_percentage}
+						final_price={data?.getProduct.product.final_price}
+					/>
+					<ProductPageFulfilmentBadge />
 					<Separator className="my-5" />
 					<div className="flex flex-col items-start justify-center space-y-5">
-						{data?.getProduct.product.productOptions.map((option) => (
-							<ProductOption key={option.id} {...option} />
+						{getMergedOptions(data?.getProduct.product.productOptions || []).map((option) => (
+							<ProductOption key={option.name} name={option.name} values={option.values} />
 						))}
 					</div>
 				</div>
-
-				<ProductPageDetails />
+				<div className="flex flex-col  md:hidden items-start justify-center w-full">
+					<div className="w-full">
+						<ProductPageDetails theme="mobile" />
+					</div>
+				</div>
+				<div className="max-md:hidden">
+					<ProductPageDetails />
+				</div>
 			</section>
 			<section id="porduct_overview">
 				<Separator className="h-[9px] mt-16 mb-5 bg-[#F3F4F8]" />

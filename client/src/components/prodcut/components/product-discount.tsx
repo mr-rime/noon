@@ -1,11 +1,13 @@
-export function ProductDiscount() {
+import type { ProductType } from "@/types";
+
+export function ProductDiscount({ price, discount_percentage }: Pick<ProductType, "price" | "discount_percentage">) {
 	return (
 		<div aria-label="Product discount information" className="flex items-center space-x-1">
 			<span aria-label="Discounted price" className="text-[#7e859b] text-[12px] line-through">
-				78,550
+				{price}
 			</span>
 			<span aria-label="Discount percentage" className="text-[#38ae04] font-bold text-[13px]">
-				5%
+				{discount_percentage}%
 			</span>
 		</div>
 	);

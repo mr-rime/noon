@@ -9,6 +9,7 @@ function getAllProducts(mysqli $db, array $data): array
         $model = new Product($db);
         $products = $model->findAll($data['limit'], $data['offset']);
 
+
         return [
             'success' => true,
             'message' => 'Products retrieved.',
@@ -45,6 +46,7 @@ function getProductById(mysqli $db, string $id): array
 
 function createProduct(mysqli $db, array $data): array
 {
+
     try {
         $model = new Product($db);
         $product = $model->create($data);
@@ -55,6 +57,8 @@ function createProduct(mysqli $db, array $data): array
             'product' => $product
         ];
     } catch (Exception $e) {
+        error_log('createProduct error: ' . $e->getMessage());
+
         return [
             'success' => false,
             'message' => 'Error: ' . $e->getMessage(),

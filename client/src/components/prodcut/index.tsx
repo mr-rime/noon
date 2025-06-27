@@ -5,7 +5,7 @@ import { ProductBadge } from "./components/product-badge";
 import { ProductImage } from "./components/product-image";
 import { ProductTitle } from "./components/product-title";
 
-export function Product({ id, name, images, currency, price }: ProductType) {
+export function Product({ id, name, images, currency, price, discount_percentage, final_price }: ProductType) {
 	return (
 		<article className="w-full select-none max-w-[230px] h-[467px] rounded-[12px] border border-[#DDDDDD] p-2 overflow-x-hidden bg-white">
 			<Link
@@ -16,7 +16,12 @@ export function Product({ id, name, images, currency, price }: ProductType) {
 			>
 				<ProductImage images={images?.map((img) => img.image_url)} />
 				<ProductTitle name={name} />
-				<ProdcutPrice price={price} currency={currency} />
+				<ProdcutPrice
+					price={price}
+					currency={currency}
+					final_price={final_price}
+					discount_percentage={discount_percentage}
+				/>
 				<ProductBadge />
 			</Link>
 		</article>

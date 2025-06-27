@@ -25,6 +25,7 @@
                 "noForEach": "error",
                 "noStaticOnlyClass": "error",
                 "noUselessSwitchCase": "error",
+                "noUselessFragments": "error",
                 "useFlatMap": "error",
                 "useWhile": "error"
             },

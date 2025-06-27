@@ -3,6 +3,7 @@
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\ValidationException;
 
+
 class User
 {
     private mysqli $db;

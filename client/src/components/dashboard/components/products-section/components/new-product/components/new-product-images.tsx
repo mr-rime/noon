@@ -133,15 +133,8 @@ function ProductImageFile({ name, size, imgUrl, loading, onDelete }: ProductImag
 					<div className="text-[14px] text-[#B1B5B4]">{size}</div>
 				</div>
 			</div>
-			{loading ? (
-				<Trash2 size={22} className="cursor-not-allowed text-[#7A7E83] transition-colors " />
-			) : (
-				<Trash2
-					size={22}
-					className="cursor-pointer text-[#7A7E83] transition-colors hover:text-red-400"
-					onClick={onDelete}
-				/>
-			)}
+
+			<Trash2 size={22} className="cursor-pointer text-[#7A7E83] transition-colors hover:text-red-400" onClick={onDelete} />
 		</div>
 	);
 }

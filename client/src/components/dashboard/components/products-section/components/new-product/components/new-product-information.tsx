@@ -7,6 +7,8 @@ import type { ProductType } from "@/types";
 import { debounce } from "@/utils/debounce";
 import { AddOptionSection } from "./add-option-section";
 import { AddSpecSection } from "./add-spec-section";
+import { Switch } from "@/components/ui/switch";
+import { DatePicker } from "@/components/ui/date-picker";
 
 export function NewProductInformation() {
 	const setProduct = useProductStore((s) => s.setProduct);
@@ -18,6 +20,11 @@ export function NewProductInformation() {
 	const [currency, setCurrency] = useState(product.currency);
 	const [stock, setStock] = useState(product.stock ?? 0);
 	const [description, setDescription] = useState(product.product_overview ?? "");
+
+	const [discountType, setDiscountType] = useState(product.discount?.type || "percentage");
+	const [discountValue, setDiscountValue] = useState(product.discount?.value || 0);
+	const [discountStartsAt, setDiscountStartsAt] = useState(product.discount?.starts_at || null);
+	const [discountEndsAt, setDiscountEndsAt] = useState(product.discount?.ends_at || null);
 
 	const debouncedSetProduct = debounce((...args: unknown[]) => {
 		const data = args[0] as Partial<ProductType>;
@@ -58,6 +65,33 @@ export function NewProductInformation() {
 		debouncedSetProduct({ product_overview: val });
 	};
 
+	const handleDiscountTypeChange = (val: string) => {
+		setDiscountType(val as "percentage" | "fixed");
+		debouncedSetProduct({
+			discount: { type: val, value: discountValue, starts_at: discountStartsAt, ends_at: discountEndsAt },
+		});
+	};
+
+	const handleDiscountValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const val = Number.parseFloat(e.target.value) || 0;
+		setDiscountValue(val);
+		debouncedSetProduct({
+			discount: { type: discountType, value: val, starts_at: discountStartsAt, ends_at: discountEndsAt },
+		});
+	};
+
+	const handleDiscountStartsAtChange = (date: Date) => {
+		setDiscountStartsAt(date);
+		debouncedSetProduct({ discount: { type: discountType, value: discountValue, starts_at: date, ends_at: discountEndsAt } });
+	};
+
+	const handleDiscountEndsAtChange = (date: Date) => {
+		setDiscountEndsAt(date);
+		debouncedSetProduct({
+			discount: { type: discountType, value: discountValue, starts_at: discountStartsAt, ends_at: date },
+		});
+	};
+
 	return (
 		<div className="md:w-1/2 w-full border border-[#E4E4E7] p-5 rounded-xl min-h-full h-[calc(100vh-160px)] overflow-auto space-y-4">
 			<Input
@@ -89,6 +123,37 @@ export function NewProductInformation() {
 				input={{ className: "h-[45px] rounded-[8px]" }}
 			/>
 
+			<div className="w-full block my-4">
+				<div>Discount</div>
+				<div className="grid grid-cols-2 gap-3 mt-2">
+					<Select
+						className="col-span-1"
+						labelContent="Type"
+						defaultValue={discountType}
+						onChange={handleDiscountTypeChange}
+						options={[
+							{ label: "Percentage", value: "percentage" },
+							{ label: "Fixed", value: "fixed" },
+						]}
+					/>
+					<Input
+						labelContent="Value"
+						type="number"
+						inputMode="numeric"
+						min={0}
+						placeholder="discount value"
+						value={discountValue}
+						onChange={handleDiscountValueChange}
+						input={{ className: "h-[45px] rounded-[8px]" }}
+						className="col-span-1"
+					/>
+				</div>
+				<div className="grid grid-cols-2 gap-3 mt-3">
+					<DatePicker labelContent="Starts At" value={discountStartsAt} onChange={handleDiscountStartsAtChange} />
+					<DatePicker labelContent="Ends At" value={discountEndsAt} onChange={handleDiscountEndsAtChange} />
+				</div>
+			</div>
+
 			<Select
 				labelContent="Currency"
 				defaultValue={currency}
@@ -113,13 +178,20 @@ export function NewProductInformation() {
 			/>
 
 			<div className="flex flex-col items-start justify-center gap-2">
-				<label htmlFor="desc">Description</label>
+				<label>Description</label>
 				<textarea
-					id="desc"
 					value={description}
 					onChange={handleDescriptionChange}
 					className="text-[16px] w-full border border-[#E2E5F1] outline-none rounded-[8px] px-3 pt-3"
 					rows={4}
+				/>
+			</div>
+
+			<div className="flex flex-col items-start justify-center gap-2">
+				<label>Is Returnable</label>
+				<Switch
+					checked={product.is_returnable}
+					onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProduct({ is_returnable: e.target.checked })}
 				/>
 			</div>
 

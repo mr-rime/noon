@@ -213,3 +213,21 @@ export const NoonIcon = () => (
 		/>
 	</svg>
 );
+
+export const VerifiedIcon = () => (
+	<svg
+		xmlnsXlink="http://www.w3.org/1999/xlink"
+		xmlns="http://www.w3.org/2000/svg"
+		width="12"
+		height="12"
+		viewBox="0 0 12 12"
+		fill="none"
+	>
+		<path
+			fillRule="evenodd"
+			clipRule="evenodd"
+			d="M4.79995 8.99983L2.39995 6.59983L3.24595 5.75383L4.79995 7.30183L8.75395 3.34783L9.59995 4.19983L4.79995 8.99983ZM6 0C2.688 0 0 2.688 0 6C0 9.312 2.688 12 6 12C9.312 12 12 9.312 12 6C12 2.688 9.312 0 6 0Z"
+			fill="#404553"
+		/>
+	</svg>
+);
