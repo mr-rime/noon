@@ -1,11 +1,4 @@
-
-export function ProductOption({
-	name,
-	values,
-}: {
-	name: string;
-	values: { value: string; image_url: string | null }[];
-}) {
+export function ProductOption({ name, values }: { name: string; values: { value: string; image_url: string | null }[] }) {
 	return (
 		<div>
 			<div className="font-normal text-[14px] uppercase mb-2">
@@ -27,7 +20,7 @@ export function ProductOption({
 						>
 							{value}
 						</div>
-					)
+					),
 				)}
 			</div>
 		</div>

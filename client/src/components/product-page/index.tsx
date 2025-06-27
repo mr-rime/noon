@@ -27,8 +27,6 @@ export function ProductPage() {
 		};
 	}>(GET_PRODUCT, { variables: { id: productId } });
 
-
-
 	return (
 		<main aria-label="Product Page" className="bg-white">
 			<section
@@ -66,7 +64,6 @@ export function ProductPage() {
 							<ProductOption key={option.name} name={option.name} values={option.values} />
 						))}
 					</div>
-
 				</div>
 
 				<ProductPageDetails />
