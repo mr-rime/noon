@@ -35,7 +35,6 @@ export function ProductPage() {
 				aria-labelledby="product-main-section"
 				className="site-container relative w-full flex flex-col lg:flex-row items-start justify-start pt-10 space-y-10 lg:space-y-0 lg:space-x-10 px-5 "
 			>
-
 				<ProductPageImage images={data?.getProduct.product.images.map((image) => image.image_url) || [""]} />
 
 				<div
@@ -68,7 +67,6 @@ export function ProductPage() {
 				<div className="max-md:hidden">
 					<ProductPageDetails />
 				</div>
-
 			</section>
 			<section id="porduct_overview">
 				<Separator className="h-[9px] mt-16 mb-5 bg-[#F3F4F8]" />
