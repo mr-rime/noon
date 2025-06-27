@@ -10,7 +10,7 @@ export function ProductReview() {
 				<div className="flex flex-col gap-[2px] w-full">
 					<div className="flex items-center justify-between w-full">
 						<div>Ahmed H.</div>
-						<div className="flex items-center px-[5px] gap-[4px] rounded-full bg-[#f3f4f8] text-[12px] h-[20px] min-w-[120px]">
+						<div className="flex items-center px-[5px] gap-[4px] rounded-full bg-[#f3f4f8] text-[12px] h-[20px] ">
 							{reviews_icons.verifiedIcon}
 							<span>Verified Purchase</span>
 						</div>

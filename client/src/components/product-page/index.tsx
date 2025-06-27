@@ -35,6 +35,22 @@ export function ProductPage() {
 				aria-labelledby="product-main-section"
 				className="site-container relative w-full flex flex-col lg:flex-row items-start justify-start pt-10 space-y-10 lg:space-y-0 lg:space-x-10 px-5 "
 			>
+				<div className="fixed flex items-center md:hidden  z-10 left-0 bottom-0  bg-white w-full py-2 px-2">
+					<button className="w-[55px] h-[60px] p-[3px] bg-white px-[10px] border text-inherit border-[#f1f3f9] flex flex-col items-center justify-center">
+						<span className="text-[1rem] text-[#8d94a7]">Qty</span>
+						<span className="text-[1.5rem] font-bold text-inherit">1</span>
+					</button>
+					<Button className="bg-[#2B4CD7] hover:bg-[#6079E1] transition-colors text-white w-full h-[48px] rounded-[4px] cursor-pointer uppercase font-bold text-[14px]">
+						Add to cart
+					</Button>
+				</div>
+				<div className="mb-0">
+					<ProductPageTitle className="block md:hidden text-[18px]" title={data?.getProduct.product.name as string} />
+					<div className="mt-6 mb-4 flex items-center justify-between w-full ">
+						<ProductPageRates theme="mobile" />
+						<AddToWishlistButton />
+					</div>
+				</div>
 				<ProductPageImage images={data?.getProduct.product.images.map((image) => image.image_url) || [""]} />
 
 				<div
@@ -59,6 +75,7 @@ export function ProductPage() {
 						))}
 					</div>
 				</div>
+
 				<div className="flex flex-col  md:hidden items-start justify-center w-full">
 					<div className="w-full">
 						<ProductPageDetails theme="mobile" />
