@@ -5,5 +5,5 @@ export const reviews_icons = {
 	yellowStar: <YellowStar />,
 	noonIcon: <NoonIcon />,
 	verifiedIcon: <VerifiedIcon />,
-	helpfulIcon: <HelpfulIcon />
+	helpfulIcon: <HelpfulIcon />,
 } as const;

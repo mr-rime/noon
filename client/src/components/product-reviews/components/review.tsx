@@ -37,21 +37,31 @@ export function ProductReview() {
 				Fantastic Deal on iPhone 16 Pro Max: Fast Delivery, Great Price, and Top-Notch Quality!
 			</div>
 			<div className="w-full text-[16px] break-words leading-[1.5em] pr-[45px] mt-1">
-				I recently purchased the iPhone 16 Pro Max, and I couldn't be more pleased with my experience. I got it at an amazing discounted price, which made the deal even sweeter. The delivery was super fast, and everything arrived in perfect condition, right on time. The product itself is original and feels premium as expected from Apple, with all the latest features and a stunning display. Overall, I'm really satisfied with my purchase—great value for money, excellent service, and a top-quality device. Highly recommend!
+				I recently purchased the iPhone 16 Pro Max, and I couldn't be more pleased with my experience. I got it at an
+				amazing discounted price, which made the deal even sweeter. The delivery was super fast, and everything arrived in
+				perfect condition, right on time. The product itself is original and feels premium as expected from Apple, with
+				all the latest features and a stunning display. Overall, I'm really satisfied with my purchase—great value for
+				money, excellent service, and a top-quality device. Highly recommend!
 			</div>
 
 			<div className="flex items-center gap-[4px] mt-3">
-				<button onClick={() => setHelpful(prev => !prev)} className={cn("border cursor-pointer py-[2px] px-[5px]  rounded-[4px] flex items-center gap-[4px] ", !helpful ? "border-[#7e859b] text-[#7e859b]" : "border-[#3866df] text-[#3866df]")}>
+				<button
+					onClick={() => setHelpful((prev) => !prev)}
+					className={cn(
+						"border cursor-pointer py-[2px] px-[5px]  rounded-[4px] flex items-center gap-[4px] ",
+						helpful ? "border-[#3866df] text-[#3866df]" : "border-[#7e859b] text-[#7e859b]",
+					)}
+				>
 					{reviews_icons.helpfulIcon}
 
-					<span className="text-[14px]">{!helpful ? "Helpful" : ""} (30)</span>
+					<span className="text-[14px]">{helpful ? "" : "Helpful"} (30)</span>
 				</button>
 
-				{
-					helpful && <div className="flex items-center gap-[3px] ml-2">
+				{helpful && (
+					<div className="flex items-center gap-[3px] ml-2">
 						<Check color="#50B823" size={18} /> <span>Thanks for voting!</span>
 					</div>
-				}
+				)}
 			</div>
 		</div>
 	);
