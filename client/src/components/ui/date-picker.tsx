@@ -136,10 +136,7 @@ export function DatePicker({ value, onChange, labelContent }: DatePickerProps) {
 			);
 		}
 
-		// Current month days
 		for (let i = 1; i <= daysInMonth; i++) {
-			const currentDate = new Date(year, month, i);
-
 			const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === i;
 
 			const isSelected =
