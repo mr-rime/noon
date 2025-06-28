@@ -27,7 +27,7 @@ export function TimelineStatus({
 		<div className={cn("relative grid grid-cols-[auto_1fr] gap-[12px]", isCurrent ? "h-auto" : "h-[48px]")}>
 			<div
 				className={cn(
-					"relative z-[2]  w-[32px] aspect-square rounded-full flex items-center justify-center",
+					"relative z-[2]  w-[33px] aspect-square rounded-full flex items-center justify-center",
 					!isCurrent && "border-[4px] border-white",
 					isCompleted ? "bg-[#38ae04]" : "bg-white",
 				)}

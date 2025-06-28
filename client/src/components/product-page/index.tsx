@@ -30,7 +30,7 @@ export function ProductPage() {
 	}>(GET_PRODUCT, { variables: { id: productId } });
 
 	return (
-		<main aria-label="Product Page" className="bg-white overflow-x-hidden">
+		<main aria-label="Product Page" className="bg-white overflow-x-hidden mb-32">
 			<section
 				aria-labelledby="product-main-section"
 				className="site-container relative w-full flex flex-col lg:flex-row items-start justify-start pt-10 space-y-10 lg:space-y-0 lg:space-x-10 px-5 "
@@ -44,7 +44,7 @@ export function ProductPage() {
 						Add to cart
 					</Button>
 				</div>
-				<div className="mb-0">
+				<div className="mb-0 block md:hidden">
 					<ProductPageTitle className="block md:hidden text-[18px]" title={data?.getProduct.product.name as string} />
 					<div className="mt-6 mb-4 flex items-center justify-between w-full ">
 						<ProductPageRates theme="mobile" />
