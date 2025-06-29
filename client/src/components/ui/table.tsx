@@ -12,15 +12,30 @@ type TableProps<T> = {
 	data: T[];
 	columns: Column<T>[];
 	pageSize?: number;
+	currentPage?: number;
+	totalItems?: number;
+	onPageChange?: (page: number) => void;
 	onRowClick?: (row: T) => void;
 };
 
-export function Table<T extends object>({ data, columns, pageSize = 10, onRowClick }: TableProps<T>) {
-	const [currentPage, setCurrentPage] = useState(1);
+export function Table<T extends object>({
+	data,
+	columns,
+	pageSize = 10,
+	currentPage: externalCurrentPage = 1,
+	totalItems,
+	onPageChange,
+	onRowClick,
+}: TableProps<T>) {
 	const [sortConfig, setSortConfig] = useState<{
 		key: keyof T;
 		direction: "asc" | "desc";
 	} | null>(null);
+
+	// Use internal state if pagination is controlled internally
+	const [internalCurrentPage, setInternalCurrentPage] = useState(1);
+	const isControlled = onPageChange !== undefined;
+	const currentPage = isControlled ? externalCurrentPage : internalCurrentPage;
 
 	const handleSort = (key: keyof T) => {
 		setSortConfig((prev) => {
@@ -45,20 +60,28 @@ export function Table<T extends object>({ data, columns, pageSize = 10, onRowCli
 			})
 		: data;
 
-	const paginatedData = sortedData?.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+	const handlePageChange = (page: number) => {
+		if (isControlled) {
+			onPageChange(page);
+		} else {
+			setInternalCurrentPage(page);
+		}
+	};
 
-	const totalPages = Math.ceil(data.length / pageSize);
+	const totalPages = Math.ceil((totalItems || data.length) / pageSize);
 
 	return (
-		<div className="w-full overflow-x-auto rounded-2xl ">
-			<table className="min-w-full  divide-gray-200">
+		<div className="w-full overflow-x-auto rounded-2xl">
+			<table className="min-w-full divide-gray-200">
 				<thead className="bg-[#F9F9F9]">
 					<tr>
 						{columns.map((col) => (
 							<th
 								key={String(col.key)}
 								onClick={() => col.sortable && handleSort(col.key)}
-								className={`text-left font-bold px-4 py-2  text-[#737373] cursor-${col.sortable ? "pointer" : "default"}`}
+								className={`text-left font-bold px-4 py-2 text-[#737373] cursor-${
+									col.sortable ? "pointer" : "default"
+								}`}
 							>
 								{col.header}
 								{sortConfig?.key === col.key && (
@@ -69,7 +92,7 @@ export function Table<T extends object>({ data, columns, pageSize = 10, onRowCli
 					</tr>
 				</thead>
 				<tbody className="divide-y divide-gray-100">
-					{paginatedData.map((row, i) => (
+					{sortedData.map((row, i) => (
 						<tr
 							key={i}
 							className={`hover:bg-gray-50 ${onRowClick ? "cursor-pointer" : ""}`}
@@ -91,14 +114,14 @@ export function Table<T extends object>({ data, columns, pageSize = 10, onRowCli
 				</div>
 				<div className="space-x-2">
 					<button
-						onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+						onClick={() => handlePageChange(currentPage - 1)}
 						disabled={currentPage === 1}
 						className="px-3 py-1 cursor-pointer rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
 					>
 						Prev
 					</button>
 					<button
-						onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+						onClick={() => handlePageChange(currentPage + 1)}
 						disabled={currentPage === totalPages}
 						className="px-3 py-1 cursor-pointer rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
 					>

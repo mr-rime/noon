@@ -79,13 +79,41 @@ class Product
         $product['discount_percentage'] = $percentage;
     }
 
-
-
-
-    public function findAll(int $limit = 10, int $offset = 0): array
+    public function findAll(int $limit = 10, int $offset = 0, string $search = ''): array
     {
-        $stmt = $this->db->prepare("SELECT id FROM products ORDER BY id LIMIT ? OFFSET ?");
-        $stmt->bind_param("ii", $limit, $offset);
+        $baseQuery = "SELECT id FROM products";
+        $params = [];
+        $types = '';
+
+        // Add search condition if provided
+        if (!empty(trim($search))) {
+            $baseQuery .= "
+            WHERE name LIKE CONCAT('%', ?, '%') 
+               OR product_overview LIKE CONCAT('%', ?, '%')
+            ORDER BY
+                CASE
+                    WHEN name = ? THEN 1
+                    WHEN name LIKE CONCAT(?, '%') THEN 2
+                    WHEN name LIKE CONCAT('%', ?, '%') THEN 3
+                    WHEN product_overview LIKE CONCAT('%', ?, '%') THEN 4
+                    ELSE 5
+                END,
+                id
+            LIMIT ? OFFSET ?
+        ";
+            $params = [$search, $search, $search, $search, $search, $search, $limit, $offset];
+            $types = 'ssssssii';
+        } else {
+            $baseQuery .= " ORDER BY id LIMIT ? OFFSET ?";
+            $params = [$limit, $offset];
+            $types = 'ii';
+        }
+
+        // Get product IDs
+        $stmt = $this->db->prepare($baseQuery);
+        if (!empty($types)) {
+            $stmt->bind_param($types, ...$params);
+        }
         $stmt->execute();
         $idResult = $stmt->get_result();
 
@@ -94,22 +122,22 @@ class Product
             $productIds[] = $row['id'];
         }
 
-        if (empty($productIds))
+        if (empty($productIds)) {
             return [];
+        }
 
+        // Fetch complete product data with images
         $placeholders = implode(',', array_fill(0, count($productIds), '?'));
-        $types = str_repeat('s', count($productIds));
-
         $query = "
-            SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary
-            FROM products p
-            LEFT JOIN product_images pi ON p.id = pi.product_id
-            WHERE p.id IN ($placeholders)
-            ORDER BY p.id
-        ";
+        SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary
+        FROM products p
+        LEFT JOIN product_images pi ON p.id = pi.product_id
+        WHERE p.id IN ($placeholders)
+        ORDER BY p.id
+    ";
 
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param($types, ...$productIds);
+        $stmt->bind_param(str_repeat('i', count($productIds)), ...$productIds);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -140,6 +168,7 @@ class Product
             }
         }
 
+        // Attach additional data
         $optionModel = new ProductOption($this->db);
         $specModel = new ProductSpecification($this->db);
 

@@ -13,6 +13,7 @@ require_once __DIR__ . '/types/ProductSpecificationTypes.php';
 require_once __DIR__ . '/types/OrderTypes.php';
 require_once __DIR__ . '/types/UploadTypes.php';
 require_once __DIR__ . '/types/DiscountTypes.php';
+require_once __DIR__ . '/types/HomeTypes.php';
 require_once __DIR__ . '/resolvers/UserResolver.php';
 require_once __DIR__ . '/resolvers/PartnerResolver.php';
 require_once __DIR__ . '/resolvers/AuthResolver.php';
@@ -20,6 +21,7 @@ require_once __DIR__ . '/resolvers/ProdcutResolver.php';
 require_once __DIR__ . '/resolvers/OrderResolver.php';
 require_once __DIR__ . '/resolvers/UploadResolver.php';
 require_once __DIR__ . '/resolvers/DiscountResolver.php';
+require_once __DIR__ . '/resolvers/HomeResolver.php';
 
 $QueryType = new ObjectType([
     'name' => 'query',
@@ -49,7 +51,8 @@ $QueryType = new ObjectType([
             'type' => $ProductsResponseType,
             'args' => [
                 'limit' => Type::int(),
-                'offset' => Type::int()
+                'offset' => Type::int(),
+                'search' => Type::string()
             ],
             'resolve' => fn($root, $args, $context) => getAllProducts($context['db'], $args)
         ],
@@ -68,6 +71,15 @@ $QueryType = new ObjectType([
                 'id' => Type::nonNull(Type::id())
             ],
             'resolve' => fn($root, $args, $context) => getDiscount($context['db'], $args['id'])
+        ],
+        'getHome' => [
+            'type' => $HomeResponseType,
+            'args' => [
+                'limit' => Type::int(),
+                'offset' => Type::int(),
+                'search' => Type::string()
+            ],
+            'resolve' => fn($root, $args, $context) => getHome($context['db'], $args)
         ]
     ]
 ]);

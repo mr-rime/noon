@@ -6,16 +6,29 @@ import type { ProductType } from "@/types";
 import { Dropdown } from "@/components/ui/dropdown";
 import { Ellipsis, Pen, Trash } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 
-export default function ProductsTable() {
+export default function ProductsTable({ search }: { search: string }) {
+	const [page, setPage] = useState(1);
+	const pageSize = 10;
+
 	const { data, loading } = useQuery<{
-		getProducts: { success: boolean; message: string; products: (ProductType & { action: string })[] };
-	}>(GET_PRODUCTS, { variables: { limit: 10, offset: 0 } });
+		getProducts: {
+			success: boolean;
+			message: string;
+			products: (ProductType & { action: string })[];
+			total: number;
+		};
+	}>(GET_PRODUCTS, {
+		variables: {
+			limit: pageSize,
+			offset: (page - 1) * pageSize,
+			search,
+		},
+	});
 
-	console.log(loading);
 	if (loading) return <TableSkeleton />;
 
-	console.log(data);
 	return (
 		<Table
 			data={data?.getProducts.products || []}
@@ -47,7 +60,6 @@ export default function ProductsTable() {
 					header: "Price",
 					render: (row) => <div>${row.price?.toFixed(2)}</div>,
 				},
-
 				{
 					key: "action",
 					header: "Action",
@@ -77,7 +89,10 @@ export default function ProductsTable() {
 					},
 				},
 			]}
-			pageSize={5}
+			pageSize={pageSize}
+			currentPage={page}
+			totalItems={data?.getProducts.total || 0}
+			onPageChange={(newPage) => setPage(newPage)}
 		/>
 	);
 }

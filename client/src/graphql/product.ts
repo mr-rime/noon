@@ -118,8 +118,8 @@ export const UPDATE_PRODUCT = gql`
     `;
 
 export const GET_PRODUCTS = gql`
-        query($limit:Int, $offset:Int){
-            getProducts(limit:$limit,offset:$offset) {
+        query($limit:Int, $offset:Int,$search:String){
+            getProducts(limit:$limit,offset:$offset, search: $search) {
                 success
                 message
                 products {
