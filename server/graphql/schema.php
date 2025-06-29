@@ -165,7 +165,25 @@ $MutationType = new ObjectType([
                 'starts_at' => Type::nonNull(Type::string()),
                 'ends_at' => Type::nonNull(Type::string())
             ]
-        ]
+        ],
+        'updateProduct' => [
+            'type' => $ProductResponseType,
+            'args' => [
+                'id' => Type::nonNull(Type::string()),
+                'name' => Type::string(),
+                'price' => Type::float(),
+                'category_id' => Type::string(),
+                'currency' => Type::string(),
+                'is_returnable' => Type::boolean(),
+                'product_overview' => Type::string(),
+                'discount' => $DiscountInputType,
+                'images' => Type::listOf($ProductImageInputType),
+                'productOptions' => Type::listOf($ProductOptionInputType),
+                'productSpecifications' => Type::listOf($ProductSpecInputType),
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => updateProduct($context["db"], $args))
+        ],
+
     ]
 ]);
 

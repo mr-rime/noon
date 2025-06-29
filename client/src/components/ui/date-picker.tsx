@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 interface DatePickerProps {
-	value: Date | null;
+	value: Date | string | null;
 	onChange: (date: Date) => void;
 	labelContent?: string;
 }
@@ -23,11 +23,23 @@ const months = [
 	"December",
 ];
 
+const toDate = (val: unknown): Date | null => {
+	try {
+		const d = new Date(val as any);
+		return isNaN(d.getTime()) ? null : d;
+	} catch {
+		return null;
+	}
+};
+
 export function DatePicker({ value, onChange, labelContent }: DatePickerProps) {
 	const today = new Date();
+	const initial = toDate(value) || today;
+
 	const [isOpen, setIsOpen] = useState(false);
-	const [selectedDate, setSelectedDate] = useState<Date | null>(value ?? today);
-	const [viewDate, setViewDate] = useState<Date>(value ?? today);
+	const [selectedDate, setSelectedDate] = useState<Date | null>(toDate(value));
+	const [viewDate, setViewDate] = useState<Date>(initial);
+
 	const pickerRef = useRef<HTMLDivElement>(null);
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const animationRef = useRef<Animation | null>(null);
@@ -84,8 +96,6 @@ export function DatePicker({ value, onChange, labelContent }: DatePickerProps) {
 
 		if (isOpen) {
 			document.addEventListener("mousedown", handleClickOutside);
-		} else {
-			document.removeEventListener("mousedown", handleClickOutside);
 		}
 
 		return () => {
@@ -152,8 +162,8 @@ export function DatePicker({ value, onChange, labelContent }: DatePickerProps) {
 					key={i}
 					onClick={() => handleDateClick(i)}
 					className={`w-8 h-8 flex items-center justify-center rounded cursor-pointer 
-                        ${isActive ? "bg-black text-white" : "hover:bg-gray-200"}
-                        ${isToday && !isSelected ? "ring-2 ring-blue-500" : ""}`}
+						${isActive ? "bg-black text-white" : "hover:bg-gray-200"}
+						${isToday && !isSelected ? "ring-2 ring-blue-500" : ""}`}
 				>
 					{i}
 				</button>,
@@ -165,7 +175,7 @@ export function DatePicker({ value, onChange, labelContent }: DatePickerProps) {
 
 	return (
 		<div className="relative flex flex-col text-left">
-			{labelContent && <label className="text-[16px]">{labelContent}</label>}
+			{labelContent && <label className="text-[16px] mb-1">{labelContent}</label>}
 			<button
 				ref={buttonRef}
 				onClick={toggleOpen}
@@ -180,19 +190,19 @@ export function DatePicker({ value, onChange, labelContent }: DatePickerProps) {
 					className="absolute top-16 mt-2 p-4 w-72 bg-white border border-[#E2E5F1] rounded shadow z-10"
 				>
 					<div className="flex items-center justify-between mb-2">
-						<button onClick={() => changeYear(-1)} className="text-sm px-2 cursor-pointer">
+						<button onClick={() => changeYear(-1)} className="px-2 cursor-pointer">
 							<ChevronLeft size={16} />
 						</button>
-						<button onClick={() => changeMonth(-1)} className="text-sm px-2 cursor-pointer">
+						<button onClick={() => changeMonth(-1)} className="px-2 cursor-pointer">
 							<ChevronLeft size={16} />
 						</button>
 						<span className="font-semibold">
 							{months[viewDate.getMonth()]} {viewDate.getFullYear()}
 						</span>
-						<button onClick={() => changeMonth(1)} className="text-sm px-2 cursor-pointer">
+						<button onClick={() => changeMonth(1)} className="px-2 cursor-pointer">
 							<ChevronRight size={16} />
 						</button>
-						<button onClick={() => changeYear(1)} className="text-sm px-2 cursor-pointer">
+						<button onClick={() => changeYear(1)} className="px-2 cursor-pointer">
 							<ChevronRight size={16} />
 						</button>
 					</div>

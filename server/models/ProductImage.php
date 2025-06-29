@@ -62,4 +62,16 @@ class ProductImage
 
         return $stmt->execute();
     }
+
+    public function replaceForProduct(string $productId, array $images): void
+    {
+        $this->db->query("DELETE FROM product_images WHERE product_id = '$productId'");
+        $stmt = $this->db->prepare("INSERT INTO product_images (product_id, image_url, is_primary) VALUES (?, ?, ?)");
+        foreach ($images as $img) {
+            $isPrimary = $img['is_primary'] ? 1 : 0;
+            $stmt->bind_param('ssi', $productId, $img['image_url'], $isPrimary);
+            $stmt->execute();
+        }
+    }
+
 }

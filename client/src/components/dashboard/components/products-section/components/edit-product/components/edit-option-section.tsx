@@ -1,39 +1,69 @@
 import { useMutation } from "@apollo/client";
 import { Plus, Trash2, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dropzone } from "@/components/ui/dropzone";
 import { Input } from "@/components/ui/input";
 import { UPLOAD_FILE } from "@/graphql/upload-file";
 import { useProductStore } from "@/store/create-product-store";
+import type { ProductOptionType } from "@/types";
 
-export function AddOptionSection() {
+export function AddOptionSection({ options: initialOptions }: { options: ProductOptionType[] }) {
 	const [uploadImage] = useMutation(UPLOAD_FILE);
 	const options = useProductStore((state) => state.product.productOptions);
 	const setProduct = useProductStore((state) => state.setProduct);
 	const addOption = useProductStore((state) => state.addOption);
 
-	const handleOptionChange = (index: number, key: keyof (typeof options)[number], value: string | File | null) => {
-		const updatedOptions = [...options];
-		updatedOptions[index] = { ...updatedOptions[index], [key]: value };
-		setProduct({ productOptions: updatedOptions });
+	const [loadingImageIndexes, setLoadingImageIndexes] = useState<number[]>([]);
+
+	useEffect(() => {
+		if (initialOptions?.length) {
+			const options = initialOptions.map((opt) => ({
+				image_url: opt.image_url,
+				name: opt.name,
+				value: opt.value,
+				type: opt.type,
+			}));
+			setProduct({ productOptions: options });
+		}
+	}, [initialOptions, setProduct]);
+
+	const handleOptionChange = (index: number, key: keyof ProductOptionType, value: string | null) => {
+		const updated = [...options];
+		updated[index] = {
+			...updated[index],
+			[key]: value ?? "",
+		};
+		setProduct({ productOptions: updated });
 	};
 
 	const handleAddOption = () => {
-		addOption({ name: "", type: "link", value: "", image_url: "" });
+		addOption({ name: "", type: "link", value: "", image_url: "", linked_product_id: "" });
 	};
 
 	const handleRemoveOption = (index: number) => {
-		const updatedOptions = options.filter((_, i) => i !== index);
-		setProduct({ productOptions: updatedOptions });
+		const updated = options.filter((_, i) => i !== index);
+		setProduct({ productOptions: updated });
 	};
 
 	const handleImageDrop = async (files: File[], index: number) => {
-		if (files.length === 0) return;
-		const { data } = await uploadImage({ variables: { file: files[0] } });
-		if (data.uploadImage) {
-			handleOptionChange(index, "image_url", data.uploadImage.url);
+		if (!files.length) return;
+
+		setLoadingImageIndexes((prev) => [...prev, index]);
+
+		try {
+			const { data } = await uploadImage({ variables: { file: files[0] } });
+			if (data?.uploadImage?.url) {
+				handleOptionChange(index, "image_url", data.uploadImage.url);
+			}
+		} catch (err) {
+			console.error("Upload failed", err);
+		} finally {
+			setLoadingImageIndexes((prev) => prev.filter((i) => i !== index));
 		}
 	};
+
+	const isLoading = (index: number) => loadingImageIndexes.includes(index);
 
 	return (
 		<div>
@@ -49,17 +79,18 @@ export function AddOptionSection() {
 						value={option.name}
 						onChange={(e) => handleOptionChange(index, "name", e.target.value)}
 					/>
+
 					<div className="flex flex-col gap-1">
 						<Input
 							labelContent="Value"
 							placeholder="Enter value (e.g. Red, Large)"
-							value={option.value as string}
+							value={option.value ?? ""}
 							onChange={(e) => handleOptionChange(index, "value", e.target.value)}
 						/>
 						<Input
 							labelContent="Link"
-							placeholder="Enter value (e.g. /product/123)"
-							value={option.linked_product_id as string}
+							placeholder="Enter link (e.g. /product/123)"
+							value={option.linked_product_id ?? ""}
 							onChange={(e) => handleOptionChange(index, "linked_product_id", e.target.value)}
 						/>
 
@@ -67,9 +98,10 @@ export function AddOptionSection() {
 							<label className="text-sm">Upload Image</label>
 							<Dropzone accept="image/*" onFilesDrop={(files) => handleImageDrop(files, index)} />
 						</div>
+
 						{option.image_url && (
 							<div
-								onClick={() => handleOptionChange(0, "image_url", "")}
+								onClick={() => handleOptionChange(index, "image_url", "")}
 								className="relative group mt-2 h-fit cursor-pointer w-fit"
 							>
 								<div className="absolute transition-colors group-hover:bg-[#ffa2a29e] h-full w-20 rounded top-0 left-0 flex items-center justify-center">
@@ -79,7 +111,11 @@ export function AddOptionSection() {
 										fill="#fb2c36"
 									/>
 								</div>
-								<img src={option.image_url} alt="Option preview" className="w-20 object-fill rounded" />
+								<img
+									src={option.image_url}
+									alt="Option preview"
+									className={`w-20 object-fill rounded ${isLoading(index) ? "opacity-50 grayscale" : ""}`}
+								/>
 							</div>
 						)}
 					</div>
@@ -94,6 +130,7 @@ export function AddOptionSection() {
 					</Button>
 				</div>
 			))}
+
 			<Button
 				type="button"
 				onClick={handleAddOption}

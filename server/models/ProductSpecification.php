@@ -113,4 +113,15 @@ class ProductSpecification
         $stmt->bind_param('i', $id);
         return $stmt->execute();
     }
+
+    public function replaceForProduct(string $productId, array $specs): void
+    {
+        $this->db->query("DELETE FROM product_specifications WHERE product_id = '$productId'");
+        $stmt = $this->db->prepare("INSERT INTO product_specifications (product_id, spec_name, spec_value) VALUES (?, ?, ?)");
+        foreach ($specs as $spec) {
+            $stmt->bind_param('sss', $productId, $spec['spec_name'], $spec['spec_value']);
+            $stmt->execute();
+        }
+    }
+
 }

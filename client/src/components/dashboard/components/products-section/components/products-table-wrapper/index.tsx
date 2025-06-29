@@ -1,11 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
 import { Plus, Search } from "lucide-react";
-import { lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TableSkeleton } from "../../../skeleton-effects";
-
-const LazyProductsTable = lazy(() => import("../products-table/"));
+import ProductsTable from "../products-table";
 
 export function ProductsTableWrapper() {
 	const navigate = useNavigate();
@@ -27,9 +24,7 @@ export function ProductsTableWrapper() {
 						<span>Add Product</span>
 					</Button>
 				</div>
-				<Suspense fallback={<TableSkeleton className="h-[400px]" />}>
-					<LazyProductsTable />
-				</Suspense>
+				<ProductsTable />
 			</div>
 		</div>
 	);

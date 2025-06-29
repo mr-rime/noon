@@ -45,7 +45,7 @@ export function Table<T extends object>({ data, columns, pageSize = 10, onRowCli
 			})
 		: data;
 
-	const paginatedData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+	const paginatedData = sortedData?.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
 	const totalPages = Math.ceil(data.length / pageSize);
 

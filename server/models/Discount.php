@@ -96,7 +96,7 @@ class Discount
         $startsAt = date('Y-m-d H:i:s', strtotime($data['starts_at']));
         $endsAt = date('Y-m-d H:i:s', strtotime($data['ends_at']));
 
-        $stmt = $this->db->prepare('INSERT INTO discounts (id, product_id, type, value, linked_product_id, starts_at, ends_at) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        $stmt = $this->db->prepare('INSERT INTO discounts (id, product_id, type, value, starts_at, ends_at) VALUES (?, ?, ?, ?, ?, ?)');
 
         if (!$stmt) {
             error_log("Prepare failed" . $this->db->error);
@@ -111,7 +111,6 @@ class Discount
             $data['product_id'],
             $data['type'],
             $data['value'],
-            $data['linked_product_id'],
             $startsAt,
             $endsAt
         );

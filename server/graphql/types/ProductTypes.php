@@ -6,6 +6,7 @@ use GraphQL\Type\Definition\Type;
 
 require_once __DIR__ . '/ProductOptionTypes.php';
 require_once __DIR__ . '/ProductSpecificationTypes.php';
+require_once __DIR__ . '/DiscountTypes.php';
 
 
 $ProductImageType = new ObjectType([
@@ -47,6 +48,8 @@ $ProductType = new ObjectType([
         'is_returnable' => Type::nonNull(Type::boolean()),
         'currency' => Type::string(),
         'product_overview' => Type::string(),
+        'stock' => Type::string(),
+        'discount' => $DiscountType,
         'discount_percentage' => Type::int(),
         'images' => Type::listOf($ProductImageType),
         'productOptions' => Type::listOf($ProductOptionType),
