@@ -16,7 +16,7 @@ export type ProductOptionType = {
 	name: string;
 	value: string;
 	image_url: string;
-	link?: string;
+	linked_product_id?: string;
 	type: "link" | "text";
 };
 
@@ -51,8 +51,8 @@ export type ProductType = {
 };
 
 export type DiscountType = {
-	id: string;
-	prodcut_id: string;
+	id?: string;
+	prodcut_id?: string;
 	type: "percentage" | "fixed";
 	value: number;
 	starts_at: Date;

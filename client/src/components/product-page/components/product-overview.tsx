@@ -43,6 +43,7 @@ export function ProductOverview({ specs, overview }: { specs: ProductSpecificati
 							<SpecificationsTable>
 								{specs?.slice(0, specificationsPerSide).map((spec, idx) => (
 									<SpecRow
+										key={spec.id}
 										specName={spec.spec_name}
 										specValue={spec.spec_value}
 										bgColor={idx % 2 === 0 ? "#EFF3FD" : "#FFF"}
@@ -54,6 +55,7 @@ export function ProductOverview({ specs, overview }: { specs: ProductSpecificati
 							<SpecificationsTable>
 								{specs?.slice(specificationsPerSide).map((spec, idx) => (
 									<SpecRow
+										key={spec.id}
 										specName={spec.spec_name}
 										specValue={spec.spec_value}
 										bgColor={idx % 2 === 0 ? "#EFF3FD" : "#FFF"}

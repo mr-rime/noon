@@ -1,25 +1,37 @@
 import { Table } from "@/components/ui/table";
+import { GET_PRODUCTS } from "@/graphql/product";
+import { useQuery } from "@apollo/client";
+import { TableSkeleton } from "../../../skeleton-effects";
+import type { ProductType } from "@/types";
+import { Dropdown } from "@/components/ui/dropdown";
+import { Ellipsis, Pen, Trash } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 
-type Product = {
-	category: string;
-	name: string;
-	price: string;
-	stock: number;
-	status: string;
-};
+export default function ProductsTable({ search }: { search: string }) {
+	const [page, setPage] = useState(1);
+	const pageSize = 10;
 
-const products: Product[] = Array.from({ length: 10 }).map((_, i) => ({
-	category: `Category ${i + 1}`,
-	name: `Product ${i + 1}`,
-	price: (i + 1) * 100 + ".00",
-	stock: i % 2 === 0 ? 10 : 20,
-	status: i % 2 ? "In Stock" : "Out Of Stock",
-}));
+	const { data, loading } = useQuery<{
+		getProducts: {
+			success: boolean;
+			message: string;
+			products: (ProductType & { action: string })[];
+			total: number;
+		};
+	}>(GET_PRODUCTS, {
+		variables: {
+			limit: pageSize,
+			offset: (page - 1) * pageSize,
+			search,
+		},
+	});
 
-export default function ProductsTable() {
+	if (loading) return <TableSkeleton />;
+
 	return (
 		<Table
-			data={products}
+			data={data?.getProducts.products || []}
 			columns={[
 				{
 					key: "name",
@@ -27,16 +39,16 @@ export default function ProductsTable() {
 					render: (row) => (
 						<div className="flex items-center space-x-2">
 							<img
-								src="/media/imgs/product-img1.avif"
+								src={row.images[0].image_url}
 								alt="product-img"
-								className="w-[50px] h-[50px] rounded-[10px]"
+								className="w-[50px] h-[50px] rounded-[10px] object-cover"
 							/>
-							<div>{row.name}</div>
+							<div className="truncate w-[300px]">{row.name}</div>
 						</div>
 					),
 				},
 				{
-					key: "category",
+					key: "category_id",
 					header: "Category",
 				},
 				{
@@ -46,14 +58,41 @@ export default function ProductsTable() {
 				{
 					key: "price",
 					header: "Price",
-					render: (row) => <div>${row.price}</div>,
+					render: (row) => <div>${row.price?.toFixed(2)}</div>,
 				},
 				{
-					key: "status",
-					header: "Status",
+					key: "action",
+					header: "Action",
+					render: (row) => {
+						return (
+							<Dropdown
+								align="center"
+								className="px-2"
+								trigger={
+									<button className="cursor-pointer">
+										<Ellipsis />
+									</button>
+								}
+							>
+								<div className="p-1">
+									<Link to="/dashboard/products/edit/$productId" params={{ productId: row.id }}>
+										<div className="p-2 grid grid-cols-[max-content_1fr] items-center gap-x-2 w-[100px] hover:bg-[#FFFCD1] rounded-[7px]">
+											<Pen size={16} /> <span className="text-[15px]">Edit</span>
+										</div>
+									</Link>
+									<div className="p-2 grid grid-cols-[max-content_1fr] items-center gap-x-2 w-[100px] hover:bg-[#FFFCD1] rounded-[7px] text-[#FF3737] cursor-pointer">
+										<Trash size={16} /> <span className="text-[15px]">Delete</span>
+									</div>
+								</div>
+							</Dropdown>
+						);
+					},
 				},
 			]}
-			pageSize={5}
+			pageSize={pageSize}
+			currentPage={page}
+			totalItems={data?.getProducts.total || 0}
+			onPageChange={(newPage) => setPage(newPage)}
 		/>
 	);
 }

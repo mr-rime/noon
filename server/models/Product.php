@@ -73,18 +73,47 @@ class Product
         $finalPrice = $this->calculateFinalPrice($price, $discount);
         $percentage = $this->getDiscountPercentage($price, $discount);
 
-        // $product['discount'] = $discount;
+        error_log("discont here " . json_encode($discount));
+        $product['discount'] = $discount;
         $product['final_price'] = $finalPrice;
         $product['discount_percentage'] = $percentage;
     }
 
-
-
-
-    public function findAll(int $limit = 10, int $offset = 0): array
+    public function findAll(int $limit = 10, int $offset = 0, string $search = ''): array
     {
-        $stmt = $this->db->prepare("SELECT id FROM products ORDER BY id LIMIT ? OFFSET ?");
-        $stmt->bind_param("ii", $limit, $offset);
+        $baseQuery = "SELECT id FROM products";
+        $params = [];
+        $types = '';
+
+        // Add search condition if provided
+        if (!empty(trim($search))) {
+            $baseQuery .= "
+            WHERE name LIKE CONCAT('%', ?, '%') 
+               OR product_overview LIKE CONCAT('%', ?, '%')
+            ORDER BY
+                CASE
+                    WHEN name = ? THEN 1
+                    WHEN name LIKE CONCAT(?, '%') THEN 2
+                    WHEN name LIKE CONCAT('%', ?, '%') THEN 3
+                    WHEN product_overview LIKE CONCAT('%', ?, '%') THEN 4
+                    ELSE 5
+                END,
+                id
+            LIMIT ? OFFSET ?
+        ";
+            $params = [$search, $search, $search, $search, $search, $search, $limit, $offset];
+            $types = 'ssssssii';
+        } else {
+            $baseQuery .= " ORDER BY id LIMIT ? OFFSET ?";
+            $params = [$limit, $offset];
+            $types = 'ii';
+        }
+
+        // Get product IDs
+        $stmt = $this->db->prepare($baseQuery);
+        if (!empty($types)) {
+            $stmt->bind_param($types, ...$params);
+        }
         $stmt->execute();
         $idResult = $stmt->get_result();
 
@@ -93,22 +122,22 @@ class Product
             $productIds[] = $row['id'];
         }
 
-        if (empty($productIds))
+        if (empty($productIds)) {
             return [];
+        }
 
+        // Fetch complete product data with images
         $placeholders = implode(',', array_fill(0, count($productIds), '?'));
-        $types = str_repeat('s', count($productIds));
-
         $query = "
-            SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary
-            FROM products p
-            LEFT JOIN product_images pi ON p.id = pi.product_id
-            WHERE p.id IN ($placeholders)
-            ORDER BY p.id
-        ";
+        SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary
+        FROM products p
+        LEFT JOIN product_images pi ON p.id = pi.product_id
+        WHERE p.id IN ($placeholders)
+        ORDER BY p.id
+    ";
 
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param($types, ...$productIds);
+        $stmt->bind_param(str_repeat('i', count($productIds)), ...$productIds);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -121,6 +150,7 @@ class Product
                     'name' => $row['name'],
                     'price' => $row['price'],
                     'currency' => $row['currency'],
+                    'stock' => $row['stock'],
                     'product_overview' => $row['product_overview'],
                     'is_returnable' => $row['is_returnable'],
                     'created_at' => $row['created_at'],
@@ -138,6 +168,7 @@ class Product
             }
         }
 
+        // Attach additional data
         $optionModel = new ProductOption($this->db);
         $specModel = new ProductSpecification($this->db);
 
@@ -174,6 +205,7 @@ class Product
                     'name' => $row['name'],
                     'price' => $row['price'],
                     'currency' => $row['currency'],
+                    'stock' => $row['stock'],
                     'is_returnable' => $row['is_returnable'],
                     'product_overview' => $row['product_overview'],
                     'created_at' => $row['created_at'],
@@ -255,7 +287,7 @@ class Product
         if (!empty($data['productOptions'])) {
             $optionModel = new ProductOption($this->db);
             foreach ($data['productOptions'] as $opt) {
-                $optionModel->create($hash, $opt['name'], $opt['value'], $opt['image_url'] ?? null, $opt['type'], $opt['linked_product_id'] ?? null);
+                $optionModel->create($hash, $opt['name'], $opt['value'], $opt['image_url'] ?? null, $opt['type']);
             }
         }
 
@@ -278,13 +310,13 @@ class Product
 
     public function update(string $id, array $data): ?array
     {
-        $validator = v::keySet(
-            v::key('user_id', v::intVal()->positive(), false),
-            v::key('name', v::stringType()->notEmpty()->length(1, 100), false),
-            v::key('price', v::floatVal()->positive(), false),
-            v::key('currency', v::stringType()->notEmpty()->length(3, 4), false),
-            v::key('product_overview', v::optional(v::stringType()), false)
-        );
+        $validator = v::key('name', v::stringType()->notEmpty()->length(1, 100), false)
+            ->key('price', v::floatVal()->positive(), false)
+            ->key('currency', v::stringType()->notEmpty()->length(3, 4), false)
+            ->key('product_overview', v::optional(v::stringType()), false)
+            ->key('stock', v::optional(v::intVal()->min(0)), false)
+            ->key('category_id', v::optional(v::stringType()->length(1, 21)), false)
+            ->key('is_returnable', v::optional(v::boolType()), false);
 
         try {
             $validator->assert($data);
@@ -297,11 +329,32 @@ class Product
         $types = '';
         $values = [];
 
+        $nonDbFields = ['discount', 'images', 'productOptions', 'productSpecifications', '__typename'];
+
         foreach ($data as $key => $value) {
-            if ($key === 'discount')
+            if (in_array($key, $nonDbFields))
                 continue;
+
+            if ($key === 'category_id' && $value === '') {
+                $value = null;
+            }
+
+            if ($key === 'is_returnable') {
+                $value = (bool) $value;
+            }
+
             $fields[] = "$key = ?";
-            $types .= is_int($value) ? 'i' : (is_float($value) ? 'd' : 's');
+            if (is_int($value)) {
+                $types .= 'i';
+            } elseif (is_float($value)) {
+                $types .= 'd';
+            } elseif (is_bool($value)) {
+                $types .= 'i';
+                $value = $value ? 1 : 0;
+            } else {
+                $types .= 's';
+            }
+
             $values[] = $value;
         }
 
@@ -332,30 +385,41 @@ class Product
             return null;
         }
 
+        // Discount handling
         if (!empty($data['discount'])) {
             $discountModel = new Discount($this->db);
             $existing = $discountModel->findById($id);
+
+            $discount = $data['discount'];
+            unset($discount['__typename']);
+
+            $discountData = [
+                'type' => $discount['type'],
+                'value' => $discount['value'],
+                'starts_at' => $discount['starts_at'],
+                'ends_at' => $discount['ends_at'],
+                'product_id' => $id,
+            ];
 
             if ($existing) {
                 $stmt = $this->db->prepare("UPDATE discounts SET type = ?, value = ?, starts_at = ?, ends_at = ? WHERE product_id = ?");
                 $stmt->bind_param(
                     'sdsss',
-                    $data['discount']['type'],
-                    $data['discount']['value'],
-                    $data['discount']['starts_at'],
-                    $data['discount']['ends_at'],
+                    $discountData['type'],
+                    $discountData['value'],
+                    $discountData['starts_at'],
+                    $discountData['ends_at'],
                     $id
                 );
                 $stmt->execute();
             } else {
-                $discountData = $data['discount'];
-                $discountData['product_id'] = $id;
                 $discountModel->create($discountData);
             }
         }
 
         return $this->findById($id);
     }
+
 
     public function delete(string $id): bool
     {

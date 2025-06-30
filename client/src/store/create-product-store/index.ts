@@ -1,11 +1,11 @@
 import { create } from "zustand";
-import type { DiscountType, ProductImage, ProductOption, ProductSpecification, ProductType } from "@/types";
+import type { DiscountType, ProductImage, ProductOptionType, ProductSpecification, ProductType } from "@/types";
 
 type ProductStore = {
 	product: ProductType;
 	setProduct: (data: Partial<ProductType>) => void;
 	addImage: (img: ProductImage) => void;
-	addOption: (option: ProductOption) => void;
+	addOption: (option: ProductOptionType) => void;
 	addSpecification: (spec: ProductSpecification) => void;
 	addDiscount: (discount: DiscountType) => void;
 	reset: () => void;

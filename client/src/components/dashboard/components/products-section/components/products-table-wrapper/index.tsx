@@ -1,14 +1,21 @@
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Plus, Search } from "lucide-react";
-import { lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TableSkeleton } from "../../../skeleton-effects";
-
-const LazyProductsTable = lazy(() => import("../products-table/"));
+import ProductsTable from "../products-table";
+import { useState } from "react";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export function ProductsTableWrapper() {
-	const navigate = useNavigate();
+	const navigate = useNavigate({ from: "/dashboard/products" });
+	const { q: searchQuery = "" } = useSearch({ from: "/(dashboard)/_dashboardLayout/dashboard/products/" });
+
+	const [inputValue, setInputValue] = useState(searchQuery);
+
+	const handleSearch = useDebounce((value: string) => {
+		navigate({ search: { q: value || "" } });
+	}, 400);
+
 	return (
 		<div className="w-full mt-10">
 			<div className="p-6 w-full mx-auto mt-5 rounded-2xl bg-white min-h-[300px]">
@@ -18,6 +25,12 @@ export function ProductsTableWrapper() {
 						icon={<Search size={17} color="#71717B" />}
 						input={{ className: "rounded-[10px]" }}
 						iconDirection="right"
+						value={inputValue}
+						onChange={(e) => {
+							const val = e.target.value;
+							setInputValue(val);
+							handleSearch(val);
+						}}
 					/>
 					<Button
 						onClick={() => navigate({ to: "/dashboard/products/new" })}
@@ -27,9 +40,7 @@ export function ProductsTableWrapper() {
 						<span>Add Product</span>
 					</Button>
 				</div>
-				<Suspense fallback={<TableSkeleton className="h-[400px]" />}>
-					<LazyProductsTable />
-				</Suspense>
+				<ProductsTable search={searchQuery} />
 			</div>
 		</div>
 	);

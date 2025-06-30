@@ -3,7 +3,7 @@ import { ProductReview } from "./review";
 
 export function Reviews() {
 	return (
-		<section className="min-w-[456px] max-w-[68%]">
+		<section className="md:min-w-[456px] md:max-w-[68%] w-full ">
 			{/* <NoReviews /> */}
 
 			<ProductReview />

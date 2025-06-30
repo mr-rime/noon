@@ -2,17 +2,19 @@ import { useQuery } from "@apollo/client";
 import { Product } from "@/components/prodcut";
 import { Carousel } from "@/components/ui/carousel";
 import { ProductsListSkeleton } from "@/components/ui/products-list-skeleton";
-import { GET_PRODUCTS } from "@/graphql/product";
 import type { ProductType } from "@/types";
+import { GET_HOME } from "@/graphql/home";
 
 export default function RecommendedProducts() {
 	const { data, loading } = useQuery<{
-		getProducts: {
+		getHome: {
 			success: boolean;
 			message: string;
-			products: ProductType[];
+			home: {
+				recommendedForYou: ProductType[];
+			};
 		};
-	}>(GET_PRODUCTS, { variables: { limit: 10, offset: 0 } });
+	}>(GET_HOME, { variables: { limit: 10, offset: 0, search: "" } });
 
 	return (
 		<div className="bg-white w-full flex items-center p-4 min-h-[200px]">
@@ -24,7 +26,7 @@ export default function RecommendedProducts() {
 						className="w-full"
 						controlClassName="flex items-center justify-center bg-white cursor-pointer w-[30px] h-[30px] shadow-[0_0_3px_-1px_rgba(0,0,0,.5)] border border-[#ccc]  "
 					>
-						{data?.getProducts.products?.map((product) => (
+						{data?.getHome.home?.recommendedForYou.map((product) => (
 							<Product key={product.id} {...product} />
 						))}
 					</Carousel>

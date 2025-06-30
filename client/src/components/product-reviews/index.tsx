@@ -24,7 +24,9 @@ export function ProductReviews() {
 					<span>Based on 22 ratings</span>
 				</div>
 			</div>
-			<Reviews />
+			<div className="block md:hidden">
+				<Reviews />
+			</div>
 			<section className="items-start hidden md:flex">
 				<OverallRating />
 				<Separator className="bg-[#f3f4f8] min-h-[330px] h-auto w-[1px] rounded-full mx-10" />
