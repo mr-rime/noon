@@ -320,8 +320,8 @@ export function ImageSlider({
 		<div className="w-full h-full group touch-none">
 			<div
 				className={cn(
-					"relative select-none overflow-hidden rounded-[12px]",
-					isMobile ? "w-full h-fit" : `overflow-hidden w-full h-[${height}px]`,
+					"relative select-none ",
+					isMobile ? "w-full h-fit rounded-[12px]" : `overflow-hidden w-full h-[${height}px]`,
 				)}
 				onMouseEnter={() => (isDragging.current = false)}
 				onMouseLeave={handleMouseLeave}
@@ -400,9 +400,9 @@ export function ImageSlider({
 										height: "fit-content",
 										...(isMobile &&
 											!showProductControls && {
-												scale: isCenter ? "1 .9" : "",
-												transition: "scale .1s ease",
-											}),
+											scale: isCenter ? "1 .9" : "",
+											transition: "scale .1s ease",
+										}),
 									}}
 								>
 									<div
@@ -417,8 +417,8 @@ export function ImageSlider({
 											src={
 												showProductControls
 													? ((i === 0
-															? images[displayImages.length - 1]
-															: images[(i - 1) % displayImages.length]) ?? product_icons.noonIcon)
+														? images[displayImages.length - 1]
+														: images[(i - 1) % displayImages.length]) ?? product_icons.noonIcon)
 													: src
 											}
 											style={{
