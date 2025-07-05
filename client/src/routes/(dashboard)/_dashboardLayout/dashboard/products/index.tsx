@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ProductsSection } from "../../../../../components/dashboard/components/products-section";
 
 type ProductsSearch = {
-	q: string;
+	q?: string;
 };
 
 export const Route = createFileRoute("/(dashboard)/_dashboardLayout/dashboard/products/")({
