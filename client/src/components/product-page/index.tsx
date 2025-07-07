@@ -57,7 +57,7 @@ export function ProductPage() {
 					className="flex flex-col items-start justify-center w-full lg:w-[calc(500/1200*100%)]"
 					aria-labelledby="product-info-section"
 				>
-					<ProductPageTitle className="hidden md:block" title={data?.getProduct.product.name as string} />
+					<ProductPageTitle className="hidden md:block" title={data?.getProduct.product?.name as string} />
 					<div className="hidden md:block">
 						<ProductPageRates />
 					</div>
