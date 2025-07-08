@@ -30,7 +30,7 @@ export function ProductPage() {
 	}>(GET_PRODUCT, { variables: { id: productId } });
 
 	return (
-		<main aria-label="Product Page" className="bg-white overflow-x-hidden mb-32">
+	<main aria-label="Product Page" className="bg-white overflow-x-hidden mb-32 !scroll-smooth">
 			<section
 				aria-labelledby="product-main-section"
 				className="site-container relative w-full flex flex-col lg:flex-row items-start justify-start pt-10 space-y-10 lg:space-y-0 lg:space-x-10 px-5 "

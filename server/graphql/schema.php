@@ -62,7 +62,7 @@ $QueryType = new ObjectType([
             'args' => [
                 'id' => Type::nonNull(Type::id())
             ],
-            'resolve' => requireAuth(fn($root, $args, $context) => getProductById($context['db'], $args['id']))
+            'resolve' => fn($root, $args, $context) => getProductById($context['db'], $args['id'])
         ],
 
         'getDiscount' => [
