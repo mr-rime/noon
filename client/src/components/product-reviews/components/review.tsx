@@ -7,13 +7,13 @@ const CONTENT = `I recently purchased the iPhone 16 Pro Max, and I couldn't be m
 				amazing discounted price, which made the deal even sweeter. The delivery was super fast, and everything arrived in
 				perfect condition, right on time. The product itself is original and feels premium as expected from Apple, with
 				all the latest features and a stunning display. Overall, I'm really satisfied with my purchase—great value for
-				money, excellent service, and a top-quality device. Highly recommend!`
+				money, excellent service, and a top-quality device. Highly recommend!`;
 
 export function ProductReview() {
 	const [helpful, setHelpful] = useState(false);
 	const [showMore, setShowMore] = useState(false);
 
-	const shortedContent = showMore ? CONTENT.slice(0) : CONTENT.slice(0, 250)
+	const shortedContent = showMore ? CONTENT.slice(0) : CONTENT.slice(0, 250);
 
 	return (
 		<div className="border-b border-[#f3f4f8] py-[24px] break-words">
@@ -47,14 +47,22 @@ export function ProductReview() {
 				Fantastic Deal on iPhone 16 Pro Max: Fast Delivery, Great Price, and Top-Notch Quality!
 			</div>
 			<div className="flex items-end pr-[45px]">
-				<div className={cn("w-full text-[16px] break-words leading-[1.5em]  mt-1 relative",)}>
+				<div className={cn("w-full text-[16px] break-words leading-[1.5em]  mt-1 relative")}>
 					{shortedContent}
-					{
-						!showMore ? <span style={{ background: "linear-gradient(to left, rgb(255, 255, 255), rgba(255, 255, 255, 0) 100%)" }} className="absolute ml-[-54px] text-right w-[100px]">
-							<button onClick={() => setShowMore(true)} className="text-[#3866df] font-bold text-[16px]">...More</button>
-						</span> :
-							<button onClick={() => setShowMore(false)} className="text-[#3866df] font-bold text-[16px] ml-2">Less</button>
-					}
+					{showMore ? (
+						<button onClick={() => setShowMore(false)} className="text-[#3866df] font-bold text-[16px] ml-2">
+							Less
+						</button>
+					) : (
+						<span
+							style={{ background: "linear-gradient(to left, rgb(255, 255, 255), rgba(255, 255, 255, 0) 100%)" }}
+							className="absolute ml-[-54px] text-right w-[100px]"
+						>
+							<button onClick={() => setShowMore(true)} className="text-[#3866df] font-bold text-[16px]">
+								...More
+							</button>
+						</span>
+					)}
 				</div>
 			</div>
 
