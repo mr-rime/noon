@@ -7,3 +7,7 @@ session_set_cookie_params([
     'httponly' => true,
     'samesite' => 'Strict'
 ]);
+
+if (!isset($_SESSION['guest_cart'])) {
+    $_SESSION['guest_cart'] = []; // array of ['product_id' => quantity]
+}

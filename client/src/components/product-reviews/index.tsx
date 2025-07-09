@@ -1,4 +1,3 @@
-import { Star } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { OverallRating } from "./components/overall-rating";
 import { Reviews } from "./components/reviews";
