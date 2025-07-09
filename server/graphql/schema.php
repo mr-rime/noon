@@ -14,6 +14,7 @@ require_once __DIR__ . '/types/OrderTypes.php';
 require_once __DIR__ . '/types/UploadTypes.php';
 require_once __DIR__ . '/types/DiscountTypes.php';
 require_once __DIR__ . '/types/HomeTypes.php';
+require_once __DIR__ . '/types/CartTypes.php';
 require_once __DIR__ . '/resolvers/UserResolver.php';
 require_once __DIR__ . '/resolvers/PartnerResolver.php';
 require_once __DIR__ . '/resolvers/AuthResolver.php';
@@ -22,6 +23,7 @@ require_once __DIR__ . '/resolvers/OrderResolver.php';
 require_once __DIR__ . '/resolvers/UploadResolver.php';
 require_once __DIR__ . '/resolvers/DiscountResolver.php';
 require_once __DIR__ . '/resolvers/HomeResolver.php';
+require_once __DIR__ . '/resolvers/CartResolver.php';
 
 $QueryType = new ObjectType([
     'name' => 'query',
@@ -81,7 +83,13 @@ $QueryType = new ObjectType([
             ],
             'resolve' => fn($root, $args, $context) => getHome($context['db'], $args)
         ]
-    ]
+    ],
+
+    'getCart' => [
+        'type' => $CartResponseType,
+        'resolve' => fn($root, $args, $context) => getCart($context['db'], $args, $context)
+    ],
+
 ]);
 
 
@@ -195,8 +203,22 @@ $MutationType = new ObjectType([
             ],
             'resolve' => requireAuth(fn($root, $args, $context) => updateProduct($context["db"], $args))
         ],
-
-    ]
+    ],
+    'addToCart' => [
+        'type' => $CartResponseType,
+        'args' => [
+            'product_id' => Type::nonNull(Type::string()),
+            'quantity' => Type::nonNull(Type::int())
+        ],
+        'resolve' => fn($root, $args, $context) => addToCart($context['db'], $args)
+    ],
+    'removeFromCart' => [
+        'type' => $CartResponseType,
+        'args' => [
+            'product_id' => Type::nonNull(Type::string())
+        ],
+        'resolve' => fn($root, $args, $context) => removeFromCart($context['db'], $args, $context)
+    ],
 ]);
 
 return new Schema([
