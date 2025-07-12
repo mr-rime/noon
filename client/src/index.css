@@ -53,9 +53,9 @@
     * {
         -webkit-user-drag: none;
     }
-    html {
+    /* html {
         scroll-behavior: smooth;
-    }
+    } */
 
     body {
         color: #404553;
