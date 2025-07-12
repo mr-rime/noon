@@ -95,24 +95,36 @@ class Cart
 
     public function addItem(?int $userId, string $productId, int $quantity): ?array
     {
-        if ($quantity <= 0)
+        error_log("addItem called with userId=$userId, productId=$productId, quantity=$quantity");
+
+        if ($quantity <= 0) {
+            error_log("Invalid quantity: $quantity");
             return null;
+        }
 
         $product = $this->productModel->findById($productId);
-        if (!$product || $product['stock'] < $quantity)
+        if (!$product) {
+            error_log("Product not found: $productId");
             return null;
+        }
+
+        if ($product['stock'] < $quantity) {
+            error_log("Not enough stock for $productId: Requested $quantity, Available " . $product['stock']);
+            return null;
+        }
 
         if ($this->isGuest($userId)) {
             $_SESSION['guest_cart'][$productId] = ($_SESSION['guest_cart'][$productId] ?? 0) + $quantity;
+            error_log("Guest cart updated: " . print_r($_SESSION['guest_cart'], true));
             return $this->getCartItemsFromSession();
         }
 
         $cartId = $this->getOrCreateCart($userId);
+        error_log("Cart ID: $cartId");
 
         $price = $product['final_price'] ?? $product['price'];
         $currency = $product['currency'];
 
-        // Check if item exists
         $check = $this->db->prepare("SELECT id, quantity FROM cart_items WHERE cart_id = ? AND product_id = ?");
         $check->bind_param("ss", $cartId, $productId);
         $check->execute();
@@ -122,15 +134,19 @@ class Cart
             $newQuantity = $row['quantity'] + $quantity;
             $update = $this->db->prepare("UPDATE cart_items SET quantity = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
             $update->bind_param("is", $newQuantity, $row['id']);
-            $update->execute();
+            if (!$update->execute()) {
+                error_log("Failed to update cart item: " . $update->error);
+            }
         } else {
             $id = generateHash();
             $insert = $this->db->prepare("
-                INSERT INTO cart_items (id, cart_id, product_id, quantity, price, currency)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ");
+            INSERT INTO cart_items (id, cart_id, product_id, quantity, price, currency)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
             $insert->bind_param("sssids", $id, $cartId, $productId, $quantity, $price, $currency);
-            $insert->execute();
+            if (!$insert->execute()) {
+                error_log("Failed to insert cart item: " . $insert->error);
+            }
         }
 
         return $this->getCartItemsFromDatabase($userId);

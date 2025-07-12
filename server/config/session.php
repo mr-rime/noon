@@ -8,6 +8,10 @@ session_set_cookie_params([
     'samesite' => 'Strict'
 ]);
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 if (!isset($_SESSION['guest_cart'])) {
-    $_SESSION['guest_cart'] = []; // array of ['product_id' => quantity]
+    $_SESSION['guest_cart'] = []; // [product_id => quantity]
 }

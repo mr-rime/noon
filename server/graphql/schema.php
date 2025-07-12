@@ -82,13 +82,15 @@ $QueryType = new ObjectType([
                 'search' => Type::string()
             ],
             'resolve' => fn($root, $args, $context) => getHome($context['db'], $args)
-        ]
+        ],
+        'getCartItems' => [
+            'type' => $CartResponseType,
+            'args' => [],
+            'resolve' => fn($root, $args, $context) => getCart($context['db'])
+        ],
     ],
 
-    'getCart' => [
-        'type' => $CartResponseType,
-        'resolve' => fn($root, $args, $context) => getCart($context['db'], $args, $context)
-    ],
+
 
 ]);
 
@@ -203,22 +205,24 @@ $MutationType = new ObjectType([
             ],
             'resolve' => requireAuth(fn($root, $args, $context) => updateProduct($context["db"], $args))
         ],
-    ],
-    'addToCart' => [
-        'type' => $CartResponseType,
-        'args' => [
-            'product_id' => Type::nonNull(Type::string()),
-            'quantity' => Type::nonNull(Type::int())
+        'addToCart' => [
+            'type' => $CartResponseType,
+            'args' => [
+                'product_id' => Type::nonNull(Type::string()),
+                'quantity' => Type::nonNull(Type::int())
+            ],
+            'resolve' => fn($root, $args, $context) => addToCart($context['db'], $args)
         ],
-        'resolve' => fn($root, $args, $context) => addToCart($context['db'], $args)
-    ],
-    'removeFromCart' => [
-        'type' => $CartResponseType,
-        'args' => [
-            'product_id' => Type::nonNull(Type::string())
+
+        'removeFromCart' => [
+            'type' => $CartResponseType,
+            'args' => [
+                'product_id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => fn($root, $args, $context) => removeFromCart($context['db'], $args, $context)
         ],
-        'resolve' => fn($root, $args, $context) => removeFromCart($context['db'], $args, $context)
     ],
+
 ]);
 
 return new Schema([

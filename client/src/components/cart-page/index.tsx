@@ -1,4 +1,4 @@
-import { CartOrders } from "./components/cart-orders";
+import { CartItems } from "./components/cart-items";
 import { OrderSummary } from "./components/order-summary";
 
 export function CartPage() {
@@ -15,7 +15,7 @@ export function CartPage() {
             </section>
              */}
 			<section className="flex items-start w-full space-x-7">
-				<CartOrders />
+				<CartItems />
 				<OrderSummary />
 			</section>
 		</main>

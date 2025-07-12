@@ -1,6 +1,8 @@
 <?php
 
-function getCart(mysqli $db, array $args, array $context): array
+require_once __DIR__ . "/../../models/Cart.php";
+
+function getCart(mysqli $db): array
 {
     try {
         $cart = new Cart($db);

@@ -1,7 +1,7 @@
 import { Heart, Trash2, Truck } from "lucide-react";
 import { Select } from "../../ui/select";
 
-export function CartOrder() {
+export function CartItem() {
 	const options = [
 		{ value: "1", label: "1" },
 		{ value: "2", label: "2" },

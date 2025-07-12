@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { Product } from "@/components/prodcut";
+import { Product } from "@/components/product";
 import { Carousel } from "@/components/ui/carousel";
 import { ProductsListSkeleton } from "@/components/ui/products-list-skeleton";
 import type { ProductType } from "@/types";

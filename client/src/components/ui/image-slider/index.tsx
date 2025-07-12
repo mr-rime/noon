@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { product_icons } from "@/components/prodcut/constants/icons";
+import { product_icons } from "@/components/product/constants/icons";
 import { cn } from "@/utils/cn";
 
 type DotsThemeType = "theme1" | "theme2" | "theme3";
