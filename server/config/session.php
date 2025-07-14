@@ -7,3 +7,11 @@ session_set_cookie_params([
     'httponly' => true,
     'samesite' => 'Strict'
 ]);
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_SESSION['guest_cart'])) {
+    $_SESSION['guest_cart'] = []; // [product_id => quantity]
+}

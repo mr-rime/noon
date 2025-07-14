@@ -1,4 +1,3 @@
-import { Star } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { OverallRating } from "./components/overall-rating";
 import { Reviews } from "./components/reviews";
@@ -9,7 +8,7 @@ export function ProductReviews() {
 			<div className="text-[24px] font-bold">Product Ratings & Reviews</div>
 			<Separator className="my-5" />
 
-			<div>
+			{/* <div>
 				<div className="text-[32px] font-bold">
 					<span>4.2</span>
 				</div>
@@ -23,7 +22,7 @@ export function ProductReviews() {
 				<div className="text-[#7e859b]">
 					<span>Based on 22 ratings</span>
 				</div>
-			</div>
+			</div> */}
 			<div className="block md:hidden">
 				<Reviews />
 			</div>

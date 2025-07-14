@@ -12,10 +12,16 @@ require_once __DIR__ . '/../utils/generateHash.php';
 class Product
 {
     private mysqli $db;
+    private Discount $discountModel;
+    private ProductOption $optionModel;
+    private ProductSpecification $specModel;
 
     public function __construct(mysqli $db)
     {
         $this->db = $db;
+        $this->discountModel = new Discount($db);
+        $this->optionModel = new ProductOption($db);
+        $this->specModel = new ProductSpecification($db);
     }
 
     private function calculateFinalPrice(float $price, ?array $discount): float
@@ -39,8 +45,6 @@ class Product
         if (!$discount)
             return null;
 
-
-
         if ($discount['type'] === 'percentage') {
             return $discount['value'];
         }
@@ -54,8 +58,7 @@ class Product
 
     private function attachDiscountData(array &$product, float $price): void
     {
-        $discountModel = new Discount($this->db);
-        $discount = $discountModel->findByProductId($product['id']);
+        $discount = $this->discountModel->findByProductId($product['id']);
 
         $now = new DateTime();
         if ($discount) {
@@ -65,15 +68,13 @@ class Product
             $isActive = (!$startsAt || $now >= $startsAt) &&
                 (!$endsAt || $now <= $endsAt);
 
-            if (!$isActive) {
+            if (!$isActive)
                 $discount = null;
-            }
         }
 
         $finalPrice = $this->calculateFinalPrice($price, $discount);
         $percentage = $this->getDiscountPercentage($price, $discount);
 
-        error_log("discont here " . json_encode($discount));
         $product['discount'] = $discount;
         $product['final_price'] = $finalPrice;
         $product['discount_percentage'] = $percentage;
@@ -81,72 +82,66 @@ class Product
 
     public function findAll(int $limit = 10, int $offset = 0, string $search = ''): array
     {
-        $baseQuery = "SELECT id FROM products";
         $params = [];
         $types = '';
+        $where = '';
+        $order = 'ORDER BY id';
 
-        // Add search condition if provided
         if (!empty(trim($search))) {
-            $baseQuery .= "
-            WHERE name LIKE CONCAT('%', ?, '%') 
-               OR product_overview LIKE CONCAT('%', ?, '%')
-            ORDER BY
-                CASE
-                    WHEN name = ? THEN 1
-                    WHEN name LIKE CONCAT(?, '%') THEN 2
-                    WHEN name LIKE CONCAT('%', ?, '%') THEN 3
-                    WHEN product_overview LIKE CONCAT('%', ?, '%') THEN 4
-                    ELSE 5
-                END,
-                id
-            LIMIT ? OFFSET ?
-        ";
-            $params = [$search, $search, $search, $search, $search, $search, $limit, $offset];
-            $types = 'ssssssii';
-        } else {
-            $baseQuery .= " ORDER BY id LIMIT ? OFFSET ?";
-            $params = [$limit, $offset];
-            $types = 'ii';
+            $where = "
+                WHERE name LIKE CONCAT('%', ?, '%') 
+                   OR product_overview LIKE CONCAT('%', ?, '%')";
+            $order = "
+                ORDER BY
+                    CASE
+                        WHEN name = ? THEN 1
+                        WHEN name LIKE CONCAT(?, '%') THEN 2
+                        WHEN name LIKE CONCAT('%', ?, '%') THEN 3
+                        WHEN product_overview LIKE CONCAT('%', ?, '%') THEN 4
+                        ELSE 5
+                    END, id";
+            $params = [$search, $search, $search, $search, $search, $search];
+            $types = 'ssssss';
         }
 
-        // Get product IDs
-        $stmt = $this->db->prepare($baseQuery);
-        if (!empty($types)) {
-            $stmt->bind_param($types, ...$params);
-        }
+        $query = "
+            SELECT id FROM products
+            $where
+            $order
+            LIMIT ? OFFSET ?";
+        $params[] = $limit;
+        $params[] = $offset;
+        $types .= 'ii';
+
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param($types, ...$params);
         $stmt->execute();
         $idResult = $stmt->get_result();
 
-        $productIds = [];
-        while ($row = $idResult->fetch_assoc()) {
-            $productIds[] = $row['id'];
-        }
-
-        if (empty($productIds)) {
+        $productIds = array_column($idResult->fetch_all(MYSQLI_ASSOC), 'id');
+        if (empty($productIds))
             return [];
-        }
 
-        // Fetch complete product data with images
+        // Fetch all product data with JOIN
         $placeholders = implode(',', array_fill(0, count($productIds), '?'));
         $query = "
-        SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary
-        FROM products p
-        LEFT JOIN product_images pi ON p.id = pi.product_id
-        WHERE p.id IN ($placeholders)
-        ORDER BY p.id
-    ";
+            SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary
+            FROM products p
+            LEFT JOIN product_images pi ON p.id = pi.product_id
+            WHERE p.id IN ($placeholders)
+            ORDER BY p.id";
 
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param(str_repeat('i', count($productIds)), ...$productIds);
+        $stmt->bind_param(str_repeat('s', count($productIds)), ...$productIds);
         $stmt->execute();
         $result = $stmt->get_result();
 
         $products = [];
         while ($row = $result->fetch_assoc()) {
-            $productId = $row['id'];
-            if (!isset($products[$productId])) {
-                $products[$productId] = [
-                    'id' => $row['id'],
+            $pid = $row['id'];
+            if (!isset($products[$pid])) {
+                $products[$pid] = [
+                    'id' => $pid,
                     'name' => $row['name'],
                     'price' => $row['price'],
                     'currency' => $row['currency'],
@@ -159,8 +154,8 @@ class Product
                 ];
             }
 
-            if ($row['image_id'] !== null) {
-                $products[$productId]['images'][] = [
+            if ($row['image_id']) {
+                $products[$pid]['images'][] = [
                     'id' => $row['image_id'],
                     'image_url' => $row['image_url'],
                     'is_primary' => (bool) $row['is_primary'],
@@ -168,13 +163,9 @@ class Product
             }
         }
 
-        // Attach additional data
-        $optionModel = new ProductOption($this->db);
-        $specModel = new ProductSpecification($this->db);
-
         foreach ($products as $productId => &$product) {
-            $product['productOptions'] = $optionModel->findByProductId($productId);
-            $product['productSpecifications'] = $specModel->findByProductId($productId);
+            $product['productOptions'] = $this->optionModel->findByProductId($productId);
+            $product['productSpecifications'] = $this->specModel->findByProductId($productId);
             $this->attachDiscountData($product, $product['price']);
         }
 
@@ -187,8 +178,7 @@ class Product
             SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary
             FROM products p
             LEFT JOIN product_images pi ON p.id = pi.product_id
-            WHERE p.id = ?
-        ";
+            WHERE p.id = ?";
 
         $stmt = $this->db->prepare($query);
         $stmt->bind_param('s', $id);
@@ -197,7 +187,7 @@ class Product
 
         $product = null;
         while ($row = $result->fetch_assoc()) {
-            if ($product === null) {
+            if (!$product) {
                 $product = [
                     'id' => $row['id'],
                     'user_id' => $row['user_id'],
@@ -214,7 +204,7 @@ class Product
                 ];
             }
 
-            if ($row['image_id'] !== null) {
+            if ($row['image_id']) {
                 $product['images'][] = [
                     'id' => $row['image_id'],
                     'image_url' => $row['image_url'],
@@ -226,10 +216,8 @@ class Product
         if (!$product)
             return null;
 
-        $optionModel = new ProductOption($this->db);
-        $specModel = new ProductSpecification($this->db);
-        $product['productOptions'] = $optionModel->findByProductId($id);
-        $product['productSpecifications'] = $specModel->findByProductId($id);
+        $product['productOptions'] = $this->optionModel->findByProductId($id);
+        $product['productSpecifications'] = $this->specModel->findByProductId($id);
         $this->attachDiscountData($product, $product['price']);
 
         return $product;

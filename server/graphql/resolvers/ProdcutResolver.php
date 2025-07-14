@@ -3,26 +3,26 @@
 require_once __DIR__ . '/../../models/Product.php';
 
 
-function getAllProducts(mysqli $db, array $data): array
-{
-    try {
-        $model = new Product($db);
-        $products = $model->findAll($data['limit'], $data['offset'], $data['search']);
+    function getAllProducts(mysqli $db, array $data): array
+    {
+        try {
+            $model = new Product($db);
+            $products = $model->findAll($data['limit'], $data['offset'], $data['search']);
 
 
-        return [
-            'success' => true,
-            'message' => 'Products retrieved.',
-            'products' => $products
-        ];
-    } catch (Exception $e) {
-        return [
-            'success' => false,
-            'message' => 'Error: ' . $e->getMessage(),
-            'products' => []
-        ];
+            return [
+                'success' => true,
+                'message' => 'Products retrieved.',
+                'products' => $products
+            ];
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+                'products' => []
+            ];
+        }
     }
-}
 
 function getProductById(mysqli $db, string $id): array
 {

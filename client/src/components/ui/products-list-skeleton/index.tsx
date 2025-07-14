@@ -1,4 +1,4 @@
-import { ProductSkeleton } from "@/components/prodcut/components/product-skeleton";
+import { ProductSkeleton } from "@/components/product/components/product-skeleton";
 
 export function ProductsListSkeleton() {
 	return (

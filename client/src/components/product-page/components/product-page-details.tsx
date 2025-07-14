@@ -1,10 +1,15 @@
-import { Link } from "@tanstack/react-router";
-import { ChevronRight, Star } from "lucide-react";
+import { Link, useParams } from "@tanstack/react-router";
+import { ChevronRight, LoaderCircle, Star } from "lucide-react";
 import { Separator } from "../../ui/separator";
 import { product_page_icon } from "../constants/icons";
 import { Button } from "@/components/ui/button";
+import { useMutation } from "@apollo/client";
+import { ADD_CART_ITEM } from "@/graphql/cart";
 
 export function ProductPageDetails({ theme = "desktop" }: { theme?: "mobile" | "desktop" }) {
+	const { productId } = useParams({ from: "/(main)/_homeLayout/$title/$productId/" });
+	const [addCartItem, { loading }] = useMutation(ADD_CART_ITEM);
+
 	return theme === "desktop" ? (
 		<div className="w-full max-w-[312px] border border-[#eceef4] rounded-[8px]">
 			<div className="flex flex-col items-start justify-start space-x-4 py-3 px-4">
@@ -63,8 +68,13 @@ export function ProductPageDetails({ theme = "desktop" }: { theme?: "mobile" | "
 			<Separator className="my-5" />
 
 			<div className="py-3 px-4">
-				<Button className="bg-[#2B4CD7] hover:bg-[#6079E1] transition-colors text-white w-full h-[48px] rounded-[14px] cursor-pointer uppercase font-bold text-[14px]">
-					Add to cart
+				<Button
+					onClick={() => {
+						addCartItem({ variables: { product_id: productId, quantity: 1 } });
+					}}
+					className="bg-[#2B4CD7] hover:bg-[#6079E1] transition-colors flex items-center justify-center text-white w-full h-[48px] rounded-[14px] cursor-pointer uppercase font-bold text-[14px]"
+				>
+					{loading ? <LoaderCircle size={20} color="white" /> : "Add to cart"}
 				</Button>
 			</div>
 		</div>
