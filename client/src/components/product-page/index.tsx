@@ -78,11 +78,11 @@ export function ProductPage() {
 
 				<div className="flex flex-col  md:hidden items-start justify-center w-full">
 					<div className="w-full">
-						<ProductPageDetails theme="mobile" />
+						<ProductPageDetails product={data?.getProduct.product as ProductType} theme="mobile" />
 					</div>
 				</div>
 				<div className="max-md:hidden">
-					<ProductPageDetails />
+					<ProductPageDetails product={data?.getProduct.product as ProductType} />
 				</div>
 			</section>
 			<section id="porduct_overview">
