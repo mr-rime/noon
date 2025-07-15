@@ -3,13 +3,15 @@ import { ChevronRight, LoaderCircle, Star } from "lucide-react";
 import { Separator } from "../../ui/separator";
 import { product_page_icon } from "../constants/icons";
 import { Button } from "@/components/ui/button";
-import { useMutation } from "@apollo/client";
-import { ADD_CART_ITEM } from "@/graphql/cart";
+import { useMutation, useQuery } from "@apollo/client";
+import { ADD_CART_ITEM, GET_CART_ITEMS } from "@/graphql/cart";
 import type { ProductType } from "@/types";
+import type { CartResponseType } from "@/components/cart-page/types";
 
 export function ProductPageDetails({ theme = "desktop", product }: { theme?: "mobile" | "desktop"; product?: ProductType }) {
 	const { productId } = useParams({ from: "/(main)/_homeLayout/$title/$productId/" });
 	const [addCartItem, { loading }] = useMutation(ADD_CART_ITEM);
+	const { refetch } = useQuery<CartResponseType>(GET_CART_ITEMS);
 
 	return theme === "desktop" ? (
 		<div className="w-full max-w-[312px] border border-[#eceef4] rounded-[8px]">
@@ -81,12 +83,13 @@ export function ProductPageDetails({ theme = "desktop", product }: { theme?: "mo
 					</Button>
 				) : (
 					<Button
-						onClick={() => {
-							addCartItem({ variables: { product_id: productId, quantity: 1 } });
+						onClick={async () => {
+							await addCartItem({ variables: { product_id: productId, quantity: 1 } });
+							await refetch();
 						}}
 						className="bg-[#2B4CD7] hover:bg-[#6079E1] transition-colors flex items-center justify-center text-white w-full h-[48px] rounded-[14px] cursor-pointer uppercase font-bold text-[14px]"
 					>
-						{loading ? <LoaderCircle size={20} color="white" /> : "Add to cart"}
+						{loading ? <LoaderCircle size={20} color="white" className="animate-spin" /> : "Add to cart"}
 					</Button>
 				)}
 			</div>

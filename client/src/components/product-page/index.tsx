@@ -16,18 +16,21 @@ import { ProductPageTitle } from "./components/product-page-title";
 import { getMergedOptions } from "./utils/get-merged-options";
 import { Button } from "../ui/button";
 import { AddToWishlistButton } from "./components/add-to-wishlist-button";
+import { ProductPageLoadingSkeleton } from "./components/product-page-loading-skeleton";
 
 export function ProductPage() {
 	const { productId } = useParams({
 		from: "/(main)/_homeLayout/$title/$productId/",
 	});
-	const { data } = useQuery<{
+	const { data, loading } = useQuery<{
 		getProduct: {
 			success: boolean;
 			message: string;
 			product: ProductType;
 		};
 	}>(GET_PRODUCT, { variables: { id: productId } });
+
+	if (loading) return <ProductPageLoadingSkeleton />;
 
 	return (
 		<main aria-label="Product Page" className="bg-white overflow-x-hidden mb-32 !scroll-smooth">

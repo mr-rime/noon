@@ -51,5 +51,4 @@
 		"vite": "npm:rolldown-vite@latest",
 		"vite-tsconfig-paths": "^5.1.4"
 	}
-	
 }

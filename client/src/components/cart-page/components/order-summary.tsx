@@ -3,7 +3,7 @@ import { Separator } from "../../ui/separator";
 
 export function OrderSummary() {
 	return (
-		<div className="border border-[rgba(198,204,221,.5)] rounded-[6px] rounded-t-none p-[10px_20px] sticky w-full max-w-[35%]">
+		<section className="border border-[rgba(198,204,221,.5)] rounded-[6px] rounded-t-none p-[10px_20px] sticky w-full max-w-[35%]">
 			<h2 className="text-[19px] font-bold">Order Summary</h2>
 			<Input placeholder="Coupon Code" className="mt-2" input={{ className: "bg-white" }} />
 			<div className="w-full mt-5 space-y-3">
@@ -40,6 +40,6 @@ export function OrderSummary() {
 					</button>
 				</div>
 			</div>
-		</div>
+		</section>
 	);
 }

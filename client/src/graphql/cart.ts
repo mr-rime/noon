@@ -20,15 +20,28 @@ export const GET_CART_ITEMS = gql`
         success
         message
         cartItems {
+            product_id
             name
             quantity
             images {
                 id
+                image_url
             }
+            currency
+            stock
             price
             discount_percentage
             final_price
         }
     }
+    }
+`;
+
+export const REMOVE_CART_ITEM = gql`
+    mutation ($product_id: String!) {
+        removeFromCart(product_id: $product_id) {
+            success
+            message
+        }
     }
 `;
