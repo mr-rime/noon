@@ -4,6 +4,7 @@ import { useMutation } from "@apollo/client";
 import { REMOVE_CART_ITEM } from "@/graphql/cart";
 import { cn } from "@/utils/cn";
 import type { CartItem } from "../types";
+import { Link } from "@tanstack/react-router";
 
 export function CartItem({
 	product_id,
@@ -29,9 +30,9 @@ export function CartItem({
 
 	return (
 		<div className={cn("flex items-start w-full h-fit bg-white p-[15px] rounded-[6px]", loading && "opacity-50")}>
-			<div className="w-fit h-[200px] mr-2">
+			<Link to="/$title/$productId" params={{ productId: product_id, title: name }} className="w-fit h-[200px] mr-2">
 				<img src={images?.[0].image_url} alt="product-img" loading="lazy" className="w-fit h-full" />
-			</div>
+			</Link>
 
 			<div className="mr-16 mt-2">
 				<div className="">

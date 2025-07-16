@@ -76,7 +76,7 @@ export function Header() {
 				)}
 				<Link
 					to={"/cart"}
-					preload="intent"
+					preload="render"
 					className="mx-1 text-[#404553] hover:text-[#8C8832] transition-colors relative"
 				>
 					{cart?.getCartItems.cartItems?.length! > 0 && (

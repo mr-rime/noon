@@ -7,6 +7,8 @@ import { useMutation, useQuery } from "@apollo/client";
 import { ADD_CART_ITEM, GET_CART_ITEMS } from "@/graphql/cart";
 import type { ProductType } from "@/types";
 import type { CartResponseType } from "@/components/cart-page/types";
+import { toast } from "sonner";
+import { BouncingLoading } from "@/components/ui/bouncing-loading";
 
 export function ProductPageDetails({ theme = "desktop", product }: { theme?: "mobile" | "desktop"; product?: ProductType }) {
 	const { productId } = useParams({ from: "/(main)/_homeLayout/$title/$productId/" });
@@ -73,9 +75,6 @@ export function ProductPageDetails({ theme = "desktop", product }: { theme?: "mo
 			<div className="py-3 px-4">
 				{Number(product?.stock) === 0 ? (
 					<Button
-						onClick={() => {
-							addCartItem({ variables: { product_id: productId, quantity: 1 } });
-						}}
 						disabled
 						className="bg-[#6079E1] hover:bg-[#6079E1] cursor-default transition-colors flex items-center justify-center text-white w-full h-[48px] rounded-[14px]  uppercase font-bold text-[14px]"
 					>
@@ -84,12 +83,16 @@ export function ProductPageDetails({ theme = "desktop", product }: { theme?: "mo
 				) : (
 					<Button
 						onClick={async () => {
-							await addCartItem({ variables: { product_id: productId, quantity: 1 } });
-							await refetch();
+							const { data } = await addCartItem({ variables: { product_id: productId, quantity: 1 } });
+							if (data.addToCart.success) {
+								await refetch();
+							} else {
+								toast.error("Failed to add product to cart. Please try again.");
+							}
 						}}
 						className="bg-[#2B4CD7] hover:bg-[#6079E1] transition-colors flex items-center justify-center text-white w-full h-[48px] rounded-[14px] cursor-pointer uppercase font-bold text-[14px]"
 					>
-						{loading ? <LoaderCircle size={20} color="white" className="animate-spin" /> : "Add to cart"}
+						{loading ? <BouncingLoading /> : "Add to cart"}
 					</Button>
 				)}
 			</div>
