@@ -1,10 +1,10 @@
 import { Heart, Trash2, Truck } from "lucide-react";
-import { Select } from "../../ui/select";
 import { useMutation } from "@apollo/client";
 import { REMOVE_CART_ITEM } from "@/graphql/cart";
 import { cn } from "@/utils/cn";
 import type { CartItem } from "../types";
 import { Link } from "@tanstack/react-router";
+import { Select } from "@/components/ui/select";
 
 export function CartItem({
 	product_id,

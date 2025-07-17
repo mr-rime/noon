@@ -20,7 +20,7 @@ if (!rootElement.innerHTML) {
 	root.render(
 		<StrictMode>
 			<ApolloProvider client={client}>
-				<RouterProvider router={router} defaultPendingMinMs={0} defaultPendingMs={0} />
+				<RouterProvider router={router} defaultPendingMinMs={0} defaultPendingMs={0} defaultPreload="intent" defaultSsr />
 			</ApolloProvider>
 		</StrictMode>,
 	);

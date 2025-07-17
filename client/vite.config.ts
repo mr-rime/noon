@@ -2,6 +2,9 @@ import tailwindcss from "@tailwindcss/vite";
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+
+// import { viteStaticCopy } from 'vite-plugin-static-copy'
+
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -11,6 +14,7 @@ export default defineConfig({
 			"@": path.resolve(__dirname, "./src"),
 		},
 	},
+
 	experimental: {
 		enableNativePlugin: true,
 	}

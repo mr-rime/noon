@@ -12,6 +12,7 @@ interface ImageSliderProps {
 	autoPlay?: boolean;
 	autoPlayInterval?: number;
 	showControls?: boolean;
+	lazyImage?: boolean;
 	showDots?: boolean;
 	scaleOnHover?: boolean;
 	showProductControls?: boolean;
@@ -29,6 +30,7 @@ export function ImageSlider({
 	autoPlayInterval = 4000,
 	showControls = true,
 	showDots = true,
+	lazyImage = false,
 	showProductControls = false,
 	scaleOnHover = false,
 	disableDragDesktop = false,
@@ -424,7 +426,7 @@ export function ImageSlider({
 											style={{
 												mixBlendMode: "multiply",
 											}}
-											loading="lazy"
+											loading={lazyImage ? "lazy" : "eager"}
 											draggable={false}
 											className={cn("w-full h-full object-cover pointer-events-none")}
 											alt={`Slide ${i}`}

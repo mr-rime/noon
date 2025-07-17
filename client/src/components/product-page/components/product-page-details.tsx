@@ -1,5 +1,5 @@
 import { Link, useParams } from "@tanstack/react-router";
-import { ChevronRight, LoaderCircle, Star } from "lucide-react";
+import { ChevronRight, Star } from "lucide-react";
 import { Separator } from "../../ui/separator";
 import { product_page_icon } from "../constants/icons";
 import { Button } from "@/components/ui/button";
