@@ -5,6 +5,7 @@ import { Dropzone } from "@/components/ui/dropzone";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UPLOAD_FILE } from "@/graphql/upload-file";
 import { useProductStore } from "@/store/create-product-store";
+import { Image } from "@unpic/react";
 
 type ProductImageFile = {
 	file: File;
@@ -125,7 +126,14 @@ function ProductImageFile({ name, size, imgUrl, loading, onDelete }: ProductImag
 					<Skeleton className="w-[70px] h-[70px] rounded-[10px] flex items-center justify-center" />
 				) : (
 					<div className="w-[70px] h-[70px] p-2 rounded-[10px] overflow-hidden bg-[#F8F8F8]">
-						<img src={imgUrl} alt={imgUrl} className="w-full h-full object-cover" />
+						<Image
+							src={imgUrl}
+							alt={imgUrl}
+							className="w-full h-full object-cover"
+							width={70}
+							height={70}
+							layout="constrained"
+						/>
 					</div>
 				)}
 				<div>

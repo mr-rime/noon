@@ -14,8 +14,10 @@ export default defineConfig({
 			"@": path.resolve(__dirname, "./src"),
 		},
 	},
-
+	ssr: {
+		noExternal: ['@apollo/client'],
+	},
 	experimental: {
-		enableNativePlugin: true,
+		enableNativePlugin: true
 	}
 });

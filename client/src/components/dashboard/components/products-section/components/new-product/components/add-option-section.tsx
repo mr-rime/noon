@@ -5,6 +5,7 @@ import { Dropzone } from "@/components/ui/dropzone";
 import { Input } from "@/components/ui/input";
 import { UPLOAD_FILE } from "@/graphql/upload-file";
 import { useProductStore } from "@/store/create-product-store";
+import { Image } from "@unpic/react";
 
 export function AddOptionSection() {
 	const [uploadImage] = useMutation(UPLOAD_FILE);
@@ -79,7 +80,14 @@ export function AddOptionSection() {
 										fill="#fb2c36"
 									/>
 								</div>
-								<img src={option.image_url} alt="Option preview" className="w-20 object-fill rounded" />
+								<Image
+									src={option.image_url}
+									alt="Option preview"
+									className="w-20 object-fill rounded"
+									width={80}
+									height={80}
+									layout="constrained"
+								/>
 							</div>
 						)}
 					</div>

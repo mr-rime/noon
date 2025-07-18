@@ -1,3 +1,4 @@
+import { Image } from "@unpic/react";
 import { Carousel } from "../../ui/carousel";
 
 type ProductPageGalleryProps = {
@@ -22,7 +23,15 @@ function GalleryItem({ imgUrl }: GalleryItemProps) {
 	return (
 		<>
 			<div className="w-full max-w-[76px] h-fit max-h-[120px] border border-[#ebecf0] rounded-[2px] flex items-center justify-center">
-				<img src={imgUrl} alt={imgUrl} className="select-none" draggable={false} />
+				<Image
+					src={imgUrl}
+					alt={imgUrl}
+					className="select-none"
+					draggable={false}
+					width={76}
+					height={120}
+					layout="constrained"
+				/>
 			</div>
 		</>
 	);
