@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { UPLOAD_FILE } from "@/graphql/upload-file";
 import { useProductStore } from "@/store/create-product-store";
 import type { ProductType } from "@/types";
+import { Image } from "@unpic/react";
 
 type ProductImageFile = {
 	file: File | null;
@@ -143,7 +144,14 @@ function ProductImageFileComponent({ name, size, imgUrl, loading, onDelete }: Pr
 					<Skeleton className="w-[70px] h-[70px] rounded-[10px]" />
 				) : (
 					<div className="w-[70px] h-[70px] p-2 rounded-[10px] overflow-hidden bg-[#F8F8F8]">
-						<img src={imgUrl} alt={name} className="w-full h-full object-cover" />
+						<Image
+							src={imgUrl}
+							alt={name}
+							className="w-full h-full object-cover"
+							width={70}
+							height={70}
+							layout="constrained"
+						/>
 					</div>
 				)}
 				<div>

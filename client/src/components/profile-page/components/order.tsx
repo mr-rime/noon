@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
+import { Image } from "@unpic/react";
 import { ChevronRight } from "lucide-react";
 import { useRef } from "react";
 
@@ -48,7 +49,14 @@ export function Order() {
 					</div>
 				</div>
 				<div className="flex items-center space-x-5">
-					<img src="/media/imgs/product-img1.avif" alt="product-img" className="w-[64px] h-[89px]" />
+					<Image
+						src="/media/imgs/product-img1.avif"
+						alt="product-img"
+						className="w-[64px] h-[89px]"
+						width={64}
+						height={89}
+						layout="constrained"
+					/>
 					<p className="text-[12px] text-left line-clamp-3 max-w-[270px]">
 						COUGAR Roller Skate Shoe Cougar Model 509 For Adult Adjustable Roller Skates with 4 Illuminating Pu
 						Wheels, Outdoors and Indoors Roller Blades for Boys Girls Beginners Color : Black Size : 42

@@ -1,3 +1,4 @@
+import { Image as UnpicImage } from "@unpic/react";
 import type React from "react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 
@@ -72,20 +73,24 @@ export const InfiniteScrollingImage: React.FC<InfiniteScrollingImageProps> = mem
 
 		return (
 			<div ref={containerRef} className={`relative w-full h-[200px] overflow-hidden ${className}`}>
-				<img
+				<UnpicImage
 					ref={imageRef1}
 					src={imageUrl}
 					alt="Scrolling background"
-					className={`absolute top-0 left-0 h-full w-auto ${imageClassName}`}
-					style={{ willChange: "transform" }}
+					className={`absolute top-0 left-0 h-full w-auto will-change-transform ${imageClassName}`}
+					width={imageWidth}
+					height={200}
+					layout="constrained"
 					onLoad={updateImageWidth}
 				/>
-				<img
+				<UnpicImage
 					ref={imageRef2}
 					src={imageUrl}
 					alt="Scrolling background duplicate"
-					className={`absolute top-0 left-0 h-full w-auto ${imageClassName}`}
-					style={{ willChange: "transform" }}
+					className={`absolute top-0 left-0 h-full w-auto will-change-transform ${imageClassName}`}
+					width={imageWidth}
+					height={200}
+					layout="constrained"
 				/>
 			</div>
 		);

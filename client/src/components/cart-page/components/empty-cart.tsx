@@ -1,7 +1,9 @@
+import { Image } from "@unpic/react";
+
 export function EmptyCart() {
 	return (
 		<div>
-			<img src="/media/imgs/cart-empty.avif" alt="empty-cart" />
+			<Image src="/media/imgs/cart-empty.avif" alt="empty-cart" width={400} height={400} layout="constrained" />
 		</div>
 	);
 }

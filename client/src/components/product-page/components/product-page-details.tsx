@@ -9,6 +9,7 @@ import type { ProductType } from "@/types";
 import type { CartResponseType } from "@/components/cart-page/types";
 import { toast } from "sonner";
 import { BouncingLoading } from "@/components/ui/bouncing-loading";
+import { Image } from "@unpic/react";
 
 export function ProductPageDetails({ theme = "desktop", product }: { theme?: "mobile" | "desktop"; product?: ProductType }) {
 	const { productId } = useParams({ from: "/(main)/_homeLayout/$title/$productId/" });
@@ -19,7 +20,14 @@ export function ProductPageDetails({ theme = "desktop", product }: { theme?: "mo
 		<div className="w-full max-w-[312px] border border-[#eceef4] rounded-[8px]">
 			<div className="flex flex-col items-start justify-start space-x-4 py-3 px-4">
 				<div className="flex items-center justify-start space-x-4 py-3 px-4">
-					<img src="/media/imgs/logo-eg.png" alt="logo" className="w-[40px] h-[40px] rounded-[8px]" />
+					<Image
+						src="/media/imgs/logo-eg.png"
+						alt="logo"
+						className="rounded-[8px]"
+						width={40}
+						height={40}
+						layout="constrained"
+					/>
 					<div>
 						<Link to={"/seller/$sellerId"} params={{ sellerId: "1" }}>
 							<div className="flex items-center cursor-pointer text-[14px] hover:text-[#3866DF] transition-colors">

@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { product_icons } from "@/components/product/constants/icons";
 import { cn } from "@/utils/cn";
+import { Image } from "@unpic/react";
 
 type DotsThemeType = "theme1" | "theme2" | "theme3";
 
@@ -394,7 +395,7 @@ export function ImageSlider({
 								<div
 									key={i}
 									className={cn(
-										"flex-shrink-0 transition-transform  bg-[#F6F6F7] w-full overflow-hidden",
+										"flex-shrink-0 transition-transform rounded-lg bg-[#F6F6F7] w-full overflow-hidden",
 										isMobile ? "h-full" : "",
 									)}
 									style={{
@@ -410,12 +411,12 @@ export function ImageSlider({
 									<div
 										className={cn(
 											showProductControls
-												? "flex items-center bg-[#F6F6F7] w-full justify-center "
+												? "flex items-center rounded-lg bg-[#F6F6F7] w-full justify-center "
 												: "w-full h-full overflow-hidden",
 											scaleOnHover && "hover:scale-[1.1] duration-300 ease-in-out",
 										)}
 									>
-										<img
+										<Image
 											src={
 												showProductControls
 													? ((i === 0
@@ -423,12 +424,12 @@ export function ImageSlider({
 															: images[(i - 1) % displayImages.length]) ?? product_icons.noonIcon)
 													: src
 											}
-											style={{
-												mixBlendMode: "multiply",
-											}}
+											layout="constrained"
+											width={490}
+											height={330}
 											loading={lazyImage ? "lazy" : "eager"}
 											draggable={false}
-											className={cn("w-full h-full object-cover pointer-events-none")}
+											className={cn("w-full h-full object-cover pointer-events-none mix-blend-multiply")}
 											alt={`Slide ${i}`}
 										/>
 									</div>
