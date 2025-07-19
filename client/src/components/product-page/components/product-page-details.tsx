@@ -1,20 +1,33 @@
 import { Link, useParams } from "@tanstack/react-router";
-import { ChevronRight, LoaderCircle, Star } from "lucide-react";
+import { ChevronRight, Star } from "lucide-react";
 import { Separator } from "../../ui/separator";
 import { product_page_icon } from "../constants/icons";
 import { Button } from "@/components/ui/button";
-import { useMutation } from "@apollo/client";
-import { ADD_CART_ITEM } from "@/graphql/cart";
+import { useMutation, useQuery } from "@apollo/client";
+import { ADD_CART_ITEM, GET_CART_ITEMS } from "@/graphql/cart";
+import type { ProductType } from "@/types";
+import type { CartResponseType } from "@/components/cart-page/types";
+import { toast } from "sonner";
+import { BouncingLoading } from "@/components/ui/bouncing-loading";
+import { Image } from "@unpic/react";
 
-export function ProductPageDetails({ theme = "desktop" }: { theme?: "mobile" | "desktop" }) {
+export function ProductPageDetails({ theme = "desktop", product }: { theme?: "mobile" | "desktop"; product?: ProductType }) {
 	const { productId } = useParams({ from: "/(main)/_homeLayout/$title/$productId/" });
 	const [addCartItem, { loading }] = useMutation(ADD_CART_ITEM);
+	const { refetch } = useQuery<CartResponseType>(GET_CART_ITEMS);
 
 	return theme === "desktop" ? (
 		<div className="w-full max-w-[312px] border border-[#eceef4] rounded-[8px]">
 			<div className="flex flex-col items-start justify-start space-x-4 py-3 px-4">
 				<div className="flex items-center justify-start space-x-4 py-3 px-4">
-					<img src="/media/imgs/logo-eg.png" alt="logo" className="w-[40px] h-[40px] rounded-[8px]" />
+					<Image
+						src="/media/imgs/logo-eg.png"
+						alt="logo"
+						className="rounded-[8px]"
+						width={40}
+						height={40}
+						layout="constrained"
+					/>
 					<div>
 						<Link to={"/seller/$sellerId"} params={{ sellerId: "1" }}>
 							<div className="flex items-center cursor-pointer text-[14px] hover:text-[#3866DF] transition-colors">
@@ -68,14 +81,28 @@ export function ProductPageDetails({ theme = "desktop" }: { theme?: "mobile" | "
 			<Separator className="my-5" />
 
 			<div className="py-3 px-4">
-				<Button
-					onClick={() => {
-						addCartItem({ variables: { product_id: productId, quantity: 1 } });
-					}}
-					className="bg-[#2B4CD7] hover:bg-[#6079E1] transition-colors flex items-center justify-center text-white w-full h-[48px] rounded-[14px] cursor-pointer uppercase font-bold text-[14px]"
-				>
-					{loading ? <LoaderCircle size={20} color="white" /> : "Add to cart"}
-				</Button>
+				{Number(product?.stock) === 0 ? (
+					<Button
+						disabled
+						className="bg-[#6079E1] hover:bg-[#6079E1] cursor-default transition-colors flex items-center justify-center text-white w-full h-[48px] rounded-[14px]  uppercase font-bold text-[14px]"
+					>
+						Out of stock
+					</Button>
+				) : (
+					<Button
+						onClick={async () => {
+							const { data } = await addCartItem({ variables: { product_id: productId, quantity: 1 } });
+							if (data.addToCart.success) {
+								await refetch();
+							} else {
+								toast.error("Failed to add product to cart. Please try again.");
+							}
+						}}
+						className="bg-[#2B4CD7] hover:bg-[#6079E1] transition-colors flex items-center justify-center text-white w-full h-[48px] rounded-[14px] cursor-pointer uppercase font-bold text-[14px]"
+					>
+						{loading ? <BouncingLoading /> : "Add to cart"}
+					</Button>
+				)}
 			</div>
 		</div>
 	) : (

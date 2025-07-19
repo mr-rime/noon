@@ -1,13 +1,12 @@
-import { useQuery } from "@apollo/client";
 import { CartItem } from "./cart-item";
-import { GET_CART_ITEMS } from "@/graphql/cart";
+import type { CartItem as CartItemType } from "../types";
 
-export function CartItems() {
-	const { data } = useQuery(GET_CART_ITEMS);
-	console.log(data);
+export function CartItems({ cartItems, refetch }: { cartItems: CartItemType[]; refetch: () => Promise<any> }) {
 	return (
 		<section className="mt-10 w-full max-w-[65%] flex flex-col items-center gap-3">
-			<CartItem />
+			{cartItems.map((item) => (
+				<CartItem key={item.product_id} {...item} refetchCartItems={refetch} />
+			))}
 		</section>
 	);
 }

@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { tarcking_icons } from "../constants/icons";
+import { Image } from "@unpic/react";
 
 export function ItemSummary() {
 	return (
@@ -9,7 +10,14 @@ export function ItemSummary() {
 			<div className="flex items-start mt-5 space-x-4">
 				<Link to="/$title/$productId" params={{ productId: "1", title: "" }}>
 					<div className="max-w-[150px]">
-						<img src="/media/imgs/product-img1.avif" alt="product-img1" className="w-full" />
+						<Image
+							src="/media/imgs/product-img1.avif"
+							alt="product-img1"
+							className="w-full"
+							width={150}
+							height={150}
+							layout="constrained"
+						/>
 					</div>
 				</Link>
 				<div>

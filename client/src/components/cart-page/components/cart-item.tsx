@@ -1,26 +1,52 @@
 import { Heart, Trash2, Truck } from "lucide-react";
-import { Select } from "../../ui/select";
+import { useMutation } from "@apollo/client";
+import { REMOVE_CART_ITEM } from "@/graphql/cart";
+import { cn } from "@/utils/cn";
+import type { CartItem } from "../types";
+import { Link } from "@tanstack/react-router";
+import { Select } from "@/components/ui/select";
+import { Image } from "@unpic/react";
 
-export function CartItem() {
-	const options = [
-		{ value: "1", label: "1" },
-		{ value: "2", label: "2" },
-		{ value: "3", label: "3" },
-	];
+export function CartItem({
+	product_id,
+	name,
+	images,
+	price,
+	currency,
+	final_price,
+	discount_percentage,
+	stock,
+	refetchCartItems,
+}: CartItem & { refetchCartItems: () => Promise<any> }) {
+	const [removeCartItem, { loading }] = useMutation(REMOVE_CART_ITEM);
+
+	const qtys = Array.from({ length: Number(stock) }).map((_, quantity) => ({
+		value: String(quantity + 1),
+		label: String(quantity + 1),
+	}));
 
 	const handleChange = (value: string) => {
 		console.log("Selected:", value);
 	};
-	return (
-		<div className="flex items-start w-full h-fit bg-white p-[15px] rounded-[6px]">
-			<div className="w-fit h-[200px]">
-				<img src="/media/imgs/product-img1.avif" alt="product-img" loading="lazy" className="w-fit h-full" />
-			</div>
 
-			<div className="mr-16">
-				<div className="h-[20px]">
-					<h2 className="text-[14px] leading-[16px] font-semibold">
-						Apple iPhone 16 Pro Max 256GB Desert Titanium 5G With FaceTime - International Version
+	return (
+		<div className={cn("flex items-start w-full h-fit bg-white p-[15px] rounded-[6px]", loading && "opacity-50")}>
+			<Link to="/$title/$productId" params={{ productId: product_id, title: name }} className="w-fit h-[200px] mr-2">
+				<Image
+					src={images?.[0].image_url}
+					alt="product-img"
+					loading="lazy"
+					layout="constrained"
+					width={150}
+					height={150}
+					className="w-fit h-full"
+				/>
+			</Link>
+
+			<div className="mr-16 mt-2">
+				<div className="">
+					<h2 className="text-[14px] leading-[16px] font-semibold truncate w-[400px] whitespace-break-spaces">
+						{name}
 					</h2>
 				</div>
 				<div className="mt-3 h-[70px]">
@@ -34,7 +60,13 @@ export function CartItem() {
 				</div>
 
 				<div className="mt-5 flex items-center space-x-2 h-[30px]">
-					<button className="flex items-center space-x-1 cursor-pointer border border-[#dadce3] rounded-[8px] p-[8px]">
+					<button
+						onClick={async () => {
+							await removeCartItem({ variables: { product_id } });
+							await refetchCartItems();
+						}}
+						className="flex items-center space-x-1 cursor-pointer border border-[#dadce3] rounded-[8px] p-[8px]"
+					>
 						<Trash2 size={18} color="#7e859b" />
 						<span className="text-[12px] text-[#7e859b]">Remove</span>
 					</button>
@@ -48,12 +80,12 @@ export function CartItem() {
 			<div className="flex flex-col items-center w-[150px]">
 				<div className="flex flex-col items-center h-[50px]">
 					<div className="text-black flex items-center space-x-1 ">
-						<span className="text-[14px]">EGP</span>
-						<b className="text-[22px]">72555</b>
+						<span className="text-[14px]">{currency}</span>
+						<b className="text-[22px]">{final_price}</b>
 					</div>
 					<div className="space-x-1 text-[11px] w-full text-end">
-						<span className="line-through  text-[#7e859b]">77153.05</span>
-						<span className="uppercase text-[#38ae04] font-bold">5% Off</span>
+						<span className="line-through  text-[#7e859b]">{price}</span>
+						<span className="uppercase text-[#38ae04] font-bold">{discount_percentage}% Off</span>
 					</div>
 				</div>
 				<div className="flex flex-col items-end mt-3 h-[50px]">
@@ -68,12 +100,7 @@ export function CartItem() {
 
 				<div className=" flex items-center space-x-4">
 					<span className="text-[#7e859b] text-[14px] ">Qty</span>
-					<Select
-						options={options}
-						defaultValue="1"
-						onChange={handleChange}
-						className="w-[60px] rounded-[8px] p-[8px]"
-					/>
+					<Select options={qtys} defaultValue="1" onChange={handleChange} className="w-[60px] rounded-[8px] p-[8px]" />
 				</div>
 			</div>
 		</div>

@@ -11,6 +11,8 @@ import { Skeleton } from "../ui/skeleton";
 import { SearchInput } from "./components/search";
 import { UserMenu } from "./components/user-menu";
 import { header_icons } from "./constants/icons";
+import type { CartResponseType } from "../cart-page/types";
+import { GET_CART_ITEMS } from "@/graphql/cart";
 
 const expectedRoutes = [
 	"/orders",
@@ -26,6 +28,9 @@ export function Header() {
 	const { data, loading } = useQuery<{ getUser: { user: User } }>(GET_USER, {
 		variables: { hash: Cookies.get("hash") || "" },
 	});
+
+	const { data: cart } = useQuery<CartResponseType>(GET_CART_ITEMS);
+
 	const { pathname } = useLocation();
 	const navigate = useNavigate();
 	const user = useMemo(() => data?.getUser.user, [data?.getUser.user]);
@@ -69,7 +74,16 @@ export function Header() {
 						)}
 					</Link>
 				)}
-				<Link to={"/cart"} className="mx-1">
+				<Link
+					to={"/cart"}
+					preload="render"
+					className="mx-1 text-[#404553] hover:text-[#8C8832] transition-colors relative"
+				>
+					{cart?.getCartItems.cartItems?.length! > 0 && (
+						<div className="absolute -right-[8px] -top-2 bg-[#3866DF] text-white text-[10px] font-semibold w-[18px] h-[18px] rounded-full flex items-center justify-center">
+							{cart?.getCartItems.cartItems.length}
+						</div>
+					)}
 					{header_icons.cartIcon}
 				</Link>
 			</div>

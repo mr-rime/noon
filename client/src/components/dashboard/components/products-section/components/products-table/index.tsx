@@ -7,6 +7,7 @@ import { Dropdown } from "@/components/ui/dropdown";
 import { Ellipsis, Pen, Trash } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { Image } from "@unpic/react";
 
 export default function ProductsTable({ search }: { search: string }) {
 	const [page, setPage] = useState(1);
@@ -38,10 +39,13 @@ export default function ProductsTable({ search }: { search: string }) {
 					header: "Product Name",
 					render: (row) => (
 						<div className="flex items-center space-x-2">
-							<img
+							<Image
 								src={row.images[0].image_url}
 								alt="product-img"
 								className="w-[50px] h-[50px] rounded-[10px] object-cover"
+								width={50}
+								height={50}
+								layout="constrained"
 							/>
 							<div className="truncate w-[300px]">{row.name}</div>
 						</div>

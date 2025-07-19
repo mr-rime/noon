@@ -1,3 +1,5 @@
+import { Image } from "@unpic/react";
+
 export function ProductOption({ name, values }: { name: string; values: { value: string; image_url: string | null }[] }) {
 	return (
 		<div>
@@ -11,7 +13,15 @@ export function ProductOption({ name, values }: { name: string; values: { value:
 							key={i}
 							className="w-[70px] h-[70px] border border-[#EAECF0] rounded-[10px] flex items-center justify-center cursor-pointer"
 						>
-							<img src={image_url} alt={value} className="h-[55px] select-none" draggable={false} />
+							<Image
+								src={image_url}
+								alt={value}
+								className="select-none"
+								draggable={false}
+								width={70}
+								height={70}
+								layout="constrained"
+							/>
 						</div>
 					) : (
 						<div

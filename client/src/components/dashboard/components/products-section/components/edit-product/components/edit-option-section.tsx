@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { UPLOAD_FILE } from "@/graphql/upload-file";
 import { useProductStore } from "@/store/create-product-store";
 import type { ProductOptionType } from "@/types";
+import { Image } from "@unpic/react";
 
 export function AddOptionSection({ options: initialOptions }: { options: ProductOptionType[] }) {
 	const [uploadImage] = useMutation(UPLOAD_FILE);
@@ -111,9 +112,12 @@ export function AddOptionSection({ options: initialOptions }: { options: Product
 										fill="#fb2c36"
 									/>
 								</div>
-								<img
+								<Image
 									src={option.image_url}
 									alt="Option preview"
+									width={80}
+									height={80}
+									layout="constrained"
 									className={`w-20 object-fill rounded ${isLoading(index) ? "opacity-50 grayscale" : ""}`}
 								/>
 							</div>

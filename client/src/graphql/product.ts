@@ -177,6 +177,7 @@ query ($id: ID!) {
         is_returnable
         final_price
         discount_percentage
+        stock
         discount {
             id
             product_id

@@ -1,8 +1,9 @@
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
 import { ProductsListSkeleton } from "../ui/products-list-skeleton";
 import HeroSection from "./components/hero-section";
+import RecommendedProducts from "./components/recommended-products";
 
-const LazyRecommendedProducts = lazy(() => import("./components/recommended-products"));
+// const LazyRecommendedProducts = lazy(() => import("./components/recommended-products"));
 
 export function Landing() {
 	return (
@@ -19,7 +20,8 @@ export function Landing() {
 						</div>
 					}
 				>
-					<LazyRecommendedProducts />
+					{/* <LazyRecommendedProducts /> */}
+					<RecommendedProducts />
 				</Suspense>
 			</div>
 		</div>
