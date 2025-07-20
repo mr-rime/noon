@@ -5,4 +5,3 @@
 - [ ] design the scrollable advertisement two components
 - [ ] design grid products
 - [ ] design recommended for you section
-- [ ]
