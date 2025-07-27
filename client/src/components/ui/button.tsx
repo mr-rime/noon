@@ -1,20 +1,19 @@
-import { cn } from "../../utils/cn";
+import { cn } from '../../utils/cn'
 
-type ButtonProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "className"> & {
-	className?: string;
-	children?: React.ReactNode | React.ReactElement;
-};
+type ButtonProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'className'> & {
+  className?: string
+  children?: React.ReactNode | React.ReactElement
+}
 
 export function Button({ children, className, ...rest }: ButtonProps) {
-	return (
-		<button
-			{...rest}
-			className={cn(
-				"bg-[#3866df] hover:bg-[#3E72F7] transition-colors duration-300 cursor-pointer text-white text-[14px] font-bold h-[48px] rounded-[4px] uppercase px-[32px]",
-				className,
-			)}
-		>
-			{children}
-		</button>
-	);
+  return (
+    <button
+      {...rest}
+      className={cn(
+        'h-[48px] cursor-pointer rounded-[4px] bg-[#3866df] px-[32px] font-bold text-[14px] text-white uppercase transition-colors duration-300 hover:bg-[#3E72F7]',
+        className,
+      )}>
+      {children}
+    </button>
+  )
 }

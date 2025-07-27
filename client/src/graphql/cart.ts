@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client'
 
 export const ADD_CART_ITEM = gql`
     mutation ($product_id: String!, $quantity: Int!) {
@@ -12,7 +12,7 @@ export const ADD_CART_ITEM = gql`
             }
         }
     }
-`;
+`
 
 export const GET_CART_ITEMS = gql`
     query {
@@ -35,7 +35,7 @@ export const GET_CART_ITEMS = gql`
         }
     }
     }
-`;
+`
 
 export const REMOVE_CART_ITEM = gql`
     mutation ($product_id: String!) {
@@ -44,4 +44,4 @@ export const REMOVE_CART_ITEM = gql`
             message
         }
     }
-`;
+`

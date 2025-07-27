@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client'
 
 export const GET_HOME = gql`
 query ($limit: Int, $offset: Int, $search: String) {
@@ -41,4 +41,4 @@ query ($limit: Int, $offset: Int, $search: String) {
   }
 }
 
-`;
+`

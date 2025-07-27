@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client'
 
 export const UPLOAD_FILE = gql`
     mutation($file: Upload!) {
@@ -9,4 +9,4 @@ export const UPLOAD_FILE = gql`
         }
     }
 
-`;
+`

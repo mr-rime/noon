@@ -1,62 +1,86 @@
 {
-    "$schema": "https://biomejs.dev/schemas/2.0.5/schema.json",
-    "vcs": {
-        "enabled": false,
-        "clientKind": "git",
-        "useIgnoreFile": false
-    },
-
-    "files": {
-        "ignoreUnknown": false
+    "$schema": "https://biomejs.dev/schemas/2.1.1/schema.json",
+    "assist": {
+        "actions": {
+            "source": {
+                "organizeImports": "on",
+                "recommended": false
+            }
+        },
+        "enabled": true
     },
     "formatter": {
-        "includes": ["**", "!**/*.css", "!**/node_modules/**", "!**/dist/**", "!**/build/**"],
+        "attributePosition": "multiline",
+        "bracketSpacing": true,
         "enabled": true,
-        "indentStyle": "tab",
-        "indentWidth": 4,
-        "lineWidth": 130
-    },
-    "linter": {
-        "enabled": true,
-        "includes": ["**", "!**/*.css", "!**/node_modules/**", "!**/dist/**", "!**/build/**"],
-        "rules": {
-            "recommended": false,
-            "complexity": {
-                "noForEach": "error",
-                "noStaticOnlyClass": "error",
-                "noUselessSwitchCase": "error",
-                "noUselessFragments": "error",
-                "useFlatMap": "error",
-                "useWhile": "error"
-            },
-            "style": {
-                "noNegationElse": "error",
-                "useNodejsImportProtocol": "error",
-                "useNumberNamespace": "error",
-                "useConst": "error",
-                "noNonNullAssertion": "off",
-                "useDefaultSwitchClause": "error"
-            },
-            "suspicious": {
-                "noDoubleEquals": "error",
-                "noThenProperty": "error",
-                "useIsArray": "error",
-                "useGetterReturn": "error",
-                "noVar": "error"
-            }
-        }
+        "formatWithErrors": false,
+        "includes": ["**", "!**/node_modules/**", "!**/dist/**", "!**/build/**", "!**/public/**", "!**/.*/**", "!**/old_*/**", "!**/_*/**", "!packages/___/", "!src/index.css"],
+        "indentStyle": "space",
+        "indentWidth": 2,
+        "lineEnding": "lf",
+        "lineWidth": 120
     },
     "javascript": {
         "formatter": {
-            "quoteStyle": "double"
-        }
+            "arrowParentheses": "always",
+            "attributePosition": "auto",
+            "bracketSameLine": true,
+            "bracketSpacing": true,
+            "jsxQuoteStyle": "double",
+            "quoteProperties": "asNeeded",
+            "quoteStyle": "single",
+            "semicolons": "asNeeded",
+            "trailingCommas": "all"
+        },
+        "globals": ["Global1"]
     },
-    "assist": {
+    "linter": {
         "enabled": true,
-        "actions": {
-            "source": {
-                "organizeImports": "on"
+        "includes": [
+            "**",
+            "!**/@*",
+            "!**/.*/**",
+            "!**/old_*/**",
+            "!**/_*/**",
+            "!**/node_modules/**",
+            "!**/dist/**",
+            "!**/build/**",
+            "!**/test/**",
+            "!**/public/**",
+            "!**/website/**",
+            "!packages/___/**",
+            "!src/index.css"
+        ],
+        "rules": {
+            "complexity": {},
+            "nursery": {
+                "useSortedClasses": {
+                    "fix": "safe",
+                    "level": "info",
+                    "options": {
+                        "attributes": ["className", "class"],
+                        "functions": ["clsx", "cva", "tw", "twMerge", "cn", "twJoin", "tv"]
+                    }
+                }
+            },
+            "recommended": false,
+            "style": {},
+            "suspicious": {
+                "noDoubleEquals": "error",
+                "noExplicitAny": "off",
+                "noThenProperty": "error",
+                "noVar": "error",
+                "useGetterReturn": "error",
+                "useIsArray": "error"
             }
         }
-    }
+    },
+    "overrides": [
+        {
+            "formatter": {
+                "indentWidth": 2
+            },
+            "includes": ["**/*.json"]
+        }
+    ]
 }

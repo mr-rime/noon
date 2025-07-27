@@ -13,73 +13,56 @@ class Discount
         $this->db = $db;
     }
 
-    public function findByProductId(string $id)
+    private function validateId(string $id): bool
     {
-        $validator = v::key('id', v::stringType()->notEmpty());
-
         try {
-            $validator->assert(['id' => $id]);
+            v::stringType()->notEmpty()->assert($id);
+            return true;
         } catch (ValidationException $err) {
-            error_log("Validation failed DscFindById: " . $err->getMessage());
-            return null;
+            error_log("Validation failed: " . $err->getMessage());
+            return false;
         }
+    }
 
-        $stmt = $this->db->prepare('SELECT * FROM discounts WHERE product_id IS NOT NULL AND product_id = ?');
-
+    private function fetchSingleRow(string $query, string $param): ?array
+    {
+        $stmt = $this->db->prepare($query);
         if (!$stmt) {
-            error_log("Prepare failed" . $this->db->error);
-
+            error_log("Prepare failed: " . $this->db->error);
             return null;
         }
 
-        $stmt->bind_param('s', $id);
+        $stmt->bind_param('s', $param);
 
         if (!$stmt->execute()) {
-            error_log("Execute failed" . $stmt->error);
-
+            error_log("Execute failed: " . $stmt->error);
             return null;
         }
 
         $result = $stmt->get_result();
-
         return $result->fetch_assoc() ?: null;
     }
 
-    public function findById(string $id)
+    public function findByProductId(string $id): ?array
     {
-        $validator = v::key('id', v::stringType()->notEmpty());
-
-        try {
-            $validator->assert(['id' => $id]);
-        } catch (ValidationException $err) {
-            error_log("Validation failed DscFindById: " . $err->getMessage());
+        if (!$this->validateId($id)) {
             return null;
         }
 
-        $stmt = $this->db->prepare('SELECT * FROM discounts WHERE id IS NOT NULL AND id = ?');
-
-        if (!$stmt) {
-            error_log("Prepare failed" . $this->db->error);
-
-            return null;
-        }
-
-        $stmt->bind_param('s', $id);
-
-        if (!$stmt->execute()) {
-            error_log("Execute failed" . $stmt->error);
-
-            return null;
-        }
-
-        $result = $stmt->get_result();
-
-        return $result->fetch_assoc() ?: null;
+        return $this->fetchSingleRow('SELECT * FROM discounts WHERE product_id = ?', $id);
     }
 
-    public function create(array $data)
+    public function findById(string $id): ?array
     {
+        if (!$this->validateId($id)) {
+            return null;
+        }
 
+        return $this->fetchSingleRow('SELECT * FROM discounts WHERE id = ?', $id);
+    }
+
+    public function create(array $data): ?array
+    {
         $validator = v::key('type', v::stringType()->notEmpty())
             ->key('value', v::numericVal()->positive())
             ->key('starts_at', v::stringType()->notEmpty())
@@ -89,21 +72,23 @@ class Discount
         try {
             $validator->assert($data);
         } catch (ValidationException $err) {
-            error_log("Validation failed Discount: " . $err->getMessage());
+            error_log("Validation failed (create): " . $err->getMessage());
             return null;
         }
 
         $startsAt = date('Y-m-d H:i:s', strtotime($data['starts_at']));
         $endsAt = date('Y-m-d H:i:s', strtotime($data['ends_at']));
+        $id = generateHash();
 
-        $stmt = $this->db->prepare('INSERT INTO discounts (id, product_id, type, value, starts_at, ends_at) VALUES (?, ?, ?, ?, ?, ?)');
+        $stmt = $this->db->prepare('
+            INSERT INTO discounts (id, product_id, type, value, starts_at, ends_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ');
 
         if (!$stmt) {
-            error_log("Prepare failed" . $this->db->error);
+            error_log("Prepare failed (create): " . $this->db->error);
             return null;
         }
-
-        $id = generateHash();
 
         $stmt->bind_param(
             'sssiss',
@@ -116,7 +101,7 @@ class Discount
         );
 
         if (!$stmt->execute()) {
-            error_log("Execute failded" . $stmt->error);
+            error_log("Execute failed (create): " . $stmt->error);
             return null;
         }
 

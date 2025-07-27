@@ -1,3 +1,3 @@
-import Cookies from "js-cookie";
+import Cookies from 'js-cookie'
 
-export const userHash = Cookies.get("hash");
+export const userHash = Cookies.get('hash')
