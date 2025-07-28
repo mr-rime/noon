@@ -3,5 +3,4 @@ import { Landing } from "../../../components/landing";
 
 export const Route = createFileRoute("/(main)/_homeLayout/")({
 	component: Landing,
-	ssr: true,
 });

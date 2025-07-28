@@ -14,7 +14,7 @@ declare module '@tanstack/react-router' {
 export default function App() {
   return (
     <ApolloProvider client={client}>
-      <RouterProvider router={router} defaultPendingMinMs={0} defaultPendingMs={0} defaultPreload="intent" defaultSsr />
+      <RouterProvider router={router} defaultPendingMinMs={0} defaultPendingMs={0} defaultPreload="intent" />
     </ApolloProvider>
   )
 }

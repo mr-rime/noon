@@ -2,15 +2,17 @@ import { X } from 'lucide-react'
 import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { animateElement } from '../../../utils/animateElement'
+import { cn } from '@/utils/cn'
 
 type ModalDialogProps = {
   onClose: () => void
   header?: ReactNode
   content?: ReactNode
   footer?: ReactNode
+  className?: string
 }
 
-export function ModalDialog({ onClose, header, content, footer }: ModalDialogProps) {
+export function ModalDialog({ onClose, header, content, footer, className }: ModalDialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
 
@@ -98,37 +100,57 @@ export function ModalDialog({ onClose, header, content, footer }: ModalDialogPro
     }
   }, [])
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dialogRef.current && !dialogRef.current.contains(e.target as Node)) {
+        handleClose()
+        console.log('out side')
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   if (typeof window === 'undefined') return null
 
   return createPortal(
     <>
       <div
         ref={overlayRef}
-        className="fixed top-0 left-0 z-[9998] h-full w-full bg-black opacity-0"
+        className="fixed inset-0 z-[9998] bg-black opacity-0"
         style={{ transition: 'opacity 150ms ease-out' }}
-        onClick={handleClose}
+        onMouseDown={(e) => {
+          if (e.target === e.currentTarget) {
+            handleClose()
+          }
+        }}
         aria-hidden="true"
         tabIndex={-1}
       />
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        className="fixed inset-0 z-[9999] flex items-center justify-center opacity-0"
-        style={{
-          transform: 'scale(0.95)',
-          transition: 'opacity 200ms ease-out, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
-        }}>
-        <div className="relative w-[400px] overflow-hidden rounded-lg bg-white outline-none">
+
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+        <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          className={cn('relative w-[400px] overflow-hidden rounded-lg bg-white outline-none', className)}
+          onMouseDown={(e) => e.stopPropagation()}
+          style={{
+            transform: 'scale(0.95)',
+            opacity: 0,
+            transition: 'opacity 200ms ease-out, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+          }}>
           <button
             onClick={handleClose}
-            className="absolute top-3 right-3 z-50 cursor-pointer rounded-full bg-gray-100 p-2 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
+            className="absolute top-3 right-3 z-10 cursor-pointer rounded-full p-2 transition-colors hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
             aria-label="Close dialog">
             <X />
           </button>
-
           {header && <div>{header}</div>}
-          <div className="space-y-4 p-4">
+          <div className="flex flex-col justify-between">
             {content && <div>{content}</div>}
             {footer && <div>{footer}</div>}
           </div>

@@ -62,7 +62,7 @@ export function Header() {
         {!matchesExpectedRoute(pathname, expectedRoutes) && (
           <Link to={'/'} className="mx-3">
             {user ? (
-              <div>{header_icons.heartIcon}</div>
+              <Link to="/wishlist">{header_icons.heartIcon}</Link>
             ) : (
               <LoginButtonWithModalDialog>
                 {({ open, isOpen }) => (
