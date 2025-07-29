@@ -10,9 +10,14 @@ type ModalDialogProps = {
   content?: ReactNode
   footer?: ReactNode
   className?: string
+  headerClassName?: string
+  contentClassName?: string
+  footerClassName?: string
+  closeButtonClassName?: string
 }
 
-export function ModalDialog({ onClose, header, content, footer, className }: ModalDialogProps) {
+
+export function ModalDialog({ onClose, header, content, footer, className, contentClassName, footerClassName, headerClassName, closeButtonClassName }: ModalDialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
 
@@ -145,17 +150,17 @@ export function ModalDialog({ onClose, header, content, footer, className }: Mod
           }}>
           <button
             onClick={handleClose}
-            className="absolute top-3 right-3 z-10 cursor-pointer rounded-full p-2 transition-colors hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
+            className={cn("absolute top-3 right-3 z-10 cursor-pointer rounded-full p-2 transition-colors hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2", closeButtonClassName)}
             aria-label="Close dialog">
             <X />
           </button>
-          {header && <div>{header}</div>}
+          {header && <div className={cn(headerClassName)}>{header}</div>}
           <div className="flex flex-col justify-between">
-            {content && <div>{content}</div>}
-            {footer && <div>{footer}</div>}
+            {content && <div className={cn(contentClassName)}>{content}</div>}
+            {footer && <div className={cn(footerClassName)}>{footer}</div>}
           </div>
         </div>
-      </div>
+      </div >
     </>,
     document.body,
   )
