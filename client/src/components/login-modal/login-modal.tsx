@@ -8,6 +8,8 @@ export function LoginModal({ onClose }: { onClose: () => void }) {
   const memoizedFormSwitch = useMemo(() => <FormSwitch inputRef={inputRef} onClose={onClose} />, [])
   return (
     <ModalDialog
+      contentClassName="p-3"
+      closeButtonClassName="bg-white"
       onClose={onClose}
       header={
         <>
