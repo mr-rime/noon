@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client'
 import Cookies from 'js-cookie'
 import { toast } from 'sonner'
-import client from '../../../apollo'
+import client from '../../../config/apollo'
 import { LOGOUT } from '../../../graphql/auth'
 import { GET_USER } from '../../../graphql/user'
 import { cn } from '../../../utils/cn'
