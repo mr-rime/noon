@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client'
 
 export const GET_USERS = gql`
         query {
@@ -15,7 +15,7 @@ export const GET_USERS = gql`
                 }
         }
         }
-    `;
+    `
 
 export const GET_USER = gql`
         query($hash:String!) {
@@ -33,4 +33,4 @@ export const GET_USER = gql`
                 }
             }
         }
-    `;
+    `

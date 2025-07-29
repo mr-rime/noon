@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client'
 
 export const CREATE_PARTNER = gql`
     mutation ($business_email: String!, $store_name: String!, $business_phone: String, $password: String!) {
@@ -18,7 +18,7 @@ export const CREATE_PARTNER = gql`
         }
     }
     }
-`;
+`
 
 export const LOGIN_PARTNER = gql`
     mutation ($business_email: String!, $password: String!) {
@@ -31,7 +31,7 @@ export const LOGIN_PARTNER = gql`
             }
         }
     }
-`;
+`
 
 export const GET_PARTNER = gql`
 query ($id: String!) {
@@ -49,4 +49,4 @@ query ($id: String!) {
     }
     }
 
-`;
+`

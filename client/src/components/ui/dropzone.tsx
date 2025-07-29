@@ -1,51 +1,50 @@
-import type React from "react";
-import { useCallback, useState } from "react";
-import { cn } from "@/utils/cn";
+import type React from 'react'
+import { useCallback, useState } from 'react'
+import { cn } from '@/utils/cn'
 
 type DropzoneProps = {
-	onFilesDrop?: (files: File[]) => void;
-	multiple?: boolean;
-	accept?: string;
-	className?: string;
-};
+  onFilesDrop?: (files: File[]) => void
+  multiple?: boolean
+  accept?: string
+  className?: string
+}
 
 export const Dropzone: React.FC<DropzoneProps> = ({ onFilesDrop, multiple = true, accept, className }) => {
-	const [isDragging, setIsDragging] = useState(false);
+  const [isDragging, setIsDragging] = useState(false)
 
-	const handleDrop = useCallback(
-		(event: React.DragEvent<HTMLDivElement>) => {
-			event.preventDefault();
-			setIsDragging(false);
-			const files = Array.from(event.dataTransfer.files);
-			if (onFilesDrop) onFilesDrop(files);
-		},
-		[onFilesDrop],
-	);
+  const handleDrop = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault()
+      setIsDragging(false)
+      const files = Array.from(event.dataTransfer.files)
+      if (onFilesDrop) onFilesDrop(files)
+    },
+    [onFilesDrop],
+  )
 
-	const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const files = event.target.files ? Array.from(event.target.files) : [];
-		if (onFilesDrop) onFilesDrop(files);
-	};
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files ? Array.from(event.target.files) : []
+    if (onFilesDrop) onFilesDrop(files)
+  }
 
-	return (
-		<div
-			className={cn(
-				`flex items-center justify-center border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors`,
-				className,
-				isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300",
-			)}
-			onDragOver={(e) => {
-				e.preventDefault();
-				setIsDragging(true);
-			}}
-			onDragLeave={() => setIsDragging(false)}
-			onDrop={handleDrop}
-			onClick={() => document.getElementById("fileInput")?.click()}
-		>
-			<input type="file" id="fileInput" hidden multiple={multiple} accept={accept} onChange={handleFileSelect} />
-			<p className="text-sm text-gray-600">
-				{isDragging ? "Drop files here..." : "Drag and drop files here or click to upload"}
-			</p>
-		</div>
-	);
-};
+  return (
+    <div
+      className={cn(
+        `flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed p-6 text-center transition-colors`,
+        className,
+        isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300',
+      )}
+      onDragOver={(e) => {
+        e.preventDefault()
+        setIsDragging(true)
+      }}
+      onDragLeave={() => setIsDragging(false)}
+      onDrop={handleDrop}
+      onClick={() => document.getElementById('fileInput')?.click()}>
+      <input type="file" id="fileInput" hidden multiple={multiple} accept={accept} onChange={handleFileSelect} />
+      <p className="text-gray-600 text-sm">
+        {isDragging ? 'Drop files here...' : 'Drag and drop files here or click to upload'}
+      </p>
+    </div>
+  )
+}

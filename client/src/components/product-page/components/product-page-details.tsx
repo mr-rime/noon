@@ -1,139 +1,142 @@
-import { Link, useParams } from "@tanstack/react-router";
-import { ChevronRight, Star } from "lucide-react";
-import { Separator } from "../../ui/separator";
-import { product_page_icon } from "../constants/icons";
-import { Button } from "@/components/ui/button";
-import { useMutation, useQuery } from "@apollo/client";
-import { ADD_CART_ITEM, GET_CART_ITEMS } from "@/graphql/cart";
-import type { ProductType } from "@/types";
-import type { CartResponseType } from "@/components/cart-page/types";
-import { toast } from "sonner";
-import { BouncingLoading } from "@/components/ui/bouncing-loading";
-import { Image } from "@unpic/react";
+import { Link, useParams } from '@tanstack/react-router'
+import { ChevronRight, Star } from 'lucide-react'
+import { Separator } from '../../ui/separator'
+import { product_page_icon } from '../constants/icons'
+import { Button } from '@/components/ui/button'
+import { useMutation, useQuery } from '@apollo/client'
+import { ADD_CART_ITEM, GET_CART_ITEMS } from '@/graphql/cart'
+import type { ProductType } from '@/types'
+import type { CartResponseType } from '@/components/cart-page/types'
+import { toast } from 'sonner'
+import { BouncingLoading } from '@/components/ui/bouncing-loading'
+import { Image } from '@unpic/react'
 
-export function ProductPageDetails({ theme = "desktop", product }: { theme?: "mobile" | "desktop"; product?: ProductType }) {
-	const { productId } = useParams({ from: "/(main)/_homeLayout/$title/$productId/" });
-	const [addCartItem, { loading }] = useMutation(ADD_CART_ITEM);
-	const { refetch } = useQuery<CartResponseType>(GET_CART_ITEMS);
+export function ProductPageDetails({
+  theme = 'desktop',
+  product,
+}: {
+  theme?: 'mobile' | 'desktop'
+  product?: ProductType
+}) {
+  const { productId } = useParams({ from: '/(main)/_homeLayout/$title/$productId/' })
+  const [addCartItem, { loading }] = useMutation(ADD_CART_ITEM)
+  const { refetch } = useQuery<CartResponseType>(GET_CART_ITEMS)
 
-	return theme === "desktop" ? (
-		<div className="w-full max-w-[312px] border border-[#eceef4] rounded-[8px]">
-			<div className="flex flex-col items-start justify-start space-x-4 py-3 px-4">
-				<div className="flex items-center justify-start space-x-4 py-3 px-4">
-					<Image
-						src="/media/imgs/logo-eg.png"
-						alt="logo"
-						className="rounded-[8px]"
-						width={40}
-						height={40}
-						layout="constrained"
-					/>
-					<div>
-						<Link to={"/seller/$sellerId"} params={{ sellerId: "1" }}>
-							<div className="flex items-center cursor-pointer text-[14px] hover:text-[#3866DF] transition-colors">
-								Sold by <strong className="ml-1">noon</strong> <ChevronRight size={20} />
-							</div>
-						</Link>
-						<div className="flex items-center justify-start space-x-1">
-							<Star fill="#008000" color="#008000" size={16} />{" "}
-							<span className="text-[14px] text-[#008000] font-bold">4.3</span>
-						</div>
-					</div>
-				</div>
+  return theme === 'desktop' ? (
+    <div className="w-full max-w-[312px] rounded-[8px] border border-[#eceef4]">
+      <div className="flex flex-col items-start justify-start space-x-4 px-4 py-3">
+        <div className="flex items-center justify-start space-x-4 px-4 py-3">
+          <Image
+            src="/media/imgs/logo-eg.png"
+            alt="logo"
+            className="rounded-[8px]"
+            width={40}
+            height={40}
+            layout="constrained"
+          />
+          <div>
+            <Link to={'/seller/$sellerId'} params={{ sellerId: '1' }}>
+              <div className="flex cursor-pointer items-center text-[14px] transition-colors hover:text-[#3866DF]">
+                Sold by <strong className="ml-1">noon</strong> <ChevronRight size={20} />
+              </div>
+            </Link>
+            <div className="flex items-center justify-start space-x-1">
+              <Star fill="#008000" color="#008000" size={16} />{' '}
+              <span className="font-bold text-[#008000] text-[14px]">4.3</span>
+            </div>
+          </div>
+        </div>
 
-				<div className="grid gap-[8px] grid-cols-2 cursor-pointer w-full">
-					<div className="bg-[#f3f4f8] h-[32px] w-full rounded-[6px] gap-[6px] grid-cols-[span_2/span_2] flex items-center justify-center px-[8px] py-[4px] text-[14px] flex-row flex-nowrap">
-						<span className="text-ellipsis whitespace-nowrap text-[#404553]">Item as shown</span>
-						<span className="text-[#38AE04] whitespace-nowrap break-keep text-ellipsis font-bold">90%</span>
-					</div>
-					<div className="bg-[#f3f4f8] h-[32px] rounded-[6px] gap-[6px] grid-cols-[span_2/span_2] flex items-center justify-center px-[8px] py-[4px] text-[14px]">
-						<span className="text-ellipsis whitespace-nowrap text-[#404553]">Partner since</span>
-						<span className="text-[#38AE04] whitespace-nowrap break-keep text-ellipsis font-bold">4+ Y</span>
-					</div>
+        <div className="grid w-full cursor-pointer grid-cols-2 gap-[8px]">
+          <div className="flex h-[32px] w-full grid-cols-[span_2/span_2] flex-row flex-nowrap items-center justify-center gap-[6px] rounded-[6px] bg-[#f3f4f8] px-[8px] py-[4px] text-[14px]">
+            <span className="text-ellipsis whitespace-nowrap text-[#404553]">Item as shown</span>
+            <span className="text-ellipsis whitespace-nowrap break-keep font-bold text-[#38AE04]">90%</span>
+          </div>
+          <div className="flex h-[32px] grid-cols-[span_2/span_2] items-center justify-center gap-[6px] rounded-[6px] bg-[#f3f4f8] px-[8px] py-[4px] text-[14px]">
+            <span className="text-ellipsis whitespace-nowrap text-[#404553]">Partner since</span>
+            <span className="text-ellipsis whitespace-nowrap break-keep font-bold text-[#38AE04]">4+ Y</span>
+          </div>
 
-					<div className="bg-[#f3f4f8] h-[32px] rounded-[6px] gap-[6px] grid-cols-[span_2/span_2] flex items-center justify-center px-[8px] py-[4px] text-[14px]">
-						<span className="text-ellipsis whitespace-nowrap text-[#404553]">Great recent rating</span>
-					</div>
-				</div>
-			</div>
-			<Separator className="my-5" />
-			{/* Name of this section is Support Details */}
-			<div className="py-3 px-4">
-				<ul className="space-y-3">
-					<li className="flex items-center space-x-2 text-[14px] text-[#7F7F7F] hover:text-[#3866DF] cursor-pointer ">
-						<div>{product_page_icon.lockerDeliveryIcon}</div>
+          <div className="flex h-[32px] grid-cols-[span_2/span_2] items-center justify-center gap-[6px] rounded-[6px] bg-[#f3f4f8] px-[8px] py-[4px] text-[14px]">
+            <span className="text-ellipsis whitespace-nowrap text-[#404553]">Great recent rating</span>
+          </div>
+        </div>
+      </div>
+      <Separator className="my-5" />
+      {/* Name of this section is Support Details */}
+      <div className="px-4 py-3">
+        <ul className="space-y-3">
+          <li className="flex cursor-pointer items-center space-x-2 text-[#7F7F7F] text-[14px] hover:text-[#3866DF] ">
+            <div>{product_page_icon.lockerDeliveryIcon}</div>
 
-						<span>Free delivery on Lockers</span>
-					</li>
+            <span>Free delivery on Lockers</span>
+          </li>
 
-					<li className="flex items-center space-x-2 text-[14px]  text-[#7F7F7F] hover:text-[#3866DF]  cursor-pointer ">
-						<div>{product_page_icon.returnableIcon}</div>
-						<span>This item is eligible for fre returns</span>
-					</li>
+          <li className="flex cursor-pointer items-center space-x-2 text-[#7F7F7F] text-[14px] hover:text-[#3866DF] ">
+            <div>{product_page_icon.returnableIcon}</div>
+            <span>This item is eligible for fre returns</span>
+          </li>
 
-					<li className="flex items-center space-x-2 text-[14px] text-[#7F7F7F] hover:text-[#3866DF] cursor-pointer ">
-						<div>{product_page_icon.securePaymentsIcon}</div>
-						<span>Secure Payments</span>
-					</li>
-				</ul>
-			</div>
+          <li className="flex cursor-pointer items-center space-x-2 text-[#7F7F7F] text-[14px] hover:text-[#3866DF] ">
+            <div>{product_page_icon.securePaymentsIcon}</div>
+            <span>Secure Payments</span>
+          </li>
+        </ul>
+      </div>
 
-			<Separator className="my-5" />
+      <Separator className="my-5" />
 
-			<div className="py-3 px-4">
-				{Number(product?.stock) === 0 ? (
-					<Button
-						disabled
-						className="bg-[#6079E1] hover:bg-[#6079E1] cursor-default transition-colors flex items-center justify-center text-white w-full h-[48px] rounded-[14px]  uppercase font-bold text-[14px]"
-					>
-						Out of stock
-					</Button>
-				) : (
-					<Button
-						onClick={async () => {
-							const { data } = await addCartItem({ variables: { product_id: productId, quantity: 1 } });
-							if (data.addToCart.success) {
-								await refetch();
-							} else {
-								toast.error("Failed to add product to cart. Please try again.");
-							}
-						}}
-						className="bg-[#2B4CD7] hover:bg-[#6079E1] transition-colors flex items-center justify-center text-white w-full h-[48px] rounded-[14px] cursor-pointer uppercase font-bold text-[14px]"
-					>
-						{loading ? <BouncingLoading /> : "Add to cart"}
-					</Button>
-				)}
-			</div>
-		</div>
-	) : (
-		<div className="flex flex-col w-full bg-white p-[10px] rounded-[8px] border border-[#f3f4f8] shadow-[0_2px_8px_0_rgba(0,0,0,.05)]">
-			<button className="flex items-center gap-3">
-				<Link
-					className="flex items-center justify-between gap-3 w-full"
-					to={"/seller/$sellerId"}
-					params={{ sellerId: "1" }}
-				>
-					<div className="flex items-center gap-3">
-						<div className="w-[48px] h-[48px] bg-[#f3f4f8] flex items-center justify-center rounded-full">
-							{product_page_icon.coloredSellerIcon}
-						</div>
-						<div>
-							<div className="flex items-center cursor-pointer text-[12px] hover:text-[#3866df] transition-colors">
-								Sold by <strong className="ml-1 text-[#3866df] underline text-[14px]">noon</strong>
-							</div>
-							<div className="flex items-center gap-[8px] mt-2">
-								<div className="h-[17px] w-fit bg-[#38AE04] text-[14px] text-white py-[2px] px-[4px] flex items-center justify-center rounded-full gap-[2px]">
-									<span>4.7</span>
-									<Star fill="white" color="white" size={9} />
-								</div>
-								<div className="text-[12px]">96% Positive Ratings</div>
-							</div>
-						</div>
-					</div>
-					<ChevronRight size={20} />
-				</Link>
-			</button>
-			<Separator className="my-5" />
-		</div>
-	);
+      <div className="px-4 py-3">
+        {Number(product?.stock) === 0 ? (
+          <Button
+            disabled
+            className="flex h-[48px] w-full cursor-default items-center justify-center rounded-[14px] bg-[#6079E1] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#6079E1]">
+            Out of stock
+          </Button>
+        ) : (
+          <Button
+            onClick={async () => {
+              const { data } = await addCartItem({ variables: { product_id: productId, quantity: 1 } })
+              if (data.addToCart.success) {
+                await refetch()
+              } else {
+                toast.error('Failed to add product to cart. Please try again.')
+              }
+            }}
+            className="flex h-[48px] w-full cursor-pointer items-center justify-center rounded-[14px] bg-[#2B4CD7] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#6079E1]">
+            {loading ? <BouncingLoading /> : 'Add to cart'}
+          </Button>
+        )}
+      </div>
+    </div>
+  ) : (
+    <div className="flex w-full flex-col rounded-[8px] border border-[#f3f4f8] bg-white p-[10px] shadow-[0_2px_8px_0_rgba(0,0,0,.05)]">
+      <button className="flex items-center gap-3">
+        <Link
+          className="flex w-full items-center justify-between gap-3"
+          to={'/seller/$sellerId'}
+          params={{ sellerId: '1' }}>
+          <div className="flex items-center gap-3">
+            <div className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-[#f3f4f8]">
+              {product_page_icon.coloredSellerIcon}
+            </div>
+            <div>
+              <div className="flex cursor-pointer items-center text-[12px] transition-colors hover:text-[#3866df]">
+                Sold by <strong className="ml-1 text-[#3866df] text-[14px] underline">noon</strong>
+              </div>
+              <div className="mt-2 flex items-center gap-[8px]">
+                <div className="flex h-[17px] w-fit items-center justify-center gap-[2px] rounded-full bg-[#38AE04] px-[4px] py-[2px] text-[14px] text-white">
+                  <span>4.7</span>
+                  <Star fill="white" color="white" size={9} />
+                </div>
+                <div className="text-[12px]">96% Positive Ratings</div>
+              </div>
+            </div>
+          </div>
+          <ChevronRight size={20} />
+        </Link>
+      </button>
+      <Separator className="my-5" />
+    </div>
+  )
 }

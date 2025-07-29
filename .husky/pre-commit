@@ -2,36 +2,32 @@
 
 # 🎶✨ Husky x Biome: Code Check Jam™ 🎧🧪
 
+set -e  # Exit on first error
+
 echo ""
 echo "🎛️ [husky] Booting beats, no bugs allowed..."
 echo "🔎 [sys] Peeking under the OS cloud..."
 
-IS_LINUX=false
-
-case "$(uname -s)" in
-  Linux*)     IS_LINUX=true ;;
-  *)          IS_LINUX=false ;;
-esac
-
-if [ "$IS_LINUX" = true ]; then
-  RUN="sudo pnpm"
-  echo "🐧 [env] Linux power — root on the hour ⏱️"
-else
-  RUN="pnpm"
-  echo "🍎 [env] Mac or Windows — smooth like wind flows 💨"
+# Check for pnpm
+if ! command -v pnpm >/dev/null 2>&1; then
+  echo "❌ [error] 'pnpm' not found. Please install it before committing."
+  exit 1
 fi
 
-echo ""
 echo "🎧 [track] Entering client directory to drop some lines..."
-cd client || exit 1
+cd client || {
+  echo "❌ [error] Failed to cd into 'client' directory."
+  exit 1
+}
 
-echo "🧪 [lint] Spinning up biome to check for crimes..."
-$RUN biome lint --write ./src || exit 1
+echo "🧪 [lint] Spinning up Biome to check for crimes..."
+pnpm biome lint --write ./src
+
 echo "✅ [clean] Syntax is crisp — no broken rhymes 🛠️"
 
-echo ""
 echo "🎨 [style] Giving files a formatting spell..."
-$RUN biome format --write ./src || exit 1
+pnpm biome format --write ./src
+
 echo "✨ [fresh] Code is sharp — looking fly as well 🧥"
 
 echo ""

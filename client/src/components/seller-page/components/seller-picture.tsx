@@ -1,18 +1,18 @@
-import { Image } from "@unpic/react";
+import { Image } from '@unpic/react'
 
 export function SellerPicture() {
-	return (
-		<div className="w-[calcl(100% - 72px)] flex items-center justify-center absolute h-[110px] -translate-y-1/2 top-0">
-			<div className="w-[110px] h-[110px] rounded-full bg-white border-[5px] border-[#f3f4f8] overflow-hidden flex items-center justify-center">
-				<Image
-					src="/media/imgs/noon-logo.png"
-					alt="logo"
-					className="w-full h-full"
-					width={110}
-					height={110}
-					layout="constrained"
-				/>
-			</div>
-		</div>
-	);
+  return (
+    <div className="- 72px)] -translate-y-1/2 absolute top-0 flex h-[110px] w-[calcl(100% items-center justify-center">
+      <div className="flex h-[110px] w-[110px] items-center justify-center overflow-hidden rounded-full border-[#f3f4f8] border-[5px] bg-white">
+        <Image
+          src="/media/imgs/noon-logo.png"
+          alt="logo"
+          className="h-full w-full"
+          width={110}
+          height={110}
+          layout="constrained"
+        />
+      </div>
+    </div>
+  )
 }

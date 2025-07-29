@@ -1,70 +1,69 @@
-import { cn } from "../../utils/cn";
+import { cn } from '../../utils/cn'
 
-type ButtonDirectionType = "left" | "right";
-type IconDirectionType = "left" | "right";
+type ButtonDirectionType = 'left' | 'right'
+type IconDirectionType = 'left' | 'right'
 
-type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "className" | "buttonContent"> & {
-	className?: string;
-	button?: boolean | { content: React.ReactNode };
-	buttonDirection?: ButtonDirectionType;
-	input?: { className?: string };
-	iconDirection?: IconDirectionType;
-	icon?: React.ReactElement | React.ReactNode;
-	labelContent?: string;
-};
+type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'className' | 'buttonContent'> & {
+  className?: string
+  button?: boolean | { content: React.ReactNode }
+  buttonDirection?: ButtonDirectionType
+  input?: { className?: string }
+  iconDirection?: IconDirectionType
+  icon?: React.ReactElement | React.ReactNode
+  labelContent?: string
+}
 
 export function Input({
-	className,
-	input,
-	button = false,
-	icon,
-	iconDirection = "left",
-	buttonDirection = "right",
-	labelContent,
-	...rest
+  className,
+  input,
+  button = false,
+  icon,
+  iconDirection = 'left',
+  buttonDirection = 'right',
+  labelContent,
+  ...rest
 }: InputProps) {
-	const hasIcon = !!icon;
-	const iconLeft = hasIcon && iconDirection === "left";
-	const iconRight = hasIcon && iconDirection === "right";
-	const isButton = !!button;
-	const buttonContent = typeof button === "object" && button.content ? button.content : "apply";
+  const hasIcon = !!icon
+  const iconLeft = hasIcon && iconDirection === 'left'
+  const iconRight = hasIcon && iconDirection === 'right'
+  const isButton = !!button
+  const buttonContent = typeof button === 'object' && button.content ? button.content : 'apply'
 
-	return (
-		<div className={cn("flex", labelContent ? "flex-col items-start gap-2" : "items-center", className)}>
-			{labelContent && (
-				<label htmlFor={rest.id} className="text-[16px]">
-					{labelContent}
-				</label>
-			)}
-			<div className={cn("flex items-center w-full", buttonDirection === "left" ? "flex-row-reverse" : "flex-row")}>
-				{isButton && (
-					<button
-						className={cn(
-							"text-[14px] cursor-pointer h-[40px] text-white bg-[#3866df] min-w-[64px] px-[12px] uppercase font-bold",
-							buttonDirection === "left" ? "rounded-l-[6px]" : "rounded-r-[6px]",
-						)}
-					>
-						{buttonContent}
-					</button>
-				)}
-				<div className="relative w-full">
-					<div className={cn("absolute inset-y-0 flex items-center", iconLeft && "left-3", iconRight && "right-3")}>
-						{icon}
-					</div>
-					<input
-						className={cn(
-							"text-[16px] w-full border border-[#E2E5F1] outline-none rounded-[6px] px-3",
-							"pt-[10px] pb-[10px] leading-[1.2]",
-							iconLeft && "pl-10",
-							iconRight && "pr-10",
-							input?.className,
-							isButton && buttonDirection === "left" && "rounded-r-none",
-							isButton && buttonDirection === "right" && "rounded-l-none",
-						)}
-						{...rest}
-					/>
-				</div>
-			</div>
-		</div>
-	);
+  return (
+    <div className={cn('flex', labelContent ? 'flex-col items-start gap-2' : 'items-center', className)}>
+      {labelContent && (
+        <label htmlFor={rest.id} className="text-[16px]">
+          {labelContent}
+        </label>
+      )}
+      <div className={cn('flex w-full items-center', buttonDirection === 'right' ? 'flex-row-reverse' : 'flex-row')}>
+        {isButton && (
+          <button
+            className={cn(
+              'h-[40px] min-w-[64px] cursor-pointer bg-[#3866df] px-[12px] font-bold text-[14px] text-white uppercase',
+              buttonDirection === 'right' ? 'rounded-r-[6px]' : 'rounded-l-[6px]',
+            )}>
+            {buttonContent}
+          </button>
+        )}
+        <div className="relative w-full">
+          <div className={cn('absolute inset-y-0 flex items-center', iconLeft && 'left-3', iconRight && 'right-3')}>
+            {icon}
+          </div>
+          <input
+            className={cn(
+              'w-full border border-[#E2E5F1] px-3 text-[16px] outline-none',
+              'rounded-[6px] pt-[10px] pb-[10px] leading-[1.2]',
+              iconLeft && 'pl-10',
+              iconRight && 'pr-10',
+              input?.className,
+              isButton && buttonDirection === 'left' && 'rounded-l-none',
+              isButton && buttonDirection === 'right' && 'rounded-r-none',
+            )}
+            {...rest}
+          />
+        </div>
+      </div>
+    </div>
+  )
 }

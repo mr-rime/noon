@@ -1,26 +1,26 @@
-import { useQuery } from "@apollo/client";
-import Cookies from "js-cookie";
-import { GET_USER } from "../../../graphql/user";
-import { Skeleton } from "../../ui/skeleton";
+import { useQuery } from '@apollo/client'
+import Cookies from 'js-cookie'
+import { GET_USER } from '../../../graphql/user'
+import { Skeleton } from '../../ui/skeleton'
 export function UserAvatar() {
-	const { data, loading } = useQuery(GET_USER, {
-		variables: { hash: Cookies.get("hash") || "" },
-	});
+  const { data, loading } = useQuery(GET_USER, {
+    variables: { hash: Cookies.get('hash') || '' },
+  })
 
-	return (
-		<div className="bg-white flex items-center space-x-2 rounded-[12px] w-full p-[12px_12px_24px]">
-			<div className="h-[64px] aspect-square rounded-full text-white bg-[#6a6a6a] border border-[#dabf8b] text-[20px] font-bold flex items-center justify-center">
-				AH
-			</div>
-			<div>
-				<div className="text-[18px]">
-					<strong className="flex items-center">
-						<span className="mr-1">Hala</span>{" "}
-						{loading ? <Skeleton className="h-[15px] rounded-[3px]" /> : `${data.getUser.user.first_name}!`}
-					</strong>
-				</div>
-				<p className="text-[14px] text-[#404553] w-[212px] truncate flex">oms51857@gmail.com</p>
-			</div>
-		</div>
-	);
+  return (
+    <div className="flex w-full items-center space-x-2 rounded-[12px] bg-white p-[12px_12px_24px]">
+      <div className="flex aspect-square h-[64px] items-center justify-center rounded-full border border-[#dabf8b] bg-[#6a6a6a] font-bold text-[20px] text-white">
+        AH
+      </div>
+      <div>
+        <div className="text-[18px]">
+          <strong className="flex items-center">
+            <span className="mr-1">Hala</span>{' '}
+            {loading ? <Skeleton className="h-[15px] rounded-[3px]" /> : `${data.getUser.user.first_name}!`}
+          </strong>
+        </div>
+        <p className="flex w-[212px] truncate text-[#404553] text-[14px]">oms51857@gmail.com</p>
+      </div>
+    </div>
+  )
 }

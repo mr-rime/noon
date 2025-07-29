@@ -1,14 +1,14 @@
-import { Separator } from "../ui/separator";
-import { OverallRating } from "./components/overall-rating";
-import { Reviews } from "./components/reviews";
+import { Separator } from '../ui/separator'
+import { OverallRating } from './components/overall-rating'
+import { Reviews } from './components/reviews'
 
 export function ProductReviews() {
-	return (
-		<section id="porduct_reviews" className="site-container mt-10 min-h-[330px] p-5 overflow-x-hidden">
-			<div className="text-[24px] font-bold">Product Ratings & Reviews</div>
-			<Separator className="my-5" />
+  return (
+    <section id="porduct_reviews" className="site-container mt-10 min-h-[330px] overflow-x-hidden p-5">
+      <div className="font-bold text-[24px]">Product Ratings & Reviews</div>
+      <Separator className="my-5" />
 
-			{/* <div>
+      {/* <div>
 				<div className="text-[32px] font-bold">
 					<span>4.2</span>
 				</div>
@@ -23,14 +23,14 @@ export function ProductReviews() {
 					<span>Based on 22 ratings</span>
 				</div>
 			</div> */}
-			<div className="block md:hidden">
-				<Reviews />
-			</div>
-			<section className="items-start hidden md:flex">
-				<OverallRating />
-				<Separator className="bg-[#f3f4f8] min-h-[330px] h-auto w-[1px] rounded-full mx-10" />
-				<Reviews />
-			</section>
-		</section>
-	);
+      <div className="block md:hidden">
+        <Reviews />
+      </div>
+      <section className="hidden items-start md:flex">
+        <OverallRating />
+        <Separator className="mx-10 h-auto min-h-[330px] w-[1px] rounded-full bg-[#f3f4f8]" />
+        <Reviews />
+      </section>
+    </section>
+  )
 }

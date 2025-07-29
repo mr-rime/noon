@@ -13,9 +13,15 @@ class ProductImage
     public function findByProductId(string $productId): array
     {
         $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE product_id = ?");
+        if (!$stmt) {
+            error_log("Prepare failed (findByProductId): " . $this->db->error);
+            return [];
+        }
+
         $stmt->bind_param('s', $productId);
 
         if (!$stmt->execute()) {
+            error_log("Execute failed (findByProductId): " . $stmt->error);
             return [];
         }
 
@@ -25,10 +31,9 @@ class ProductImage
 
     public function create(string $productId, string $imageUrl, bool $isPrimary = false): bool
     {
-        if ($isPrimary) {
-            $stmt = $this->db->prepare("UPDATE {$this->table} SET is_primary = FALSE WHERE product_id = ?");
-            $stmt->bind_param('s', $productId);
-            $stmt->execute();
+        // Unset primary if needed
+        if ($isPrimary && !$this->unsetPrimary($productId)) {
+            return false;
         }
 
         $stmt = $this->db->prepare("
@@ -36,8 +41,12 @@ class ProductImage
             VALUES (?, ?, ?)
         ");
 
-        $isPrimaryInt = $isPrimary ? 1 : 0;
+        if (!$stmt) {
+            error_log("Prepare failed (create): " . $this->db->error);
+            return false;
+        }
 
+        $isPrimaryInt = $isPrimary ? 1 : 0;
         $stmt->bind_param('ssi', $productId, $imageUrl, $isPrimaryInt);
 
         return $stmt->execute();
@@ -45,33 +54,66 @@ class ProductImage
 
     public function setPrimary(int $imageId, string $productId): bool
     {
-        $stmt1 = $this->db->prepare("UPDATE {$this->table} SET is_primary = FALSE WHERE product_id = ?");
-        $stmt1->bind_param('s', $productId);
-        $stmt1->execute();
+        if (!$this->unsetPrimary($productId)) {
+            return false;
+        }
 
-        $stmt2 = $this->db->prepare("UPDATE {$this->table} SET is_primary = TRUE WHERE id = ? AND product_id = ?");
-        $stmt2->bind_param('is', $imageId, $productId);
+        $stmt = $this->db->prepare("UPDATE {$this->table} SET is_primary = TRUE WHERE id = ? AND product_id = ?");
+        if (!$stmt) {
+            error_log("Prepare failed (setPrimary): " . $this->db->error);
+            return false;
+        }
 
-        return $stmt2->execute();
+        $stmt->bind_param('is', $imageId, $productId);
+        return $stmt->execute();
     }
 
     public function delete(int $imageId): bool
     {
         $stmt = $this->db->prepare("DELETE FROM {$this->table} WHERE id = ?");
-        $stmt->bind_param('i', $imageId);
+        if (!$stmt) {
+            error_log("Prepare failed (delete): " . $this->db->error);
+            return false;
+        }
 
+        $stmt->bind_param('i', $imageId);
         return $stmt->execute();
     }
 
     public function replaceForProduct(string $productId, array $images): void
     {
-        $this->db->query("DELETE FROM product_images WHERE product_id = '$productId'");
-        $stmt = $this->db->prepare("INSERT INTO product_images (product_id, image_url, is_primary) VALUES (?, ?, ?)");
+        // Delete images safely using prepared statement
+        $delStmt = $this->db->prepare("DELETE FROM {$this->table} WHERE product_id = ?");
+        if ($delStmt) {
+            $delStmt->bind_param('s', $productId);
+            $delStmt->execute();
+        } else {
+            error_log("Prepare failed (replaceForProduct - delete): " . $this->db->error);
+            return;
+        }
+
+        $insStmt = $this->db->prepare("INSERT INTO {$this->table} (product_id, image_url, is_primary) VALUES (?, ?, ?)");
+        if (!$insStmt) {
+            error_log("Prepare failed (replaceForProduct - insert): " . $this->db->error);
+            return;
+        }
+
         foreach ($images as $img) {
-            $isPrimary = $img['is_primary'] ? 1 : 0;
-            $stmt->bind_param('ssi', $productId, $img['image_url'], $isPrimary);
-            $stmt->execute();
+            $isPrimary = !empty($img['is_primary']) ? 1 : 0;
+            $insStmt->bind_param('ssi', $productId, $img['image_url'], $isPrimary);
+            $insStmt->execute();
         }
     }
 
+    private function unsetPrimary(string $productId): bool
+    {
+        $stmt = $this->db->prepare("UPDATE {$this->table} SET is_primary = FALSE WHERE product_id = ?");
+        if (!$stmt) {
+            error_log("Prepare failed (unsetPrimary): " . $this->db->error);
+            return false;
+        }
+
+        $stmt->bind_param('s', $productId);
+        return $stmt->execute();
+    }
 }

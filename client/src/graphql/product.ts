@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client'
 
 export const CREATE_PRODUCT = gql`
     mutation(
@@ -56,7 +56,7 @@ export const CREATE_PRODUCT = gql`
         }
         }
     }
-`;
+`
 
 export const UPDATE_PRODUCT = gql`
     mutation (
@@ -115,7 +115,7 @@ export const UPDATE_PRODUCT = gql`
         }
         }
     }
-    `;
+    `
 
 export const GET_PRODUCTS = gql`
         query($limit:Int, $offset:Int,$search:String){
@@ -163,7 +163,7 @@ export const GET_PRODUCTS = gql`
             }
     }
 
-`;
+`
 
 export const GET_PRODUCT = gql`
 
@@ -208,4 +208,4 @@ query ($id: ID!) {
         }
     }
     }
-`;
+`
