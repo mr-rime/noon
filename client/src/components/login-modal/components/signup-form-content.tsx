@@ -12,7 +12,7 @@ import type { User } from '../../../types'
 import { animateElement } from '../../../utils/animateElement'
 import { cn } from '../../../utils/cn'
 import { Input } from '../../ui/input'
-import { SignupFormSchema, type SignupFormSchemaType } from '../schema'
+import { SignupFormSchema, type SignupFormSchemaType } from '../schema/schema'
 
 export function SignupFormContent({
   isLogin,

@@ -1,6 +1,6 @@
 import { UserRound } from 'lucide-react'
 import { useModalDialog } from '../../../hooks/use-modal-dialog'
-import { LoginModal } from '..'
+import { LoginModal } from '../login-modal'
 
 type LoginButtonWithModalDialogProps = {
   children?: (props: { open: () => void; isOpen: boolean }) => React.ReactNode
