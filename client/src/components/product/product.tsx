@@ -67,7 +67,7 @@ export function Product({
                 toast.error('Failed to add product to cart. Please try again.')
               }
             }}
-            className="h-[37px] w-[80%] text-[14px]">
+            className="h-[37px] w-[80%] text-[13px]">
             {loading ? <BouncingLoading /> : 'ADD TO CART'}
           </Button>
           <button className="flex h-[37px] w-[20%] cursor-pointer items-center justify-center rounded-[4px] border border-[#3866df] bg-transparent">

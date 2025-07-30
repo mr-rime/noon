@@ -61,7 +61,7 @@ export function Header() {
         <Separator className=" mx-3 h-[20px] w-[1px] bg-[#404553] opacity-[0.2]" />
 
         {!matchesExpectedRoute(pathname, expectedRoutes) && (
-          <Link to={'/'} className="mx-3">
+          <>
             {user ? (
               <WishlistLink />
             ) : (
@@ -73,7 +73,7 @@ export function Header() {
                 )}
               </LoginButtonWithModalDialog>
             )}
-          </Link>
+          </>
         )}
         <Link
           to={'/cart'}

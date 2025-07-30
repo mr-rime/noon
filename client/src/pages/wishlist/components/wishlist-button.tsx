@@ -16,7 +16,7 @@ export function WishlistButton({ id, name, is_default, is_private, item_count }:
       onClick={handleNavigate}
       className={cn(
         'w-full cursor-pointer p-[20px]',
-        id === wishlistCode ? 'bg-[#ebecf0]' : 'border border-[#ebecf0]',
+        id === wishlistCode ? 'border border-[#ebecf0] bg-[#ebecf0]' : 'border border-[#ebecf0]',
       )}>
       <p className="flex items-center gap-1">
         <span className="px-[7px] text-start font-bold text-[16px]">{name}</span>
