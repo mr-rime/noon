@@ -13,8 +13,8 @@ This document will walk you through how to contribute effectively.
 Click “Fork” on the repo, then:
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/shopsite.git
-cd shopsite
+git clone https://github.com/mr-rime/noon.git
+cd noon
 ```
 ### 2. Install Dependencies
 
