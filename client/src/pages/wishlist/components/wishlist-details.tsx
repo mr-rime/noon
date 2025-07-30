@@ -5,6 +5,9 @@ import { useQuery } from '@apollo/client'
 import { GET_WISHLIST_ITEMS } from '@/graphql/wishlist'
 import { useSearch } from '@tanstack/react-router'
 import { ProductSkeleton } from '@/components/product/components'
+import { wishlist_icons } from '../constants'
+import { Ellipsis } from 'lucide-react'
+import { Image } from '@unpic/react'
 
 export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
   const { wishlistCode } = useSearch({ from: '/(main)/_homeLayout/wishlist/' })
@@ -15,7 +18,7 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
 
   return (
     <section className="w-full flex-auto">
-      <header className="p-[20px]">
+      <header className="flex items-center justify-between p-[20px]">
         <p className="flex items-center gap-1">
           <span className="px-[7px] text-start font-bold text-[22px]">{currentWishlist?.name}</span>
           {currentWishlist?.is_default && (
@@ -24,21 +27,53 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
             </span>
           )}
         </p>
+
+        <div className="flex items-center gap-4">
+          <button className="flex cursor-pointer items-center gap-3 rounded-full border border-[#ebecf0] px-[30px] py-[6px]">
+            <span>{wishlist_icons.shareIcon}</span>
+            <span className="font-bold text-[14px]">Share</span>
+          </button>
+          <button className="flex cursor-pointer items-center gap-2 rounded-full border border-[#ebecf0] px-[30px] py-[6px]">
+            <span>
+              <Ellipsis />
+            </span>
+            <span className="font-bold text-[14px]">More</span>
+          </button>
+        </div>
       </header>
       <Separator />
 
       <div className="m-5 w-full">
-        <div className="grid grid-cols-[repeat(4,minmax(0,calc(25%-15px)))] gap-[20px] ">
-          {loading ? (
-            <>
-              <ProductSkeleton />
-              <ProductSkeleton />
-              <ProductSkeleton />
-            </>
-          ) : (
-            data?.getWishlistItems.data.map((item) => <Product key={item.id} isWishlistProduct {...item} />)
-          )}
-        </div>
+        {(currentWishlist?.item_count || 0) <= 0 ? (
+          <div className="flex h-full w-full flex-col items-center justify-center">
+            <Image
+              src="/media/gifs/wishlist-empty-desktop-fallback.gif"
+              alt="empty wishlist fallback"
+              width={400}
+              height={400}
+              layout="constrained"
+            />
+
+            <div className="text-center">
+              <h3 className="font-bold text-[22px]">Ready to make a wish?</h3>
+              <p className="text-[#7e859b] text-[14px]">
+                Start adding items you love to your wishlist by tapping on the heart icon
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-[repeat(4,minmax(0,calc(25%-15px)))] gap-[20px] ">
+            {loading ? (
+              <>
+                <ProductSkeleton />
+                <ProductSkeleton />
+                <ProductSkeleton />
+              </>
+            ) : (
+              data?.getWishlistItems.data.map((item) => <Product key={item.id} isWishlistProduct {...item} />)
+            )}
+          </div>
+        )}
       </div>
     </section>
   )
