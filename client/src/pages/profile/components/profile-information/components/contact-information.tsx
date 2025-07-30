@@ -1,7 +1,7 @@
+import { Input } from '@/components/ui/input'
+import { Skeleton } from '@/components/ui/skeleton'
+import type { User } from '@/types'
 import { Pencil } from 'lucide-react'
-import type { User } from '../../../../../types'
-import { Input } from '../../../../ui/input'
-import { Skeleton } from '../../../../ui/skeleton'
 
 export function ContactInformation({ user, loading }: { user: User | undefined; loading: boolean }) {
   return (

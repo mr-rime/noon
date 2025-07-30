@@ -13,6 +13,7 @@ import type { User } from '@/types'
 import { GET_USER } from '@/graphql/user'
 import { LoginButtonWithModalDialog } from '../login-modal'
 import type { CartResponseType } from '@/pages/cart'
+import { WishlistLink } from './components/wishlist-link'
 
 const expectedRoutes = [
   '/orders',
@@ -62,7 +63,7 @@ export function Header() {
         {!matchesExpectedRoute(pathname, expectedRoutes) && (
           <Link to={'/'} className="mx-3">
             {user ? (
-              <Link to="/wishlist">{header_icons.heartIcon}</Link>
+              <WishlistLink />
             ) : (
               <LoginButtonWithModalDialog>
                 {({ open, isOpen }) => (

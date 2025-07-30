@@ -11,6 +11,7 @@ import { useMutation, useQuery } from '@apollo/client'
 import { ADD_CART_ITEM, GET_CART_ITEMS } from '@/graphql/cart'
 import type { CartResponseType } from '../../pages/cart/types'
 import { toast } from 'sonner'
+import { BouncingLoading } from '../ui/bouncing-loading'
 
 export function Product({
   id,
@@ -21,7 +22,7 @@ export function Product({
   discount_percentage,
   final_price,
   isWishlistProduct = false,
-}: ProductType & { isWishlistProduct?: boolean }) {
+}: Partial<ProductType> & { isWishlistProduct?: boolean }) {
   const [addCartItem, { loading }] = useMutation(ADD_CART_ITEM)
   const { refetch } = useQuery<CartResponseType>(GET_CART_ITEMS)
   return (
@@ -32,11 +33,11 @@ export function Product({
       )}>
       <Link
         to="/$title/$productId"
-        params={{ productId: id, title: name.replace(/\s+/g, '-') }}
+        params={{ productId: id || '', title: name?.replace(/\s+/g, '-') || '' }}
         className="h-full w-full"
         preload="intent">
-        <ProductImage images={images?.map((img) => img.image_url)} />
-        <ProductTitle name={name} />
+        <ProductImage images={images?.map((img) => img.image_url) || []} />
+        <ProductTitle name={name || ''} />
         <div className="my-2 flex w-fit items-center justify-center space-x-2 rounded-[6px] bg-[#f3f4f8] px-[6px] py-[4px]">
           <div className="flex items-center space-x-1">
             <Star fill="#008000" color="#008000" size={14} />
@@ -47,9 +48,9 @@ export function Product({
           </div>
         </div>
         <ProdcutPrice
-          price={price}
-          currency={currency}
-          final_price={final_price}
+          price={price || 0}
+          currency={currency || ''}
+          final_price={final_price || 0}
           discount_percentage={discount_percentage}
         />
         <ProductBadge />
@@ -57,6 +58,7 @@ export function Product({
       {isWishlistProduct && (
         <div className="mt-5 flex items-center gap-2">
           <Button
+            disabled={loading}
             onClick={async () => {
               const { data } = await addCartItem({ variables: { product_id: id, quantity: 1 } })
               if (data.addToCart.success) {
@@ -66,7 +68,7 @@ export function Product({
               }
             }}
             className="h-[37px] w-[80%] text-[14px]">
-            ADD TO CART
+            {loading ? <BouncingLoading /> : 'ADD TO CART'}
           </Button>
           <button className="flex h-[37px] w-[20%] cursor-pointer items-center justify-center rounded-[4px] border border-[#3866df] bg-transparent">
             <Ellipsis color="#3866df" size={20} />

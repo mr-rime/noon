@@ -1,7 +1,7 @@
+import { Skeleton } from '@/components/ui/skeleton'
+import { GET_USER } from '@/graphql/user'
 import { useQuery } from '@apollo/client'
 import Cookies from 'js-cookie'
-import { GET_USER } from '../../../graphql/user'
-import { Skeleton } from '../../ui/skeleton'
 export function UserAvatar() {
   const { data, loading } = useQuery(GET_USER, {
     variables: { hash: Cookies.get('hash') || '' },

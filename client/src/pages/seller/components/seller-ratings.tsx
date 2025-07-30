@@ -1,8 +1,8 @@
 import { Star } from 'lucide-react'
-import { Button } from '../../ui/button'
-import { RatingsBar } from '../../ui/ratings-bar'
-import { Separator } from '../../ui/separator'
 import { SellerReview } from './seller-review'
+import { Separator } from '@/components/ui/separator'
+import { RatingsBar } from '@/components/ui/ratings-bar'
+import { Button } from '@/components/ui/button'
 
 export function SellerRatings() {
   return (

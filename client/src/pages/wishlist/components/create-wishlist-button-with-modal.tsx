@@ -1,14 +1,35 @@
+import { BouncingLoading } from '@/components/ui/bouncing-loading'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { ModalDialog } from '@/components/ui/modal-dialog/modal-dialog'
 import { Separator } from '@/components/ui/separator'
+import { CREATE_WISHLIST } from '@/graphql/wishlist'
 import { useModalDialog } from '@/hooks/use-modal-dialog'
-import { useState } from 'react'
+import { useMutation } from '@apollo/client'
+import { useRef, useState } from 'react'
+import { toast } from 'sonner'
+import type { WishlistItemsResponseType } from '../types'
 
 export function CreateWishlistButtonWithModal() {
   const { isOpen, open, close } = useModalDialog()
   const [isUsingDefualt, setIsUsingDefualt] = useState(false)
+  const [createWishlist, { loading }] = useMutation<WishlistItemsResponseType>(CREATE_WISHLIST)
+  const wishlistNameInputRef = useRef<HTMLInputElement>(null)
+
+  const handleCreateWishlist = async () => {
+    if (wishlistNameInputRef.current?.value.trim() === '') return toast.error('Wishlist name cannot be empty')
+
+    const { data } = await createWishlist({ variables: { name: wishlistNameInputRef.current?.value } })
+
+    if (data?.createWishlist.success) {
+      toast.success(data?.createWishlist.message)
+      close()
+    } else {
+      toast.error(data?.createWishlist.message)
+    }
+  }
+
   return (
     <div>
       <Button onClick={open} className="h-[40px] px-[20px] py-[10px]">
@@ -31,6 +52,7 @@ export function CreateWishlistButtonWithModal() {
                 placeholder="Enter  wishlist name..."
                 className="w-full"
                 input={{ className: 'focus:border-[#9ba0b1]' }}
+                ref={wishlistNameInputRef}
               />
               <div className="mt-5">
                 <Checkbox
@@ -45,9 +67,10 @@ export function CreateWishlistButtonWithModal() {
           footer={
             <div className="mt-24">
               <Button
-                disabled
-                className="h-[40px] w-full disabled:cursor-default disabled:bg-[#f0f1f4] disabled:text-[#cbcfd7]">
-                Create
+                disabled={loading}
+                onClick={handleCreateWishlist}
+                className="relative h-[40px] w-full disabled:cursor-default ">
+                {loading ? <BouncingLoading /> : 'Create'}
               </Button>
             </div>
           }

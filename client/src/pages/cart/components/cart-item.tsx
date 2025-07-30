@@ -84,7 +84,9 @@ export function CartItem({
           </div>
           <div className="w-full space-x-1 text-end text-[11px]">
             <span className="text-[#7e859b] line-through">{price}</span>
-            <span className="font-bold text-[#38ae04] uppercase">{discount_percentage}% Off</span>
+            {discount_percentage && (
+              <span className="font-bold text-[#38ae04] uppercase">{discount_percentage}% Off</span>
+            )}
           </div>
         </div>
         <div className="mt-3 flex h-[50px] flex-col items-end">

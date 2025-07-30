@@ -1,0 +1,39 @@
+import { cn } from '@/utils/cn'
+import { wishlist_icons } from '../constants'
+import type { WishlistType } from '../types'
+import { useNavigate, useSearch } from '@tanstack/react-router'
+
+export function WishlistButton({ id, name, is_default, is_private, item_count }: WishlistType) {
+  const navigate = useNavigate({ from: '/wishlist' })
+  const { wishlistCode } = useSearch({ from: '/(main)/_homeLayout/wishlist/' })
+
+  const handleNavigate = () => {
+    navigate({ search: { wishlistCode: id } })
+  }
+
+  return (
+    <button
+      onClick={handleNavigate}
+      className={cn(
+        'w-full cursor-pointer p-[20px]',
+        id === wishlistCode ? 'bg-[#ebecf0]' : 'border border-[#ebecf0]',
+      )}>
+      <p className="flex items-center gap-1">
+        <span className="px-[7px] text-start font-bold text-[16px]">{name}</span>
+        {is_default && (
+          <span className="rounded-[14px] bg-[#3866df] px-[10px] py-[2px] font-bold text-[12px] text-white">
+            Defualt
+          </span>
+        )}
+      </p>
+      <p className="mt-3 flex items-center gap-2">
+        <span className="text-[14px]">{item_count} items </span>
+        {is_private ? (
+          <span>{wishlist_icons.wishlistPrivateIcon}</span>
+        ) : (
+          <span>{wishlist_icons.wishlistPublicIcon}</span>
+        )}
+      </p>
+    </button>
+  )
+}

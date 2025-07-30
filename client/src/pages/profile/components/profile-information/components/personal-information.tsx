@@ -1,11 +1,11 @@
 import { Calendar, Pencil } from 'lucide-react'
 import { useState } from 'react'
-import type { User } from '../../../../../types'
-import { Input } from '../../../../ui/input'
-import { Radio } from '../../../../ui/radio'
-import { Select } from '../../../../ui/select'
-import { Skeleton } from '../../../../ui/skeleton'
 import { profil_information_icons } from '../constants/icons'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Input } from '@/components/ui/input'
+import type { User } from '@/types'
+import { Select } from '@/components/ui/select'
+import { Radio } from '@/components/ui/radio'
 
 export function PersonalInformation({ user, loading }: { user: User | undefined; loading: boolean }) {
   const [selected, setSelected] = useState('male')

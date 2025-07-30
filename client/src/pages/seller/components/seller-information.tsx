@@ -1,8 +1,8 @@
 import { useNavigate } from '@tanstack/react-router'
 import { Star } from 'lucide-react'
-import { Progress } from '../../ui/progress'
-import { Separator } from '../../ui/separator'
 import { seller_page_icons } from '../constants/icons'
+import { Separator } from '@/components/ui/separator'
+import { Progress } from '@/components/ui/progress'
 
 export function SellerInformation() {
   const navigate = useNavigate()

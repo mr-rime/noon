@@ -14,7 +14,6 @@
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  margin: 3rem 0;
 }
 
 .bouncing-loader > div {
@@ -22,7 +21,7 @@
   height: 7px;
   background: white;
   border-radius: 50%;
-  animation: snake-bounce 0.5s ease-in-out infinite;
+  animation: snake-bounce 0.6s ease-in-out infinite;
 }
 
 .bouncing-loader > div:nth-child(1) {

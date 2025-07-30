@@ -1,8 +1,8 @@
-import { Input } from '../../../components/ui/input'
-import { Separator } from '../../../components/ui/separator'
-import type { CartItem } from '../types'
+import { Input } from '@/components/ui/input'
+import type { CartItemType } from '../types'
+import { Separator } from '@/components/ui/separator'
 
-export function OrderSummary({ cartItems }: { cartItems: CartItem[] }) {
+export function OrderSummary({ cartItems }: { cartItems: CartItemType[] }) {
   return (
     <section className="sticky w-full max-w-[35%] rounded-[6px] rounded-t-none border border-[rgba(198,204,221,.5)] p-[10px_20px]">
       <h2 className="font-bold text-[19px]">Order Summary</h2>
@@ -37,7 +37,7 @@ export function OrderSummary({ cartItems }: { cartItems: CartItem[] }) {
           </div>
           <div className="font-bold text-[21px]">
             <span className="mr-1">EGP</span>
-            <span>{cartItems.reduce((total, item) => total + (item.price || 0), 0).toFixed(2)}</span>
+            <span>{cartItems.reduce((total, item) => total + (item.final_price || 0), 0).toFixed(2)}</span>
           </div>
         </div>
 

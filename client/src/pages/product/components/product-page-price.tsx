@@ -14,9 +14,9 @@ export function ProdcutPagePrice({
           <span className="font-semibold text-[18px] md:text-[#101010] md:text-[16px]">{currency}</span>
           <strong className="text-[18px] md:text-[#1d2939] md:text-[24px]">{final_price?.toFixed(2)}</strong>
         </div>
-        {/* {final_price !== price && ( */}
-        <ProductPageDiscount discount_percentage={discount_percentage} currency={currency} price={price} />
-        {/* )} */}
+        {final_price !== price && (
+          <ProductPageDiscount discount_percentage={discount_percentage} currency={currency} price={price} />
+        )}
       </div>
     </div>
   )

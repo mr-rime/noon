@@ -1,7 +1,7 @@
 import { Search } from 'lucide-react'
-import { Order } from './order'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
+import { Order } from './components'
 
 export function Orders() {
   return (

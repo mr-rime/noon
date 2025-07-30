@@ -1,8 +1,8 @@
 import { ChevronUp } from 'lucide-react'
 import { useState } from 'react'
-import { Separator } from '../../../../ui/separator'
 import { tarcking_icons } from '../constants/icons'
 import { TimelineStatus } from './timeline-status'
+import { Separator } from '@/components/ui/separator'
 
 export function OrderTimeline() {
   const [isCollapsible, setIsCollapsible] = useState(true)

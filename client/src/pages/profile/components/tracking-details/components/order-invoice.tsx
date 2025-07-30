@@ -13,7 +13,7 @@ export function OrderInvoice() {
           <span className="ml-2 text-[#7e859b] capitalize">(home)</span>
         </h2>
         <p className="text-[14px]">Ahmed Hany</p>
-        <p className="text-[14px]">امام سعاف بجانب مدرسة الشهيد عبد المعطي حمدان, Gharbia, Egypt</p>
+        <p className="text-[14px]">Gharbia, Egypt</p>
 
         <div className="flex items-center space-x-2">
           <span className="text-[14px]">+20-10-33579442</span>

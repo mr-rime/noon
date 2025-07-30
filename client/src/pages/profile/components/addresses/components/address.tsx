@@ -1,5 +1,5 @@
+import { Switch } from '@/components/ui/switch'
 import { useState } from 'react'
-import { Switch } from '../../../../ui/switch'
 
 export function Address() {
   const [isDefault, setIsDefault] = useState(false)
@@ -17,8 +17,7 @@ export function Address() {
           <div className="w-[500px]">
             <div className="">
               <strong className="break-words ">
-                امام سعاف بجانب مدرسة الشهيد عبد المعطي حمدان, Tariaq Bedon Esm - Samatay - Kotoor - Gharbia Governorate
-                - 6728452
+                Tariaq Bedon Esm - Samatay - Kotoor - Gharbia Governorate - 6728452
               </strong>
             </div>
             <div>Gharbia, Egypt</div>

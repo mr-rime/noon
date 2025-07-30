@@ -2,18 +2,52 @@ import { Separator } from '@/components/ui/separator'
 import { CreateWishlistButtonWithModal } from './components/create-wishlist-button-with-modal'
 import { WishlistDetails } from './components/wishlist-details'
 import { WishlistSidebar } from './components/wishlist-sidebar'
+import { useQuery } from '@apollo/client'
+import { GET_WISHLISTS } from '@/graphql/wishlist'
+import { Skeleton } from '@/components/ui/skeleton'
+import type { WishlistsResponseType } from './types'
+import { useEffect } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 
 export function WishlistPage() {
+  const navigate = useNavigate({ from: '/wishlist' })
+  const { data, loading } = useQuery<WishlistsResponseType>(GET_WISHLISTS)
+  const wishlists = data?.getWishlists.data || []
+
+  useEffect(() => {
+    navigate({ search: { wishlistCode: wishlists[0]?.id } })
+  }, [loading])
+
   return (
     <main className="site-container mt-10 min-h-screen w-full px-[45px] py-2">
       <header className="flex w-full items-center justify-between">
-        <h2 className="font-bold text-[24px]">Wishlist</h2>
-        <CreateWishlistButtonWithModal />
+        {loading ? <Skeleton className="h-[32px] w-[150px]" /> : <h2 className="font-bold text-[24px]">Wishlist</h2>}
+
+        {loading ? <Skeleton className="h-[40px] w-[180px] rounded-md" /> : <CreateWishlistButtonWithModal />}
       </header>
+
       <Separator className="mt-5" />
-      <section className="flex items-start">
-        <WishlistSidebar />
-        <WishlistDetails />
+
+      <section className="mt-4 flex items-start gap-4">
+        {loading ? (
+          <div className="flex h-[400px] flex-[0_0_30%] flex-col space-y-4 border-[#EAECF0] border-r p-[20px]">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-[90px] w-full rounded-md" />
+            ))}
+          </div>
+        ) : (
+          <WishlistSidebar wishlists={wishlists} />
+        )}
+
+        {loading ? (
+          <div className="flex-1 space-y-4 p-4">
+            <Skeleton className="h-[30px] w-1/3" />
+            <Skeleton className="h-[150px] w-full rounded-md" />
+            <Skeleton className="h-[150px] w-full rounded-md" />
+          </div>
+        ) : (
+          <WishlistDetails wishlists={wishlists} />
+        )}
       </section>
     </main>
   )
