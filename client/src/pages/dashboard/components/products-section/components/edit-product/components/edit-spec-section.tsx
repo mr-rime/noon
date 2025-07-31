@@ -1,0 +1,81 @@
+import { useEffect, useState } from 'react'
+import { Plus, Trash2 } from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { useProductStore } from '@/store/create-product-store'
+import type { ProductSpecification } from '@/types'
+
+export function EditSpecSection({ specs: initialSpecs }: { specs: ProductSpecification[] }) {
+  const { product, setProduct, addSpecification } = useProductStore()
+  const storeSpecs = product.productSpecifications
+
+  const [hasLoadedInitial, setHasLoadedInitial] = useState(false)
+
+  useEffect(() => {
+    if (!hasLoadedInitial && initialSpecs?.length > 0) {
+      const specs = initialSpecs.map((spec) => ({
+        spec_name: spec.spec_name,
+        spec_value: spec.spec_value,
+      }))
+      setProduct({ productSpecifications: specs })
+      setHasLoadedInitial(true)
+    }
+  }, [initialSpecs, hasLoadedInitial, setProduct])
+
+  const handleSpecChange = (index: number, key: keyof ProductSpecification, value: string) => {
+    const updated = [...storeSpecs]
+    updated[index] = { ...updated[index], [key]: value }
+    setProduct({ productSpecifications: updated })
+  }
+
+  const handleAddSpec = () => {
+    addSpecification({ spec_name: '', spec_value: '' })
+  }
+
+  const handleRemoveSpec = (index: number) => {
+    const updated = storeSpecs.filter((_, i) => i !== index)
+    setProduct({ productSpecifications: updated })
+  }
+
+  return (
+    <div>
+      <div className="mb-5 flex items-center justify-between max-md:flex-col">
+        <h3 className="font-semibold text-lg">Product Specifications</h3>
+      </div>
+
+      {storeSpecs.map((spec, index) => (
+        <div key={index} className="mb-3 space-y-3 rounded-lg border border-[#E2E5F1] p-4">
+          <Input
+            labelContent="Specification Name"
+            placeholder="e.g. RAM, Storage"
+            value={spec.spec_name}
+            onChange={(e) => handleSpecChange(index, 'spec_name', e.target.value)}
+          />
+          <Input
+            labelContent="Specification Value"
+            placeholder="e.g. 8GB, 128GB"
+            value={spec.spec_value}
+            onChange={(e) => handleSpecChange(index, 'spec_value', e.target.value)}
+          />
+
+          <Button
+            type="button"
+            onClick={() => handleRemoveSpec(index)}
+            className="flex h-[40px] items-center justify-center gap-1 bg-red-500 hover:bg-red-600 max-md:w-full">
+            <Trash2 size={20} />
+            Remove
+          </Button>
+        </div>
+      ))}
+
+      <Button
+        type="button"
+        onClick={handleAddSpec}
+        className="flex h-[40px] w-full max-w-[220px] items-center justify-center gap-1 max-md:mt-3 max-md:w-full">
+        <Plus className="h-4 w-4" />
+        Add Specification
+      </Button>
+    </div>
+  )
+}

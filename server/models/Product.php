@@ -56,17 +56,24 @@ class Product
         return null;
     }
 
-    private function attachDiscountData(array &$product, float $price): void
+    public function attachDiscountData(array &$product, float $price): void
     {
         $discount = $this->discountModel->findByProductId($product['id']);
 
         $now = new DateTime();
+        error_log("NOW: " . $now->format('Y-m-d H:i:s'));
+
         if ($discount) {
             $startsAt = isset($discount['starts_at']) ? new DateTime($discount['starts_at']) : null;
             $endsAt = isset($discount['ends_at']) ? new DateTime($discount['ends_at']) : null;
 
+            error_log("STARTS_AT: " . ($startsAt?->format('Y-m-d H:i:s') ?? 'null'));
+            error_log("ENDS_AT: " . ($endsAt?->format('Y-m-d H:i:s') ?? 'null'));
+
             $isActive = (!$startsAt || $now >= $startsAt) &&
                 (!$endsAt || $now <= $endsAt);
+
+            error_log("DISCOUNT ACTIVE? " . ($isActive ? 'yes' : 'no'));
 
             if (!$isActive)
                 $discount = null;
@@ -187,21 +194,18 @@ class Product
 
         $product = null;
         while ($row = $result->fetch_assoc()) {
-            if (!$product) {
-                $product = [
-                    'id' => $row['id'],
-                    'user_id' => $row['user_id'],
-                    'category_id' => $row['category_id'],
-                    'name' => $row['name'],
-                    'price' => $row['price'],
-                    'currency' => $row['currency'],
-                    'stock' => $row['stock'],
-                    'is_returnable' => $row['is_returnable'],
-                    'product_overview' => $row['product_overview'],
-                    'created_at' => $row['created_at'],
-                    'updated_at' => $row['updated_at'],
-                    'images' => [],
-                ];
+            if (!$product['id']) {
+                $product['id'] = $row['id'];
+                $product['user_id'] = $row['user_id'];
+                $product['category_id'] = $row['category_id'];
+                $product['name'] = $row['name'];
+                $product['price'] = $row['price'];
+                $product['currency'] = $row['currency'];
+                $product['stock'] = $row['stock'];
+                $product['is_returnable'] = $row['is_returnable'];
+                $product['product_overview'] = $row['product_overview'];
+                $product['created_at'] = $row['created_at'];
+                $product['updated_at'] = $row['updated_at'];
             }
 
             if ($row['image_id']) {
@@ -212,7 +216,6 @@ class Product
                 ];
             }
         }
-
         if (!$product)
             return null;
 
@@ -237,7 +240,9 @@ class Product
             return null;
         }
 
-        $query = 'INSERT INTO products (id, user_id, name, price, currency, product_overview, is_returnable) VALUES (?, ?, ?, ?, ?, ?, ?)';
+        $query = 'INSERT INTO products (id, user_id, name, price, currency, product_overview, is_returnable, final_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+
+
         $stmt = $this->db->prepare($query);
         if (!$stmt) {
             error_log("Prepare failed: " . $this->db->error);
@@ -249,15 +254,19 @@ class Product
         $productOverview = $data['product_overview'] ?? null;
         $isReturnable = isset($data['is_returnable']) ? (int) (bool) $data['is_returnable'] : 0;
 
+        $finalPrice = $this->calculateFinalPrice($data['price'], $data['discount'] ?? null);
+
+
         $stmt->bind_param(
-            'sisdssi',
+            'sisdssid',
             $hash,
             $userId,
             $data['name'],
             $data['price'],
             $data['currency'],
             $productOverview,
-            $isReturnable
+            $isReturnable,
+            $finalPrice
         );
 
         if (!$stmt->execute()) {
@@ -298,20 +307,22 @@ class Product
 
     public function update(string $id, array $data): ?array
     {
-        $validator = v::key('name', v::stringType()->notEmpty()->length(1, 100), false)
+        $validator = v::key('name', v::stringType()->notEmpty()->length(1, max: 500), false)
             ->key('price', v::floatVal()->positive(), false)
             ->key('currency', v::stringType()->notEmpty()->length(3, 4), false)
             ->key('product_overview', v::optional(v::stringType()), false)
+            ->key('category_id', v::optional(v::stringType()->length(1, 21)), false)
             ->key('stock', v::optional(v::intVal()->min(0)), false)
             ->key('category_id', v::optional(v::stringType()->length(1, 21)), false)
             ->key('is_returnable', v::optional(v::boolType()), false);
-
         try {
             $validator->assert($data);
         } catch (ValidationException $err) {
             error_log("Validation failed: " . $err->getMessage());
             return null;
         }
+
+        error_log("Test" . json_encode($data['stock']));
 
         $fields = [];
         $types = '';
@@ -346,6 +357,19 @@ class Product
             $values[] = $value;
         }
 
+        $shouldRecalculate = isset($data['price']) || isset($data['discount']);
+        if ($shouldRecalculate) {
+            $currentProduct = $this->findById($id);
+            $price = $data['price'] ?? $currentProduct['price'];
+            $discount = $data['discount'] ?? $currentProduct['discount'];
+            $finalPrice = $this->calculateFinalPrice($data['price'], $data['discount'] ?? null);
+
+
+            $fields[] = "final_price = ?";
+            $types .= 'd';
+            $values[] = $finalPrice;
+        }
+
         if (empty($fields)) {
             error_log("No fields to update.");
             return null;
@@ -373,10 +397,9 @@ class Product
             return null;
         }
 
-        // Discount handling
         if (!empty($data['discount'])) {
             $discountModel = new Discount($this->db);
-            $existing = $discountModel->findById($id);
+            $existing = $discountModel->findByProductId($id);
 
             $discount = $data['discount'];
             unset($discount['__typename']);
@@ -404,6 +427,7 @@ class Product
                 $discountModel->create($discountData);
             }
         }
+
 
         return $this->findById($id);
     }

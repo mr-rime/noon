@@ -5,14 +5,14 @@ import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { type SubmitHandler, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import client from '../../../apollo'
+import client from '../../../config/apollo'
 import { LOGIN } from '../../../graphql/auth'
 import { GET_USER } from '../../../graphql/user'
 import type { User } from '../../../types'
 import { animateElement } from '../../../utils/animateElement'
 import { cn } from '../../../utils/cn'
 import { Input } from '../../ui/input'
-import { SignupFormSchema, type SignupFormSchemaType } from '../schema'
+import { SignupFormSchema, type SignupFormSchemaType } from '../schema/schema'
 
 export function SignupFormContent({
   isLogin,

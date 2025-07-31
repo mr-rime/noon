@@ -38,11 +38,11 @@ export type ProductType = {
   name: string
   price: number
   currency: string
-  product_overview: string
+  product_overview?: string
   category_id: string
   is_returnable: boolean
   discount_percentage?: number
-  final_price?: number
+  final_price: number
   stock: number
   discount?: DiscountType | null
   images: ProductImage[]
