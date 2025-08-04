@@ -18,6 +18,14 @@ export type WishlistItemsResponseType = {
   }
 }
 
+export type CreateWishlistResponseType = {
+  createWishlist: {
+    success: boolean
+    message: string
+    data: ProductType[]
+  }
+}
+
 export type WishlistsResponseType = {
   getWishlists: {
     success: boolean

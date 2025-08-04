@@ -32,7 +32,7 @@ export function CartPage() {
           <h1 className="flex items-center space-x-1">
             <strong className="text-[23px]">Cart</strong>
             <div className="text-[#7e859b] text-[14px]">({cartItems.length} items)</div>
-          </h1>{' '}
+          </h1>
           <section className="flex w-full items-start space-x-7">
             <CartItems cartItems={cartItems} refetch={refetch} />
             <OrderSummary cartItems={cartItems} />

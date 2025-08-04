@@ -37,9 +37,10 @@ export function CartItem({
           alt="product-img"
           loading="lazy"
           layout="constrained"
+          draggable={false}
           width={150}
           height={150}
-          className="h-full w-fit"
+          className="h-full w-fit select-none"
         />
       </Link>
 

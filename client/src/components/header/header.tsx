@@ -67,9 +67,12 @@ export function Header() {
             ) : (
               <LoginButtonWithModalDialog>
                 {({ open, isOpen }) => (
-                  <div onClick={open} aria-expanded={isOpen}>
+                  <button
+                    className="relative mr-3 h-fit w-fit cursor-pointer text-[#404553] transition-colors hover:text-[#8C8832]"
+                    onClick={open}
+                    aria-expanded={isOpen}>
                     {header_icons.heartIcon}
-                  </div>
+                  </button>
                 )}
               </LoginButtonWithModalDialog>
             )}

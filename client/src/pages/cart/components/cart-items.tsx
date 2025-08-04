@@ -1,5 +1,5 @@
 import { CartItem } from './cart-item'
-import type { CartItem as CartItemType } from '../types'
+import type { CartItemType } from '../types'
 
 export function CartItems({ cartItems, refetch }: { cartItems: CartItemType[]; refetch: () => Promise<any> }) {
   return (

@@ -6,8 +6,11 @@ import { GET_WISHLIST_ITEMS } from '@/graphql/wishlist'
 import { useSearch } from '@tanstack/react-router'
 import { ProductSkeleton } from '@/components/product/components'
 import { wishlist_icons } from '../constants'
-import { Ellipsis } from 'lucide-react'
+import { CircleCheck, Ellipsis, HeartMinus } from 'lucide-react'
 import { Image } from '@unpic/react'
+import { Dropdown } from '@/components/ui/dropdown'
+import { EditButttonWithModal } from './edit-buttton-with-modal'
+import { DeleteButtonWithModal } from './delete-button-with-modal'
 
 export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
   const { wishlistCode } = useSearch({ from: '/(main)/_homeLayout/wishlist/' })
@@ -33,12 +36,27 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
             <span>{wishlist_icons.shareIcon}</span>
             <span className="font-bold text-[14px]">Share</span>
           </button>
-          <button className="flex cursor-pointer items-center gap-2 rounded-full border border-[#ebecf0] px-[30px] py-[6px]">
-            <span>
-              <Ellipsis />
-            </span>
-            <span className="font-bold text-[14px]">More</span>
-          </button>
+          <Dropdown
+            align="center"
+            trigger={
+              <button className="flex cursor-pointer items-center gap-2 rounded-full border border-[#ebecf0] px-[30px] py-[6px]">
+                <span>
+                  <Ellipsis />
+                </span>
+                <span className="font-bold text-[14px]">More</span>
+              </button>
+            }>
+            <EditButttonWithModal />
+            <button className="flex w-full cursor-pointer items-center gap-2 border-gray-200/80 border-b p-2 text-start transition-colors hover:bg-gray-300/10">
+              <CircleCheck size={15} color="#3866DF" />
+              Make this default wishlist
+            </button>
+            <button className="flex w-full cursor-pointer items-center gap-2 border-gray-200/80 border-b p-2 text-start transition-colors hover:bg-gray-300/10">
+              <HeartMinus size={15} color="#3866DF" />
+              Empty Wishlist
+            </button>
+            <DeleteButtonWithModal />
+          </Dropdown>
         </div>
       </header>
       <Separator />
