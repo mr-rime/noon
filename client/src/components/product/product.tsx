@@ -4,14 +4,9 @@ import { ProdcutPrice } from './components/prodcut-price'
 import { ProductBadge } from './components/product-badge'
 import { ProductImage } from './components/product-image'
 import { ProductTitle } from './components/product-title'
-import { Ellipsis, Star } from 'lucide-react'
-import { Button } from '../ui/button'
+import { Star } from 'lucide-react'
 import { cn } from '@/utils/cn'
-import { useMutation, useQuery } from '@apollo/client'
-import { ADD_CART_ITEM, GET_CART_ITEMS } from '@/graphql/cart'
-import type { CartResponseType } from '../../pages/cart/types'
-import { toast } from 'sonner'
-import { BouncingLoading } from '../ui/bouncing-loading'
+import { WishlistControls } from './components/wishlist-controls'
 
 export function Product({
   id,
@@ -23,8 +18,6 @@ export function Product({
   final_price,
   isWishlistProduct = false,
 }: Partial<ProductType> & { isWishlistProduct?: boolean }) {
-  const [addCartItem, { loading }] = useMutation(ADD_CART_ITEM)
-  const { refetch } = useQuery<CartResponseType>(GET_CART_ITEMS)
   return (
     <article
       className={cn(
@@ -55,26 +48,7 @@ export function Product({
         />
         <ProductBadge />
       </Link>
-      {isWishlistProduct && (
-        <div className="mt-5 flex items-center gap-2">
-          <Button
-            disabled={loading}
-            onClick={async () => {
-              const { data } = await addCartItem({ variables: { product_id: id, quantity: 1 } })
-              if (data.addToCart.success) {
-                await refetch()
-              } else {
-                toast.error('Failed to add product to cart. Please try again.')
-              }
-            }}
-            className="h-[37px] w-[80%] text-[13px]">
-            {loading ? <BouncingLoading /> : 'ADD TO CART'}
-          </Button>
-          <button className="flex h-[37px] w-[20%] cursor-pointer items-center justify-center rounded-[4px] border border-[#3866df] bg-transparent">
-            <Ellipsis color="#3866df" size={20} />
-          </button>
-        </div>
-      )}
+      {isWishlistProduct && <WishlistControls productId={id} />}
     </article>
   )
 }

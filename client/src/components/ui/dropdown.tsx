@@ -1,7 +1,7 @@
+import { animateElement } from '@/utils/animateElement'
+import { cn } from '@/utils/cn'
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { cn } from '../../utils/cn'
-import { animateElement } from '../../utils/animateElement'
 
 // ==================== Dropdown Item Component ====================
 interface DropdownItemProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -162,7 +162,7 @@ export const Dropdown = memo(function Dropdown({
   className,
   dropdownClassName,
   position = 'bottom',
-  align = 'left',
+  align = 'center',
   isOpen: controlledOpen,
   onOpenChange,
   closeOnSelect = true,
@@ -185,7 +185,7 @@ export const Dropdown = memo(function Dropdown({
     const width = triggerRect.width
 
     if (position === 'top') {
-      top = triggerRect.top - 8 // Add some spacing
+      top = triggerRect.top - 8
     } else {
       top = triggerRect.bottom + 8
     }
@@ -202,9 +202,7 @@ export const Dropdown = memo(function Dropdown({
         break
     }
 
-    // Ensure dropdown stays within viewport
     const viewportWidth = window.innerWidth
-    const viewportHeight = window.innerHeight
     const dropdownWidth = width
 
     // Adjust horizontal position if near viewport edges
@@ -275,7 +273,7 @@ export const Dropdown = memo(function Dropdown({
   }, [isOpen, closeDropdown, updatePosition])
 
   return (
-    <div className={cn(' inline-block ', className)} ref={dropdownRef}>
+    <div className={cn('inline-block w-full ', className)} ref={dropdownRef}>
       <div onClick={toggleDropdown} className="w-full cursor-pointer" aria-expanded={isOpen} aria-haspopup="true">
         {typeof trigger === 'function' ? trigger(isOpen) : trigger}
       </div>
