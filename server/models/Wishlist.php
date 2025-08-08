@@ -105,7 +105,7 @@ class Wishlist
         FROM wishlists w
         LEFT JOIN wishlist_items wi ON wi.wishlist_id = w.id
         WHERE w.user_id = ?
-        GROUP BY w.id
+        GROUP BY w.id ORDER BY w.is_default DESC
     ');
 
         if (!$stmt) {
@@ -198,6 +198,26 @@ class Wishlist
             return false;
         }
 
+        if ($args["is_default"]) {
+            // Get the user_id for this wishlist
+            $stmt = $this->db->prepare(
+                "SELECT user_id FROM wishlists WHERE id = ?"
+            );
+            $stmt->bind_param("s", $wishlistId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            $userId = $row["user_id"] ?? null;
+
+            if ($userId) {
+                $stmt = $this->db->prepare(
+                    "UPDATE wishlists SET is_default = 0 WHERE user_id = ? AND id != ?"
+                );
+                $stmt->bind_param("ss", $userId, $wishlistId);
+                $stmt->execute();
+            }
+        }
+
         $stmt = $this->db->prepare(
             "UPDATE wishlists SET name = ?, is_private = ?, is_default = ? WHERE id = ?"
         );
@@ -212,6 +232,7 @@ class Wishlist
 
         return $stmt->execute();
     }
+
     public function isInWishlist(int $userId, string $productId): bool
     {
         $idValidator = v::stringType()->notEmpty()->length(1, 36);

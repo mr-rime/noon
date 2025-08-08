@@ -3,10 +3,9 @@ import { ChevronRight, Star } from 'lucide-react'
 import { Separator } from '../../../components/ui/separator'
 import { product_page_icon } from '../constants/icons'
 import { Button } from '@/components/ui/button'
-import { useMutation, useQuery } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 import { ADD_CART_ITEM, GET_CART_ITEMS } from '@/graphql/cart'
 import type { ProductType } from '@/types'
-import type { CartResponseType } from '@/pages/cart/types'
 import { toast } from 'sonner'
 import { BouncingLoading } from '@/components/ui/bouncing-loading'
 import { Image } from '@unpic/react'
@@ -19,8 +18,10 @@ export function ProductPageDetails({
   product?: ProductType
 }) {
   const { productId } = useParams({ from: '/(main)/_homeLayout/$title/$productId/' })
-  const [addCartItem, { loading }] = useMutation(ADD_CART_ITEM)
-  const { refetch } = useQuery<CartResponseType>(GET_CART_ITEMS)
+  const [addCartItem, { loading }] = useMutation(ADD_CART_ITEM, {
+    refetchQueries: [GET_CART_ITEMS],
+    awaitRefetchQueries: true,
+  })
 
   return theme === 'desktop' ? (
     <div className="w-full max-w-[312px] rounded-[8px] border border-[#eceef4]">
@@ -63,7 +64,6 @@ export function ProductPageDetails({
         </div>
       </div>
       <Separator className="my-5" />
-      {/* Name of this section is Support Details */}
       <div className="px-4 py-3">
         <ul className="space-y-3">
           <li className="flex cursor-pointer items-center space-x-2 text-[#7F7F7F] text-[14px] hover:text-[#3866DF] ">
@@ -98,7 +98,7 @@ export function ProductPageDetails({
             onClick={async () => {
               const { data } = await addCartItem({ variables: { product_id: productId, quantity: 1 } })
               if (data.addToCart.success) {
-                await refetch()
+                toast.success('Product added to cart successfully.')
               } else {
                 toast.error('Failed to add product to cart. Please try again.')
               }

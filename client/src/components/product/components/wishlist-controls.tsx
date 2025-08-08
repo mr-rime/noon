@@ -2,15 +2,16 @@ import { BouncingLoading } from '@/components/ui/bouncing-loading'
 import { Button } from '@/components/ui/button'
 import { Dropdown } from '@/components/ui/dropdown'
 import { ADD_CART_ITEM, GET_CART_ITEMS } from '@/graphql/cart'
-import type { CartResponseType } from '@/pages/cart'
 import type { ProductType } from '@/types'
-import { useMutation, useQuery } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 import { Clipboard, Ellipsis, Move, Trash } from 'lucide-react'
 import { toast } from 'sonner'
 
 export function WishlistControls({ productId }: { productId: ProductType['id'] | undefined }) {
-  const [addCartItem, { loading }] = useMutation(ADD_CART_ITEM)
-  const { refetch } = useQuery<CartResponseType>(GET_CART_ITEMS)
+  const [addCartItem, { loading }] = useMutation(ADD_CART_ITEM, {
+    refetchQueries: [GET_CART_ITEMS],
+    awaitRefetchQueries: true,
+  })
   return (
     <div className="mt-5 flex items-center justify-between gap-2 ">
       <Button
@@ -18,7 +19,7 @@ export function WishlistControls({ productId }: { productId: ProductType['id'] |
         onClick={async () => {
           const { data } = await addCartItem({ variables: { product_id: productId, quantity: 1 } })
           if (data.addToCart.success) {
-            await refetch()
+            toast.success('Product added to cart successfully.')
           } else {
             toast.error('Failed to add product to cart. Please try again.')
           }

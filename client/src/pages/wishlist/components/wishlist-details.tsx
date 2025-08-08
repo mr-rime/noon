@@ -1,8 +1,8 @@
 import { Product } from '@/components/product/product'
 import { Separator } from '@/components/ui/separator'
-import type { WishlistItemsResponseType, WishlistType } from '../types'
-import { useQuery } from '@apollo/client'
-import { GET_WISHLIST_ITEMS } from '@/graphql/wishlist'
+import type { WishlistResponse, WishlistType } from '../types'
+import { useMutation, useQuery } from '@apollo/client'
+import { GET_WISHLIST_ITEMS, GET_WISHLISTS, UPDATE_WISHLIST } from '@/graphql/wishlist'
 import { useSearch } from '@tanstack/react-router'
 import { ProductSkeleton } from '@/components/product/components'
 import { wishlist_icons } from '../constants'
@@ -11,13 +11,43 @@ import { Image } from '@unpic/react'
 import { Dropdown } from '@/components/ui/dropdown'
 import { EditButttonWithModal } from './edit-buttton-with-modal'
 import { DeleteButtonWithModal } from './delete-button-with-modal'
+import { toast } from 'sonner'
+import { useMemo } from 'react'
 
 export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
+  const [updateWishlist, { loading: isUpdatingWishlist }] = useMutation<
+    WishlistResponse<'updateWishlist', WishlistType>
+  >(UPDATE_WISHLIST, {
+    refetchQueries: [GET_WISHLISTS],
+    awaitRefetchQueries: true,
+  })
+
   const { wishlistCode } = useSearch({ from: '/(main)/_homeLayout/wishlist/' })
-  const { data, loading } = useQuery<WishlistItemsResponseType>(GET_WISHLIST_ITEMS, {
+
+  const { data, loading } = useQuery<WishlistResponse<'getWishlistItems', WishlistType[]>>(GET_WISHLIST_ITEMS, {
     variables: { wishlist_id: wishlistCode },
   })
-  const currentWishlist = wishlists.find((wishlist) => wishlist.id === wishlistCode)
+
+  const currentWishlist = useMemo(() => wishlists.find((w) => w.id === wishlistCode), [])
+
+  const handleMakeDefaultWishlist = async () => {
+    if (!currentWishlist) return
+
+    const { data } = await updateWishlist({
+      variables: {
+        name: currentWishlist.name,
+        is_private: currentWishlist.is_private,
+        is_default: true,
+        wishlist_id: currentWishlist.id,
+      },
+    })
+
+    if (data?.updateWishlist.success) {
+      toast.success(`${currentWishlist.name} is now your default wishlist`)
+    } else {
+      toast.error(data?.updateWishlist.message || 'Something went wrong!')
+    }
+  }
 
   return (
     <section className="w-full flex-auto">
@@ -26,7 +56,7 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
           <span className="px-[7px] text-start font-bold text-[22px]">{currentWishlist?.name}</span>
           {currentWishlist?.is_default && (
             <span className="rounded-[14px] bg-[#3866df] px-[10px] py-[2px] font-bold text-[12px] text-white">
-              Defualt
+              Default
             </span>
           )}
         </p>
@@ -47,7 +77,10 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
               </button>
             }>
             <EditButttonWithModal wishlist={currentWishlist} />
-            <button className="flex w-full cursor-pointer items-center gap-2 border-gray-200/80 border-b p-2 text-start transition-colors hover:bg-gray-300/10">
+            <button
+              disabled={isUpdatingWishlist}
+              onClick={handleMakeDefaultWishlist}
+              className="flex w-full cursor-pointer items-center gap-2 border-gray-200/80 border-b p-2 text-start transition-colors hover:bg-gray-300/10">
               <CircleCheck size={15} color="#3866DF" />
               Make this default wishlist
             </button>
@@ -71,7 +104,6 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
               height={400}
               layout="constrained"
             />
-
             <div className="text-center">
               <h3 className="font-bold text-[22px]">Ready to make a wish?</h3>
               <p className="text-[#7e859b] text-[14px]">

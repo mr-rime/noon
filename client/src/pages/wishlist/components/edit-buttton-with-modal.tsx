@@ -12,16 +12,17 @@ import { BouncingLoading } from '@/components/ui/bouncing-loading'
 import { useState } from 'react'
 
 export function EditButttonWithModal({ wishlist }: { wishlist: WishlistType | undefined }) {
-  const [wishlistName, setWishlistName] = useState('')
+  const [wishlistName, setWishlistName] = useState<string | undefined>(wishlist?.name ?? '')
   const [updateWishlist, { loading }] = useMutation<WishlistResponse<'updateWishlist', null>>(UPDATE_WISHLIST, {
     refetchQueries: [GET_WISHLISTS],
     awaitRefetchQueries: true,
   })
   const { close, open, isOpen } = useModalDialog()
 
-  const trimmedWishlistName = wishlistName.trim()
+  const trimmedWishlistName = (wishlistName ?? wishlist?.name ?? '').trim()
 
-  const handleUpdateWishlist = async () => {
+  const handleUpdateWishlist = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
     if (trimmedWishlistName === '') return toast.error('Wishlist name cannot be empty')
     const { data } = await updateWishlist({
       variables: {
@@ -44,7 +45,10 @@ export function EditButttonWithModal({ wishlist }: { wishlist: WishlistType | un
   return (
     <>
       <button
-        onClick={open}
+        onClick={() => {
+          setWishlistName(wishlist?.name)
+          open()
+        }}
         className="flex w-full cursor-pointer items-center gap-2 border-gray-200/80 border-b p-2 text-start transition-colors hover:bg-gray-300/10">
         <Pencil size={15} color="#3866DF" />
         Edit
@@ -72,7 +76,7 @@ export function EditButttonWithModal({ wishlist }: { wishlist: WishlistType | un
             </div>
           }
           footer={
-            <div className="mt-24">
+            <form className="mt-24">
               {loading ? (
                 <Button className="relative h-[40px] w-full disabled:cursor-default ">
                   <BouncingLoading />
@@ -86,7 +90,7 @@ export function EditButttonWithModal({ wishlist }: { wishlist: WishlistType | un
                   Edit
                 </Button>
               )}
-            </div>
+            </form>
           }
         />
       )}

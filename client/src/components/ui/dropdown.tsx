@@ -119,7 +119,7 @@ export const Dropdown = memo(function Dropdown({
           position: 'absolute',
           top: coords.top,
           left: coords.left,
-          display: 'none',
+          visibility: !isOpen ? 'hidden' : 'visible',
           pointerEvents: isOpen ? 'auto' : 'none',
           minWidth: 120,
         }}>

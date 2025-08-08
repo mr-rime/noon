@@ -3,17 +3,12 @@ import { CartItems } from './components/cart-items'
 import { OrderSummary } from './components/order-summary'
 import type { CartResponseType } from './types'
 import { GET_CART_ITEMS } from '@/graphql/cart'
-import { useEffect } from 'react'
 import { CartLoadingSkeleton } from './components/cart-loading-skeleton'
 import { Link } from '@tanstack/react-router'
 import { EmptyCart } from './components/empty-cart'
 
 export function CartPage() {
-  const { data, refetch, loading } = useQuery<CartResponseType>(GET_CART_ITEMS)
-
-  useEffect(() => {
-    refetch()
-  }, [])
+  const { data, loading } = useQuery<CartResponseType>(GET_CART_ITEMS)
 
   if (loading) return <CartLoadingSkeleton />
 
@@ -34,7 +29,7 @@ export function CartPage() {
             <div className="text-[#7e859b] text-[14px]">({cartItems.length} items)</div>
           </h1>
           <section className="flex w-full items-start space-x-7">
-            <CartItems cartItems={cartItems} refetch={refetch} />
+            <CartItems cartItems={cartItems} />
             <OrderSummary cartItems={cartItems} />
           </section>
         </>

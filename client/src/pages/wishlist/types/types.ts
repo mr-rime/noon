@@ -10,31 +10,7 @@ export type WishlistType = {
   created_at: string
 }
 
-export type WishlistItemsResponseType = {
-  getWishlistItems: {
-    success: boolean
-    message: string
-    data: ProductType[]
-  }
-}
-
-export type CreateWishlistResponseType = {
-  createWishlist: {
-    success: boolean
-    message: string
-    data: ProductType[]
-  }
-}
-
-export type WishlistsResponseType = {
-  getWishlists: {
-    success: boolean
-    message: string
-    data: WishlistType[]
-  }
-}
-
-export type WishlistIdentifier = 'updateWishlist' | 'getWishlists' | 'createWishlist' | 'getWishlistItems'
+type WishlistIdentifier = 'updateWishlist' | 'getWishlists' | 'createWishlist' | 'getWishlistItems'
 
 export type WishlistResponse<T extends WishlistIdentifier, R extends unknown> = {
   [K in T]: {

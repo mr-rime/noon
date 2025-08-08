@@ -1,6 +1,6 @@
 import { Heart, Trash2, Truck } from 'lucide-react'
 import { useMutation } from '@apollo/client'
-import { REMOVE_CART_ITEM } from '@/graphql/cart'
+import { GET_CART_ITEMS, REMOVE_CART_ITEM } from '@/graphql/cart'
 import { cn } from '@/utils/cn'
 import type { CartItemType } from '../types'
 import { Link } from '@tanstack/react-router'
@@ -16,9 +16,11 @@ export function CartItem({
   final_price,
   discount_percentage,
   stock,
-  refetchCartItems,
-}: CartItemType & { refetchCartItems: () => Promise<any> }) {
-  const [removeCartItem, { loading }] = useMutation(REMOVE_CART_ITEM)
+}: CartItemType) {
+  const [removeCartItem, { loading }] = useMutation(REMOVE_CART_ITEM, {
+    refetchQueries: [GET_CART_ITEMS],
+    awaitRefetchQueries: true,
+  })
 
   const qtys = Array.from({ length: Number(stock) }).map((_, quantity) => ({
     value: String(quantity + 1),
@@ -64,7 +66,6 @@ export function CartItem({
           <button
             onClick={async () => {
               await removeCartItem({ variables: { product_id } })
-              await refetchCartItems()
             }}
             className="flex cursor-pointer items-center space-x-1 rounded-[8px] border border-[#dadce3] p-[8px]">
             <Trash2 size={18} color="#7e859b" />

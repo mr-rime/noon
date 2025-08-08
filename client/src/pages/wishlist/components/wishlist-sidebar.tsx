@@ -21,8 +21,8 @@ export function WishlistSidebar({ wishlists }: { wishlists: WishlistType[] }) {
         </li> */}
 
         {wishlists.map((wishlist) => (
-          <li>
-            <WishlistButton key={wishlist.id} {...wishlist} />
+          <li key={wishlist.id}>
+            <WishlistButton {...wishlist} />
           </li>
         ))}
       </ul>
