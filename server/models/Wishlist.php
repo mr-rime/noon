@@ -174,6 +174,44 @@ class Wishlist
         return $stmt->execute();
     }
 
+    public function update(string $wishlistId, array $args): bool
+    {
+        $wishlistIdValidator = v::stringType()->notEmpty()->length(1, 21);
+
+        try {
+            $wishlistIdValidator->assert($wishlistId);
+        } catch (NestedValidationException $e) {
+            error_log("Validation failed in update(): " . $e->getFullMessage());
+            return false;
+        }
+
+        $nameValidator = v::stringType()->notEmpty()->length(1, 255);
+        $isPrivateValidator = v::boolType();
+        $isDefaultValidator = v::boolType();
+
+        try {
+            $nameValidator->assert($args["name"]);
+            $isPrivateValidator->assert($args["is_private"]);
+            $isDefaultValidator->assert($args["is_default"]);
+        } catch (NestedValidationException $e) {
+            error_log("Validation failed in update(): " . $e->getFullMessage());
+            return false;
+        }
+
+        $stmt = $this->db->prepare(
+            "UPDATE wishlists SET name = ?, is_private = ?, is_default = ? WHERE id = ?"
+        );
+
+        $stmt->bind_param(
+            "siis",
+            $args["name"],
+            $args["is_private"],
+            $args["is_default"],
+            $wishlistId
+        );
+
+        return $stmt->execute();
+    }
     public function isInWishlist(int $userId, string $productId): bool
     {
         $idValidator = v::stringType()->notEmpty()->length(1, 36);

@@ -250,6 +250,16 @@ $MutationType = new ObjectType([
                 'wishlist_id' => Type::nonNull(Type::string())
             ],
             'resolve' => fn($root, $args, $context) => addItemToWishlist($context['db'], $args)
+        ],
+        'updateWishlist' => [
+            'type' => $WishlistResponse,
+            'args' => [
+                'name' => Type::nonNull(Type::string()),
+                'is_private' => Type::nonNull(Type::boolean()),
+                'is_default' => Type::nonNull(Type::boolean()),
+                'wishlistId' => Type::nonNull(Type::string())
+            ],
+            'reslove' => fn($root, $args, $context) => updateWishlist($context['db'], $args)
         ]
     ],
 

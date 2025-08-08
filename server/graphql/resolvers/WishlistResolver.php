@@ -119,6 +119,70 @@ function getWishlistItems(mysqli $db, string $wishlistId): array
 }
 
 
+function updateWishlist(mysqli $db, array $args): array
+{
+    try {
+        $userId = $_SESSION['user']['id'] ?? null;
+
+        if (!$userId) {
+            return [
+                'success' => false,
+                'message' => 'Unauthorized: User not logged in',
+                'data' => []
+            ];
+        }
+
+        if (!isset($args['wishlist_id'], $args['name'], $args['is_private'], $args['is_default'])) {
+            throw new Exception('Missing required fields: wishlist_id, name, is_private, or is_default');
+        }
+
+        $wishlistIdValidator = v::stringType()->notEmpty()->length(1, 21);
+        $nameValidator = v::stringType()->notEmpty()->length(1, 255);
+        $isPrivateValidator = v::boolType();
+        $isDefaultValidator = v::boolType();
+
+        $wishlistIdValidator->assert($args['wishlist_id']);
+        $nameValidator->assert($args['name']);
+        $isPrivateValidator->assert($args['is_private']);
+        $isDefaultValidator->assert($args['is_default']);
+
+        $wishlistModel = new Wishlist($db);
+        $updated = $wishlistModel->update(
+            $args['wishlist_id'],
+            [
+                'name' => $args['name'],
+                'is_private' => $args['is_private'],
+                'is_default' => $args['is_default']
+            ]
+        );
+
+        if ($updated === false) {
+            throw new Exception('Failed to update wishlist');
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Wishlist updated successfully',
+            'data' => true
+        ];
+
+    } catch (Respect\Validation\Exceptions\ValidationException $e) {
+        return [
+            'success' => false,
+            'message' => 'Validation error: ' . $e->getMessage(),
+            'data' => []
+        ];
+    } catch (Throwable $e) {
+        error_log("Error in updateWishlist: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => $e->getMessage(),
+            'data' => []
+        ];
+    }
+}
+
+
 function getWishlists(mysqli $db)
 {
     try {

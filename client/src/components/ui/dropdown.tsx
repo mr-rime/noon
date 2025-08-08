@@ -1,302 +1,145 @@
-import { animateElement } from '@/utils/animateElement'
+import React, { useState, useRef, useEffect, memo } from 'react'
 import { cn } from '@/utils/cn'
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { animateElement } from '@/utils/animateElement'
 
-// ==================== Dropdown Item Component ====================
-interface DropdownItemProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode
-  disabled?: boolean
-}
-
-const DropdownItem = memo(function DropdownItem({
+export const DropdownItem = memo(function DropdownItem({
   children,
   className,
   disabled = false,
   ...props
-}: DropdownItemProps) {
+}: React.HTMLAttributes<HTMLDivElement> & { disabled?: boolean }) {
   return (
     <div
       className={cn(
-        'px-4 py-2 text-gray-800 text-sm transition-colors',
+        'px-4 py-2 text-sm text-gray-800 select-none cursor-pointer transition-colors',
         'hover:bg-gray-100 active:bg-gray-200',
-        'cursor-pointer select-none',
-        disabled && 'pointer-events-none opacity-50',
-        className,
+        disabled && 'opacity-50 pointer-events-none',
+        className
       )}
-      {...props}>
+      {...props}
+    >
       {children}
     </div>
   )
 })
 
-// ==================== Dropdown Content Component ====================
-interface DropdownContentProps {
-  children: React.ReactNode
-  positionStyle: { top: number; left: number; width: number }
-  isOpen: boolean
-  closeOnSelect: boolean
-  dropdownClassName?: string
-  closeDropdown: () => void
-  animationDuration?: number
-  align?: 'left' | 'right' | 'center'
-}
-
-const DropdownContent = memo(function DropdownContent({
-  children,
-  positionStyle,
-  isOpen,
-  closeOnSelect,
-  dropdownClassName,
-  closeDropdown,
-  animationDuration = 150,
-  align = 'left',
-}: DropdownContentProps) {
-  const contentRef = useRef<HTMLDivElement>(null)
-  const animationRef = useRef<Animation | null>(null)
-
-  const enhancedChildren = useCallback(
-    () =>
-      closeOnSelect
-        ? React.Children.map(children, (child) => {
-            if (React.isValidElement(child)) {
-              const element = child as React.ReactElement<any>
-              return React.cloneElement(element, {
-                onClick: (e: React.MouseEvent) => {
-                  ;(element.props as any).onClick?.(e)
-                  if (!e.defaultPrevented) {
-                    closeDropdown()
-                  }
-                },
-              })
-            }
-            return child
-          })
-        : children,
-    [children, closeOnSelect, closeDropdown],
-  )
-
-  useEffect(() => {
-    if (!contentRef.current) return
-
-    if (animationRef.current) {
-      animationRef.current.cancel()
-    }
-
-    const animationConfig = {
-      duration: animationDuration,
-      fill: 'forwards' as const,
-      easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-    }
-
-    if (isOpen) {
-      contentRef.current.style.display = 'block'
-      contentRef.current.style.pointerEvents = 'auto'
-      animationRef.current = animateElement(
-        contentRef.current,
-        [
-          { opacity: 0, transform: 'scale(0.95)' },
-          { opacity: 1, transform: 'scale(1)' },
-        ],
-        animationConfig,
-      )
-    } else {
-      animationRef.current = animateElement(
-        contentRef.current,
-        [
-          { opacity: 1, transform: 'scale(1)' },
-          { opacity: 0, transform: 'scale(0.95)' },
-        ],
-        animationConfig,
-      )
-
-      animationRef.current.onfinish = () => {
-        if (contentRef.current) {
-          contentRef.current.style.display = 'none'
-          contentRef.current.style.pointerEvents = 'none'
-        }
-      }
-    }
-  }, [isOpen, animationDuration])
-
-  return (
-    <div
-      ref={contentRef}
-      className={cn(
-        'fixed z-[9999] rounded-md border border-gray-200 bg-white shadow-lg',
-        'overflow-hidden py-1',
-        align === 'center' ? '-translate-x-1/2 transform' : '',
-        dropdownClassName,
-      )}
-      style={{
-        opacity: 0,
-        display: 'none',
-        top: `${positionStyle.top}px`,
-        left: `${positionStyle.left}px`,
-        width: 'fit-content',
-        minWidth: '120px',
-        pointerEvents: 'none',
-      }}>
-      {enhancedChildren()}
-    </div>
-  )
-})
-
-// ==================== Main Dropdown Component ====================
 interface DropdownProps {
-  children: React.ReactNode
   trigger: React.ReactNode | ((isOpen: boolean) => React.ReactNode)
+  children: React.ReactNode
   className?: string
   dropdownClassName?: string
   position?: 'bottom' | 'top'
-  align?: 'left' | 'right' | 'center'
-  isOpen?: boolean
-  onOpenChange?: (isOpen: boolean) => void
+  align?: 'left' | 'center' | 'right'
   closeOnSelect?: boolean
   animationDuration?: number
 }
 
 export const Dropdown = memo(function Dropdown({
-  children,
   trigger,
+  children,
   className,
   dropdownClassName,
   position = 'bottom',
   align = 'center',
-  isOpen: controlledOpen,
-  onOpenChange,
   closeOnSelect = true,
-  animationDuration = 150,
+  animationDuration = 150
 }: DropdownProps) {
-  const [isInternalOpen, setIsInternalOpen] = useState(false)
-  const [positionStyle, setPositionStyle] = useState({ top: 0, left: 0, width: 0 })
-  const dropdownRef = useRef<HTMLDivElement>(null)
-  const portalRoot = useRef(document.createElement('div')).current
-  const [isMounted, setIsMounted] = useState(false)
-
-  const isOpen = controlledOpen !== undefined ? controlledOpen : isInternalOpen
-
-  const updatePosition = useCallback(() => {
-    if (!dropdownRef.current) return
-
-    const triggerRect = dropdownRef.current.getBoundingClientRect()
-    let top = 0
-    let left = 0
-    const width = triggerRect.width
-
-    if (position === 'top') {
-      top = triggerRect.top - 8
-    } else {
-      top = triggerRect.bottom + 8
-    }
-
-    switch (align) {
-      case 'left':
-        left = triggerRect.left
-        break
-      case 'right':
-        left = triggerRect.right - width
-        break
-      case 'center':
-        left = triggerRect.left + triggerRect.width / 2
-        break
-    }
-
-    const viewportWidth = window.innerWidth
-    const dropdownWidth = width
-
-    // Adjust horizontal position if near viewport edges
-    if (left + dropdownWidth > viewportWidth - 8) {
-      left = viewportWidth - dropdownWidth - 8
-    } else if (left < 8) {
-      left = 8
-    }
-
-    setPositionStyle({ top, left, width })
-  }, [position, align])
+  const [isOpen, setIsOpen] = useState(false)
+  const [coords, setCoords] = useState({ top: 0, left: 0 })
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (isOpen) {
-      setIsMounted(true)
-      updatePosition()
+    if (isOpen && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect()
+      const scrollX = window.scrollX || window.pageXOffset
+      const scrollY = window.scrollY || window.pageYOffset
+
+      let top = position === 'top' ? rect.top + scrollY : rect.bottom + scrollY
+      let left = rect.left + scrollX
+
+      if (align === 'center') left = rect.left + rect.width / 2 + scrollX
+      if (align === 'right') left = rect.right + scrollX
+
+      setCoords({ top, left })
     }
-  }, [isOpen, updatePosition])
+  }, [isOpen, position, align])
+
 
   useEffect(() => {
-    portalRoot.style.position = 'fixed'
-    portalRoot.style.top = '0'
-    portalRoot.style.left = '0'
-    portalRoot.style.width = '100%'
-    portalRoot.style.height = '0'
-    portalRoot.style.zIndex = '9999'
-    portalRoot.style.pointerEvents = 'none'
+    if (!isOpen) return
+    const handle = (e: MouseEvent) => {
+      const target = e.target as Node
+      const clickedInsideDropdown = contentRef.current?.contains(target)
+      const clickedTrigger = triggerRef.current?.contains(target)
 
-    document.body.appendChild(portalRoot)
-    return () => {
-      document.body.removeChild(portalRoot)
-    }
-  }, [portalRoot])
-
-  const toggleDropdown = useCallback(() => {
-    const newState = !isOpen
-    if (controlledOpen === undefined) {
-      setIsInternalOpen(newState)
-    }
-    onOpenChange?.(newState)
-  }, [isOpen, controlledOpen, onOpenChange])
-
-  const closeDropdown = useCallback(() => {
-    if (controlledOpen === undefined) {
-      setIsInternalOpen(false)
-    }
-    onOpenChange?.(false)
-  }, [controlledOpen, onOpenChange])
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        closeDropdown()
+      if (!clickedInsideDropdown && !clickedTrigger) {
+        setTimeout(() => setIsOpen(false), 0)
       }
     }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [isOpen])
 
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-      window.addEventListener('resize', updatePosition)
-      window.addEventListener('scroll', updatePosition, true)
-    }
+  useEffect(() => {
+    if (!contentRef.current) return
+    const el = contentRef.current
+    el.style.display = 'block'
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      window.removeEventListener('resize', updatePosition)
-      window.removeEventListener('scroll', updatePosition, true)
+    animateElement(
+      el,
+      isOpen
+        ? [{ opacity: 0, transform: 'scale(0.95)' }, { opacity: 1, transform: 'scale(1)' }]
+        : [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(0.95)' }],
+      { duration: animationDuration, fill: 'forwards', easing: 'cubic-bezier(0.4,0,0.2,1)' }
+    ).onfinish = () => {
+      if (!isOpen) el.style.display = 'none'
     }
-  }, [isOpen, closeDropdown, updatePosition])
+  }, [isOpen, animationDuration])
 
   return (
-    <div className={cn('inline-block w-full ', className)} ref={dropdownRef}>
-      <div onClick={toggleDropdown} className="w-full cursor-pointer" aria-expanded={isOpen} aria-haspopup="true">
+    <>
+      <div ref={triggerRef} className={cn('inline-block', className)} onClick={() => setIsOpen(o => !o)}>
         {typeof trigger === 'function' ? trigger(isOpen) : trigger}
       </div>
-      {isMounted &&
-        createPortal(
-          <DropdownContent
-            positionStyle={positionStyle}
-            isOpen={isOpen}
-            closeOnSelect={closeOnSelect}
-            dropdownClassName={dropdownClassName}
-            closeDropdown={closeDropdown}
-            animationDuration={animationDuration}
-            align={align}>
-            {children}
-          </DropdownContent>,
-          portalRoot,
+
+      <div
+        ref={contentRef}
+        className={cn(
+          ' top-0 z-[9999] bg-white border border-gray-200 rounded-md shadow-lg py-1',
+          align === 'center' && '-translate-x-1/2',
+          align === 'right' && '-translate-x-full',
+          dropdownClassName
         )}
-    </div>
+        style={{
+          position: 'absolute',
+          top: coords.top,
+          left: coords.left,
+          display: 'none',
+          pointerEvents: isOpen ? 'auto' : 'none',
+          minWidth: 120
+        }}
+      >
+        {closeOnSelect
+          ? React.Children.map(children, child => {
+            if (!React.isValidElement(child)) return child
+            return (
+              <div
+                onClick={(e) => {
+                  if (typeof (child.props as any).onClick === 'function') {
+                    (child.props as any).onClick(e)
+                  }
+                  if (!e.defaultPrevented) {
+                    setIsOpen(false)
+                  }
+                }}
+              >
+                {child}
+              </div>
+            )
+          })
+          : children}
+      </div >
+    </>
   )
 })
-
-Dropdown.displayName = 'Dropdown'
-DropdownContent.displayName = 'DropdownContent'
-DropdownItem.displayName = 'DropdownItem'
-
-export { DropdownItem }
