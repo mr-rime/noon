@@ -2,6 +2,7 @@ import { cn } from '../../utils/cn'
 
 type ButtonDirectionType = 'left' | 'right'
 type IconDirectionType = 'left' | 'right'
+type InputRef = React.RefObject<HTMLInputElement | null>
 
 type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'className' | 'buttonContent'> & {
   className?: string
@@ -11,6 +12,7 @@ type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'className' 
   iconDirection?: IconDirectionType
   icon?: React.ReactElement | React.ReactNode
   labelContent?: string
+  ref?: InputRef
 }
 
 export function Input({

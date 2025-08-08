@@ -1,6 +1,6 @@
 import { ApolloProvider } from '@apollo/client'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
-import client from './apollo'
+import client from './config/apollo'
 import { routeTree } from './routeTree.gen'
 
 const router = createRouter({ routeTree, scrollRestoration: true })

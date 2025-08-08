@@ -15,6 +15,7 @@ require_once __DIR__ . '/types/UploadTypes.php';
 require_once __DIR__ . '/types/DiscountTypes.php';
 require_once __DIR__ . '/types/HomeTypes.php';
 require_once __DIR__ . '/types/CartTypes.php';
+require_once __DIR__ . '/types/WishlistTypes.php';
 require_once __DIR__ . '/resolvers/UserResolver.php';
 require_once __DIR__ . '/resolvers/PartnerResolver.php';
 require_once __DIR__ . '/resolvers/AuthResolver.php';
@@ -24,6 +25,7 @@ require_once __DIR__ . '/resolvers/UploadResolver.php';
 require_once __DIR__ . '/resolvers/DiscountResolver.php';
 require_once __DIR__ . '/resolvers/HomeResolver.php';
 require_once __DIR__ . '/resolvers/CartResolver.php';
+require_once __DIR__ . '/resolvers/WishlistResolver.php';
 
 $QueryType = new ObjectType([
     'name' => 'query',
@@ -88,9 +90,20 @@ $QueryType = new ObjectType([
             'args' => [],
             'resolve' => fn($root, $args, $context) => getCart($context['db'])
         ],
+        'getWishlistItems' => [
+            'type' => $WishlistItemsResponse,
+            'args' => [
+                'wishlist_id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => fn($root, $args, $context) => getWishlistItems($context['db'], $args['wishlist_id'])
+        ]
+        ,
+        'getWishlists' => [
+            'type' => $WishlistsResponse,
+            'args' => [],
+            'resolve' => fn($root, $args, $context) => getWishlists($context['db'])
+        ]
     ],
-
-
 
 ]);
 
@@ -196,6 +209,7 @@ $MutationType = new ObjectType([
                 'price' => Type::float(),
                 'category_id' => Type::string(),
                 'currency' => Type::string(),
+                'stock' => Type::string(),
                 'is_returnable' => Type::boolean(),
                 'product_overview' => Type::string(),
                 'discount' => $DiscountInputType,
@@ -221,6 +235,32 @@ $MutationType = new ObjectType([
             ],
             'resolve' => fn($root, $args, $context) => removeFromCart($context['db'], $args, $context)
         ],
+
+        'createWishlist' => [
+            'type' => $WishlistResponse,
+            'args' => [
+                'name' => Type::nonNull(Type::string()),
+            ],
+            'resolve' => fn($root, $args, $context) => createWishlist($context['db'], $args['name'])
+        ],
+        'addWishlistItem' => [
+            'type' => $WishlistResponse,
+            'args' => [
+                'product_id' => Type::nonNull(Type::string()),
+                'wishlist_id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => fn($root, $args, $context) => addItemToWishlist($context['db'], $args)
+        ],
+        'updateWishlist' => [
+            'type' => $WishlistResponse,
+            'args' => [
+                'name' => Type::nonNull(Type::string()),
+                'is_private' => Type::nonNull(Type::boolean()),
+                'is_default' => Type::nonNull(Type::boolean()),
+                'wishlist_id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => fn($root, $args, $context) => updateWishlist($context['db'], $args)
+        ]
     ],
 
 ]);

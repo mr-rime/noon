@@ -1,5 +1,5 @@
 import { animateElement } from '@/utils/animateElement'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 interface DatePickerProps {
@@ -25,6 +25,7 @@ const months = [
 
 const toDate = (val: unknown): Date | null => {
   try {
+    if (!val) return null
     const d = new Date(val as any)
     return isNaN(d.getTime()) ? null : d
   } catch {
@@ -37,12 +38,11 @@ export function DatePicker({ value, onChange, labelContent }: DatePickerProps) {
   const initial = toDate(value) || today
 
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedDate, setSelectedDate] = useState<Date | null>(toDate(value))
+  const [selectedDate, setSelectedDate] = useState<Date>(initial)
   const [viewDate, setViewDate] = useState<Date>(initial)
 
   const pickerRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const animationRef = useRef<Animation | null>(null)
 
   const closeWithAnimation = () => {
     if (pickerRef.current) {
@@ -54,7 +54,6 @@ export function DatePicker({ value, onChange, labelContent }: DatePickerProps) {
         ],
         { duration: 200 },
       )
-      animationRef.current = animation
       animation.onfinish = () => setIsOpen(false)
     } else {
       setIsOpen(false)
@@ -62,11 +61,7 @@ export function DatePicker({ value, onChange, labelContent }: DatePickerProps) {
   }
 
   const toggleOpen = () => {
-    if (isOpen) {
-      closeWithAnimation()
-    } else {
-      setIsOpen(true)
-    }
+    isOpen ? closeWithAnimation() : setIsOpen(true)
   }
 
   useEffect(() => {
@@ -83,24 +78,18 @@ export function DatePicker({ value, onChange, labelContent }: DatePickerProps) {
   }, [isOpen])
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent) => {
       if (
         pickerRef.current &&
-        !pickerRef.current.contains(event.target as Node) &&
+        !pickerRef.current.contains(e.target as Node) &&
         buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)
+        !buttonRef.current.contains(e.target as Node)
       ) {
         closeWithAnimation()
       }
     }
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
+    if (isOpen) document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [isOpen])
 
   const handleDateClick = (day: number) => {
@@ -133,36 +122,30 @@ export function DatePicker({ value, onChange, labelContent }: DatePickerProps) {
     const month = viewDate.getMonth()
     const firstDay = new Date(year, month, 1).getDay()
     const daysInMonth = new Date(year, month + 1, 0).getDate()
-    const daysInPrevMonth = new Date(year, month, 0).getDate()
+
+    const prevMonthDays = new Date(year, month, 0).getDate()
 
     const days = []
 
-    // Previous month's overflow
+    // Days from previous month
     for (let i = firstDay - 1; i >= 0; i--) {
       days.push(
-        <div key={`prev-${i}`} className="flex h-8 w-8 items-center justify-center text-gray-400">
-          {daysInPrevMonth - i}
+        <div key={`prev-${i}`} className="flex h-9 w-9 items-center justify-center text-gray-400 text-sm">
+          {prevMonthDays - i}
         </div>,
       )
     }
 
     for (let i = 1; i <= daysInMonth; i++) {
       const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === i
-
       const isSelected =
-        selectedDate &&
-        selectedDate.getFullYear() === year &&
-        selectedDate.getMonth() === month &&
-        selectedDate.getDate() === i
-
-      const isActive = isSelected || (!selectedDate && isToday)
+        selectedDate.getFullYear() === year && selectedDate.getMonth() === month && selectedDate.getDate() === i
 
       days.push(
         <button
           key={i}
           onClick={() => handleDateClick(i)}
-          className={`flex h-8 w-8 items-center justify-center rounded cursor-pointer${isActive ? 'bg-black text-white' : 'hover:bg-gray-200'}
-						${isToday && !isSelected ? 'ring-2 ring-blue-500' : ''}`}>
+          className={`flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-sm transition-all ${isSelected ? 'bg-black text-white' : isToday ? 'border border-blue-500 text-blue-600' : 'hover:bg-gray-100'} ${isToday && !isSelected ? 'ring-2 ring-blue-400' : ''}`}>
           {i}
         </button>,
       )
@@ -172,39 +155,39 @@ export function DatePicker({ value, onChange, labelContent }: DatePickerProps) {
   }
 
   return (
-    <div className="relative flex flex-col text-left">
-      {labelContent && <label className="mb-1 text-[16px]">{labelContent}</label>}
+    <div className="relative inline-block w-full text-left">
+      {labelContent && <label className="mb-1 block font-medium text-gray-700 text-sm">{labelContent}</label>}
       <button
         ref={buttonRef}
         onClick={toggleOpen}
-        className="cursor-pointer rounded-[8px] border border-[#E2E5F1] bg-white px-4 py-2">
+        className="w-full cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-2 text-left text-sm shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
         {selectedDate ? selectedDate.toDateString() : 'Select a date'}
       </button>
 
       {isOpen && (
         <div
           ref={pickerRef}
-          className="absolute top-16 z-10 mt-2 w-72 rounded border border-[#E2E5F1] bg-white p-4 shadow">
-          <div className="mb-2 flex items-center justify-between">
-            <button onClick={() => changeYear(-1)} className="cursor-pointer px-2">
+          className="absolute top-14 z-20 mt-2 w-80 rounded-xl border border-gray-200 bg-white p-4 shadow-lg">
+          <div className="mb-3 flex items-center justify-between font-semibold text-gray-700 text-sm">
+            <button onClick={() => changeYear(-1)} className="flex cursor-pointer rounded p-1 hover:bg-gray-100">
+              <ChevronsLeft size={16} />
+            </button>
+            <button onClick={() => changeMonth(-1)} className="cursor-pointer rounded p-1 hover:bg-gray-100">
               <ChevronLeft size={16} />
             </button>
-            <button onClick={() => changeMonth(-1)} className="cursor-pointer px-2">
-              <ChevronLeft size={16} />
-            </button>
-            <span className="font-semibold">
+            <span className="px-2">
               {months[viewDate.getMonth()]} {viewDate.getFullYear()}
             </span>
-            <button onClick={() => changeMonth(1)} className="cursor-pointer px-2">
+            <button onClick={() => changeMonth(1)} className="cursor-pointer rounded p-1 hover:bg-gray-100">
               <ChevronRight size={16} />
             </button>
-            <button onClick={() => changeYear(1)} className="cursor-pointer px-2">
-              <ChevronRight size={16} />
+            <button onClick={() => changeYear(1)} className="cursor-pointer rounded p-1 hover:bg-gray-100">
+              <ChevronsRight size={16} />
             </button>
           </div>
 
-          <div className="mb-2 grid grid-cols-7 text-gray-500 text-sm">
-            {'Su Mo Tu We Th Fr Sa'.split(' ').map((d) => (
+          <div className="mb-2 grid grid-cols-7 font-medium text-gray-500 text-xs">
+            {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
               <div key={d} className="flex h-8 w-8 items-center justify-center">
                 {d}
               </div>

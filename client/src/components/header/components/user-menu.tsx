@@ -4,24 +4,25 @@ import Cookies from 'js-cookie'
 import { ChevronDown } from 'lucide-react'
 import { memo } from 'react'
 import { toast } from 'sonner'
-import client from '../../../apollo'
-import { LOGOUT } from '../../../graphql/auth'
-import { GET_USER } from '../../../graphql/user'
-import type { User } from '../../../types'
-import { cn } from '../../../utils/cn'
-import { Dropdown } from '../../ui/dropdown'
-import { Separator } from '../../ui/separator'
-import { Skeleton } from '../../ui/skeleton'
 import { header_icons } from '../constants/icons'
+import type { User } from '@/types'
+import { LOGOUT } from '@/graphql/auth'
+import { GET_USER } from '@/graphql/user'
+import { Dropdown } from '@/components/ui/dropdown'
+import { cn } from '@/utils/cn'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Separator } from '@/components/ui/separator'
 
 export const UserMenu = memo(({ user, loading }: { user: User; loading: boolean }) => {
-  const [logout] = useMutation(LOGOUT)
+  const [logout] = useMutation(LOGOUT, {
+    refetchQueries: [GET_USER],
+    awaitRefetchQueries: true,
+  })
   const navigate = useNavigate()
 
   const handleLogout = async () => {
     try {
       const { data } = await logout()
-      await client.refetchQueries({ include: [GET_USER] })
       Cookies.remove('hash')
       toast.success(data.logout.message)
     } catch (e) {
