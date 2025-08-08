@@ -163,7 +163,7 @@ function updateWishlist(mysqli $db, array $args): array
         return [
             'success' => true,
             'message' => 'Wishlist updated successfully',
-            'data' => true
+            'data' => []
         ];
 
     } catch (Respect\Validation\Exceptions\ValidationException $e) {

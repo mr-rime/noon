@@ -11,13 +11,12 @@ export const DropdownItem = memo(function DropdownItem({
   return (
     <div
       className={cn(
-        'px-4 py-2 text-sm text-gray-800 select-none cursor-pointer transition-colors',
+        'cursor-pointer select-none px-4 py-2 text-gray-800 text-sm transition-colors',
         'hover:bg-gray-100 active:bg-gray-200',
-        disabled && 'opacity-50 pointer-events-none',
-        className
+        disabled && 'pointer-events-none opacity-50',
+        className,
       )}
-      {...props}
-    >
+      {...props}>
       {children}
     </div>
   )
@@ -42,7 +41,7 @@ export const Dropdown = memo(function Dropdown({
   position = 'bottom',
   align = 'center',
   closeOnSelect = true,
-  animationDuration = 150
+  animationDuration = 150,
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [coords, setCoords] = useState({ top: 0, left: 0 })
@@ -64,7 +63,6 @@ export const Dropdown = memo(function Dropdown({
       setCoords({ top, left })
     }
   }, [isOpen, position, align])
-
 
   useEffect(() => {
     if (!isOpen) return
@@ -89,9 +87,15 @@ export const Dropdown = memo(function Dropdown({
     animateElement(
       el,
       isOpen
-        ? [{ opacity: 0, transform: 'scale(0.95)' }, { opacity: 1, transform: 'scale(1)' }]
-        : [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(0.95)' }],
-      { duration: animationDuration, fill: 'forwards', easing: 'cubic-bezier(0.4,0,0.2,1)' }
+        ? [
+            { opacity: 0, transform: 'scale(0.95)' },
+            { opacity: 1, transform: 'scale(1)' },
+          ]
+        : [
+            { opacity: 1, transform: 'scale(1)' },
+            { opacity: 0, transform: 'scale(0.95)' },
+          ],
+      { duration: animationDuration, fill: 'forwards', easing: 'cubic-bezier(0.4,0,0.2,1)' },
     ).onfinish = () => {
       if (!isOpen) el.style.display = 'none'
     }
@@ -99,17 +103,17 @@ export const Dropdown = memo(function Dropdown({
 
   return (
     <>
-      <div ref={triggerRef} className={cn('inline-block', className)} onClick={() => setIsOpen(o => !o)}>
+      <div ref={triggerRef} className={cn('inline-block', className)} onClick={() => setIsOpen((o) => !o)}>
         {typeof trigger === 'function' ? trigger(isOpen) : trigger}
       </div>
 
       <div
         ref={contentRef}
         className={cn(
-          ' top-0 z-[9999] bg-white border border-gray-200 rounded-md shadow-lg py-1',
+          ' top-0 z-[9999] rounded-md border border-gray-200 bg-white py-1 shadow-lg',
           align === 'center' && '-translate-x-1/2',
           align === 'right' && '-translate-x-full',
-          dropdownClassName
+          dropdownClassName,
         )}
         style={{
           position: 'absolute',
@@ -117,29 +121,27 @@ export const Dropdown = memo(function Dropdown({
           left: coords.left,
           display: 'none',
           pointerEvents: isOpen ? 'auto' : 'none',
-          minWidth: 120
-        }}
-      >
+          minWidth: 120,
+        }}>
         {closeOnSelect
-          ? React.Children.map(children, child => {
-            if (!React.isValidElement(child)) return child
-            return (
-              <div
-                onClick={(e) => {
-                  if (typeof (child.props as any).onClick === 'function') {
-                    (child.props as any).onClick(e)
-                  }
-                  if (!e.defaultPrevented) {
-                    setIsOpen(false)
-                  }
-                }}
-              >
-                {child}
-              </div>
-            )
-          })
+          ? React.Children.map(children, (child) => {
+              if (!React.isValidElement(child)) return child
+              return (
+                <div
+                  onClick={(e) => {
+                    if (typeof (child.props as any).onClick === 'function') {
+                      ;(child.props as any).onClick(e)
+                    }
+                    if (!e.defaultPrevented) {
+                      setIsOpen(false)
+                    }
+                  }}>
+                  {child}
+                </div>
+              )
+            })
           : children}
-      </div >
+      </div>
     </>
   )
 })

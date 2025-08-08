@@ -53,3 +53,23 @@ query {
     }
 
 `
+
+export const UPDATE_WISHLIST = gql`
+    mutation (
+        $name: String!
+        $is_private: Boolean!
+        $is_default: Boolean!
+        $wishlist_id: String!
+        ) {
+            updateWishlist(
+                name: $name
+                is_private: $is_private
+                is_default: $is_default
+                wishlist_id: $wishlist_id
+            ) {
+                success
+                message
+        }
+    }
+
+`

@@ -46,7 +46,7 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
                 <span className="font-bold text-[14px]">More</span>
               </button>
             }>
-            <EditButttonWithModal />
+            <EditButttonWithModal wishlist={currentWishlist} />
             <button className="flex w-full cursor-pointer items-center gap-2 border-gray-200/80 border-b p-2 text-start transition-colors hover:bg-gray-300/10">
               <CircleCheck size={15} color="#3866DF" />
               Make this default wishlist

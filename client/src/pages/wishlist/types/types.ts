@@ -33,3 +33,13 @@ export type WishlistsResponseType = {
     data: WishlistType[]
   }
 }
+
+export type WishlistIdentifier = 'updateWishlist' | 'getWishlists' | 'createWishlist' | 'getWishlistItems'
+
+export type WishlistResponse<T extends WishlistIdentifier, R extends unknown> = {
+  [K in T]: {
+    success: boolean
+    message: string
+    data: R
+  }
+}
