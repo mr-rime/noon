@@ -51,6 +51,7 @@ $ProductType = new ObjectType([
         'stock' => Type::string(),
         'discount' => $DiscountType,
         'discount_percentage' => Type::float(),
+        'is_in_wishlist' => Type::boolean(),
         'images' => Type::listOf($ProductImageType),
         'productOptions' => Type::listOf($ProductOptionType),
         'productSpecifications' => Type::listOf($ProductSpecificationType),

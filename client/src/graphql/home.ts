@@ -16,6 +16,7 @@ query ($limit: Int, $offset: Int, $search: String) {
         currency
         product_overview
         stock
+        is_in_wishlist
         images {
           id
           image_url

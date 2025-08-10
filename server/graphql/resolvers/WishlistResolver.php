@@ -3,23 +3,24 @@
 require_once __DIR__ . '/../../models/Wishlist.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+use Respect\Validation\Exceptions\NestedValidationException;
 use Respect\Validation\Validator as v;
 
 function addItemToWishlist(mysqli $db, array $args): array
 {
     try {
         $productIdValidator = v::stringType()->notEmpty()->length(1, 36);
-        $wishlistIdValidator = v::stringType()->notEmpty()->length(1, 21);
 
-        if (!isset($args['product_id'], $args['wishlist_id'])) {
-            throw new Exception('Missing required fields: product_id or wishlist_id');
+        if (!isset($args['product_id'])) {
+            throw new Exception('Missing required fields: product_id');
         }
 
         $productIdValidator->assert($args['product_id']);
-        $wishlistIdValidator->assert($args['wishlist_id']);
+
+        $userId = $_SESSION['user']['id'];
 
         $wishlistModel = new Wishlist($db);
-        $wishlistModel->addItem($args['product_id'], $args['wishlist_id']);
+        $wishlistModel->addItemToDefault($userId, $args['product_id']);
 
         return [
             'success' => true,
@@ -215,6 +216,59 @@ function getWishlists(mysqli $db)
         return [
             'success' => false,
             'message' => 'Something went wrong while retrieving wishlists',
+            'data' => []
+        ];
+    }
+}
+
+
+function removeItemFromWishlist(mysqli $db, array $args): array
+{
+    try {
+        $userId = $_SESSION['user']['id'] ?? null;
+
+        if (!$userId) {
+            return [
+                'success' => false,
+                'message' => 'Unauthorized: User not logged in',
+                'data' => []
+            ];
+        }
+
+        if (!isset($args['wishlist_id'], $args['product_id'])) {
+            throw new Exception('Missing required fields: wishlist_id, product_id');
+        }
+
+        $wishlistIdValidator = v::stringType()->notEmpty()->length(1, 21);
+        $productIdValidator = v::stringType()->notEmpty()->length(1, 36);
+
+        $wishlistIdValidator->assert($args['wishlist_id']);
+        $productIdValidator->assert($args['product_id']);
+
+        $wishlistModel = new Wishlist($db);
+        $removed = $wishlistModel->removeItem((int) $userId, $args['product_id'], $args['wishlist_id']);
+
+        if (!$removed) {
+            throw new Exception('Failed to remove product from wishlist');
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Product removed from wishlist successfully',
+            'data' => true
+        ];
+
+    } catch (NestedValidationException $e) {
+        return [
+            'success' => false,
+            'message' => 'Validation error: ' . $e->getFullMessage(),
+            'data' => []
+        ];
+    } catch (Throwable $e) {
+        error_log("Error in removeItemFromWishlist: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => $e->getMessage(),
             'data' => []
         ];
     }

@@ -6,7 +6,8 @@ function getHome(mysqli $db, array $data): array
 {
     try {
         $productModel = new Product($db);
-        $products = $productModel->findAll($data['limit'], $data['offset'], $data['search']);
+        $userId = $_SESSION['user']['id'];
+        $products = $productModel->findAll($userId,$data['limit'], $data['offset'], $data['search']);
 
         return [
             'success' => true,

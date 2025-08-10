@@ -16,6 +16,7 @@ export function Product({
   price,
   discount_percentage,
   final_price,
+  is_in_wishlist,
   isWishlistProduct = false,
 }: Partial<ProductType> & { isWishlistProduct?: boolean }) {
   return (
@@ -29,7 +30,12 @@ export function Product({
         params={{ productId: id || '', title: name?.replace(/\s+/g, '-') || '' }}
         className="h-full w-full"
         preload="intent">
-        <ProductImage images={images?.map((img) => img.image_url) || []} />
+        <ProductImage
+          images={images?.map((img) => img.image_url) || []}
+          product_id={id!}
+          isWishlistProduct={isWishlistProduct}
+          is_in_wishlist={is_in_wishlist!}
+        />
         <ProductTitle name={name || ''} />
         <div className="my-2 flex w-fit items-center justify-center space-x-2 rounded-[6px] bg-[#f3f4f8] px-[6px] py-[4px]">
           <div className="flex items-center space-x-1">

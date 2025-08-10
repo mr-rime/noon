@@ -13,6 +13,7 @@ import { EditButttonWithModal } from './edit-buttton-with-modal'
 import { DeleteButtonWithModal } from './delete-button-with-modal'
 import { useMemo } from 'react'
 import { MakeDefaultWishlistButton } from './make-default-wishlist-button'
+import { cn } from '@/utils/cn'
 
 export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
   const { wishlistCode } = useSearch({ from: '/(main)/_homeLayout/wishlist/' })
@@ -51,12 +52,16 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
               </button>
             }>
             <EditButttonWithModal wishlist={currentWishlist} />
-            <MakeDefaultWishlistButton currentWishlist={currentWishlist} />
-            <button className="flex w-full cursor-pointer items-center gap-2 border-gray-200/80 border-b p-2 text-start transition-colors hover:bg-gray-300/10">
+            {!currentWishlist?.is_default && <MakeDefaultWishlistButton currentWishlist={currentWishlist} />}
+            <button
+              className={cn(
+                'flex w-full cursor-pointer items-center gap-2 p-2 text-start transition-colors hover:bg-gray-300/10',
+                !currentWishlist?.is_default && 'border-gray-200/80 border-b',
+              )}>
               <HeartMinus size={15} color="#3866DF" />
               Empty Wishlist
             </button>
-            <DeleteButtonWithModal />
+            {!currentWishlist?.is_default && <DeleteButtonWithModal />}
           </Dropdown>
         </div>
       </header>
@@ -70,6 +75,7 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
               alt="empty wishlist fallback"
               width={400}
               height={400}
+              className={'select-none'}
               layout="constrained"
             />
             <div className="text-center">
