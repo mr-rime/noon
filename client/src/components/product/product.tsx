@@ -17,6 +17,7 @@ export function Product({
   discount_percentage,
   final_price,
   is_in_wishlist,
+  wishlist_id,
   isWishlistProduct = false,
 }: Partial<ProductType> & { isWishlistProduct?: boolean }) {
   return (
@@ -33,6 +34,7 @@ export function Product({
         <ProductImage
           images={images?.map((img) => img.image_url) || []}
           product_id={id!}
+          wishlist_id={wishlist_id!}
           isWishlistProduct={isWishlistProduct}
           is_in_wishlist={is_in_wishlist!}
         />

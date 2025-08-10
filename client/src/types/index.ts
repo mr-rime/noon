@@ -42,6 +42,7 @@ export type ProductType = {
   category_id: string
   is_returnable: boolean
   is_in_wishlist: boolean
+  wishlist_id: string
   discount_percentage?: number
   final_price: number
   stock: number

@@ -136,22 +136,23 @@ class Product
 
         $placeholders = implode(',', array_fill(0, count($productIds), '?'));
         $query = "
-        SELECT 
-            p.*, 
-            pi.id AS image_id, 
-            pi.image_url, 
-            pi.is_primary,
-            CASE WHEN wi.product_id IS NOT NULL THEN 1 ELSE 0 END AS is_in_wishlist
-        FROM products p
-        LEFT JOIN product_images pi 
-            ON p.id = pi.product_id
-        LEFT JOIN wishlist_items wi 
-            ON wi.product_id = p.id
-        LEFT JOIN wishlists w 
-            ON wi.wishlist_id = w.id
-            AND w.user_id = ?
-        WHERE p.id IN ($placeholders)
-        ORDER BY p.id";
+SELECT 
+    p.*, 
+    pi.id AS image_id, 
+    pi.image_url, 
+    pi.is_primary,
+    CASE WHEN wi.product_id IS NOT NULL THEN 1 ELSE 0 END AS is_in_wishlist,
+    w.id AS wishlist_id
+FROM products p
+LEFT JOIN product_images pi 
+    ON p.id = pi.product_id
+LEFT JOIN wishlist_items wi 
+    ON wi.product_id = p.id
+LEFT JOIN wishlists w 
+    ON wi.wishlist_id = w.id
+    AND w.user_id = ?
+WHERE p.id IN ($placeholders)
+ORDER BY p.id";
 
         $stmt = $this->db->prepare($query);
         $stmt->bind_param(
@@ -177,6 +178,7 @@ class Product
                     'created_at' => $row['created_at'],
                     'updated_at' => $row['updated_at'],
                     'is_in_wishlist' => (bool) $row['is_in_wishlist'],
+                    'wishlist_id' => $row['wishlist_id'] ?? null,
                     'images' => [],
                 ];
             }
