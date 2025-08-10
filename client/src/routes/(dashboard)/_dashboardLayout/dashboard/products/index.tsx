@@ -1,5 +1,5 @@
+import { ProductsSection } from "@/pages/dashboard";
 import { createFileRoute } from "@tanstack/react-router";
-import { ProductsSection } from "../../../../../components/dashboard/components/products-section";
 
 type ProductsSearch = {
 	q?: string;

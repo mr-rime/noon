@@ -1,159 +1,147 @@
-import React, { Children, cloneElement, memo, useCallback, useEffect, useRef, useState } from 'react'
-import { animateElement } from '../../utils/animateElement'
-import { cn } from '../../utils/cn'
+import React, { useState, useRef, useEffect, memo } from 'react'
+import { cn } from '@/utils/cn'
+import { animateElement } from '@/utils/animateElement'
+
+export const DropdownItem = memo(function DropdownItem({
+  children,
+  className,
+  disabled = false,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement> & { disabled?: boolean }) {
+  return (
+    <div
+      className={cn(
+        'cursor-pointer select-none px-4 py-2 text-gray-800 text-sm transition-colors',
+        'hover:bg-gray-100 active:bg-gray-200',
+        disabled && 'pointer-events-none opacity-50',
+        className,
+      )}
+      {...props}>
+      {children}
+    </div>
+  )
+})
 
 interface DropdownProps {
-  children: React.ReactNode
   trigger: React.ReactNode | ((isOpen: boolean) => React.ReactNode)
+  children: React.ReactNode
   className?: string
   dropdownClassName?: string
   position?: 'bottom' | 'top'
-  align?: 'left' | 'right' | 'center'
-  isOpen?: boolean
-  onOpenChange?: (isOpen: boolean) => void
+  align?: 'left' | 'center' | 'right'
   closeOnSelect?: boolean
+  animationDuration?: number
 }
 
 export const Dropdown = memo(function Dropdown({
-  children,
   trigger,
+  children,
   className,
   dropdownClassName,
   position = 'bottom',
-  align = 'left',
-  isOpen: controlledOpen,
-  onOpenChange,
+  align = 'center',
   closeOnSelect = true,
+  animationDuration = 150,
 }: DropdownProps) {
-  const [isInternalOpen, setIsInternalOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [isOpen, setIsOpen] = useState(false)
+  const [coords, setCoords] = useState({ top: 0, left: 0 })
+  const triggerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
 
-  const isOpen = controlledOpen !== undefined ? controlledOpen : isInternalOpen
+  useEffect(() => {
+    if (isOpen && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect()
+      const scrollX = window.scrollX || window.pageXOffset
+      const scrollY = window.scrollY || window.pageYOffset
 
-  const toggleDropdown = useCallback(() => {
-    const newState = !isOpen
-    if (controlledOpen === undefined) {
-      setIsInternalOpen(newState)
-    }
-    onOpenChange?.(newState)
-  }, [isOpen, controlledOpen, onOpenChange])
+      let top = position === 'top' ? rect.top + scrollY : rect.bottom + scrollY
+      let left = rect.left + scrollX
 
-  const closeDropdown = useCallback(() => {
-    if (controlledOpen === undefined) {
-      setIsInternalOpen(false)
+      if (align === 'center') left = rect.left + rect.width / 2 + scrollX
+      if (align === 'right') left = rect.right + scrollX
+
+      setCoords({ top, left })
     }
-    onOpenChange?.(false)
-  }, [controlledOpen, onOpenChange])
+  }, [isOpen, position, align])
+
+  useEffect(() => {
+    if (!isOpen) return
+    const handle = (e: MouseEvent) => {
+      const target = e.target as Node
+      const clickedInsideDropdown = contentRef.current?.contains(target)
+      const clickedTrigger = triggerRef.current?.contains(target)
+
+      if (!clickedInsideDropdown && !clickedTrigger) {
+        setTimeout(() => setIsOpen(false), 0)
+      }
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [isOpen])
 
   useEffect(() => {
     if (!contentRef.current) return
+    const el = contentRef.current
+    el.style.display = 'block'
 
-    const animationConfig = {
-      duration: 200,
-      fill: 'forwards' as const,
+    animateElement(
+      el,
+      isOpen
+        ? [
+            { opacity: 0, transform: 'scale(0.95)' },
+            { opacity: 1, transform: 'scale(1)' },
+          ]
+        : [
+            { opacity: 1, transform: 'scale(1)' },
+            { opacity: 0, transform: 'scale(0.95)' },
+          ],
+      { duration: animationDuration, fill: 'forwards', easing: 'cubic-bezier(0.4,0,0.2,1)' },
+    ).onfinish = () => {
+      if (!isOpen) el.style.display = 'none'
     }
+  }, [isOpen, animationDuration])
 
-    if (isOpen) {
-      contentRef.current.style.display = 'block'
-      animateElement(
-        contentRef.current,
-        [
-          {
-            opacity: 0,
-            transform: position === 'bottom' ? 'translateY(-10px)' : 'translateY(10px)',
-          },
-          { opacity: 1, transform: 'translateY(0)' },
-        ],
-        animationConfig,
-      )
-    } else {
-      const animation = animateElement(
-        contentRef.current,
-        [
-          { opacity: 1, transform: 'translateY(0)' },
-          {
-            opacity: 0,
-            transform: position === 'bottom' ? 'translateY(-10px)' : 'translateY(10px)',
-          },
-        ],
-        animationConfig,
-      )
+  return (
+    <>
+      <div ref={triggerRef} className={cn('inline-block', className)} onClick={() => setIsOpen((o) => !o)}>
+        {typeof trigger === 'function' ? trigger(isOpen) : trigger}
+      </div>
 
-      animation.onfinish = () => {
-        if (contentRef.current) {
-          contentRef.current.style.display = 'none'
-        }
-      }
-    }
-  }, [isOpen, position])
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        closeDropdown()
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isOpen, closeDropdown])
-
-  const alignmentClasses = useCallback(() => {
-    switch (align) {
-      case 'right':
-        return 'right-0'
-      case 'center':
-        return 'left-1/2 transform -translate-x-1/2'
-      default:
-        return 'left-0'
-    }
-  }, [align])
-
-  const dropdownContent = useCallback(
-    () => (
       <div
         ref={contentRef}
         className={cn(
-          'absolute z-10 mt-1 overflow-hidden rounded-[8px] border border-[#e2e5f1] bg-white opacity-0 shadow-lg',
-          position === 'top' ? 'bottom-full mb-1' : 'top-full',
-          alignmentClasses(),
+          ' top-0 z-[9999] rounded-md border border-gray-200 bg-white py-1 shadow-lg',
+          align === 'center' && '-translate-x-1/2',
+          align === 'right' && '-translate-x-full',
           dropdownClassName,
         )}
-        style={{ display: isOpen ? 'block' : 'none' }}>
+        style={{
+          position: 'absolute',
+          top: coords.top,
+          left: coords.left,
+          visibility: !isOpen ? 'hidden' : 'visible',
+          pointerEvents: isOpen ? 'auto' : 'none',
+          minWidth: 120,
+        }}>
         {closeOnSelect
-          ? Children.map(children, (child) => {
-              if (React.isValidElement(child)) {
-                type ChildProps = { onClick?: (e: React.MouseEvent) => void }
-                const typedChild = child as React.ReactElement<ChildProps>
-                return cloneElement(typedChild, {
-                  onClick: (e: React.MouseEvent) => {
-                    typedChild.props.onClick?.(e)
-                    if (!e.defaultPrevented) {
-                      closeDropdown()
+          ? React.Children.map(children, (child) => {
+              if (!React.isValidElement(child)) return child
+              return (
+                <div
+                  onClick={(e) => {
+                    if (typeof (child.props as any).onClick === 'function') {
+                      ;(child.props as any).onClick(e)
                     }
-                  },
-                })
-              }
-              return child
+                    if (!e.defaultPrevented) {
+                      setIsOpen(false)
+                    }
+                  }}>
+                  {child}
+                </div>
+              )
             })
           : children}
       </div>
-    ),
-    [children, closeDropdown, closeOnSelect, dropdownClassName, isOpen, position, alignmentClasses],
-  )
-
-  return (
-    <div className={cn('relative', className)} ref={dropdownRef}>
-      <div onClick={toggleDropdown} className="cursor-pointer">
-        {typeof trigger === 'function' ? trigger(isOpen) : trigger}
-      </div>
-      {dropdownContent()}
-    </div>
+    </>
   )
 })

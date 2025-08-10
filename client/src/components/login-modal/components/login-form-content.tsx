@@ -5,14 +5,13 @@ import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { type SubmitHandler, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import client from '../../../apollo'
-import { LOGIN } from '../../../graphql/auth'
-import { GET_USER } from '../../../graphql/user'
-import type { User } from '../../../types'
-import { animateElement } from '../../../utils/animateElement'
-import { cn } from '../../../utils/cn'
-import { Input } from '../../ui/input'
-import { LoginFormSchema, type LoginFormSchemaType } from '../schema'
+import { LoginFormSchema, type LoginFormSchemaType } from '../schema/schema'
+import { LOGIN } from '@/graphql/auth'
+import type { User } from '@/types'
+import { GET_USER } from '@/graphql/user'
+import { animateElement } from '@/utils/animateElement'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/utils/cn'
 
 export function LoginFormContent({
   isLogin,
@@ -34,14 +33,16 @@ export function LoginFormContent({
       message: string
       user: User
     }
-  }>(LOGIN)
+  }>(LOGIN, {
+    refetchQueries: [GET_USER],
+    awaitRefetchQueries: true,
+  })
 
   const handleLogin: SubmitHandler<LoginFormSchemaType> = async ({ email, password }) => {
     try {
       const { data } = await login({ variables: { email, password } })
       if (data?.login.success) {
         Cookies.set('hash', data.login.user.hash)
-        await client.refetchQueries({ include: [GET_USER] })
         onClose()
         toast.success(data.login.message, { position: 'top-right' })
       }

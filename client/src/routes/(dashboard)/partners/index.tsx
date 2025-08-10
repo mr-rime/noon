@@ -1,5 +1,5 @@
+import { PartnerPage } from '@/pages/dashboard/components/partner'
 import { createFileRoute } from '@tanstack/react-router'
-import { PartnerPage } from '../../../components/dashboard/components/partner'
 
 type PartnersSearch = {
   page?: 'login' | 'register'

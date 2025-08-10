@@ -9,7 +9,7 @@ function getHome(mysqli $db, array $data): array
         $products = $productModel->findAll($data['limit'], $data['offset'], $data['search']);
 
         return [
-            'success' => false,
+            'success' => true,
             'message' => 'Home page loaded successfully.',
             'home' => [
                 'recommendedForYou' => $products
