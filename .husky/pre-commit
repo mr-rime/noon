@@ -19,6 +19,13 @@ pnpm biome lint --write ./src
 echo "🎨 Formatting..."
 pnpm biome format --write ./src
 
+echo "🔍 Checking for TypeScript errors..."
+if tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json; then
+  echo "✅ No TypeScript errors found."
+else
+  echo "❌ Found TypeScript errors."
+  exit 1
+fi
 echo "📌 Restaging changed files..."
 git add ./src
 
