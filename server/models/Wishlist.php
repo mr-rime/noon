@@ -19,7 +19,7 @@ class Wishlist
         $this->productModel = new Product($db);
     }
 
-    public function create(string $user_id, string $name): bool
+    public function create(string $user_id, string $name): string
     {
         $userIdValidator = v::stringType()->notEmpty()->alnum()->length(1, 36);
         $nameValidator = v::stringType()->notEmpty()->length(1, 255);
@@ -41,6 +41,7 @@ class Wishlist
         }
         $stmt->close();
 
+        // Insert new wishlist
         $id = generateHash();
         $stmt = $this->db->prepare("INSERT INTO wishlists (id, user_id, name) VALUES (?, ?, ?)");
         $stmt->bind_param('sss', $id, $user_id, $name);
@@ -51,7 +52,7 @@ class Wishlist
             throw new Exception('Failed to create wishlist.');
         }
 
-        return true;
+        return $id; // ✅ return the ID
     }
 
     public function getItems(int $userId, string $wishlistId): array
@@ -198,16 +199,35 @@ class Wishlist
         return $stmt->execute();
     }
 
-    public function clear(int $userId): bool
+    public function clear(int $userId, string $wishlistId): bool
     {
-        if (!v::intVal()->min(1)->validate($userId)) {
-            error_log("Validation failed in clear(): Invalid user ID");
+        if (!v::stringVal()->notEmpty()->min(1)->validate($wishlistId)) {
+            error_log("Validation failed in clear(): Invalid wishlistId");
             return false;
         }
 
-        $stmt = $this->db->prepare("DELETE FROM wishlists WHERE user_id = ?");
-        $stmt->bind_param("i", $userId);
+        $stmt = $this->db->prepare("DELETE FROM wishlist_items WHERE wishlist_id = ?");
+        $stmt->bind_param("s", $wishlistId);
         return $stmt->execute();
+    }
+
+    public function delete(int $userId, string $wishlistId): bool
+    {
+        if (!v::intVal()->notEmpty()->min(1)->validate($userId) || !v::stringVal()->notEmpty()->min(1)->validate($wishlistId)) {
+            error_log("Validation failed in delete(): Invalid userId or wishlistId");
+            return false;
+        }
+
+        $stmt = $this->db->prepare("DELETE FROM wishlists WHERE user_id = ? AND id = ?");
+        if (!$stmt) {
+            error_log("Prepare failed in delete(): " . $this->db->error);
+            return false;
+        }
+        $stmt->bind_param("is", $userId, $wishlistId);
+        $success = $stmt->execute();
+        $stmt->close();
+
+        return $success;
     }
 
     public function update(string $wishlistId, array $args): bool

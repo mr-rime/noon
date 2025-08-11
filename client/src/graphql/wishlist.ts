@@ -25,6 +25,9 @@ export const CREATE_WISHLIST = gql`
         createWishlist(name: $name) {
             success
             message
+            data {
+                id
+            }
         }
     }
 `
@@ -77,6 +80,23 @@ export const UPDATE_WISHLIST = gql`
 export const REMOVE_WISHLIST_ITEM = gql`
     mutation ($wishlist_id: String!, $product_id: String!) {
         removeWishlistItem(product_id: $product_id, wishlist_id: $wishlist_id) {
+            success
+            message
+        }
+    }
+`
+export const CLEAR_WISHLIST = gql`
+    mutation ($wishlist_id: String!) {
+        clearWishlist(wishlist_id: $wishlist_id) {
+            success
+            message
+        }
+    }
+`
+
+export const DELETE_WISHLIST = gql`
+    mutation ($wishlist_id: String!) {
+        deleteWishlist(wishlist_id: $wishlist_id) {
             success
             message
         }

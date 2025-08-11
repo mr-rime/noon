@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../models/Wishlist.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Respect\Validation\Exceptions\NestedValidationException;
+use Respect\Validation\Exceptions\ValidationException;
 use Respect\Validation\Validator as v;
 
 function addItemToWishlist(mysqli $db, array $args): array
@@ -57,27 +58,31 @@ function createWishlist(mysqli $db, string $name): array
         $nameValidator->assert($name);
 
         $wishlistModel = new Wishlist($db);
-        $wishlistModel->create($userId, $name);
+        $id = $wishlistModel->create($userId, $name);
 
         return [
             'success' => true,
             'message' => 'Wishlist has been created successfully',
-            'data' => true
+            'data' => [
+                'id' => $id,
+                'name' => $name
+            ]
         ];
     } catch (Respect\Validation\Exceptions\ValidationException $e) {
         return [
             'success' => false,
             'message' => 'Validation error: ' . $e->getMessage(),
-            'data' => []
+            'data' => null
         ];
     } catch (Throwable $e) {
         return [
             'success' => false,
             'message' => $e->getMessage(),
-            'data' => []
+            'data' => null
         ];
     }
 }
+
 
 function getWishlistItems(mysqli $db, string $wishlistId): array
 {
@@ -266,6 +271,96 @@ function removeItemFromWishlist(mysqli $db, array $args): array
         ];
     } catch (Throwable $e) {
         error_log("Error in removeItemFromWishlist: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => $e->getMessage(),
+            'data' => []
+        ];
+    }
+}
+
+
+function clearWishlist(mysqli $db, string $wishlistId): array
+{
+    try {
+        $userId = $_SESSION['user']['id'] ?? null;
+
+        if (!$userId) {
+            return [
+                'success' => false,
+                'message' => 'Unauthorized: User not logged in',
+                'data' => []
+            ];
+        }
+
+        $wishlistIdValidator = v::stringType()->notEmpty()->length(1, 21);
+        $wishlistIdValidator->assert($wishlistId);
+
+        $wishlistModel = new Wishlist($db);
+        $cleared = $wishlistModel->clear($userId, $wishlistId);
+
+        if (!$cleared) {
+            throw new Exception('Failed to clear wishlist');
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Wishlist cleared successfully',
+            'data' => true
+        ];
+    } catch (ValidationException $e) {
+        return [
+            'success' => false,
+            'message' => 'Validation error: ' . $e->getMessage(),
+            'data' => []
+        ];
+    } catch (Throwable $e) {
+        error_log("Error in clearWishlist: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => $e->getMessage(),
+            'data' => []
+        ];
+    }
+}
+
+
+function deleteWishlist(mysqli $db, string $wishlistId): array
+{
+    try {
+        $userId = $_SESSION['user']['id'] ?? null;
+
+        if (!$userId) {
+            return [
+                'success' => false,
+                'message' => 'Unauthorized: User not logged in',
+                'data' => []
+            ];
+        }
+
+        $wishlistIdValidator = v::stringType()->notEmpty()->length(1, 21);
+        $wishlistIdValidator->assert($wishlistId);
+
+        $wishlistModel = new Wishlist($db);
+        $deleted = $wishlistModel->delete((int) $userId, $wishlistId);
+
+        if (!$deleted) {
+            throw new Exception('Failed to delete wishlist');
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Wishlist deleted successfully',
+            'data' => true
+        ];
+    } catch (Respect\Validation\Exceptions\ValidationException $e) {
+        return [
+            'success' => false,
+            'message' => 'Validation error: ' . $e->getMessage(),
+            'data' => []
+        ];
+    } catch (Throwable $e) {
+        error_log("Error in deleteWishlist: " . $e->getMessage());
         return [
             'success' => false,
             'message' => $e->getMessage(),

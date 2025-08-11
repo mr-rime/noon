@@ -268,6 +268,20 @@ $MutationType = new ObjectType([
                 'product_id' => Type::nonNull(Type::string())
             ],
             'resolve' => fn($root, $args, $context) => removeItemFromWishlist($context['db'], $args)
+        ],
+        'clearWishlist' => [
+            'type' => $WishlistResponse,
+            'args' => [
+                'wishlist_id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => fn($root, $args, $context) => clearWishlist($context['db'], $args['wishlist_id'])
+        ],
+        'deleteWishlist' => [
+            'type' => $WishlistResponse,
+            'args' => [
+                'wishlist_id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => fn($root, $args, $context) => deleteWishlist($context['db'], $args['wishlist_id'])
         ]
     ],
 ]);

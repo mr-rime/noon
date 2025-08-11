@@ -6,14 +6,14 @@ import { GET_WISHLIST_ITEMS } from '@/graphql/wishlist'
 import { useSearch } from '@tanstack/react-router'
 import { ProductSkeleton } from '@/components/product/components'
 import { wishlist_icons } from '../constants'
-import { Ellipsis, HeartMinus } from 'lucide-react'
+import { Ellipsis } from 'lucide-react'
 import { Image } from '@unpic/react'
 import { Dropdown } from '@/components/ui/dropdown'
 import { EditButttonWithModal } from './edit-buttton-with-modal'
 import { DeleteButtonWithModal } from './delete-button-with-modal'
 import { useMemo } from 'react'
 import { MakeDefaultWishlistButton } from './make-default-wishlist-button'
-import { cn } from '@/utils/cn'
+import { EmptyWishlistButton } from './empty-wishlist-button'
 
 export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
   const { wishlistCode } = useSearch({ from: '/(main)/_homeLayout/wishlist/' })
@@ -53,15 +53,10 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
             }>
             <EditButttonWithModal wishlist={currentWishlist} />
             {!currentWishlist?.is_default && <MakeDefaultWishlistButton currentWishlist={currentWishlist} />}
-            <button
-              className={cn(
-                'flex w-full cursor-pointer items-center gap-2 p-2 text-start transition-colors hover:bg-gray-300/10',
-                !currentWishlist?.is_default && 'border-gray-200/80 border-b',
-              )}>
-              <HeartMinus size={15} color="#3866DF" />
-              Empty Wishlist
-            </button>
-            {!currentWishlist?.is_default && <DeleteButtonWithModal />}
+            <EmptyWishlistButton currentWishlist={currentWishlist} />
+            {!currentWishlist?.is_default && (
+              <DeleteButtonWithModal wishlists={wishlists} currentWishlist={currentWishlist} />
+            )}
           </Dropdown>
         </div>
       </header>

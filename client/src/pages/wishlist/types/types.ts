@@ -15,6 +15,8 @@ type WishlistIdentifier =
   | 'getWishlistItems'
   | 'addWishlistItem'
   | 'removeWishlistItem'
+  | 'clearWishlist'
+  | 'deleteWishlist'
 
 export type WishlistResponse<T extends WishlistIdentifier, R extends unknown> = {
   [K in T]: {
