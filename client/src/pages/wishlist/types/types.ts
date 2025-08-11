@@ -1,5 +1,3 @@
-import type { ProductType } from '@/types'
-
 export type WishlistType = {
   id: string
   user_id: string
@@ -10,7 +8,15 @@ export type WishlistType = {
   created_at: string
 }
 
-type WishlistIdentifier = 'updateWishlist' | 'getWishlists' | 'createWishlist' | 'getWishlistItems'
+type WishlistIdentifier =
+  | 'updateWishlist'
+  | 'getWishlists'
+  | 'createWishlist'
+  | 'getWishlistItems'
+  | 'addWishlistItem'
+  | 'removeWishlistItem'
+  | 'clearWishlist'
+  | 'deleteWishlist'
 
 export type WishlistResponse<T extends WishlistIdentifier, R extends unknown> = {
   [K in T]: {

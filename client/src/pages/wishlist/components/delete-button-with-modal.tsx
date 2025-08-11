@@ -1,12 +1,41 @@
 import { Button } from '@/components/ui/button'
 import { ModalDialog } from '@/components/ui/modal-dialog/modal-dialog'
 import { Separator } from '@/components/ui/separator'
+import { GET_HOME } from '@/graphql/home'
+import { DELETE_WISHLIST, GET_WISHLIST_ITEMS, GET_WISHLISTS } from '@/graphql/wishlist'
 import { useModalDialog } from '@/hooks'
+import { useMutation } from '@apollo/client'
 import { Trash } from 'lucide-react'
+import type { WishlistResponse, WishlistType } from '../types'
+import { toast } from 'sonner'
+import { BouncingLoading } from '@/components/ui/bouncing-loading'
+import { useNavigate } from '@tanstack/react-router'
 
-export function DeleteButtonWithModal() {
+export function DeleteButtonWithModal({
+  currentWishlist,
+  wishlists,
+}: {
+  currentWishlist: WishlistType | undefined
+  wishlists: WishlistType[]
+}) {
+  const [deleteWishlist, { loading }] = useMutation<WishlistResponse<'deleteWishlist', WishlistType>>(DELETE_WISHLIST, {
+    refetchQueries: [GET_WISHLISTS, GET_HOME, GET_WISHLIST_ITEMS],
+    awaitRefetchQueries: true,
+  })
   const { close, open, isOpen } = useModalDialog()
+  const navigate = useNavigate()
 
+  const handleDeleteWishlist = async () => {
+    const { data } = await deleteWishlist({ variables: { wishlist_id: currentWishlist?.id } })
+    const res = data?.deleteWishlist
+    if (res?.success) {
+      toast.success(res.message || 'Wishlist deleted successfully')
+      navigate({ to: '/wishlist', search: { wishlistCode: wishlists[0].id } })
+      close()
+    } else {
+      toast.error(res?.message || 'Something went wrong deleting the wishlist. Please try again.')
+    }
+  }
   return (
     <>
       <button
@@ -34,7 +63,17 @@ export function DeleteButtonWithModal() {
                 className="relative h-[40px] w-full flex-1 basis-1/2 border-1 border-[#7e859b] bg-transparent text-[#7e859b] hover:bg-transparent disabled:cursor-default ">
                 No
               </Button>
-              <Button className="relative h-[40px] w-full flex-1 basis-1/2 disabled:cursor-default ">Yes</Button>
+              {loading ? (
+                <Button className="relative h-[40px] w-full flex-1 basis-1/2 disabled:cursor-default ">
+                  <BouncingLoading />
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleDeleteWishlist}
+                  className="relative h-[40px] w-full flex-1 basis-1/2 disabled:cursor-default ">
+                  Yes
+                </Button>
+              )}
             </div>
           }
         />

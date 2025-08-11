@@ -19,7 +19,7 @@ class Wishlist
         $this->productModel = new Product($db);
     }
 
-    public function create(string $user_id, string $name): bool
+    public function create(string $user_id, string $name): string
     {
         $userIdValidator = v::stringType()->notEmpty()->alnum()->length(1, 36);
         $nameValidator = v::stringType()->notEmpty()->length(1, 255);
@@ -41,6 +41,7 @@ class Wishlist
         }
         $stmt->close();
 
+        // Insert new wishlist
         $id = generateHash();
         $stmt = $this->db->prepare("INSERT INTO wishlists (id, user_id, name) VALUES (?, ?, ?)");
         $stmt->bind_param('sss', $id, $user_id, $name);
@@ -51,7 +52,7 @@ class Wishlist
             throw new Exception('Failed to create wishlist.');
         }
 
-        return true;
+        return $id; // ✅ return the ID
     }
 
     public function getItems(int $userId, string $wishlistId): array
@@ -121,57 +122,112 @@ class Wishlist
         return $wishlists;
     }
 
-    public function addItem(string $productId, string $wishlistId): bool
+    public function addItemToDefault(int $userId, string $productId): bool
     {
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM wishlist_items WHERE product_id = ? AND wishlist_id = ?");
-        $stmt->bind_param("ss", $productId, $wishlistId);
+        if (!v::intVal()->min(1)->validate($userId)) {
+            throw new Exception("Invalid user ID");
+        }
+        if (!v::stringType()->notEmpty()->length(1, 36)->validate($productId)) {
+            throw new Exception("Invalid product ID");
+        }
+
+        $stmt = $this->db->prepare("
+        SELECT id FROM wishlists 
+        WHERE user_id = ? AND is_default = 1 
+        LIMIT 1
+    ");
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $stmt->bind_result($wishlistId);
+        $stmt->fetch();
+        $stmt->close();
+
+        if (!$wishlistId) {
+            throw new Exception("Default wishlist not found for this user");
+        }
+
+        $stmt = $this->db->prepare("
+        SELECT COUNT(*) FROM wishlist_items 
+        WHERE wishlist_id = ? AND product_id = ?
+    ");
+        $stmt->bind_param("ss", $wishlistId, $productId);
         $stmt->execute();
         $stmt->bind_result($count);
         $stmt->fetch();
         $stmt->close();
 
         if ($count > 0) {
-            throw new Exception('Product is already in the wishlist.');
+            throw new Exception("Product is already in the default wishlist");
         }
 
-        $stmt = $this->db->prepare("INSERT INTO wishlist_items (product_id, wishlist_id) VALUES (?, ?)");
-        $stmt->bind_param("ss", $productId, $wishlistId);
+        $stmt = $this->db->prepare("
+        INSERT INTO wishlist_items (wishlist_id, product_id) 
+        VALUES (?, ?)
+    ");
+        $stmt->bind_param("ss", $wishlistId, $productId);
         $success = $stmt->execute();
         $stmt->close();
 
         if (!$success) {
-            throw new Exception('Failed to add product to wishlist.');
+            throw new Exception("Failed to add product to default wishlist");
         }
 
         return true;
     }
 
-
-    public function removeItem(int $userId, string $productId): bool
+    public function removeItem(int $userId, string $productId, string $wishlistId): bool
     {
         $idValidator = v::stringType()->notEmpty()->length(1, 36);
+
         try {
             $idValidator->assert($productId);
+            $idValidator->assert($wishlistId);
         } catch (NestedValidationException $e) {
             error_log("Validation failed in removeItem(): " . $e->getFullMessage());
             return false;
         }
 
-        $stmt = $this->db->prepare("DELETE FROM wishlists WHERE user_id = ? AND product_id = ?");
-        $stmt->bind_param("is", $userId, $productId);
+        $stmt = $this->db->prepare("
+        DELETE FROM wishlist_items
+        WHERE wishlist_id = ? AND product_id = ?
+          AND wishlist_id IN (
+            SELECT id FROM wishlists WHERE user_id = ?
+          )
+    ");
+
+        $stmt->bind_param("ssi", $wishlistId, $productId, $userId);
         return $stmt->execute();
     }
 
-    public function clear(int $userId): bool
+    public function clear(int $userId, string $wishlistId): bool
     {
-        if (!v::intVal()->min(1)->validate($userId)) {
-            error_log("Validation failed in clear(): Invalid user ID");
+        if (!v::stringVal()->notEmpty()->min(1)->validate($wishlistId)) {
+            error_log("Validation failed in clear(): Invalid wishlistId");
             return false;
         }
 
-        $stmt = $this->db->prepare("DELETE FROM wishlists WHERE user_id = ?");
-        $stmt->bind_param("i", $userId);
+        $stmt = $this->db->prepare("DELETE FROM wishlist_items WHERE wishlist_id = ?");
+        $stmt->bind_param("s", $wishlistId);
         return $stmt->execute();
+    }
+
+    public function delete(int $userId, string $wishlistId): bool
+    {
+        if (!v::intVal()->notEmpty()->min(1)->validate($userId) || !v::stringVal()->notEmpty()->min(1)->validate($wishlistId)) {
+            error_log("Validation failed in delete(): Invalid userId or wishlistId");
+            return false;
+        }
+
+        $stmt = $this->db->prepare("DELETE FROM wishlists WHERE user_id = ? AND id = ?");
+        if (!$stmt) {
+            error_log("Prepare failed in delete(): " . $this->db->error);
+            return false;
+        }
+        $stmt->bind_param("is", $userId, $wishlistId);
+        $success = $stmt->execute();
+        $stmt->close();
+
+        return $success;
     }
 
     public function update(string $wishlistId, array $args): bool
@@ -199,7 +255,6 @@ class Wishlist
         }
 
         if ($args["is_default"]) {
-            // Get the user_id for this wishlist
             $stmt = $this->db->prepare(
                 "SELECT user_id FROM wishlists WHERE id = ?"
             );

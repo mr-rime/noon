@@ -247,7 +247,6 @@ $MutationType = new ObjectType([
             'type' => $WishlistResponse,
             'args' => [
                 'product_id' => Type::nonNull(Type::string()),
-                'wishlist_id' => Type::nonNull(Type::string())
             ],
             'resolve' => fn($root, $args, $context) => addItemToWishlist($context['db'], $args)
         ],
@@ -260,9 +259,31 @@ $MutationType = new ObjectType([
                 'wishlist_id' => Type::nonNull(Type::string())
             ],
             'resolve' => fn($root, $args, $context) => updateWishlist($context['db'], $args)
+        ],
+
+        'removeWishlistItem' => [
+            'type' => $WishlistResponse,
+            'args' => [
+                'wishlist_id' => Type::nonNull(Type::string()),
+                'product_id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => fn($root, $args, $context) => removeItemFromWishlist($context['db'], $args)
+        ],
+        'clearWishlist' => [
+            'type' => $WishlistResponse,
+            'args' => [
+                'wishlist_id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => fn($root, $args, $context) => clearWishlist($context['db'], $args['wishlist_id'])
+        ],
+        'deleteWishlist' => [
+            'type' => $WishlistResponse,
+            'args' => [
+                'wishlist_id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => fn($root, $args, $context) => deleteWishlist($context['db'], $args['wishlist_id'])
         ]
     ],
-
 ]);
 
 return new Schema([

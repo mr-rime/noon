@@ -1,19 +1,24 @@
 import { useMutation } from '@apollo/client'
 import Cookies from 'js-cookie'
 import { toast } from 'sonner'
-import client from '../../../config/apollo'
-import { LOGOUT } from '../../../graphql/auth'
-import { GET_USER } from '../../../graphql/user'
-import { cn } from '../../../utils/cn'
 import { profile_page_icons } from '../constants/icons'
+import { GET_HOME } from '@/graphql/home'
+import { LOGOUT } from '@/graphql/auth'
+import { GET_USER } from '@/graphql/user'
+import { cn } from '@/utils/cn'
+import { GET_WISHLISTS } from '@/graphql/wishlist'
+import { GET_CART_ITEMS } from '@/graphql/cart'
 
 export function LogoutMenu() {
-  const [logout] = useMutation(LOGOUT)
+  const [logout] = useMutation(LOGOUT, {
+    refetchQueries: [GET_USER, GET_HOME, GET_WISHLISTS, GET_CART_ITEMS],
+    awaitRefetchQueries: true,
+  })
   const handleLogout = async () => {
     try {
       const { data } = await logout()
-      await client.refetchQueries({ include: [GET_USER] })
       Cookies.remove('hash')
+      Cookies.remove('NOON_SESSION_ID')
       toast.success(data.logout.message)
     } catch (e) {
       console.error(e)

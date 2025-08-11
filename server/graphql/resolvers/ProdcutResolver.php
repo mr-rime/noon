@@ -7,7 +7,8 @@ function getAllProducts(mysqli $db, array $data): array
 {
     try {
         $model = new Product($db);
-        $products = $model->findAll($data['limit'], $data['offset'], $data['search']);
+        $userId = $_SESSION['user']['id'];
+        $products = $model->findAll($userId, $data['limit'], $data['offset'], $data['search']);
 
 
         return [

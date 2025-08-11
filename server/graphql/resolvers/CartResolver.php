@@ -85,3 +85,4 @@ function addToCart(mysqli $db, array $args): array
         ];
     }
 }
+

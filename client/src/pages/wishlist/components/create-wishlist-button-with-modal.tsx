@@ -4,29 +4,35 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { ModalDialog } from '@/components/ui/modal-dialog/modal-dialog'
 import { Separator } from '@/components/ui/separator'
-import { CREATE_WISHLIST } from '@/graphql/wishlist'
+import { CREATE_WISHLIST, GET_WISHLISTS } from '@/graphql/wishlist'
 import { useModalDialog } from '@/hooks/use-modal-dialog'
 import { useMutation } from '@apollo/client'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
-import type { CreateWishlistResponseType } from '../types'
+import type { WishlistResponse, WishlistType } from '../types'
+import { useNavigate } from '@tanstack/react-router'
 
 export function CreateWishlistButtonWithModal() {
   const { isOpen, open, close } = useModalDialog()
   const [isUsingDefualt, setIsUsingDefualt] = useState(false)
-  const [createWishlist, { loading }] = useMutation<CreateWishlistResponseType>(CREATE_WISHLIST)
+  const [createWishlist, { loading }] = useMutation<WishlistResponse<'createWishlist', WishlistType>>(CREATE_WISHLIST, {
+    refetchQueries: [GET_WISHLISTS],
+    awaitRefetchQueries: true,
+  })
   const wishlistNameInputRef = useRef<HTMLInputElement>(null)
+  const navigate = useNavigate()
 
   const handleCreateWishlist = async () => {
     if (wishlistNameInputRef.current?.value.trim() === '') return toast.error('Wishlist name cannot be empty')
 
     const { data } = await createWishlist({ variables: { name: wishlistNameInputRef.current?.value } })
-
-    if (data?.createWishlist.success) {
-      toast.success(data?.createWishlist.message)
+    const res = data?.createWishlist
+    if (res?.success) {
+      toast.success(res?.message || 'Wishlist created successfully')
+      navigate({ to: '/wishlist', search: { wishlistCode: res.data.id } })
       close()
     } else {
-      toast.error(data?.createWishlist.message)
+      toast.error(res?.message || 'An error occurred while creating the wishlist')
     }
   }
 

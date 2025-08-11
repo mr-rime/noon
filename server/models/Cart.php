@@ -25,6 +25,11 @@ class Cart
 
     public function getCartItems(?int $userId): array
     {
+        // Auto merge guest cart when user logs in
+        if (!$this->isGuest($userId) && !empty($_SESSION['guest_cart'])) {
+            $this->mergeGuestCartWithUserCart($userId);
+        }
+
         return $this->isGuest($userId)
             ? $this->getCartItemsFromSession()
             : $this->getCartItemsFromDatabase($userId);
@@ -95,33 +100,22 @@ class Cart
 
     public function addItem(?int $userId, string $productId, int $quantity): ?array
     {
-        error_log("addItem called with userId=$userId, productId=$productId, quantity=$quantity");
-
-        if ($quantity <= 0) {
-            error_log("Invalid quantity: $quantity");
+        if ($quantity <= 0)
             return null;
-        }
 
         $product = $this->productModel->findById($productId);
-        if (!$product) {
-            error_log("Product not found: $productId");
+        if (!$product)
             return null;
-        }
 
-        if ($product['stock'] < $quantity) {
-            error_log("Not enough stock for $productId: Requested $quantity, Available " . $product['stock']);
+        if ($product['stock'] < $quantity)
             return null;
-        }
 
         if ($this->isGuest($userId)) {
             $_SESSION['guest_cart'][$productId] = ($_SESSION['guest_cart'][$productId] ?? 0) + $quantity;
-            error_log("Guest cart updated: " . print_r($_SESSION['guest_cart'], true));
             return $this->getCartItemsFromSession();
         }
 
         $cartId = $this->getOrCreateCart($userId);
-        error_log("Cart ID: $cartId");
-
         $price = $product['final_price'] ?? $product['price'];
         $currency = $product['currency'];
 
@@ -134,19 +128,15 @@ class Cart
             $newQuantity = $row['quantity'] + $quantity;
             $update = $this->db->prepare("UPDATE cart_items SET quantity = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
             $update->bind_param("is", $newQuantity, $row['id']);
-            if (!$update->execute()) {
-                error_log("Failed to update cart item: " . $update->error);
-            }
+            $update->execute();
         } else {
             $id = generateHash();
             $insert = $this->db->prepare("
-            INSERT INTO cart_items (id, cart_id, product_id, quantity, price, currency)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ");
+                INSERT INTO cart_items (id, cart_id, product_id, quantity, price, currency)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ");
             $insert->bind_param("sssids", $id, $cartId, $productId, $quantity, $price, $currency);
-            if (!$insert->execute()) {
-                error_log("Failed to insert cart item: " . $insert->error);
-            }
+            $insert->execute();
         }
 
         return $this->getCartItemsFromDatabase($userId);
@@ -207,6 +197,9 @@ class Cart
 
     public function mergeGuestCartWithUserCart(int $userId): void
     {
+        if (empty($_SESSION['guest_cart']))
+            return;
+
         foreach ($_SESSION['guest_cart'] as $productId => $quantity) {
             $this->addItem($userId, $productId, $quantity);
         }
