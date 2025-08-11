@@ -5,13 +5,13 @@ import { WishlistSidebar } from './components/wishlist-sidebar'
 import { useQuery } from '@apollo/client'
 import { GET_WISHLISTS } from '@/graphql/wishlist'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { WishlistsResponseType } from './types'
 import { useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import type { WishlistResponse, WishlistType } from './types'
 
 export function WishlistPage() {
   const navigate = useNavigate({ from: '/wishlist' })
-  const { data, loading } = useQuery<WishlistsResponseType>(GET_WISHLISTS)
+  const { data, loading } = useQuery<WishlistResponse<'getWishlists', WishlistType[]>>(GET_WISHLISTS)
   const wishlists = data?.getWishlists.data || []
 
   useEffect(() => {

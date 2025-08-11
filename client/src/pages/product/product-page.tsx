@@ -65,8 +65,8 @@ export function ProductPage() {
           <ProdcutPagePrice
             price={data?.getProduct.product.price as number}
             currency={data?.getProduct.product.currency as string}
-            discount_percentage={data?.getProduct.product.discount_percentage}
-            final_price={data?.getProduct.product.final_price}
+            discount_percentage={data?.getProduct.product.discount_percentage || 0}
+            final_price={data?.getProduct.product.final_price || 0}
           />
           <ProductPageFulfilmentBadge />
           <Separator className="my-5" />

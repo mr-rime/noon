@@ -5,12 +5,13 @@
     "type": "module",
     "scripts": {
         "dev": "node server",
-        "build": "npm run build:client && npm run build:server",
+        "build": "pnpm run lint && pnpm run type-check && pnpm run build:client && pnpm run build:server",
         "build:client": "vite build --outDir dist/client",
         "build:server": "vite build --ssr src/entry-server.tsx --outDir dist/server",
         "preview": "cross-env NODE_ENV=production node server",
-        "lint": "pnpm exec biome lint --write ./src",
-        "format": "pnpm exec biome format --write ./src"
+        "lint": "pnpm exec biome lint ./src",
+        "format": "pnpm exec biome format --write ./src",
+        "type-check": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json"
     },
     "dependencies": {
         "@apollo/client": "^3.13.8",

@@ -24,6 +24,10 @@ const defaultProduct: ProductType = {
   productOptions: [],
   productSpecifications: [],
   discount: null,
+  final_price: 0,
+  is_in_wishlist: false,
+  wishlist_id: '',
+  discount_percentage: 0,
 }
 
 export const useProductStore = create<ProductStore>((set) => ({

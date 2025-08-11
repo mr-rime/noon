@@ -9,12 +9,12 @@ import { useModalDialog } from '@/hooks/use-modal-dialog'
 import { useMutation } from '@apollo/client'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
-import type { CreateWishlistResponseType } from '../types'
+import type { WishlistResponse, WishlistType } from '../types'
 
 export function CreateWishlistButtonWithModal() {
   const { isOpen, open, close } = useModalDialog()
   const [isUsingDefualt, setIsUsingDefualt] = useState(false)
-  const [createWishlist, { loading }] = useMutation<CreateWishlistResponseType>(CREATE_WISHLIST)
+  const [createWishlist, { loading }] = useMutation<WishlistResponse<'createWishlist', WishlistType>>(CREATE_WISHLIST)
   const wishlistNameInputRef = useRef<HTMLInputElement>(null)
 
   const handleCreateWishlist = async () => {

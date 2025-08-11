@@ -12,6 +12,10 @@ import { GET_USER } from '@/graphql/user'
 import { animateElement } from '@/utils/animateElement'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/utils/cn'
+import { GET_HOME } from '@/graphql/home'
+import useUserHashStore from '@/store/user-hash/user-hash'
+import { GET_WISHLISTS } from '@/graphql/wishlist'
+import { GET_CART_ITEMS } from '@/graphql/cart'
 
 export function LoginFormContent({
   isLogin,
@@ -24,6 +28,7 @@ export function LoginFormContent({
   inputRef: React.RefObject<HTMLInputElement | null>
   onClose: () => void
 }) {
+  const setHash = useUserHashStore((state) => state.setHash)
   const { register, handleSubmit, watch } = useForm<LoginFormSchemaType>({
     resolver: zodResolver(LoginFormSchema),
   })
@@ -34,7 +39,7 @@ export function LoginFormContent({
       user: User
     }
   }>(LOGIN, {
-    refetchQueries: [GET_USER],
+    refetchQueries: [GET_USER, GET_HOME, GET_WISHLISTS, GET_CART_ITEMS],
     awaitRefetchQueries: true,
   })
 
@@ -42,6 +47,7 @@ export function LoginFormContent({
     try {
       const { data } = await login({ variables: { email, password } })
       if (data?.login.success) {
+        setHash(data.login.user.hash)
         Cookies.set('hash', data.login.user.hash)
         onClose()
         toast.success(data.login.message, { position: 'top-right' })

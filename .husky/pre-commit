@@ -1,36 +1,25 @@
 #!/usr/bin/env sh
+set -e
 
-# 🎶✨ Husky x Biome: Code Check Jam™ 🎧🧪
+echo "🎛️ [husky] Starting pre-commit checks..."
 
-set -e  # Exit on first error
-
-echo ""
-echo "🎛️ [husky] Booting beats, no bugs allowed..."
-echo "🔎 [sys] Peeking under the OS cloud..."
-
-# Check for pnpm
 if ! command -v pnpm >/dev/null 2>&1; then
-  echo "❌ [error] 'pnpm' not found. Please install it before committing."
+  echo "❌ 'pnpm' not found. Please install it."
   exit 1
 fi
 
-echo "🎧 [track] Entering client directory to drop some lines..."
 cd client || {
-  echo "❌ [error] Failed to cd into 'client' directory."
+  echo "❌ Failed to cd into 'client'."
   exit 1
 }
 
-echo "🧪 [lint] Spinning up Biome to check for crimes..."
+echo "🧪 Running Biome lint..."
 pnpm biome lint --write ./src
 
-echo "✅ [clean] Syntax is crisp — no broken rhymes 🛠️"
-
-echo "🎨 [style] Giving files a formatting spell..."
+echo "🎨 Formatting..."
 pnpm biome format --write ./src
 
-echo "✨ [fresh] Code is sharp — looking fly as well 🧥"
+echo "📌 Restaging changed files..."
+git add ./src
 
-echo ""
-echo "🚀 [husky] Mic drop: pre-commit track is tight."
-echo "🎤 [done] Push with pride — your code’s airtight. ✅"
-echo ""
+echo "✅ Pre-commit checks complete."

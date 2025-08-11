@@ -14,6 +14,7 @@ import { GET_USER } from '@/graphql/user'
 import { LoginButtonWithModalDialog } from '../login-modal'
 import type { CartResponseType } from '@/pages/cart'
 import { WishlistLink } from './components/wishlist-link'
+import useUserHashStore from '@/store/user-hash/user-hash'
 
 const expectedRoutes = [
   '/orders',
@@ -26,8 +27,9 @@ const expectedRoutes = [
 ]
 
 export function Header() {
+  const hash = useUserHashStore((state) => state.hash)
   const { data, loading } = useQuery<{ getUser: { user: User } }>(GET_USER, {
-    variables: { hash: Cookies.get('hash') || '' },
+    variables: { hash: Cookies.get('hash') || hash || '' },
   })
 
   const { data: cart } = useQuery<CartResponseType>(GET_CART_ITEMS)

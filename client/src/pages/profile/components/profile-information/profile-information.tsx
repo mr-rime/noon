@@ -5,10 +5,12 @@ import { PersonalInformation } from './components/personal-information'
 import type { User } from '@/types'
 import { GET_USER } from '@/graphql/user'
 import { Button } from '@/components/ui/button'
+import useUserHashStore from '@/store/user-hash/user-hash'
 
 export function ProfileInformation() {
+  const hash = useUserHashStore((state) => state.hash)
   const { data, loading } = useQuery<{ getUser: { user: User } }>(GET_USER, {
-    variables: { hash: Cookies.get('hash') || '' },
+    variables: { hash: Cookies.get('hash') || hash || '' },
   })
   return (
     <section className="h-screen w-full">

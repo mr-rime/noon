@@ -1,10 +1,12 @@
 import { Skeleton } from '@/components/ui/skeleton'
 import { GET_USER } from '@/graphql/user'
+import useUserHashStore from '@/store/user-hash/user-hash'
 import { useQuery } from '@apollo/client'
 import Cookies from 'js-cookie'
 export function UserAvatar() {
+  const hash = useUserHashStore((state) => state.hash)
   const { data, loading } = useQuery(GET_USER, {
-    variables: { hash: Cookies.get('hash') || '' },
+    variables: { hash: Cookies.get('hash') || hash || '' },
   })
 
   return (

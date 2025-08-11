@@ -12,10 +12,13 @@ import { Dropdown } from '@/components/ui/dropdown'
 import { cn } from '@/utils/cn'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
+import { GET_HOME } from '@/graphql/home'
+import { GET_WISHLISTS } from '@/graphql/wishlist'
+import { GET_CART_ITEMS } from '@/graphql/cart'
 
 export const UserMenu = memo(({ user, loading }: { user: User; loading: boolean }) => {
   const [logout] = useMutation(LOGOUT, {
-    refetchQueries: [GET_USER],
+    refetchQueries: [GET_USER, GET_HOME, GET_WISHLISTS, GET_CART_ITEMS],
     awaitRefetchQueries: true,
   })
   const navigate = useNavigate()

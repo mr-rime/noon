@@ -88,7 +88,7 @@ class Product
     }
 
     public function findAll(
-        int $userId,
+        int|null $userId,
         int $limit = 10,
         int $offset = 0,
         string $search = ''
@@ -100,26 +100,26 @@ class Product
 
         if (!empty(trim($search))) {
             $where = "
-            WHERE name LIKE CONCAT('%', ?, '%') 
-               OR product_overview LIKE CONCAT('%', ?, '%')";
+        WHERE name LIKE CONCAT('%', ?, '%') 
+           OR product_overview LIKE CONCAT('%', ?, '%')";
             $order = "
-            ORDER BY
-                CASE
-                    WHEN name = ? THEN 1
-                    WHEN name LIKE CONCAT(?, '%') THEN 2
-                    WHEN name LIKE CONCAT('%', ?, '%') THEN 3
-                    WHEN product_overview LIKE CONCAT('%', ?, '%') THEN 4
-                    ELSE 5
-                END, id";
+        ORDER BY
+            CASE
+                WHEN name = ? THEN 1
+                WHEN name LIKE CONCAT(?, '%') THEN 2
+                WHEN name LIKE CONCAT('%', ?, '%') THEN 3
+                WHEN product_overview LIKE CONCAT('%', ?, '%') THEN 4
+                ELSE 5
+            END, id";
             $params = [$search, $search, $search, $search, $search, $search];
             $types = 'ssssss';
         }
 
         $query = "
-        SELECT id FROM products
-        $where
-        $order
-        LIMIT ? OFFSET ?";
+    SELECT id FROM products
+    $where
+    $order
+    LIMIT ? OFFSET ?";
         $params[] = $limit;
         $params[] = $offset;
         $types .= 'ii';
@@ -128,37 +128,54 @@ class Product
         $stmt->bind_param($types, ...$params);
         $stmt->execute();
         $idResult = $stmt->get_result();
-
         $productIds = array_column($idResult->fetch_all(MYSQLI_ASSOC), 'id');
+
         if (empty($productIds)) {
             return [];
         }
 
+        // Build placeholders for IDs
         $placeholders = implode(',', array_fill(0, count($productIds), '?'));
+
+        // Wishlist join logic
+        $wishlistJoin = '';
+        $wishlistSelect = '0 AS is_in_wishlist, NULL AS wishlist_id';
+        $wishlistParams = [];
+        $wishlistTypes = '';
+
+        if ($userId !== null) {
+            $wishlistJoin = "
+        LEFT JOIN wishlist_items wi
+            ON wi.product_id = p.id
+        LEFT JOIN wishlists w
+            ON wi.wishlist_id = w.id
+            AND w.user_id = ?";
+            $wishlistSelect = "
+        CASE WHEN w.id IS NOT NULL THEN 1 ELSE 0 END AS is_in_wishlist,
+        w.id AS wishlist_id";
+            $wishlistParams[] = $userId;
+            $wishlistTypes .= 'i';
+        }
+
+        // Main query to get product data with wishlist info if logged in
         $query = "
-SELECT 
-    p.*, 
-    pi.id AS image_id, 
-    pi.image_url, 
-    pi.is_primary,
-    CASE WHEN wi.product_id IS NOT NULL THEN 1 ELSE 0 END AS is_in_wishlist,
-    w.id AS wishlist_id
-FROM products p
-LEFT JOIN product_images pi 
-    ON p.id = pi.product_id
-LEFT JOIN wishlist_items wi 
-    ON wi.product_id = p.id
-LEFT JOIN wishlists w 
-    ON wi.wishlist_id = w.id
-    AND w.user_id = ?
-WHERE p.id IN ($placeholders)
-ORDER BY p.id";
+    SELECT 
+        p.*, 
+        pi.id AS image_id, 
+        pi.image_url, 
+        pi.is_primary,
+        $wishlistSelect
+    FROM products p
+    LEFT JOIN product_images pi 
+        ON p.id = pi.product_id
+    $wishlistJoin
+    WHERE p.id IN ($placeholders)
+    ORDER BY p.id";
 
         $stmt = $this->db->prepare($query);
         $stmt->bind_param(
-            'i' . str_repeat('s', count($productIds)),
-            $userId,
-            ...$productIds
+            $wishlistTypes . str_repeat('i', count($productIds)),
+            ...array_merge($wishlistParams, $productIds)
         );
         $stmt->execute();
         $result = $stmt->get_result();
@@ -192,7 +209,7 @@ ORDER BY p.id";
             }
         }
 
-        // Step 4: Attach product options, specs, and discounts
+        // Attach options, specs, and discounts
         foreach ($products as $productId => &$product) {
             $product['productOptions'] = $this->optionModel->findByProductId($productId);
             $product['productSpecifications'] = $this->specModel->findByProductId($productId);
