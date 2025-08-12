@@ -7,8 +7,8 @@ import { useState } from 'react'
 import { useDebounce } from '@/hooks/use-debounce'
 
 export function ProductsTableWrapper() {
-  const navigate = useNavigate({ from: '/dashboard/products' })
-  const { q: searchQuery = '' } = useSearch({ from: '/(dashboard)/_dashboardLayout/dashboard/products/' })
+  const navigate = useNavigate({ from: '/d/products' })
+  const { q: searchQuery = '' } = useSearch({ from: '/(dashboard)/_dashboardLayout/d/products/' })
 
   const [inputValue, setInputValue] = useState(searchQuery)
 
@@ -33,7 +33,7 @@ export function ProductsTableWrapper() {
             }}
           />
           <Button
-            onClick={() => navigate({ to: '/dashboard/products/new' })}
+            onClick={() => navigate({ to: '/d/products/new' })}
             className="flex h-[40px] items-center space-x-1 rounded-[10px] font-semibold text-white capitalize">
             <Plus />
             <span>Add Product</span>

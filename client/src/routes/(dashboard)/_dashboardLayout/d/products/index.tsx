@@ -5,7 +5,7 @@ type ProductsSearch = {
 	q?: string;
 };
 
-export const Route = createFileRoute("/(dashboard)/_dashboardLayout/dashboard/products/")({
+export const Route = createFileRoute("/(dashboard)/_dashboardLayout/d/products/")({
 	component: ProductsSection,
 	validateSearch: (search: Record<string, ProductsSearch["q"]>): ProductsSearch => {
 		return {
