@@ -7,6 +7,9 @@ import { ProductTitle } from './components/product-title'
 import { Star } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { WishlistControls } from './components/wishlist-controls'
+import { useQuery } from '@apollo/client'
+import { GET_PRODUCT } from '@/graphql/product'
+import { useState } from 'react'
 
 export function Product({
   id,
@@ -20,8 +23,20 @@ export function Product({
   wishlist_id,
   isWishlistProduct = false,
 }: Partial<ProductType> & { isWishlistProduct?: boolean }) {
+  const [hasFetched, setHasFetched] = useState(false)
+  const { refetch } = useQuery(GET_PRODUCT, { variables: { id }, skip: true })
+
+  const handlePrefetch = async () => {
+    if (!hasFetched) {
+      await refetch({ fetchPolicy: 'network-only' })
+    }
+
+    setHasFetched(true)
+  }
+
   return (
     <article
+      onMouseEnter={handlePrefetch}
       className={cn(
         'h-[467px] w-full max-w-[230px] select-none overflow-x-hidden rounded-[12px] border border-[#DDDDDD] bg-white p-2',
         isWishlistProduct && 'h-fit',

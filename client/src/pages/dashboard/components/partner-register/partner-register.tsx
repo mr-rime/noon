@@ -29,7 +29,7 @@ export default function Register({ setForm }: { setForm: React.Dispatch<React.Se
       })
       if (data?.createPartner.success) {
         toast.success(data?.createPartner.message)
-        navigate({ to: '/dashboard' })
+        navigate({ to: '/d/overview' })
       } else {
         toast.error(data?.createPartner.message)
       }

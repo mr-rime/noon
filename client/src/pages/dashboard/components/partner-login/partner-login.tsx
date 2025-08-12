@@ -25,7 +25,7 @@ export function PartnerLogin({ setForm }: { setForm: React.Dispatch<React.SetSta
         variables: { business_email: email, password: password },
       })
       toast.success(data?.loginPartner.message)
-      navigate({ to: '/dashboard' })
+      navigate({ to: '/d/overview' })
     } catch (err) {
       console.error(err)
     }

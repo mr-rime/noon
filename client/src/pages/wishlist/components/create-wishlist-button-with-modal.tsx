@@ -25,7 +25,7 @@ export function CreateWishlistButtonWithModal() {
   const handleCreateWishlist = async () => {
     if (wishlistNameInputRef.current?.value.trim() === '') return toast.error('Wishlist name cannot be empty')
 
-    const { data } = await createWishlist({ variables: { name: wishlistNameInputRef.current?.value } })
+    const { data } = await createWishlist({ variables: { name: String(wishlistNameInputRef.current?.value) } })
     const res = data?.createWishlist
     if (res?.success) {
       toast.success(res?.message || 'Wishlist created successfully')

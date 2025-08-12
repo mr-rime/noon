@@ -1,5 +1,5 @@
 import { Outlet } from '@tanstack/react-router'
-import { DashboardSidebar } from './components/sidebar'
+import { DashboardSidebar } from './components/dashboard-sidebar/dashboard-sidebar'
 
 export function DashboardPage() {
   return (

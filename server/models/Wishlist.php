@@ -31,6 +31,7 @@ class Wishlist
             throw new Exception("Validation failed: " . $e->getFullMessage());
         }
 
+        
         $stmt = $this->db->prepare("SELECT id FROM wishlists WHERE user_id = ? AND name = ?");
         $stmt->bind_param("ss", $user_id, $name);
         $stmt->execute();
@@ -41,10 +42,10 @@ class Wishlist
         }
         $stmt->close();
 
-        // Insert new wishlist
         $id = generateHash();
         $stmt = $this->db->prepare("INSERT INTO wishlists (id, user_id, name) VALUES (?, ?, ?)");
-        $stmt->bind_param('sss', $id, $user_id, $name);
+        $nameStr = strval($name);
+        $stmt->bind_param('sss', $id, $user_id, $nameStr);
         $success = $stmt->execute();
         $stmt->close();
 
@@ -52,7 +53,7 @@ class Wishlist
             throw new Exception('Failed to create wishlist.');
         }
 
-        return $id; // ✅ return the ID
+        return $id;
     }
 
     public function getItems(int $userId, string $wishlistId): array
