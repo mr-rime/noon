@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { product_icons } from '@/components/product/constants/icons'
 import { cn } from '@/utils/cn'
 import { Image } from '@unpic/react'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 type DotsThemeType = 'theme1' | 'theme2' | 'theme3'
 
@@ -42,7 +43,7 @@ export function ImageSlider({
   const animationRef = useRef<number | null>(null)
   const touchStartX = useRef(0)
   const touchDelta = useRef(0)
-  const [isMobile, setIsMobile] = useState(false)
+  const isMobile = useIsMobile()
 
   const [index, setIndex] = useState(1)
   const logicalIndex = useRef(1)
@@ -52,19 +53,6 @@ export function ImageSlider({
   const [isAnimating, setIsAnimating] = useState(false)
 
   const isDragDisabled = isMobile ? disableDragMobile : disableDragDesktop
-
-  useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth <= 768)
-    }
-
-    checkIfMobile()
-    window.addEventListener('resize', checkIfMobile)
-
-    return () => {
-      window.removeEventListener('resize', checkIfMobile)
-    }
-  }, [])
 
   const displayImages = useMemo(() => (isMobile ? mobileImages : images) ?? [], [isMobile, mobileImages, images])
   const extendedImages =

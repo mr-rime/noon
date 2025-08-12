@@ -14,10 +14,10 @@ export const SidebarLinks = memo(() => {
       <ul className="ml-3 w-full space-y-4">
         <li className="w-full">
           <button
-            onClick={() => navigate({ to: '/dashboard' })}
+            onClick={() => navigate({ to: '/d/overview' })}
             className={cn(
               'flex h-[48px] w-full cursor-pointer items-center space-x-[10px] rounded-[8px] p-[0_8px] transition-colors',
-              normalizedPath === '/dashboard' ? 'bg-[#fffcd1] font-bold text-[#544e03]' : 'hover:bg-[#f2f2f2cc]',
+              normalizedPath === '/d/overview' ? 'bg-[#fffcd1] font-bold text-[#544e03]' : 'hover:bg-[#f2f2f2cc]',
             )}>
             <ChartColumnBig size={22} />
             <span>Dashboard</span>
@@ -25,10 +25,10 @@ export const SidebarLinks = memo(() => {
         </li>
         <li className="w-full">
           <button
-            onClick={() => navigate({ to: '/dashboard/products' })}
+            onClick={() => navigate({ to: '/d/products' })}
             className={cn(
               'flex h-[48px] w-full cursor-pointer items-center space-x-[10px] rounded-[8px] p-[0_8px] transition-colors',
-              normalizedPath.startsWith('/dashboard/products')
+              normalizedPath.startsWith('/d/products')
                 ? 'bg-[#fffcd1] font-bold text-[#544e03]'
                 : 'hover:bg-[#f2f2f2cc]',
             )}>
@@ -38,12 +38,10 @@ export const SidebarLinks = memo(() => {
         </li>
         <li className="w-full">
           <button
-            onClick={() => navigate({ to: '/dashboard/orders' })}
+            onClick={() => navigate({ to: '/d/orders' })}
             className={cn(
               'flex h-[48px] w-full cursor-pointer items-center space-x-[10px] rounded-[8px] p-[0_8px] transition-colors',
-              normalizedPath.startsWith('/dashboard/orders')
-                ? 'bg-[#fffcd1] font-bold text-[#544e03]'
-                : 'hover:bg-[#f2f2f2cc]',
+              normalizedPath.startsWith('/d/orders') ? 'bg-[#fffcd1] font-bold text-[#544e03]' : 'hover:bg-[#f2f2f2cc]',
             )}>
             <ShoppingBag size={22} />
             <span>Orders</span>

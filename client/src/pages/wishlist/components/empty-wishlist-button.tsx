@@ -18,8 +18,11 @@ export function EmptyWishlistButton({ currentWishlist }: { currentWishlist: Wish
     ],
     awaitRefetchQueries: true,
   })
-
   const handleClearWishlist = async () => {
+    if ((currentWishlist?.item_count || 0) <= 0) {
+      toast.error("This wishlist doesn't have any items")
+      return
+    }
     const { data } = await clearWishlist({ variables: { wishlist_id: currentWishlist?.id } })
 
     const res = data?.clearWishlist

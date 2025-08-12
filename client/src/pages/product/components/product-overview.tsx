@@ -4,11 +4,12 @@ import { cn } from '@/utils/cn'
 import { Separator } from '../../../components/ui/separator'
 import { SpecificationsTable } from '../../../components/ui/specifications-table'
 import { SpecRow } from '../../../components/ui/specifications-table/spec-row'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 export function ProductOverview({ specs, overview }: { specs: ProductSpecification[]; overview: string }) {
   const [isCollapsible, setIsCollapsible] = useState(false)
   const specificationsPerSide = Math.ceil(specs?.length / 2)
-  const isMobile = window.innerWidth <= 768
+  const isMobile = useIsMobile()
   const isCollapsibleActive = isMobile || specificationsPerSide > 20
 
   return (

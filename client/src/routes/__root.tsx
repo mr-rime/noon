@@ -1,8 +1,12 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
 import * as React from 'react'
 import { Toaster } from 'sonner'
 
-export const Route = createRootRoute({
+type RootContextType = {
+  subdomain: string | null
+}
+
+export const Route = createRootRouteWithContext<RootContextType>()({
   component: RootComponent,
 })
 
@@ -11,7 +15,7 @@ function RootComponent() {
     <React.Fragment>
       <Outlet />
       {/* <TanStackRouterDevtools initialIsOpen={false} position='bottom-right' /> */}
-      <Toaster closeButton theme="light" richColors position="top-right" />
+      <Toaster closeButton theme="light" richColors position="top-right" duration={1000} />
     </React.Fragment>
   )
 }

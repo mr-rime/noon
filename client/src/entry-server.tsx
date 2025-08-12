@@ -1,12 +1,13 @@
 import { StrictMode } from 'react'
 import { type RenderToPipeableStreamOptions, renderToPipeableStream } from 'react-dom/server'
 import App from './app'
+export function render(_url: string, reactOptions: RenderToPipeableStreamOptions, subdomain?: string | null) {
+  console.log('render called with subdomain:', subdomain)
 
-export function render(_url: string, options?: RenderToPipeableStreamOptions) {
   return renderToPipeableStream(
     <StrictMode>
-      <App />
+      <App subdomain={subdomain ?? null} />
     </StrictMode>,
-    options,
+    reactOptions,
   )
 }

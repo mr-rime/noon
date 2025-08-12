@@ -78,7 +78,7 @@ export default function ProductsTable({ search }: { search: string }) {
                   </button>
                 }>
                 <div className="p-1">
-                  <Link to="/dashboard/products/edit/$productId" params={{ productId: row.id }}>
+                  <Link to="/d/products/edit/$productId" params={{ productId: row.id }}>
                     <div className="grid w-[100px] grid-cols-[max-content_1fr] items-center gap-x-2 rounded-[7px] p-2 hover:bg-[#FFFCD1]">
                       <Pen size={16} /> <span className="text-[15px]">Edit</span>
                     </div>
