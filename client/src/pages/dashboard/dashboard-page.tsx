@@ -1,5 +1,6 @@
 import { Outlet } from '@tanstack/react-router'
-import { DashboardSidebar } from './components/dashboard-sidebar/dashboard-sidebar'
+import { DashboardSidebar } from './components'
+import { DashboardHeader } from './components/dashboard-header/dashboard-header'
 
 export function DashboardPage() {
   return (
@@ -9,6 +10,7 @@ export function DashboardPage() {
         <DashboardSidebar />
       </div>
       <div className="w-full">
+        <DashboardHeader />
         <Outlet />
       </div>
     </main>

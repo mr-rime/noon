@@ -10,13 +10,12 @@ import { LOGOUT } from '@/graphql/auth'
 import { GET_USER } from '@/graphql/user'
 import { Dropdown } from '@/components/ui/dropdown'
 import { cn } from '@/utils/cn'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
 import { GET_HOME } from '@/graphql/home'
 import { GET_WISHLISTS } from '@/graphql/wishlist'
 import { GET_CART_ITEMS } from '@/graphql/cart'
 
-export const UserMenu = memo(({ user, loading }: { user: User; loading: boolean }) => {
+export const UserMenu = memo(({ user }: { user: User; loading: boolean }) => {
   const [logout] = useMutation(LOGOUT, {
     refetchQueries: [GET_USER, GET_HOME, GET_WISHLISTS, GET_CART_ITEMS],
     awaitRefetchQueries: true,
@@ -75,20 +74,6 @@ export const UserMenu = memo(({ user, loading }: { user: User; loading: boolean 
           {header_icons.profileIcon}
           <span className="ml-4 text-[1rem]">Profile</span>
         </button>
-        {loading ? (
-          <div className="mx-6 mt-1">
-            <Skeleton className=" flex h-[25px] w-full items-center rounded-[3px] p-[8px_25px]" />
-          </div>
-        ) : (
-          user && (
-            <button
-              onClick={() => navigate({ to: '/partners', resetScroll: true })}
-              className=" flex w-full cursor-pointer items-center whitespace-nowrap p-[8px_25px] text-center transition-colors hover:bg-[#F3F4F8]">
-              {header_icons.dashboardIcon}
-              <span className="ml-4 text-[1rem]">Dashboard</span>
-            </button>
-          )
-        )}
         <Separator className="my-2" />
         <button
           onClick={handleLogout}
