@@ -6,6 +6,11 @@ import { cn } from '@/utils/cn'
 import { Wishlist2 } from '../constants'
 import { useMemo, useState } from 'react'
 import { GET_HOME } from '@/graphql/home'
+import { GET_USER } from '@/graphql/user'
+import type { GetUserResponse } from '@/types'
+import { LoginButtonWithModalDialog } from '@/components/login-modal'
+import useUserHashStore from '@/store/user-hash/user-hash'
+import Cookies from 'js-cookie'
 
 export function ProductWishlistButton({
   product_id,
@@ -17,7 +22,10 @@ export function ProductWishlistButton({
   wishlist_id: string
 }) {
   const [isInWishlist, setIsInWishlist] = useState(is_in_wishlist)
-
+  const hash = useUserHashStore((state) => state.hash)
+  const { data: user, loading: loadingUser } = useQuery<GetUserResponse>(GET_USER, {
+    variables: { hash: Cookies.get('hash') || hash || '' },
+  })
   const { data: wishlistsData } = useQuery<WishlistResponse<'getWishlists', WishlistType[]>>(GET_WISHLISTS)
 
   const defaultWishlist = useMemo(
@@ -91,25 +99,57 @@ export function ProductWishlistButton({
 
   const isLoading = isAddingWishlistItem || isRemovingWishlistItem
 
-  return isInWishlist ? (
-    <button
-      onClick={handleRemoveWishlistItem}
-      disabled={isLoading}
-      className={cn(
-        'flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-[6px] bg-white shadow-md transition-opacity hover:bg-white/90',
-        isLoading && 'cursor-not-allowed opacity-50',
-      )}>
-      <Wishlist2 className="h-4 w-4 fill-[#3866DF] text-[#3866DF]" />
-    </button>
-  ) : (
-    <button
-      onClick={handleAddWishlistItem}
-      disabled={isLoading}
-      className={cn(
-        'flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-[6px] bg-white shadow-md transition-opacity hover:bg-white/90',
-        isLoading && 'cursor-not-allowed opacity-50',
-      )}>
-      <Wishlist2 className="h-4 w-4" />
-    </button>
+  const renderWishlistButton = useMemo(
+    () =>
+      isInWishlist ? (
+        <button
+          onClick={handleRemoveWishlistItem}
+          disabled={isLoading}
+          className={cn(
+            'flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-[6px] bg-white shadow-md transition-opacity hover:bg-white/90',
+            isLoading && 'cursor-not-allowed opacity-50',
+          )}>
+          <Wishlist2 className="h-4 w-4 fill-[#3866DF] text-[#3866DF]" />
+        </button>
+      ) : (
+        <button
+          onClick={handleAddWishlistItem}
+          disabled={isLoading}
+          className={cn(
+            'flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-[6px] bg-white shadow-md transition-opacity hover:bg-white/90',
+            isLoading && 'cursor-not-allowed opacity-50',
+          )}>
+          <Wishlist2 className="h-4 w-4" />
+        </button>
+      ),
+    [isInWishlist, isLoading, handleAddWishlistItem, handleRemoveWishlistItem],
+  )
+
+  console.log(user)
+  return (
+    <>
+      {user?.getUser.user !== undefined ? (
+        renderWishlistButton
+      ) : (
+        <LoginButtonWithModalDialog>
+          {({ open, isOpen }) => (
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                open()
+              }}
+              disabled={loadingUser}
+              aria-expanded={isOpen}
+              className={cn(
+                'flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-[6px] bg-white shadow-md transition-opacity hover:bg-white/90',
+                loadingUser && 'cursor-not-allowed opacity-50',
+              )}>
+              <Wishlist2 className="h-4 w-4" />
+            </button>
+          )}
+        </LoginButtonWithModalDialog>
+      )}
+    </>
   )
 }

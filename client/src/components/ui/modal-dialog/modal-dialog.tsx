@@ -35,12 +35,9 @@ export function ModalDialog({
   const handleClose = () => {
     if (isClosing) return
     setIsClosing(true)
-
     if (dialogRef.current && overlayRef.current) {
       const animations = [
-        animateElement(overlayRef.current, [{ opacity: 0.5 }, { opacity: 0 }], {
-          duration: 150,
-        }),
+        animateElement(overlayRef.current, [{ opacity: 0.5 }, { opacity: 0 }], { duration: 150 }),
         animateElement(
           dialogRef.current,
           [
@@ -50,81 +47,16 @@ export function ModalDialog({
           { duration: 200 },
         ),
       ]
-      Promise.all(animations.map((a) => a.finished)).then(() => {
-        onClose()
-      })
+      Promise.all(animations.map((a) => a.finished)).then(onClose)
     } else {
       onClose()
     }
   }
 
   useEffect(() => {
-    if (overlayRef.current) {
-      animateElement(overlayRef.current, [{ opacity: 0 }, { opacity: 0.5 }], {
-        duration: 150,
-      })
-    }
-
-    if (dialogRef.current) {
-      animateElement(
-        dialogRef.current,
-        [
-          { opacity: 0, transform: 'scale(0.95)' },
-          { opacity: 1, transform: 'scale(1)' },
-        ],
-        { duration: 200 },
-      )
-    }
-  }, [])
-
-  useEffect(() => {
-    const firstFocusable = dialogRef.current?.querySelector<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-    )
-    firstFocusable?.focus()
-
-    const focusTrap = (e: KeyboardEvent) => {
-      if (e.key === 'Tab') {
-        const focusableElements = dialogRef.current?.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-        )
-        if (!focusableElements?.length) return
-
-        const elements = Array.from(focusableElements)
-        const first = elements[0]
-        const last = elements[elements.length - 1]
-
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault()
-          last.focus()
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault()
-          first.focus()
-        }
-      }
-    }
-
     document.body.style.overflow = 'hidden'
-    document.body.style.paddingRight = '0px'
-    document.addEventListener('keydown', focusTrap)
     return () => {
-      document.removeEventListener('keydown', focusTrap)
       document.body.style.overflow = ''
-      document.body.style.paddingRight = ''
-    }
-  }, [])
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dialogRef.current && !dialogRef.current.contains(e.target as Node)) {
-        handleClose()
-        console.log('out side')
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
 
@@ -134,15 +66,12 @@ export function ModalDialog({
     <>
       <div
         ref={overlayRef}
-        className="fixed inset-0 z-[9998] bg-black opacity-0"
-        style={{ transition: 'opacity 150ms ease-out' }}
-        onMouseDown={(e) => {
-          if (e.target === e.currentTarget) {
-            handleClose()
-          }
+        className="fixed inset-0 z-[9998] bg-black opacity-50"
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          handleClose()
         }}
-        aria-hidden="true"
-        tabIndex={-1}
       />
 
       <div className="fixed inset-0 z-[9999] flex items-center justify-center">
@@ -151,16 +80,17 @@ export function ModalDialog({
           role="dialog"
           aria-modal="true"
           className={cn('relative w-[400px] overflow-hidden rounded-lg bg-white outline-none', className)}
-          onMouseDown={(e) => e.stopPropagation()}
-          style={{
-            transform: 'scale(0.95)',
-            opacity: 0,
-            transition: 'opacity 200ms ease-out, transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+          onClick={(e) => {
+            e.stopPropagation()
           }}>
           <button
-            onClick={handleClose}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              handleClose()
+            }}
             className={cn(
-              'absolute top-3 right-3 z-10 cursor-pointer rounded-full p-2 transition-colors hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2',
+              'absolute top-3 right-3 z-10 cursor-pointer rounded-full p-2 transition-colors hover:bg-gray-200',
               closeButtonClassName,
             )}
             aria-label="Close dialog">

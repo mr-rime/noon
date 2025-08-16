@@ -50,6 +50,8 @@ export function ImageSlider({
   const isDragging = useRef(false)
   const startX = useRef(0)
   const currentTranslate = useRef(0)
+  const autoplayRef = useRef<NodeJS.Timeout | null>(null)
+
   const [isAnimating, setIsAnimating] = useState(false)
 
   const isDragDisabled = isMobile ? disableDragMobile : disableDragDesktop
@@ -127,6 +129,28 @@ export function ImageSlider({
     [isAnimating, goToSlide, displayImages.length],
   )
 
+  const startAutoplay = useCallback(() => {
+    if (!autoPlay || displayImages.length <= 1) return
+    stopAutoplay()
+    autoplayRef.current = setInterval(() => {
+      if (!isAnimating && !isDragging.current) {
+        goToSlide(logicalIndex.current + 1)
+      }
+    }, autoPlayInterval)
+  }, [autoPlay, autoPlayInterval, isAnimating, displayImages.length, goToSlide])
+
+  const stopAutoplay = useCallback(() => {
+    if (autoplayRef.current) {
+      clearInterval(autoplayRef.current)
+      autoplayRef.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    startAutoplay()
+    return stopAutoplay
+  }, [startAutoplay, stopAutoplay])
+
   const goPrev = useCallback(
     (e: React.MouseEvent) => {
       stopEventPropagation(e)
@@ -142,6 +166,7 @@ export function ImageSlider({
     (e: React.TouchEvent) => {
       if (displayImages.length <= 1 || isDragDisabled) return
       stopEventPropagation(e)
+      stopAutoplay()
       touchStartX.current = e.touches[0].clientX
       isDragging.current = true
       if (containerRef.current) {
@@ -178,6 +203,7 @@ export function ImageSlider({
 
       goToSlide(Math.max(0, Math.min(extendedImages.length - 1, nextIndex)))
       touchDelta.current = 0
+      startAutoplay()
     },
     [goToSlide, displayImages.length, extendedImages.length, isDragDisabled],
   )
@@ -186,6 +212,7 @@ export function ImageSlider({
     (e: React.MouseEvent) => {
       if (displayImages.length <= 1 || isDragDisabled) return
       stopEventPropagation(e)
+      stopAutoplay()
       isDragging.current = true
       startX.current = e.clientX
       if (containerRef.current) {
@@ -223,6 +250,7 @@ export function ImageSlider({
       }
 
       goToSlide(Math.max(0, Math.min(extendedImages.length - 1, nextIndex)))
+      startAutoplay()
     },
     [goToSlide, displayImages.length, extendedImages.length, isDragDisabled],
   )
@@ -233,18 +261,6 @@ export function ImageSlider({
       goToSlide(logicalIndex.current)
     }
   }, [goToSlide, displayImages.length, isDragDisabled])
-
-  useEffect(() => {
-    if (!autoPlay || displayImages.length <= 1) return
-
-    const interval = setInterval(() => {
-      if (!isAnimating && !isDragging.current) {
-        goNext(null)
-      }
-    }, autoPlayInterval)
-
-    return () => clearInterval(interval)
-  }, [autoPlay, autoPlayInterval, isAnimating, goNext, displayImages.length])
 
   const dotsRender = () => {
     switch (dotsTheme) {
