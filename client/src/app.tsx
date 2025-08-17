@@ -1,9 +1,7 @@
 import { ApolloProvider } from '@apollo/client'
-import { createRouter, RouterProvider } from '@tanstack/react-router'
+import { RouterProvider } from '@tanstack/react-router'
 import client from './config/apollo'
-import { routeTree } from './routeTree.gen'
-
-const router = createRouter({ routeTree, scrollRestoration: true })
+import { router } from './router'
 
 declare module '@tanstack/react-router' {
   interface Register {
@@ -11,10 +9,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
-export default function App() {
+export default function App({ subdomain }: { subdomain?: string | null }) {
   return (
     <ApolloProvider client={client}>
-      <RouterProvider router={router} defaultPendingMinMs={0} defaultPendingMs={0} defaultPreload="intent" />
+      <RouterProvider
+        router={router}
+        context={{ subdomain }}
+        defaultPendingMinMs={0}
+        defaultPendingMs={0}
+        defaultPreload="intent"
+      />
     </ApolloProvider>
   )
 }

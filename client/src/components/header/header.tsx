@@ -9,7 +9,7 @@ import { UserMenu } from './components/user-menu'
 import { header_icons } from './constants/icons'
 import { GET_CART_ITEMS } from '@/graphql/cart'
 import { matchesExpectedRoute } from '@/utils/matchesExpectedRoute'
-import type { User } from '@/types'
+import type { GetUserResponse } from '@/types'
 import { GET_USER } from '@/graphql/user'
 import { LoginButtonWithModalDialog } from '../login-modal'
 import type { CartResponseType } from '@/pages/cart'
@@ -28,7 +28,7 @@ const expectedRoutes = [
 
 export function Header() {
   const hash = useUserHashStore((state) => state.hash)
-  const { data, loading } = useQuery<{ getUser: { user: User } }>(GET_USER, {
+  const { data, loading } = useQuery<GetUserResponse>(GET_USER, {
     variables: { hash: Cookies.get('hash') || hash || '' },
   })
 

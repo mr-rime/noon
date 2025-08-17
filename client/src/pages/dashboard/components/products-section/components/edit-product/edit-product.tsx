@@ -22,7 +22,7 @@ const crumbs = [
 ]
 
 export function EditProduct() {
-  const { productId } = useParams({ from: '/(dashboard)/_dashboardLayout/dashboard/products/edit/$productId/' })
+  const { productId } = useParams({ from: '/(dashboard)/_dashboardLayout/d/products/edit/$productId/' })
   const { data: product, loading: prodcutLoading } = useQuery<{
     getProduct: { success: boolean; message: string; product: ProductType }
   }>(GET_PRODUCT, { variables: { id: productId } })

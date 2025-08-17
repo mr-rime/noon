@@ -3,7 +3,7 @@
 // Allow CORS for local development
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
-if ($origin === 'http://localhost:5173') {
+if ($origin === 'http://localhost:5173' || $origin === "http://dashboard.localhost:5173") {
     header("Access-Control-Allow-Origin: $origin");
     header("Access-Control-Allow-Credentials: true");
 }
@@ -14,6 +14,7 @@ header("Access-Control-Allow-Credentials: true");
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
+
 }
 
 header("Content-Type: application/json");

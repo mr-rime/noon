@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { product_icons } from '@/components/product/constants/icons'
 import { cn } from '@/utils/cn'
 import { Image } from '@unpic/react'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 type DotsThemeType = 'theme1' | 'theme2' | 'theme3'
 
@@ -42,29 +43,18 @@ export function ImageSlider({
   const animationRef = useRef<number | null>(null)
   const touchStartX = useRef(0)
   const touchDelta = useRef(0)
-  const [isMobile, setIsMobile] = useState(false)
+  const isMobile = useIsMobile()
 
   const [index, setIndex] = useState(1)
   const logicalIndex = useRef(1)
   const isDragging = useRef(false)
   const startX = useRef(0)
   const currentTranslate = useRef(0)
+  const autoplayRef = useRef<NodeJS.Timeout | null>(null)
+
   const [isAnimating, setIsAnimating] = useState(false)
 
   const isDragDisabled = isMobile ? disableDragMobile : disableDragDesktop
-
-  useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth <= 768)
-    }
-
-    checkIfMobile()
-    window.addEventListener('resize', checkIfMobile)
-
-    return () => {
-      window.removeEventListener('resize', checkIfMobile)
-    }
-  }, [])
 
   const displayImages = useMemo(() => (isMobile ? mobileImages : images) ?? [], [isMobile, mobileImages, images])
   const extendedImages =
@@ -139,6 +129,28 @@ export function ImageSlider({
     [isAnimating, goToSlide, displayImages.length],
   )
 
+  const startAutoplay = useCallback(() => {
+    if (!autoPlay || displayImages.length <= 1) return
+    stopAutoplay()
+    autoplayRef.current = setInterval(() => {
+      if (!isAnimating && !isDragging.current) {
+        goToSlide(logicalIndex.current + 1)
+      }
+    }, autoPlayInterval)
+  }, [autoPlay, autoPlayInterval, isAnimating, displayImages.length, goToSlide])
+
+  const stopAutoplay = useCallback(() => {
+    if (autoplayRef.current) {
+      clearInterval(autoplayRef.current)
+      autoplayRef.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    startAutoplay()
+    return stopAutoplay
+  }, [startAutoplay, stopAutoplay])
+
   const goPrev = useCallback(
     (e: React.MouseEvent) => {
       stopEventPropagation(e)
@@ -154,6 +166,7 @@ export function ImageSlider({
     (e: React.TouchEvent) => {
       if (displayImages.length <= 1 || isDragDisabled) return
       stopEventPropagation(e)
+      stopAutoplay()
       touchStartX.current = e.touches[0].clientX
       isDragging.current = true
       if (containerRef.current) {
@@ -190,6 +203,7 @@ export function ImageSlider({
 
       goToSlide(Math.max(0, Math.min(extendedImages.length - 1, nextIndex)))
       touchDelta.current = 0
+      startAutoplay()
     },
     [goToSlide, displayImages.length, extendedImages.length, isDragDisabled],
   )
@@ -198,6 +212,7 @@ export function ImageSlider({
     (e: React.MouseEvent) => {
       if (displayImages.length <= 1 || isDragDisabled) return
       stopEventPropagation(e)
+      stopAutoplay()
       isDragging.current = true
       startX.current = e.clientX
       if (containerRef.current) {
@@ -235,6 +250,7 @@ export function ImageSlider({
       }
 
       goToSlide(Math.max(0, Math.min(extendedImages.length - 1, nextIndex)))
+      startAutoplay()
     },
     [goToSlide, displayImages.length, extendedImages.length, isDragDisabled],
   )
@@ -245,18 +261,6 @@ export function ImageSlider({
       goToSlide(logicalIndex.current)
     }
   }, [goToSlide, displayImages.length, isDragDisabled])
-
-  useEffect(() => {
-    if (!autoPlay || displayImages.length <= 1) return
-
-    const interval = setInterval(() => {
-      if (!isAnimating && !isDragging.current) {
-        goNext(null)
-      }
-    }, autoPlayInterval)
-
-    return () => clearInterval(interval)
-  }, [autoPlay, autoPlayInterval, isAnimating, goNext, displayImages.length])
 
   const dotsRender = () => {
     switch (dotsTheme) {

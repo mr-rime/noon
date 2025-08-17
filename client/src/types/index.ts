@@ -10,6 +10,14 @@ export type User = {
   updated_at?: Date
 }
 
+export type GetUserResponse = {
+  getUser: {
+    success: boolean
+    message: string
+    user: User
+  }
+}
+
 export type ProductOptionType = {
   id?: string
   product_id?: ProductType['id']
