@@ -6,5 +6,8 @@
 	},
 	"scripts": {
 		"prepare": "husky"
+	},
+	"dependencies": {
+		"winston": "^3.17.0"
 	}
 }
