@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { TableSkeleton } from '../skeleton-effects'
 
-const LazyOrdersTable = lazy(() => import('../dashboard-metrics/components/orders-table/orders-table'))
+const LazyOrdersTable = lazy(() => import('../dashboard-overview/components/orders-table/orders-table'))
 
 export default function OrdersSection() {
   return (
