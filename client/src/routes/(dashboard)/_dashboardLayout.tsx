@@ -1,4 +1,4 @@
-import { DashboardPage } from '@/pages/dashboard'
+import { DashboardLayout } from '@/pages/dashboard'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/(dashboard)/_dashboardLayout')({
@@ -9,5 +9,5 @@ export const Route = createFileRoute('/(dashboard)/_dashboardLayout')({
       throw redirect({ to: '/' })
     }
   },
-  component: DashboardPage,
+  component: DashboardLayout,
 })

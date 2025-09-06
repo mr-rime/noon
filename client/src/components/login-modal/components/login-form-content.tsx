@@ -1,7 +1,6 @@
 import { useMutation } from '@apollo/client'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Cookies from 'js-cookie'
-import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { type SubmitHandler, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -16,6 +15,7 @@ import { GET_HOME } from '@/graphql/home'
 import useUserHashStore from '@/store/user-hash/user-hash'
 import { GET_WISHLISTS } from '@/graphql/wishlist'
 import { GET_CART_ITEMS } from '@/graphql/cart'
+import { BouncingLoading } from '@/components/ui/bouncing-loading'
 
 export function LoginFormContent({
   isLogin,
@@ -62,6 +62,7 @@ export function LoginFormContent({
     if (inputRef.current && !isPending) {
       animateElement(inputRef.current, [{ transform: 'scale(0.98)' }, { transform: 'scale(1)' }], { duration: 150 })
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLogin, isPending])
 
   return (
@@ -113,7 +114,7 @@ export function LoginFormContent({
           type="submit"
           className="mt-4 flex h-[48px] w-full cursor-pointer items-center justify-center rounded-lg bg-[#3866df] p-[16px] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#3e72f7]">
           {' '}
-          {loading ? <Loader2 size={20} className="animate-spin transition-all" /> : 'Continue'}
+          {loading ? <BouncingLoading /> : 'Continue'}
         </button>
       )}
     </form>

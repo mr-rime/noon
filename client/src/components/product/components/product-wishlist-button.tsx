@@ -4,7 +4,7 @@ import type { WishlistResponse, WishlistType } from '@/pages/wishlist'
 import { toast } from 'sonner'
 import { cn } from '@/utils/cn'
 import { Wishlist2 } from '../constants'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { GET_HOME } from '@/graphql/home'
 import { GET_USER } from '@/graphql/user'
 import type { GetUserResponse } from '@/types'
@@ -61,41 +61,47 @@ export function ProductWishlistButton({
     awaitRefetchQueries: true,
   })
 
-  const handleAddWishlistItem = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handleAddWishlistItem = useCallback(
+    async (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault()
+      e.stopPropagation()
 
-    setIsInWishlist(true)
-
-    const { data } = await addWishlistItem({ variables: { product_id } })
-    const res = data?.addWishlistItem
-
-    if (res?.success) {
-      toast.success(res.message || 'Product added to wishlist')
-    } else {
-      toast.error(res?.message || 'Error adding product to wishlist')
-      setIsInWishlist(false)
-    }
-  }
-
-  const handleRemoveWishlistItem = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    setIsInWishlist(false)
-
-    const { data } = await removeWishlistItem({
-      variables: { product_id, wishlist_id },
-    })
-    const res = data?.removeWishlistItem
-
-    if (res?.success) {
-      toast.success(res.message || 'Product removed from wishlist successfully')
-    } else {
-      toast.error(res?.message || 'Error removing product from wishlist')
       setIsInWishlist(true)
-    }
-  }
+
+      const { data } = await addWishlistItem({ variables: { product_id } })
+      const res = data?.addWishlistItem
+
+      if (res?.success) {
+        toast.success(res.message || 'Product added to wishlist')
+      } else {
+        toast.error(res?.message || 'Error adding product to wishlist')
+        setIsInWishlist(false)
+      }
+    },
+    [addWishlistItem, product_id],
+  )
+
+  const handleRemoveWishlistItem = useCallback(
+    async (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault()
+      e.stopPropagation()
+
+      setIsInWishlist(false)
+
+      const { data } = await removeWishlistItem({
+        variables: { product_id, wishlist_id },
+      })
+      const res = data?.removeWishlistItem
+
+      if (res?.success) {
+        toast.success(res.message || 'Product removed from wishlist successfully')
+      } else {
+        toast.error(res?.message || 'Error removing product from wishlist')
+        setIsInWishlist(true)
+      }
+    },
+    [removeWishlistItem, product_id, wishlist_id],
+  )
 
   const isLoading = isAddingWishlistItem || isRemovingWishlistItem
 

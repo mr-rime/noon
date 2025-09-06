@@ -18,7 +18,7 @@ export function WishlistControls({ productId }: { productId: ProductType['id'] |
 
   const { wishlistCode } = useSearch({ from: '/(main)/_homeLayout/wishlist/' })
 
-  const [removeWishlistItem, {}] = useMutation<WishlistResponse<'removeWishlistItem', WishlistType>>(
+  const [removeWishlistItem,] = useMutation<WishlistResponse<'removeWishlistItem', WishlistType>>(
     REMOVE_WISHLIST_ITEM,
     {
       refetchQueries: [

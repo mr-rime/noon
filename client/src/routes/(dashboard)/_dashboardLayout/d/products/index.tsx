@@ -1,4 +1,3 @@
-import { ProductsSection } from "@/pages/dashboard";
 import { createFileRoute } from "@tanstack/react-router";
 
 type ProductsSearch = {
@@ -6,7 +5,7 @@ type ProductsSearch = {
 };
 
 export const Route = createFileRoute("/(dashboard)/_dashboardLayout/d/products/")({
-	component: ProductsSection,
+	component: () => null,
 	validateSearch: (search: Record<string, ProductsSearch["q"]>): ProductsSearch => {
 		return {
 			q: search?.q,

@@ -54,7 +54,7 @@ export const Dropdown = memo(function Dropdown({
       const scrollX = window.scrollX || window.pageXOffset
       const scrollY = window.scrollY || window.pageYOffset
 
-      let top = position === 'top' ? rect.top + scrollY : rect.bottom + scrollY
+      const top = position === 'top' ? rect.top + scrollY : rect.bottom + scrollY
       let left = rect.left + scrollX
 
       if (align === 'center') left = rect.left + rect.width / 2 + scrollX

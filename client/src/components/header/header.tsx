@@ -84,9 +84,9 @@ export function Header() {
           to={'/cart'}
           preload="render"
           className="relative mx-1 text-[#404553] transition-colors hover:text-[#8C8832]">
-          {cart?.getCartItems.cartItems?.length! > 0 && (
+          {(cart?.getCartItems.cartItems?.length ?? 0) > 0 && (
             <div className="-right-[8px] -top-2 absolute flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[#3866DF] font-semibold text-[10px] text-white">
-              {cart?.getCartItems.cartItems.length}
+              {cart?.getCartItems.cartItems?.length ?? 0}
             </div>
           )}
           {header_icons.cartIcon}
