@@ -3,29 +3,14 @@ set -e
 
 echo "🎛️ [husky] Starting pre-commit checks..."
 
-if ! command -v pnpm >/dev/null 2>&1; then
-  echo "❌ 'pnpm' not found. Please install it."
-  exit 1
-fi
+cd client || exit 1
 
-cd client || {
-  echo "❌ Failed to cd into 'client'."
-  exit 1
-}
-
-echo "🧪 Running Biome lint..."
-pnpm biome lint --write ./src
-
-echo "🎨 Formatting..."
-pnpm biome format --write ./src
+echo "🧪 Running ESLint..."
+pnpm eslint ./src --ext .js,.ts,.jsx,.tsx --fix
 
 echo "🔍 Checking for TypeScript errors..."
-if tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json; then
-  echo "✅ No TypeScript errors found."
-else
-  echo "❌ Found TypeScript errors."
-  exit 1
-fi
+pnpm run type-check
+
 echo "📌 Restaging changed files..."
 git add ./src
 

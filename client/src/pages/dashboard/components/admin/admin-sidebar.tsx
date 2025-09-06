@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
     LayoutDashboard,
     Package,
@@ -13,8 +13,7 @@ import {
 import { Sidebar, SidebarContent, SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, useSidebar } from "../ui/sidebar"
 import { Link, useLocation } from "@tanstack/react-router"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible"
-
-
+import { cn } from "@/utils/cn"
 
 const navigation = [
     {
@@ -75,6 +74,14 @@ export function AdminSidebar() {
     const currentPath = location.pathname
 
     const [openGroups, setOpenGroups] = useState<string[]>(["Products", "Marketing", "Orders"])
+    const [isTransitioning, setIsTransitioning] = useState(false)
+
+    // Add transition state management for smoother animations
+    useEffect(() => {
+        setIsTransitioning(true)
+        const timer = setTimeout(() => setIsTransitioning(false), 100)
+        return () => clearTimeout(timer)
+    }, [collapsed])
 
     const isActive = (path: string) => currentPath === path
     const isGroupActive = (items: { url: string }[]) =>
@@ -90,21 +97,27 @@ export function AdminSidebar() {
 
     const getNavClassName = (active: boolean) =>
         active
-            ? "bg-sidebar-accent text-sidebar-accent-foreground border-r-2 border-primary font-medium"
-            : "hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+            ? "bg-sidebar-accent text-sidebar-accent-foreground border-r-2 border-primary font-medium transition-colors duration-75"
+            : "hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground transition-colors duration-75"
 
     return (
-        <Sidebar className={`${collapsed ? "w-16" : "w-64"} border-sidebar-border border-r bg-sidebar`}>
+        <Sidebar
+            className={cn(
+                "border-r border-sidebar-border bg-sidebar transition-all duration-100 ease-out",
+                collapsed ? "w-16" : "w-64",
+                isTransitioning && "will-change-transform"
+            )}
+        >
             <SidebarContent className="px-3 py-4">
                 <div className="mb-6 px-3">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
-                            <Package className="h-4 w-4 text-white" />
+                        <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Package className="w-4 h-4 text-white" />
                         </div>
                         {!collapsed && (
-                            <div>
-                                <h2 className="font-bold text-lg text-sidebar-foreground">Admin Panel</h2>
-                                <p className="text-muted-foreground text-xs">E-commerce Dashboard</p>
+                            <div className="transition-opacity duration-75 ease-out">
+                                <h2 className="text-lg font-bold text-sidebar-foreground whitespace-nowrap">Admin Panel</h2>
+                                <p className="text-xs text-muted-foreground whitespace-nowrap">E-commerce Dashboard</p>
                             </div>
                         )}
                     </div>
@@ -122,21 +135,33 @@ export function AdminSidebar() {
                                         <Collapsible open={isGroupOpen} onOpenChange={() => toggleGroup(item.title)}>
                                             <CollapsibleTrigger asChild>
                                                 <SidebarMenuButton
-                                                    className={`w-full justify-between ${getNavClassName(isGroupSelected)}`}
+                                                    className={cn(
+                                                        "w-full justify-between",
+                                                        getNavClassName(isGroupSelected)
+                                                    )}
                                                     size={collapsed ? "sm" : "default"}
                                                 >
                                                     <div className="flex items-center gap-3">
-                                                        <item.icon className="h-4 w-4" />
-                                                        {!collapsed && <span>{item.title}</span>}
+                                                        <item.icon className="w-4 h-4 flex-shrink-0" />
+                                                        {!collapsed && (
+                                                            <span className="transition-opacity duration-75 ease-out whitespace-nowrap">
+                                                                {item.title}
+                                                            </span>
+                                                        )}
                                                     </div>
                                                     {!collapsed && (
-                                                        isGroupOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
+                                                        <div className="transition-transform duration-75 ease-out">
+                                                            {isGroupOpen ?
+                                                                <ChevronDown className="w-4 h-4" /> :
+                                                                <ChevronRight className="w-4 h-4" />
+                                                            }
+                                                        </div>
                                                     )}
                                                 </SidebarMenuButton>
                                             </CollapsibleTrigger>
                                             {!collapsed && (
-                                                <CollapsibleContent>
-                                                    <SidebarMenuSub className="mt-1 ml-6 space-y-1">
+                                                <CollapsibleContent className="transition-all duration-75 ease-out">
+                                                    <SidebarMenuSub className="ml-6 mt-1 space-y-1">
                                                         {item.items.map((subItem) => (
                                                             <SidebarMenuSubItem key={subItem.url}>
                                                                 <SidebarMenuSubButton asChild>
@@ -144,7 +169,7 @@ export function AdminSidebar() {
                                                                         to={subItem.url}
                                                                         className={getNavClassName(isActive(subItem.url))}
                                                                     >
-                                                                        <span className="text-sm">{subItem.title}</span>
+                                                                        <span className="text-sm whitespace-nowrap">{subItem.title}</span>
                                                                     </Link>
                                                                 </SidebarMenuSubButton>
                                                             </SidebarMenuSubItem>
@@ -164,8 +189,12 @@ export function AdminSidebar() {
                                             to={item.url!}
                                             className={getNavClassName(isActive(item.url!))}
                                         >
-                                            <item.icon className="h-4 w-4" />
-                                            {!collapsed && <span>{item.title}</span>}
+                                            <item.icon className="w-4 h-4 flex-shrink-0" />
+                                            {!collapsed && (
+                                                <span className="transition-opacity duration-75 ease-out whitespace-nowrap">
+                                                    {item.title}
+                                                </span>
+                                            )}
                                         </Link>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
