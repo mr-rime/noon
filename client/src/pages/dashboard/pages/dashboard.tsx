@@ -11,9 +11,9 @@ import {
     Bar,
 } from "recharts"
 import { Button } from "../components/ui/button"
-import { DashboardStats } from "../components"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
+import { DashboardStats } from "../components"
 
 const recentProducts = [
     { id: 1, name: "Wireless Headphones", status: "Active", stock: 45, price: "$99.99" },

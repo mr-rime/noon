@@ -25,7 +25,7 @@ const navigation = [
         title: "Products",
         icon: Package,
         items: [
-            { title: "All Products", url: "/products" },
+            { title: "All Products", url: "/d/products" },
             { title: "Add New Product", url: "/products/new" },
             { title: "Categories & Tags", url: "/categories" },
         ],
