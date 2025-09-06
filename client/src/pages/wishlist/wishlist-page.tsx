@@ -16,6 +16,7 @@ export function WishlistPage() {
 
   useEffect(() => {
     navigate({ search: { wishlistCode: wishlists[0]?.id } })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading])
 
   return (
