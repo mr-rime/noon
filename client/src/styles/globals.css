@@ -1,0 +1,163 @@
+@import "tailwindcss";
+
+@layer base {
+    @font-face {
+        font-family: 'Proxima Nova';
+        src: url('/fonts/proximanova/proximanova_regular.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    @font-face {
+        font-family: 'Proxima Nova';
+        src: url('/fonts/proximanova/proximanova_light.otf') format('opentype');
+        font-weight: 300;
+        font-style: normal;
+    }
+
+    @font-face {
+        font-family: 'Proxima Nova';
+        src: url('/fonts/proximanova/proximanova_bold.otf') format('opentype');
+        font-weight: 700;
+        font-style: normal;
+    }
+
+    @font-face {
+        font-family: 'Proxima Nova';
+        src: url('/fonts/proximanova/proximanova_boldit.otf') format('opentype');
+        font-weight: 700;
+        font-style: italic;
+    }
+
+    @font-face {
+        font-family: 'Proxima Nova';
+        src: url('/fonts/proximanova/proximanova_black.otf') format('opentype');
+        font-weight: 900;
+        font-style: normal;
+    }
+
+    @font-face {
+        font-family: 'Proxima Nova';
+        src: url('/fonts/proximanova/proximanova_blackit.otf') format('opentype');
+        font-weight: 900;
+        font-style: italic;
+    }
+
+    @font-face {
+        font-family: 'Proxima Nova';
+        src: url('/fonts/proximanova/proximanova_extrabold.otf') format('opentype');
+        font-weight: 800;
+        font-style: normal;
+    }
+
+    * {
+        -webkit-user-drag: none;
+    }
+
+    /* html {
+        scroll-behavior: smooth;
+    } */
+
+    body {
+        color: #404553;
+        overflow-x: hidden;
+        font-family: 'Proxima Nova', sans-serif !important;
+        background-color: #F7F7FA;
+        @apply antialiased
+    }
+
+    img,
+    a {
+        pointer-events: auto;
+        -webkit-user-drag: none;
+    }
+
+    .site-container {
+        margin-inline: auto;
+        max-width: min(100vw, 1440px);
+        width: 100%;
+    }
+
+    .partner-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        box-sizing: border-box;
+        min-height: 100vh;
+        line-height: 1.5;
+        background-image: url('/media/imgs/partner-login.png');
+        background-size: 100%;
+        background-repeat: no-repeat;
+        background-position: top;
+        background-color: var(--color-alice);
+    }
+
+    .modal-open {
+        overflow: hidden;
+    }
+
+    .bg-white-blur {
+        background: linear-gradient(rgba(255, 255, 255, 0), rgb(255, 255, 255) 60%, rgb(255, 255, 255))
+    }
+
+    .gray-filter {
+        filter: brightness(0) saturate(100%) invert(53%) sepia(13%) saturate(528%) hue-rotate(188deg) brightness(97%) contrast(86%);
+    }
+
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+
+    @keyframes progress {
+        50% {
+            opacity: 1;
+            height: 100%;
+        }
+
+        100% {
+            opacity: 0;
+            height: 100%;
+        }
+    }
+
+    .animate-ripple {
+        animation: ripple 600ms linear;
+        transform: scale(0);
+    }
+
+    .animate-timeline {
+        animation: 2s linear 0s infinite normal none running progress;
+    }
+
+    @keyframes shimmer {
+        0% {
+            transform: translateX(-100%);
+        }
+
+        100% {
+            transform: translateX(100%);
+        }
+    }
+
+    .shimmer-overlay {
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        animation: shimmer 1.5s infinite;
+        background: linear-gradient(to right,
+                transparent,
+                rgba(255, 255, 255, 0.6),
+                transparent);
+        z-index: 1;
+        pointer-events: none;
+    }
+}
+
+@theme {
+    --font-proxima: "Proxima Nova", "sans-serif";
+    --font-cairo: "Cairo", "sans-serif";
+}

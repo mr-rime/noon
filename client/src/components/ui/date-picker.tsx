@@ -61,7 +61,11 @@ export function DatePicker({ value, onChange, labelContent }: DatePickerProps) {
   }
 
   const toggleOpen = () => {
-    isOpen ? closeWithAnimation() : setIsOpen(true)
+    if (isOpen) {
+      closeWithAnimation()
+    } else {
+      setIsOpen(true)
+    }
   }
 
   useEffect(() => {

@@ -1,0 +1,324 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+
+:root {
+    /* Core Admin Theme - Professional Indigo/Blue */
+    --background: 248 50% 98%;
+    /* slate-50 - Adjusted saturation for better color */
+    --foreground: 222 47% 11%;
+    /* slate-900 */
+
+    --card: 0 0% 100%;
+    /* pure white */
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    /* white */
+    --popover-foreground: 222 47% 11%;
+
+    /* Primary - Professional Blue */
+    --primary: 217 91% 60%;
+    /* blue-500 */
+    --primary-foreground: 0 0% 100%;
+    /* white */
+    --primary-hover: 217 91% 55%;
+    /* blue-600 */
+    --primary-glow: 217 91% 60%;
+    /* for glows/shadows */
+
+    /* Secondary - Neutral Gray */
+    --secondary: 210 40% 96%;
+    /* slate-100 */
+    --secondary-foreground: 222 47% 11%;
+    --secondary-hover: 210 40% 90%;
+    /* slate-200 */
+
+    /* Muted - Subtle Backgrounds */
+    --muted: 210 40% 96%;
+    /* slate-100 */
+    --muted-foreground: 215 25% 47%;
+    /* slate-500 */
+
+    /* Accent - Success Green */
+    --accent: 142 71% 45%;
+    /* green-600 */
+    --accent-foreground: 0 0% 100%;
+    /* white */
+    --accent-glow: 142 71% 45%;
+
+    /* Status Colors */
+    --success: 142 71% 45%;
+    /* green-600 */
+    --success-foreground: 0 0% 100%;
+    /* white */
+    --warning: 25 95% 53%;
+    /* orange-500 */
+    --warning-foreground: 0 0% 100%;
+    /* white */
+    --destructive: 0 84% 60%;
+    /* red-500 */
+    --destructive-foreground: 0 0% 100%;
+    /* white */
+    --info: 217 91% 60%;
+    /* blue-500 */
+    --info-foreground: 0 0% 100%;
+    /* white */
+
+    /* UI Elements */
+    --border: 240 6% 90%;
+    /* slate-200 */
+    --input: 240 6% 90%;
+    --ring: 238 75% 61%;
+    /* indigo-500 */
+
+    /* Admin-specific */
+    --sidebar-background: 0 0% 100%;
+    /* white */
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-border: 240 6% 90%;
+    --sidebar-accent: 238 86% 97%;
+    /* indigo-50 - Adjusted for HSL */
+    --sidebar-accent-foreground: 238 75% 61%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217, 91%, 60%), hsl(217, 91%, 55%));
+    --gradient-success: linear-gradient(135deg, hsl(142, 71%, 45%), hsl(158, 71%, 45%));
+    --gradient-dashboard: linear-gradient(135deg, hsl(217, 91%, 60%, 0.05), hsl(210, 40%, 96%, 0.5));
+
+    /* Shadows */
+    --shadow-card: 0 1px 3px 0 hsl(222, 47%, 11%, 0.1), 0 1px 2px -1px hsl(222, 47%, 11%, 0.1);
+    --shadow-elevated: 0 10px 15px -3px hsl(222, 47%, 11%, 0.1), 0 4px 6px -4px hsl(222, 47%, 11%, 0.1);
+    --shadow-glow: 0 0 0 1px hsl(238, 75%, 61%, 0.1), 0 0 20px hsl(238, 75%, 61%, 0.15);
+
+    /* Animations */
+    --transition-all: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --radius: 0.75rem;
+
+    /* Additional sidebar variables */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+}
+
+.dark {
+    /* Dark mode admin theme */
+    --background: 222 47% 11%;
+    /* slate-900 */
+    --foreground: 210 40% 98%;
+    /* slate-50 */
+
+    --card: 222 47% 11%;
+    /* slate-900 */
+    --card-foreground: 210 40% 98%;
+    /* slate-50 */
+
+    --popover: 222 47% 11%;
+    /* slate-900 */
+    --popover-foreground: 210 40% 98%;
+    /* slate-50 */
+
+    --primary: 217 91% 60%;
+    /* blue-500 */
+    --primary-foreground: 0 0% 100%;
+    /* white */
+    --primary-hover: 217 91% 55%;
+    /* blue-600 */
+
+    --secondary: 217 32% 17%;
+    /* slate-800 */
+    --secondary-foreground: 210 40% 98%;
+    /* slate-50 */
+    --secondary-hover: 215 25% 27%;
+    /* slate-700 */
+
+    --muted: 217 32% 17%;
+    /* slate-800 */
+    --muted-foreground: 215 20% 65%;
+    /* slate-400 */
+
+    --accent: 142 71% 45%;
+    /* green-600 */
+    --accent-foreground: 0 0% 100%;
+    /* white */
+
+    --success: 142 71% 45%;
+    /* green-600 */
+    --success-foreground: 0 0% 100%;
+    /* white */
+    --warning: 25 95% 53%;
+    /* orange-500 */
+    --warning-foreground: 0 0% 100%;
+    /* white */
+    --destructive: 0 84% 60%;
+    /* red-500 */
+    --destructive-foreground: 0 0% 100%;
+    /* white */
+    --info: 217 91% 60%;
+    /* blue-500 */
+    --info-foreground: 0 0% 100%;
+    /* white */
+
+    --border: 215 28% 17%;
+    /* slate-800 */
+    --input: 215 28% 17%;
+    /* slate-800 */
+    --ring: 217 91% 60%;
+    /* blue-500 */
+
+    --sidebar-background: 222 47% 11%;
+    /* slate-900 */
+    --sidebar-foreground: 210 40% 98%;
+    /* slate-50 */
+    --sidebar-border: 215 28% 17%;
+    /* slate-800 */
+    --sidebar-accent: 217 91% 60%;
+    /* blue-500 */
+    --sidebar-accent-foreground: 0 0% 100%;
+    /* white */
+
+    /* Dark gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217, 91%, 60%), hsl(220, 91%, 65%));
+    --gradient-dashboard: linear-gradient(135deg, hsl(217, 91%, 60%, 0.1), hsl(220, 91%, 65%, 0.05));
+}
+
+
+@theme {
+    /* Container settings */
+    --breakpoint-2xl: 1400px;
+    --container-padding: 2rem;
+
+    /* Color definitions */
+    --color-border: hsl(var(--border));
+    --color-input: hsl(var(--input));
+    --color-ring: hsl(var(--ring));
+    --color-background: hsl(var(--background));
+    --color-foreground: hsl(var(--foreground));
+
+    /* Primary colors */
+    --color-primary: hsl(var(--primary));
+    --color-primary-foreground: hsl(var(--primary-foreground));
+    --color-primary-hover: hsl(var(--primary-hover));
+    --color-primary-glow: hsl(var(--primary-glow));
+
+    /* Secondary colors */
+    --color-secondary: hsl(var(--secondary));
+    --color-secondary-foreground: hsl(var(--secondary-foreground));
+    --color-secondary-hover: hsl(var(--secondary-hover));
+
+    /* Destructive colors */
+    --color-destructive: hsl(var(--destructive));
+    --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+    /* Muted colors */
+    --color-muted: hsl(var(--muted));
+    --color-muted-foreground: hsl(var(--muted-foreground));
+
+    /* Accent colors */
+    --color-accent: hsl(var(--accent));
+    --color-accent-foreground: hsl(var(--accent-foreground));
+    --color-accent-glow: hsl(var(--accent-glow));
+
+    /* Popover colors */
+    --color-popover: hsl(var(--popover));
+    --color-popover-foreground: hsl(var(--popover-foreground));
+
+    /* Card colors */
+    --color-card: hsl(var(--card));
+    --color-card-foreground: hsl(var(--card-foreground));
+
+    /* Status colors */
+    --color-success: hsl(var(--success));
+    --color-success-foreground: hsl(var(--success-foreground));
+    --color-warning: hsl(var(--warning));
+    --color-warning-foreground: hsl(var(--warning-foreground));
+    --color-info: hsl(var(--info));
+    --color-info-foreground: hsl(var(--info-foreground));
+
+    /* Sidebar colors */
+    --color-sidebar: hsl(var(--sidebar-background));
+    --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+    --color-sidebar-border: hsl(var(--sidebar-border));
+    --color-sidebar-accent: hsl(var(--sidebar-accent));
+    --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+
+    /* Border radius */
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    /* Shadows */
+    --shadow-card: var(--shadow-card);
+    --shadow-elevated: var(--shadow-elevated);
+    --shadow-glow: var(--shadow-glow);
+}
+
+/* Background image utilities */
+@utility bg-gradient-primary {
+    background-image: var(--gradient-primary);
+}
+
+@utility bg-gradient-success {
+    background-image: var(--gradient-success);
+}
+
+@utility bg-gradient-dashboard {
+    background-image: var(--gradient-dashboard);
+}
+
+/* Transition utilities */
+@utility transition-all {
+    transition-property: var(--transition-all);
+}
+
+@utility transition-smooth {
+    transition-property: var(--transition-smooth);
+}
+
+/* Animation keyframes */
+@keyframes accordion-down {
+    from {
+        height: 0;
+    }
+
+    to {
+        height: var(--radix-accordion-content-height);
+    }
+}
+
+@keyframes accordion-up {
+    from {
+        height: var(--radix-accordion-content-height);
+    }
+
+    to {
+        height: 0;
+    }
+}
+
+/* Animation utilities */
+@theme {
+    --animate-accordion-down: accordion-down 0.2s ease-out;
+    --animate-accordion-up: accordion-up 0.2s ease-out;
+}
+
+/* Dark mode support */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+}
