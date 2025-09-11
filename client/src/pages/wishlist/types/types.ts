@@ -18,7 +18,7 @@ type WishlistIdentifier =
   | 'clearWishlist'
   | 'deleteWishlist'
 
-export type WishlistResponse<T extends WishlistIdentifier, R extends unknown> = {
+export type WishlistResponse<T extends WishlistIdentifier, R> = {
   [K in T]: {
     success: boolean
     message: string

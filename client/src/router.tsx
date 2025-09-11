@@ -6,3 +6,5 @@ export const router = createRouter({
   scrollRestoration: true,
   context: { subdomain: undefined! },
 })
+
+export type AppRouter = typeof router
