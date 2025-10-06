@@ -26,3 +26,13 @@ $ProductOptionInputType = new InputObjectType([
         'type' => Type::nonNull(Type::string()),
     ],
 ]);
+
+// Option group input for generating variant combinations
+$ProductOptionGroupInput = new InputObjectType([
+    'name' => 'ProductOptionGroupInput',
+    'fields' => [
+        'name' => Type::nonNull(Type::string()),
+        'values' => Type::nonNull(Type::listOf(Type::string())),
+        'type' => Type::string(),
+    ]
+]);

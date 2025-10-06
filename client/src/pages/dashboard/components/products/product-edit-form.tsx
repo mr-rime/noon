@@ -14,6 +14,9 @@ import { Input } from "../ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { Textarea } from "../ui/textarea"
 import { Badge } from "../ui/badge"
+import { useMutation } from "@apollo/client"
+import { CREATE_PRODUCT_WITH_VARIANTS } from "@/graphql/product"
+import { UPLOAD_FILE } from "@/graphql/upload-file"
 
 interface ProductEditFormProps {
     productId: number
@@ -37,6 +40,16 @@ export function ProductEditForm({ onClose, onSave }: ProductEditFormProps) {
     })
 
     const [newTag, setNewTag] = useState("")
+    const [specName, setSpecName] = useState("")
+    const [specValue, setSpecValue] = useState("")
+    const [specifications, setSpecifications] = useState<{ spec_name: string; spec_value: string }[]>([])
+    const [optionGroupName, setOptionGroupName] = useState("")
+    const [optionValue, setOptionValue] = useState("")
+    const [optionGroups, setOptionGroups] = useState<{ name: string; values: string[] }[]>([])
+    type Variant = { sku: string; options: { name: string; value: string }[]; price?: number; stock?: number; image_url?: string }
+    const [variants, setVariants] = useState<Variant[]>([])
+    const [createProductWithVariants, { loading: isSaving }] = useMutation(CREATE_PRODUCT_WITH_VARIANTS)
+    const [uploadFile] = useMutation(UPLOAD_FILE)
 
     const addTag = () => {
         if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
@@ -55,9 +68,84 @@ export function ProductEditForm({ onClose, onSave }: ProductEditFormProps) {
         }))
     }
 
-    const handleSave = () => {
-        // Handle save logic here
-        console.log("Saving product:", formData)
+    const addSpecification = () => {
+        if (!specName.trim() || !specValue.trim()) return
+        setSpecifications(prev => [...prev, { spec_name: specName.trim(), spec_value: specValue.trim() }])
+        setSpecName("")
+        setSpecValue("")
+    }
+
+    const removeSpecification = (idx: number) => {
+        setSpecifications(prev => prev.filter((_, i) => i !== idx))
+    }
+
+    const addOptionGroup = () => {
+        if (!optionGroupName.trim() || !optionValue.trim()) return
+        setOptionGroups(prev => {
+            const existing = prev.find(g => g.name === optionGroupName.trim())
+            if (existing) {
+                if (!existing.values.includes(optionValue.trim())) {
+                    return prev.map(g => g.name === existing.name ? { ...g, values: [...g.values, optionValue.trim()] } : g)
+                }
+                return prev
+            }
+            return [...prev, { name: optionGroupName.trim(), values: [optionValue.trim()] }]
+        })
+        setOptionValue("")
+    }
+
+    const removeOptionValue = (groupName: string, value: string) => {
+        setOptionGroups(prev => prev.map(g => g.name === groupName ? { ...g, values: g.values.filter(v => v !== value) } : g))
+    }
+
+    const removeOptionGroup = (groupName: string) => {
+        setOptionGroups(prev => prev.filter(g => g.name !== groupName))
+    }
+
+    const generateCombinations = (groups: { name: string; values: string[] }[]) => {
+        let combos: { name: string; value: string }[][] = [[]]
+        for (const group of groups) {
+            const next: { name: string; value: string }[][] = []
+            for (const combo of combos) {
+                for (const v of group.values) {
+                    next.push([...combo, { name: group.name, value: v }])
+                }
+            }
+            combos = next
+        }
+        const res = combos.map((options, idx) => ({
+            sku: `${formData.name.replace(/\s+/g, '-').toUpperCase()}-${idx + 1}`,
+            options,
+            price: Number(formData.price) || undefined,
+            stock: Number(formData.stock) || undefined,
+        }))
+        setVariants(res)
+    }
+
+    const handleVariantChange = (index: number, patch: Partial<Variant>) => {
+        setVariants(prev => prev.map((v, i) => i === index ? { ...v, ...patch } : v))
+    }
+
+    const handleVariantImageUpload = async (index: number, file: File) => {
+        const { data } = await uploadFile({ variables: { file } })
+        const url = data?.uploadImage?.url as string | undefined
+        if (url) handleVariantChange(index, { image_url: url })
+    }
+
+    const handleSave = async () => {
+        const variables = {
+            name: formData.name,
+            price: Number(formData.price),
+            currency: 'USD',
+            product_overview: formData.description,
+            category_id: formData.category || undefined,
+            is_returnable: true,
+            images: [],
+            specifications,
+            options: optionGroups.map(g => ({ name: g.name, values: g.values })),
+            variants: variants.map(v => ({ sku: v.sku, options: v.options, price: typeof v.price === 'number' ? v.price : undefined, stock: typeof v.stock === 'number' ? v.stock : undefined, image_url: v.image_url || undefined })),
+        }
+        await createProductWithVariants({ variables })
         onSave()
     }
 
@@ -191,6 +279,57 @@ export function ProductEditForm({ onClose, onSave }: ProductEditFormProps) {
                                 />
                             </div>
 
+                            {/* Specifications */}
+                            <div className="space-y-2">
+                                <Label>Specifications</Label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Input placeholder="Name (e.g. Material)" value={specName} onChange={(e) => setSpecName(e.target.value)} />
+                                    <Input placeholder="Value (e.g. Cotton)" value={specValue} onChange={(e) => setSpecValue(e.target.value)} />
+                                </div>
+                                <div className="flex gap-2">
+                                    <Button size="sm" onClick={addSpecification}><Plus className="h-4 w-4" /></Button>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {specifications.map((s, i) => (
+                                        <Badge key={`${s.spec_name}-${i}`} variant="secondary" className="gap-1">
+                                            {s.spec_name}: {s.spec_value}
+                                            <button onClick={() => removeSpecification(i)} className="ml-1 hover:text-destructive">
+                                                <X className="h-3 w-3" />
+                                            </button>
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Option Groups */}
+                            <div className="space-y-2">
+                                <Label>Options</Label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Input placeholder="Option Name (e.g. Color)" value={optionGroupName} onChange={(e) => setOptionGroupName(e.target.value)} />
+                                    <Input placeholder="Add Value (e.g. Red)" value={optionValue} onChange={(e) => setOptionValue(e.target.value)} />
+                                </div>
+                                <div className="flex gap-2">
+                                    <Button size="sm" onClick={addOptionGroup}><Plus className="h-4 w-4" /></Button>
+                                    <Button size="sm" variant="outline" onClick={() => generateCombinations(optionGroups)}>Generate Variants</Button>
+                                </div>
+                                <div className="space-y-2">
+                                    {optionGroups.map((g) => (
+                                        <div key={g.name} className="flex items-center gap-2 flex-wrap">
+                                            <Badge variant="outline">{g.name}</Badge>
+                                            {g.values.map((v) => (
+                                                <Badge key={v} variant="secondary" className="gap-1">
+                                                    {v}
+                                                    <button onClick={() => removeOptionValue(g.name, v)} className="ml-1 hover:text-destructive">
+                                                        <X className="h-3 w-3" />
+                                                    </button>
+                                                </Badge>
+                                            ))}
+                                            <Button size="xs" variant="ghost" onClick={() => removeOptionGroup(g.name)}>Remove</Button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <Label htmlFor="weight">Weight (g)</Label>
@@ -236,9 +375,9 @@ export function ProductEditForm({ onClose, onSave }: ProductEditFormProps) {
                             </div>
 
                             <div className="flex gap-2 pt-4">
-                                <Button onClick={handleSave} className="flex-1">
+                                <Button onClick={handleSave} className="flex-1" disabled={isSaving}>
                                     <Save className="h-4 w-4 mr-2" />
-                                    Save Changes
+                                    {isSaving ? 'Saving...' : 'Save Changes'}
                                 </Button>
                                 <Button variant="outline" onClick={onClose}>
                                     Cancel
@@ -246,6 +385,28 @@ export function ProductEditForm({ onClose, onSave }: ProductEditFormProps) {
                             </div>
                         </div>
                     </div>
+                    {/* Variants Table */}
+                    {variants.length > 0 && (
+                        <div className="mt-8 space-y-4">
+                            <Label>Generated Variants</Label>
+                            <div className="grid grid-cols-1 gap-2">
+                                {variants.map((v, i) => (
+                                    <div key={i} className="grid grid-cols-6 gap-2 items-center">
+                                        <Input value={v.sku} onChange={(e) => handleVariantChange(i, { sku: e.target.value })} />
+                                        <Input type="number" placeholder="Price" value={v.price ?? ''} onChange={(e) => handleVariantChange(i, { price: e.target.value === '' ? undefined : Number(e.target.value) })} />
+                                        <Input type="number" placeholder="Stock" value={v.stock ?? ''} onChange={(e) => handleVariantChange(i, { stock: e.target.value === '' ? undefined : Number(e.target.value) })} />
+                                        <Input placeholder="Image URL" value={v.image_url ?? ''} onChange={(e) => handleVariantChange(i, { image_url: e.target.value })} />
+                                        <div className="flex items-center gap-2">
+                                            <input type="file" accept="image/*" onChange={(e) => e.target.files && handleVariantImageUpload(i, e.target.files[0])} />
+                                        </div>
+                                        <div className="text-sm text-muted-foreground col-span-6">
+                                            {v.options.map((o) => `${o.name}: ${o.value}`).join(' / ')}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </CardContent>
             </div>
         </div>

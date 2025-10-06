@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../models/Product.php';
+require_once __DIR__ . '/../../models/ProductVariant.php';
 
 
 function getAllProducts(mysqli $db, array $data): array
@@ -140,4 +141,127 @@ function updateProduct(mysqli $db, array $args): array
     }
 }
 
+
+/**
+ * Generate Cartesian product of option groups into list of option combinations.
+ * Each option group: ['name' => string, 'values' => string[]]
+ * Returns array of combinations, each combination is an array of ['name' => ..., 'value' => ...]
+ */
+function generateOptionCombinations(array $optionGroups): array
+{
+    $result = [[]];
+    foreach ($optionGroups as $group) {
+        $next = [];
+        $groupName = $group['name'];
+        $values = $group['values'] ?? [];
+        foreach ($result as $combo) {
+            foreach ($values as $val) {
+                $next[] = array_merge($combo, [
+                    [
+                        'name' => $groupName,
+                        'value' => $val,
+                    ]
+                ]);
+            }
+        }
+        $result = $next;
+    }
+    return $result;
+}
+
+function createProductWithVariants(mysqli $db, array $args): array
+{
+    $db->begin_transaction();
+    try {
+        // Create base product using existing model
+        $productModel = new Product($db);
+
+        // Map inputs to Product::create
+        $baseProductData = [
+            'name' => $args['name'],
+            'price' => $args['price'],
+            'currency' => $args['currency'] ?? 'USD',
+            'product_overview' => $args['product_overview'] ?? null,
+            'is_returnable' => $args['is_returnable'] ?? false,
+            'discount' => $args['discount'] ?? null,
+            'images' => $args['images'] ?? [],
+            'productOptions' => [],
+            'productSpecifications' => $args['specifications'] ?? [],
+        ];
+
+        // If options provided as groups, also flatten them into product_options rows for display/filtering
+        if (!empty($args['options'])) {
+            foreach ($args['options'] as $group) {
+                $groupName = $group['name'];
+                $type = $group['type'] ?? 'link';
+                foreach ($group['values'] as $val) {
+                    $baseProductData['productOptions'][] = [
+                        'name' => $groupName,
+                        'value' => $val,
+                        'type' => $type,
+                        'image_url' => '',
+                    ];
+                }
+            }
+        }
+
+        $product = $productModel->create($baseProductData);
+        if (!$product) {
+            throw new Exception('Failed to create product');
+        }
+
+        $productId = $product['id'];
+
+        // Create variants
+        $variantModel = new ProductVariant($db);
+
+        $variantsInput = $args['variants'] ?? [];
+        if (empty($variantsInput) && !empty($args['options'])) {
+            // Generate variants from Cartesian product if not explicitly provided
+            $combos = generateOptionCombinations($args['options']);
+            // Assign SKUs automatically with base product id and index
+            $i = 1;
+            foreach ($combos as $combo) {
+                $sku = $productId . '-' . str_pad((string) $i, 3, '0', STR_PAD_LEFT);
+                $created = $variantModel->create($productId, $sku, $combo, null, null, null);
+                if (!$created) {
+                    throw new Exception('Failed to create generated variant');
+                }
+                $i++;
+            }
+        } else {
+            foreach ($variantsInput as $v) {
+                $sku = $v['sku'];
+                $options = $v['options'] ?? [];
+                $price = $v['price'] ?? null;
+                $stock = $v['stock'] ?? null;
+                $imageUrl = $v['image_url'] ?? null;
+                $created = $variantModel->create($productId, $sku, $options, $price, $stock, $imageUrl);
+                if (!$created) {
+                    throw new Exception('Failed to create variant');
+                }
+            }
+        }
+
+        $db->commit();
+
+        // Return nested product with variants included
+        $full = $productModel->findById($productId);
+        $full['variants'] = $variantModel->findByProductId($productId);
+
+        return [
+            'success' => true,
+            'message' => 'Product with variants created.',
+            'product' => $full,
+        ];
+    } catch (Exception $e) {
+        $db->rollback();
+        error_log('createProductWithVariants error: ' . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage(),
+            'product' => null,
+        ];
+    }
+}
 

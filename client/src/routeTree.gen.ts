@@ -25,42 +25,52 @@ import { Route as dashboardDashboardLayoutDProductsIndexImport } from './routes/
 
 const mainImport = createFileRoute('/(main)')()
 const dashboardImport = createFileRoute('/(dashboard)')()
-const mainHomeLayoutprofileImport = createFileRoute('/(main)/_homeLayout/(profile)')()
-const mainHomeLayoutCartIndexLazyImport = createFileRoute('/(main)/_homeLayout/cart/')()
-const mainHomeLayoutSellerSellerIdIndexLazyImport = createFileRoute('/(main)/_homeLayout/seller/$sellerId/')()
-const mainHomeLayoutTitleProductIdIndexLazyImport = createFileRoute('/(main)/_homeLayout/$title/$productId/')()
-const dashboardDashboardLayoutDOverviewIndexLazyImport = createFileRoute('/(dashboard)/_dashboardLayout/d/overview/')()
-const dashboardDashboardLayoutDOrdersIndexLazyImport = createFileRoute('/(dashboard)/_dashboardLayout/d/orders/')()
-const mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyImport = createFileRoute(
-  '/(main)/_homeLayout/(profile)/_profileLayout/security-settings/',
+const mainHomeLayoutprofileImport = createFileRoute(
+  '/(main)/_homeLayout/(profile)',
 )()
-const mainHomeLayoutprofileProfileLayoutReturnsIndexLazyImport = createFileRoute(
-  '/(main)/_homeLayout/(profile)/_profileLayout/returns/',
+const mainHomeLayoutCartIndexLazyImport = createFileRoute(
+  '/(main)/_homeLayout/cart/',
 )()
-const mainHomeLayoutprofileProfileLayoutProfileIndexLazyImport = createFileRoute(
-  '/(main)/_homeLayout/(profile)/_profileLayout/profile/',
+const mainHomeLayoutSellerSellerIdIndexLazyImport = createFileRoute(
+  '/(main)/_homeLayout/seller/$sellerId/',
 )()
-const mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyImport = createFileRoute(
-  '/(main)/_homeLayout/(profile)/_profileLayout/payments/',
+const mainHomeLayoutTitleProductIdIndexLazyImport = createFileRoute(
+  '/(main)/_homeLayout/$title/$productId/',
 )()
+const dashboardDashboardLayoutDOverviewIndexLazyImport = createFileRoute(
+  '/(dashboard)/_dashboardLayout/d/overview/',
+)()
+const dashboardDashboardLayoutDOrdersIndexLazyImport = createFileRoute(
+  '/(dashboard)/_dashboardLayout/d/orders/',
+)()
+const mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyImport =
+  createFileRoute(
+    '/(main)/_homeLayout/(profile)/_profileLayout/security-settings/',
+  )()
+const mainHomeLayoutprofileProfileLayoutReturnsIndexLazyImport =
+  createFileRoute('/(main)/_homeLayout/(profile)/_profileLayout/returns/')()
+const mainHomeLayoutprofileProfileLayoutProfileIndexLazyImport =
+  createFileRoute('/(main)/_homeLayout/(profile)/_profileLayout/profile/')()
+const mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyImport =
+  createFileRoute('/(main)/_homeLayout/(profile)/_profileLayout/payments/')()
 const mainHomeLayoutprofileProfileLayoutOrdersIndexLazyImport = createFileRoute(
   '/(main)/_homeLayout/(profile)/_profileLayout/orders/',
 )()
-const mainHomeLayoutprofileProfileLayoutAddressesIndexLazyImport = createFileRoute(
-  '/(main)/_homeLayout/(profile)/_profileLayout/addresses/',
-)()
+const mainHomeLayoutprofileProfileLayoutAddressesIndexLazyImport =
+  createFileRoute('/(main)/_homeLayout/(profile)/_profileLayout/addresses/')()
 const dashboardDashboardLayoutDProductsNewIndexLazyImport = createFileRoute(
   '/(dashboard)/_dashboardLayout/d/products/new/',
 )()
-const mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyImport = createFileRoute(
-  '/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/',
-)()
-const dashboardDashboardLayoutDProductsEditProductIdIndexLazyImport = createFileRoute(
-  '/(dashboard)/_dashboardLayout/d/products/edit/$productId/',
-)()
-const mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyImport = createFileRoute(
-  '/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/',
-)()
+const mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyImport =
+  createFileRoute(
+    '/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/',
+  )()
+const dashboardDashboardLayoutDProductsEditProductIdIndexLazyImport =
+  createFileRoute('/(dashboard)/_dashboardLayout/d/products/edit/$productId/')()
+const mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyImport =
+  createFileRoute(
+    '/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/',
+  )()
 
 // Create/Update Routes
 
@@ -107,56 +117,81 @@ const mainHomeLayoutCartIndexLazyRoute = mainHomeLayoutCartIndexLazyImport
     path: '/cart/',
     getParentRoute: () => mainHomeLayoutRoute,
   } as any)
-  .lazy(() => import('./routes/(main)/_homeLayout/cart/index.lazy').then((d) => d.Route))
+  .lazy(() =>
+    import('./routes/(main)/_homeLayout/cart/index.lazy').then((d) => d.Route),
+  )
 
-const mainHomeLayoutWishlistIndexRoute = mainHomeLayoutWishlistIndexImport.update({
-  id: '/wishlist/',
-  path: '/wishlist/',
-  getParentRoute: () => mainHomeLayoutRoute,
-} as any)
-
-const mainHomeLayoutprofileProfileLayoutRoute = mainHomeLayoutprofileProfileLayoutImport.update({
-  id: '/_profileLayout',
-  getParentRoute: () => mainHomeLayoutprofileRoute,
-} as any)
-
-const mainHomeLayoutSellerSellerIdIndexLazyRoute = mainHomeLayoutSellerSellerIdIndexLazyImport
-  .update({
-    id: '/seller/$sellerId/',
-    path: '/seller/$sellerId/',
+const mainHomeLayoutWishlistIndexRoute =
+  mainHomeLayoutWishlistIndexImport.update({
+    id: '/wishlist/',
+    path: '/wishlist/',
     getParentRoute: () => mainHomeLayoutRoute,
   } as any)
-  .lazy(() => import('./routes/(main)/_homeLayout/seller/$sellerId/index.lazy').then((d) => d.Route))
 
-const mainHomeLayoutTitleProductIdIndexLazyRoute = mainHomeLayoutTitleProductIdIndexLazyImport
-  .update({
-    id: '/$title/$productId/',
-    path: '/$title/$productId/',
-    getParentRoute: () => mainHomeLayoutRoute,
+const mainHomeLayoutprofileProfileLayoutRoute =
+  mainHomeLayoutprofileProfileLayoutImport.update({
+    id: '/_profileLayout',
+    getParentRoute: () => mainHomeLayoutprofileRoute,
   } as any)
-  .lazy(() => import('./routes/(main)/_homeLayout/$title/$productId/index.lazy').then((d) => d.Route))
 
-const dashboardDashboardLayoutDOverviewIndexLazyRoute = dashboardDashboardLayoutDOverviewIndexLazyImport
-  .update({
-    id: '/d/overview/',
-    path: '/d/overview/',
+const mainHomeLayoutSellerSellerIdIndexLazyRoute =
+  mainHomeLayoutSellerSellerIdIndexLazyImport
+    .update({
+      id: '/seller/$sellerId/',
+      path: '/seller/$sellerId/',
+      getParentRoute: () => mainHomeLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import('./routes/(main)/_homeLayout/seller/$sellerId/index.lazy').then(
+        (d) => d.Route,
+      ),
+    )
+
+const mainHomeLayoutTitleProductIdIndexLazyRoute =
+  mainHomeLayoutTitleProductIdIndexLazyImport
+    .update({
+      id: '/$title/$productId/',
+      path: '/$title/$productId/',
+      getParentRoute: () => mainHomeLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import('./routes/(main)/_homeLayout/$title/$productId/index.lazy').then(
+        (d) => d.Route,
+      ),
+    )
+
+const dashboardDashboardLayoutDOverviewIndexLazyRoute =
+  dashboardDashboardLayoutDOverviewIndexLazyImport
+    .update({
+      id: '/d/overview/',
+      path: '/d/overview/',
+      getParentRoute: () => dashboardDashboardLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(dashboard)/_dashboardLayout/d/overview/index.lazy'
+      ).then((d) => d.Route),
+    )
+
+const dashboardDashboardLayoutDOrdersIndexLazyRoute =
+  dashboardDashboardLayoutDOrdersIndexLazyImport
+    .update({
+      id: '/d/orders/',
+      path: '/d/orders/',
+      getParentRoute: () => dashboardDashboardLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import('./routes/(dashboard)/_dashboardLayout/d/orders/index.lazy').then(
+        (d) => d.Route,
+      ),
+    )
+
+const dashboardDashboardLayoutDProductsIndexRoute =
+  dashboardDashboardLayoutDProductsIndexImport.update({
+    id: '/d/products/',
+    path: '/d/products/',
     getParentRoute: () => dashboardDashboardLayoutRoute,
   } as any)
-  .lazy(() => import('./routes/(dashboard)/_dashboardLayout/d/overview/index.lazy').then((d) => d.Route))
-
-const dashboardDashboardLayoutDOrdersIndexLazyRoute = dashboardDashboardLayoutDOrdersIndexLazyImport
-  .update({
-    id: '/d/orders/',
-    path: '/d/orders/',
-    getParentRoute: () => dashboardDashboardLayoutRoute,
-  } as any)
-  .lazy(() => import('./routes/(dashboard)/_dashboardLayout/d/orders/index.lazy').then((d) => d.Route))
-
-const dashboardDashboardLayoutDProductsIndexRoute = dashboardDashboardLayoutDProductsIndexImport.update({
-  id: '/d/products/',
-  path: '/d/products/',
-  getParentRoute: () => dashboardDashboardLayoutRoute,
-} as any)
 
 const mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute =
   mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyImport
@@ -166,24 +201,36 @@ const mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute =
       getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
     } as any)
     .lazy(() =>
-      import('./routes/(main)/_homeLayout/(profile)/_profileLayout/security-settings/index.lazy').then((d) => d.Route),
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/security-settings/index.lazy'
+      ).then((d) => d.Route),
     )
 
-const mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute = mainHomeLayoutprofileProfileLayoutReturnsIndexLazyImport
-  .update({
-    id: '/returns/',
-    path: '/returns/',
-    getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
-  } as any)
-  .lazy(() => import('./routes/(main)/_homeLayout/(profile)/_profileLayout/returns/index.lazy').then((d) => d.Route))
+const mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute =
+  mainHomeLayoutprofileProfileLayoutReturnsIndexLazyImport
+    .update({
+      id: '/returns/',
+      path: '/returns/',
+      getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/returns/index.lazy'
+      ).then((d) => d.Route),
+    )
 
-const mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute = mainHomeLayoutprofileProfileLayoutProfileIndexLazyImport
-  .update({
-    id: '/profile/',
-    path: '/profile/',
-    getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
-  } as any)
-  .lazy(() => import('./routes/(main)/_homeLayout/(profile)/_profileLayout/profile/index.lazy').then((d) => d.Route))
+const mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute =
+  mainHomeLayoutprofileProfileLayoutProfileIndexLazyImport
+    .update({
+      id: '/profile/',
+      path: '/profile/',
+      getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/profile/index.lazy'
+      ).then((d) => d.Route),
+    )
 
 const mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute =
   mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyImport
@@ -192,15 +239,24 @@ const mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute =
       path: '/payments/',
       getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
     } as any)
-    .lazy(() => import('./routes/(main)/_homeLayout/(profile)/_profileLayout/payments/index.lazy').then((d) => d.Route))
+    .lazy(() =>
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/payments/index.lazy'
+      ).then((d) => d.Route),
+    )
 
-const mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute = mainHomeLayoutprofileProfileLayoutOrdersIndexLazyImport
-  .update({
-    id: '/orders/',
-    path: '/orders/',
-    getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
-  } as any)
-  .lazy(() => import('./routes/(main)/_homeLayout/(profile)/_profileLayout/orders/index.lazy').then((d) => d.Route))
+const mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute =
+  mainHomeLayoutprofileProfileLayoutOrdersIndexLazyImport
+    .update({
+      id: '/orders/',
+      path: '/orders/',
+      getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/orders/index.lazy'
+      ).then((d) => d.Route),
+    )
 
 const mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute =
   mainHomeLayoutprofileProfileLayoutAddressesIndexLazyImport
@@ -210,16 +266,23 @@ const mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute =
       getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
     } as any)
     .lazy(() =>
-      import('./routes/(main)/_homeLayout/(profile)/_profileLayout/addresses/index.lazy').then((d) => d.Route),
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/addresses/index.lazy'
+      ).then((d) => d.Route),
     )
 
-const dashboardDashboardLayoutDProductsNewIndexLazyRoute = dashboardDashboardLayoutDProductsNewIndexLazyImport
-  .update({
-    id: '/d/products/new/',
-    path: '/d/products/new/',
-    getParentRoute: () => dashboardDashboardLayoutRoute,
-  } as any)
-  .lazy(() => import('./routes/(dashboard)/_dashboardLayout/d/products/new/index.lazy').then((d) => d.Route))
+const dashboardDashboardLayoutDProductsNewIndexLazyRoute =
+  dashboardDashboardLayoutDProductsNewIndexLazyImport
+    .update({
+      id: '/d/products/new/',
+      path: '/d/products/new/',
+      getParentRoute: () => dashboardDashboardLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(dashboard)/_dashboardLayout/d/products/new/index.lazy'
+      ).then((d) => d.Route),
+    )
 
 const mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute =
   mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyImport
@@ -229,7 +292,9 @@ const mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute =
       getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
     } as any)
     .lazy(() =>
-      import('./routes/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/index.lazy').then((d) => d.Route),
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/index.lazy'
+      ).then((d) => d.Route),
     )
 
 const dashboardDashboardLayoutDProductsEditProductIdIndexLazyRoute =
@@ -240,7 +305,9 @@ const dashboardDashboardLayoutDProductsEditProductIdIndexLazyRoute =
       getParentRoute: () => dashboardDashboardLayoutRoute,
     } as any)
     .lazy(() =>
-      import('./routes/(dashboard)/_dashboardLayout/d/products/edit/$productId/index.lazy').then((d) => d.Route),
+      import(
+        './routes/(dashboard)/_dashboardLayout/d/products/edit/$productId/index.lazy'
+      ).then((d) => d.Route),
     )
 
 const mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute =
@@ -251,9 +318,9 @@ const mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute =
       getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
     } as any)
     .lazy(() =>
-      import('./routes/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/index.lazy').then(
-        (d) => d.Route,
-      ),
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/index.lazy'
+      ).then((d) => d.Route),
     )
 
 // Populate the FileRoutesByPath interface
@@ -448,18 +515,24 @@ interface dashboardDashboardLayoutRouteChildren {
   dashboardDashboardLayoutDProductsEditProductIdIndexLazyRoute: typeof dashboardDashboardLayoutDProductsEditProductIdIndexLazyRoute
 }
 
-const dashboardDashboardLayoutRouteChildren: dashboardDashboardLayoutRouteChildren = {
-  dashboardDashboardLayoutDProductsIndexRoute: dashboardDashboardLayoutDProductsIndexRoute,
-  dashboardDashboardLayoutDOrdersIndexLazyRoute: dashboardDashboardLayoutDOrdersIndexLazyRoute,
-  dashboardDashboardLayoutDOverviewIndexLazyRoute: dashboardDashboardLayoutDOverviewIndexLazyRoute,
-  dashboardDashboardLayoutDProductsNewIndexLazyRoute: dashboardDashboardLayoutDProductsNewIndexLazyRoute,
-  dashboardDashboardLayoutDProductsEditProductIdIndexLazyRoute:
-    dashboardDashboardLayoutDProductsEditProductIdIndexLazyRoute,
-}
+const dashboardDashboardLayoutRouteChildren: dashboardDashboardLayoutRouteChildren =
+  {
+    dashboardDashboardLayoutDProductsIndexRoute:
+      dashboardDashboardLayoutDProductsIndexRoute,
+    dashboardDashboardLayoutDOrdersIndexLazyRoute:
+      dashboardDashboardLayoutDOrdersIndexLazyRoute,
+    dashboardDashboardLayoutDOverviewIndexLazyRoute:
+      dashboardDashboardLayoutDOverviewIndexLazyRoute,
+    dashboardDashboardLayoutDProductsNewIndexLazyRoute:
+      dashboardDashboardLayoutDProductsNewIndexLazyRoute,
+    dashboardDashboardLayoutDProductsEditProductIdIndexLazyRoute:
+      dashboardDashboardLayoutDProductsEditProductIdIndexLazyRoute,
+  }
 
-const dashboardDashboardLayoutRouteWithChildren = dashboardDashboardLayoutRoute._addFileChildren(
-  dashboardDashboardLayoutRouteChildren,
-)
+const dashboardDashboardLayoutRouteWithChildren =
+  dashboardDashboardLayoutRoute._addFileChildren(
+    dashboardDashboardLayoutRouteChildren,
+  )
 
 interface dashboardRouteChildren {
   dashboardDashboardLayoutRoute: typeof dashboardDashboardLayoutRouteWithChildren
@@ -471,7 +544,9 @@ const dashboardRouteChildren: dashboardRouteChildren = {
   dashboardPartnersIndexRoute: dashboardPartnersIndexRoute,
 }
 
-const dashboardRouteWithChildren = dashboardRoute._addFileChildren(dashboardRouteChildren)
+const dashboardRouteWithChildren = dashboardRoute._addFileChildren(
+  dashboardRouteChildren,
+)
 
 interface mainHomeLayoutprofileProfileLayoutRouteChildren {
   mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute
@@ -484,35 +559,44 @@ interface mainHomeLayoutprofileProfileLayoutRouteChildren {
   mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute
 }
 
-const mainHomeLayoutprofileProfileLayoutRouteChildren: mainHomeLayoutprofileProfileLayoutRouteChildren = {
-  mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute: mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute,
-  mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute: mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute,
-  mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute: mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute,
-  mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute: mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute,
-  mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute: mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute,
-  mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute:
-    mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute,
-  mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute:
-    mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute,
-  mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute:
-    mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute,
-}
+const mainHomeLayoutprofileProfileLayoutRouteChildren: mainHomeLayoutprofileProfileLayoutRouteChildren =
+  {
+    mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute,
+    mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute,
+    mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutPaymentsIndexLazyRoute,
+    mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutProfileIndexLazyRoute,
+    mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute,
+    mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute,
+    mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute,
+    mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute,
+  }
 
-const mainHomeLayoutprofileProfileLayoutRouteWithChildren = mainHomeLayoutprofileProfileLayoutRoute._addFileChildren(
-  mainHomeLayoutprofileProfileLayoutRouteChildren,
-)
+const mainHomeLayoutprofileProfileLayoutRouteWithChildren =
+  mainHomeLayoutprofileProfileLayoutRoute._addFileChildren(
+    mainHomeLayoutprofileProfileLayoutRouteChildren,
+  )
 
 interface mainHomeLayoutprofileRouteChildren {
   mainHomeLayoutprofileProfileLayoutRoute: typeof mainHomeLayoutprofileProfileLayoutRouteWithChildren
 }
 
 const mainHomeLayoutprofileRouteChildren: mainHomeLayoutprofileRouteChildren = {
-  mainHomeLayoutprofileProfileLayoutRoute: mainHomeLayoutprofileProfileLayoutRouteWithChildren,
+  mainHomeLayoutprofileProfileLayoutRoute:
+    mainHomeLayoutprofileProfileLayoutRouteWithChildren,
 }
 
-const mainHomeLayoutprofileRouteWithChildren = mainHomeLayoutprofileRoute._addFileChildren(
-  mainHomeLayoutprofileRouteChildren,
-)
+const mainHomeLayoutprofileRouteWithChildren =
+  mainHomeLayoutprofileRoute._addFileChildren(
+    mainHomeLayoutprofileRouteChildren,
+  )
 
 interface mainHomeLayoutRouteChildren {
   mainHomeLayoutIndexRoute: typeof mainHomeLayoutIndexRoute
@@ -528,11 +612,15 @@ const mainHomeLayoutRouteChildren: mainHomeLayoutRouteChildren = {
   mainHomeLayoutprofileRoute: mainHomeLayoutprofileRouteWithChildren,
   mainHomeLayoutWishlistIndexRoute: mainHomeLayoutWishlistIndexRoute,
   mainHomeLayoutCartIndexLazyRoute: mainHomeLayoutCartIndexLazyRoute,
-  mainHomeLayoutTitleProductIdIndexLazyRoute: mainHomeLayoutTitleProductIdIndexLazyRoute,
-  mainHomeLayoutSellerSellerIdIndexLazyRoute: mainHomeLayoutSellerSellerIdIndexLazyRoute,
+  mainHomeLayoutTitleProductIdIndexLazyRoute:
+    mainHomeLayoutTitleProductIdIndexLazyRoute,
+  mainHomeLayoutSellerSellerIdIndexLazyRoute:
+    mainHomeLayoutSellerSellerIdIndexLazyRoute,
 }
 
-const mainHomeLayoutRouteWithChildren = mainHomeLayoutRoute._addFileChildren(mainHomeLayoutRouteChildren)
+const mainHomeLayoutRouteWithChildren = mainHomeLayoutRoute._addFileChildren(
+  mainHomeLayoutRouteChildren,
+)
 
 interface mainRouteChildren {
   mainHomeLayoutRoute: typeof mainHomeLayoutRouteWithChildren
@@ -700,7 +788,9 @@ const rootRouteChildren: RootRouteChildren = {
   mainRoute: mainRouteWithChildren,
 }
 
-export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>()
+export const routeTree = rootRoute
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
 
 /* ROUTE_MANIFEST_START
 {

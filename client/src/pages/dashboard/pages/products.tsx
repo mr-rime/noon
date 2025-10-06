@@ -10,6 +10,7 @@ import {
     Package
 } from "lucide-react"
 import { Button } from "../components/ui/button"
+import { useNavigate } from "@tanstack/react-router"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Input } from "../components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table"
@@ -73,6 +74,7 @@ const products = [
 ]
 
 export default function Products() {
+    const navigate = useNavigate()
     const [searchTerm, setSearchTerm] = useState("")
     const [viewingProduct, setViewingProduct] = useState<number | null>(null)
     const [editingProduct, setEditingProduct] = useState<number | null>(null)
@@ -154,7 +156,7 @@ export default function Products() {
                     <h1 className="text-3xl font-bold text-foreground">Products Management</h1>
                     <p className="text-muted-foreground">Manage your product catalog and inventory</p>
                 </div>
-                <Button variant="admin" className="gap-2">
+                <Button variant="admin" className="gap-2" onClick={() => navigate({ to: "/d/products/new" })}>
                     <Plus className="h-4 w-4" />
                     Add New Product
                 </Button>

@@ -10,6 +10,8 @@ require_once __DIR__ . '/types/PartnerTypes.php';
 require_once __DIR__ . '/types/ProductTypes.php';
 require_once __DIR__ . '/types/ProductOptionTypes.php';
 require_once __DIR__ . '/types/ProductSpecificationTypes.php';
+require_once __DIR__ . '/types/ProductVariantTypes.php';
+require_once __DIR__ . '/types/StoreTypes.php';
 require_once __DIR__ . '/types/OrderTypes.php';
 require_once __DIR__ . '/types/UploadTypes.php';
 require_once __DIR__ . '/types/DiscountTypes.php';
@@ -26,6 +28,7 @@ require_once __DIR__ . '/resolvers/DiscountResolver.php';
 require_once __DIR__ . '/resolvers/HomeResolver.php';
 require_once __DIR__ . '/resolvers/CartResolver.php';
 require_once __DIR__ . '/resolvers/WishlistResolver.php';
+require_once __DIR__ . '/resolvers/StoreResolver.php';
 
 $QueryType = new ObjectType([
     'name' => 'query',
@@ -102,6 +105,17 @@ $QueryType = new ObjectType([
             'type' => $WishlistsResponse,
             'args' => [],
             'resolve' => fn($root, $args, $context) => getWishlists($context['db'])
+        ]
+        ,
+        'stores' => [
+            'type' => Type::listOf($StoreType),
+            'args' => [],
+            'resolve' => fn($root, $args, $context) => getStores($context['db'])
+        ],
+        'store' => [
+            'type' => $StoreType,
+            'args' => ['id' => Type::nonNull(Type::int())],
+            'resolve' => fn($root, $args, $context) => getStore($context['db'], $args['id'])
         ]
     ],
 
@@ -260,6 +274,25 @@ $MutationType = new ObjectType([
             ],
             'resolve' => fn($root, $args, $context) => updateWishlist($context['db'], $args)
         ],
+        'createProductWithVariants' => [
+            'type' => $ProductResponseType,
+            'args' => [
+                'name' => Type::nonNull(Type::string()),
+                'price' => Type::nonNull(Type::float()),
+                'category_id' => Type::string(),
+                'currency' => Type::string(),
+                'is_returnable' => Type::nonNull(Type::boolean()),
+                'product_overview' => Type::string(),
+                'discount' => $DiscountInputType,
+                'images' => Type::listOf($ProductImageInputType),
+                // specifications and options (option groups)
+                'specifications' => Type::listOf($ProductSpecInputType),
+                'options' => Type::listOf($ProductOptionGroupInput),
+                // variants (explicit)
+                'variants' => Type::listOf($ProductVariantInputType),
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => createProductWithVariants($context['db'], $args))
+        ],
 
         'removeWishlistItem' => [
             'type' => $WishlistResponse,
@@ -282,6 +315,21 @@ $MutationType = new ObjectType([
                 'wishlist_id' => Type::nonNull(Type::string())
             ],
             'resolve' => fn($root, $args, $context) => deleteWishlist($context['db'], $args['wishlist_id'])
+        ],
+        'createStore' => [
+            'type' => $StoreType,
+            'args' => ['input' => Type::nonNull($StoreInputType)],
+            'resolve' => fn($root, $args, $context) => createStore($context['db'], $args['input'])
+        ],
+        'updateStore' => [
+            'type' => $StoreType,
+            'args' => ['input' => Type::nonNull($StoreUpdateInputType)],
+            'resolve' => fn($root, $args, $context) => updateStore($context['db'], $args['input'])
+        ],
+        'deleteStore' => [
+            'type' => Type::nonNull(Type::boolean()),
+            'args' => ['id' => Type::nonNull(Type::int())],
+            'resolve' => fn($root, $args, $context) => deleteStore($context['db'], $args['id'])
         ]
     ],
 ]);

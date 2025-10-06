@@ -15,6 +15,7 @@ class Product
     private Discount $discountModel;
     private ProductOption $optionModel;
     private ProductSpecification $specModel;
+    private ProductImage $imageModel;
 
     public function __construct(mysqli $db)
     {
@@ -22,22 +23,21 @@ class Product
         $this->discountModel = new Discount($db);
         $this->optionModel = new ProductOption($db);
         $this->specModel = new ProductSpecification($db);
+        $this->imageModel = new ProductImage($db);
     }
+
+    /* -------------------- DISCOUNT HELPERS -------------------- */
 
     private function calculateFinalPrice(float $price, ?array $discount): float
     {
         if (!$discount)
             return $price;
 
-        if ($discount['type'] === 'percentage') {
-            return max($price - ($price * $discount['value'] / 100), 0);
-        }
-
-        if ($discount['type'] === 'fixed') {
-            return max($price - $discount['value'], 0);
-        }
-
-        return $price;
+        return match ($discount['type']) {
+            'percentage' => max($price - ($price * $discount['value'] / 100), 0),
+            'fixed' => max($price - $discount['value'], 0),
+            default => $price,
+        };
     }
 
     private function getDiscountPercentage(float $price, ?array $discount): ?float
@@ -45,160 +45,131 @@ class Product
         if (!$discount)
             return null;
 
-        if ($discount['type'] === 'percentage') {
-            return $discount['value'];
-        }
+        return match ($discount['type']) {
+            'percentage' => $discount['value'],
+            'fixed' => $price > 0 ? round(($discount['value'] / $price) * 100, 2) : null,
+            default => null,
+        };
+    }
 
-        if ($discount['type'] === 'fixed' && $price > 0) {
-            return round(($discount['value'] / $price) * 100, 2);
-        }
+    private function resolveDiscount(?array $discount): ?array
+    {
+        if (!$discount)
+            return null;
 
-        return null;
+        $now = new DateTime();
+        $startsAt = !empty($discount['starts_at']) ? new DateTime($discount['starts_at']) : null;
+        $endsAt = !empty($discount['ends_at']) ? new DateTime($discount['ends_at']) : null;
+
+        $isActive = (!$startsAt || $now >= $startsAt) && (!$endsAt || $now <= $endsAt);
+
+        return $isActive ? $discount : null;
     }
 
     public function attachDiscountData(array &$product, float $price): void
     {
-        $discount = $this->discountModel->findByProductId($product['id']);
-
-        $now = new DateTime();
-        error_log("NOW: " . $now->format('Y-m-d H:i:s'));
-
-        if ($discount) {
-            $startsAt = isset($discount['starts_at']) ? new DateTime($discount['starts_at']) : null;
-            $endsAt = isset($discount['ends_at']) ? new DateTime($discount['ends_at']) : null;
-
-            error_log("STARTS_AT: " . ($startsAt?->format('Y-m-d H:i:s') ?? 'null'));
-            error_log("ENDS_AT: " . ($endsAt?->format('Y-m-d H:i:s') ?? 'null'));
-
-            $isActive = (!$startsAt || $now >= $startsAt) &&
-                (!$endsAt || $now <= $endsAt);
-
-            error_log("DISCOUNT ACTIVE? " . ($isActive ? 'yes' : 'no'));
-
-            if (!$isActive)
-                $discount = null;
-        }
-
-        $finalPrice = $this->calculateFinalPrice($price, $discount);
-        $percentage = $this->getDiscountPercentage($price, $discount);
+        $discount = $this->resolveDiscount(
+            $this->discountModel->findByProductId($product['id'])
+        );
 
         $product['discount'] = $discount;
-        $product['final_price'] = $finalPrice;
-        $product['discount_percentage'] = $percentage;
+        $product['final_price'] = $this->calculateFinalPrice($price, $discount);
+        $product['discount_percentage'] = $this->getDiscountPercentage($price, $discount);
     }
 
-    public function findAll(
-        int|null $userId,
-        int $limit = 10,
-        int $offset = 0,
-        string $search = ''
-    ): array {
-        $params = [];
-        $types = '';
-        $where = '';
-        $order = 'ORDER BY id';
+    /* -------------------- QUERY HELPERS -------------------- */
 
-        if (!empty(trim($search))) {
-            $where = "
-        WHERE name LIKE CONCAT('%', ?, '%') 
-           OR product_overview LIKE CONCAT('%', ?, '%')";
-            $order = "
-        ORDER BY
-            CASE
+    private function fetchAssocAll(mysqli_stmt $stmt): array
+    {
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    private function buildWhereSearch(string $search): array
+    {
+        if (empty(trim($search))) {
+            return ['', 'ORDER BY id', [], ''];
+        }
+
+        $where = "WHERE name LIKE CONCAT('%', ?, '%') OR product_overview LIKE CONCAT('%', ?, '%')";
+        $order = "
+            ORDER BY CASE
                 WHEN name = ? THEN 1
                 WHEN name LIKE CONCAT(?, '%') THEN 2
                 WHEN name LIKE CONCAT('%', ?, '%') THEN 3
                 WHEN product_overview LIKE CONCAT('%', ?, '%') THEN 4
                 ELSE 5
             END, id";
-            $params = [$search, $search, $search, $search, $search, $search];
-            $types = 'ssssss';
-        }
+        $params = array_fill(0, 6, $search);
+        $types = 'ssssss';
 
-        $query = "
-    SELECT id FROM products
-    $where
-    $order
-    LIMIT ? OFFSET ?";
-        $params[] = $limit;
-        $params[] = $offset;
+        return [$where, $order, $params, $types];
+    }
+
+    /* -------------------- PUBLIC METHODS -------------------- */
+
+    public function findAll(?int $userId, int $limit = 10, int $offset = 0, string $search = ''): array
+    {
+        [$where, $order, $params, $types] = $this->buildWhereSearch($search);
+
+        // First fetch product IDs
+        $query = "SELECT id FROM products $where $order LIMIT ? OFFSET ?";
+        $params = [...$params, $limit, $offset];
         $types .= 'ii';
 
         $stmt = $this->db->prepare($query);
         $stmt->bind_param($types, ...$params);
-        $stmt->execute();
-        $idResult = $stmt->get_result();
-        $productIds = array_column($idResult->fetch_all(MYSQLI_ASSOC), 'id');
+        $productIds = array_column($this->fetchAssocAll($stmt), 'id');
 
-        if (empty($productIds)) {
+        if (!$productIds)
             return [];
-        }
 
-        // Build placeholders for IDs
-        $placeholders = implode(',', array_fill(0, count($productIds), '?'));
-
-        // Wishlist join logic
-        $wishlistJoin = '';
-        $wishlistSelect = '0 AS is_in_wishlist, NULL AS wishlist_id';
+        // Wishlist joins
+        $wishlistJoin = $wishlistSelect = '';
         $wishlistParams = [];
         $wishlistTypes = '';
-
-        if ($userId !== null) {
+        if ($userId) {
             $wishlistJoin = "
-        LEFT JOIN wishlist_items wi
-            ON wi.product_id = p.id
-        LEFT JOIN wishlists w
-            ON wi.wishlist_id = w.id
-            AND w.user_id = ?";
-            $wishlistSelect = "
-        CASE WHEN w.id IS NOT NULL THEN 1 ELSE 0 END AS is_in_wishlist,
-        w.id AS wishlist_id";
-            $wishlistParams[] = $userId;
-            $wishlistTypes .= 'i';
+                LEFT JOIN wishlist_items wi ON wi.product_id = p.id
+                LEFT JOIN wishlists w ON wi.wishlist_id = w.id AND w.user_id = ?";
+            $wishlistSelect = "CASE WHEN w.id IS NOT NULL THEN 1 ELSE 0 END AS is_in_wishlist, w.id AS wishlist_id,";
+            $wishlistParams = [$userId];
+            $wishlistTypes = 'i';
         }
 
-        // Main query to get product data with wishlist info if logged in
+        // Main fetch
+        $placeholders = implode(',', array_fill(0, count($productIds), '?'));
         $query = "
-    SELECT 
-        p.*, 
-        pi.id AS image_id, 
-        pi.image_url, 
-        pi.is_primary,
-        $wishlistSelect
-    FROM products p
-    LEFT JOIN product_images pi 
-        ON p.id = pi.product_id
-    $wishlistJoin
-    WHERE p.id IN ($placeholders)
-    ORDER BY p.id";
+            SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary, $wishlistSelect
+                   0 as dummy -- ensures trailing comma handled
+            FROM products p
+            LEFT JOIN product_images pi ON p.id = pi.product_id
+            $wishlistJoin
+            WHERE p.id IN ($placeholders)
+            ORDER BY p.id";
 
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param(
-            $wishlistTypes . str_repeat('i', count($productIds)),
-            ...array_merge($wishlistParams, $productIds)
-        );
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $stmt->bind_param($wishlistTypes . str_repeat('i', count($productIds)), ...array_merge($wishlistParams, $productIds));
+        $rows = $this->fetchAssocAll($stmt);
 
+        // Group rows
         $products = [];
-        while ($row = $result->fetch_assoc()) {
+        foreach ($rows as $row) {
             $pid = $row['id'];
-            if (!isset($products[$pid])) {
-                $products[$pid] = [
-                    'id' => $pid,
-                    'name' => $row['name'],
-                    'price' => $row['price'],
-                    'currency' => $row['currency'],
-                    'stock' => $row['stock'],
-                    'product_overview' => $row['product_overview'],
-                    'is_returnable' => $row['is_returnable'],
-                    'created_at' => $row['created_at'],
-                    'updated_at' => $row['updated_at'],
-                    'is_in_wishlist' => (bool) $row['is_in_wishlist'],
-                    'wishlist_id' => $row['wishlist_id'] ?? null,
-                    'images' => [],
-                ];
-            }
+            $products[$pid] ??= [
+                'id' => $pid,
+                'name' => $row['name'],
+                'price' => $row['price'],
+                'currency' => $row['currency'],
+                'stock' => $row['stock'],
+                'product_overview' => $row['product_overview'],
+                'is_returnable' => $row['is_returnable'],
+                'created_at' => $row['created_at'],
+                'updated_at' => $row['updated_at'],
+                'is_in_wishlist' => (bool) ($row['is_in_wishlist'] ?? 0),
+                'wishlist_id' => $row['wishlist_id'] ?? null,
+                'images' => [],
+            ];
 
             if ($row['image_id']) {
                 $products[$pid]['images'][] = [
@@ -209,10 +180,10 @@ class Product
             }
         }
 
-        // Attach options, specs, and discounts
-        foreach ($products as $productId => &$product) {
-            $product['productOptions'] = $this->optionModel->findByProductId($productId);
-            $product['productSpecifications'] = $this->specModel->findByProductId($productId);
+        // Attach related data
+        foreach ($products as $pid => &$product) {
+            $product['productOptions'] = $this->optionModel->findByProductId($pid);
+            $product['productSpecifications'] = $this->specModel->findByProductId($pid);
             $this->attachDiscountData($product, $product['price']);
         }
 
@@ -229,25 +200,28 @@ class Product
 
         $stmt = $this->db->prepare($query);
         $stmt->bind_param('s', $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $rows = $this->fetchAssocAll($stmt);
 
-        $product = null;
-        while ($row = $result->fetch_assoc()) {
-            if (!$product['id']) {
-                $product['id'] = $row['id'];
-                $product['user_id'] = $row['user_id'];
-                $product['category_id'] = $row['category_id'];
-                $product['name'] = $row['name'];
-                $product['price'] = $row['price'];
-                $product['currency'] = $row['currency'];
-                $product['stock'] = $row['stock'];
-                $product['is_returnable'] = $row['is_returnable'];
-                $product['product_overview'] = $row['product_overview'];
-                $product['created_at'] = $row['created_at'];
-                $product['updated_at'] = $row['updated_at'];
-            }
+        if (!$rows)
+            return null;
 
+        $base = $rows[0];
+        $product = [
+            'id' => $base['id'],
+            'user_id' => $base['user_id'],
+            'category_id' => $base['category_id'],
+            'name' => $base['name'],
+            'price' => $base['price'],
+            'currency' => $base['currency'],
+            'stock' => $base['stock'],
+            'is_returnable' => $base['is_returnable'],
+            'product_overview' => $base['product_overview'],
+            'created_at' => $base['created_at'],
+            'updated_at' => $base['updated_at'],
+            'images' => [],
+        ];
+
+        foreach ($rows as $row) {
             if ($row['image_id']) {
                 $product['images'][] = [
                     'id' => $row['image_id'],
@@ -256,8 +230,6 @@ class Product
                 ];
             }
         }
-        if (!$product)
-            return null;
 
         $product['productOptions'] = $this->optionModel->findByProductId($id);
         $product['productSpecifications'] = $this->specModel->findByProductId($id);

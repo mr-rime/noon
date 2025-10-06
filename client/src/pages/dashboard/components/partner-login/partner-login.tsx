@@ -90,7 +90,7 @@ export function PartnerLogin({ setForm }: { setForm: React.Dispatch<React.SetSta
             }}
             className="cursor-pointer text-[#3866df]">
             click here
-          </button>
+          </button> 
         )}
       </div>
     </form>

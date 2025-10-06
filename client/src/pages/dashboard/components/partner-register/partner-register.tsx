@@ -10,7 +10,7 @@ import { toast } from 'sonner'
 import { PartnerRegisterSchema, type PartnerRegisterSchemaType } from '../../schema'
 import { PartnerLogo, dashboard_icons } from '../../constants'
 
-export default function Register({ setForm }: { setForm: React.Dispatch<React.SetStateAction<'login' | 'register'>> }) {
+export function PartnerRegister({ setForm }: { setForm: React.Dispatch<React.SetStateAction<'login' | 'register'>> }) {
   const { register, handleSubmit } = useForm<PartnerRegisterSchemaType>({
     resolver: zodResolver(PartnerRegisterSchema),
   })
