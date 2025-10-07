@@ -43,4 +43,13 @@ $StoreUpdateInputType = new InputObjectType([
     ]
 ]);
 
+$StoreAuthResponseType = new ObjectType([
+    'name' => 'StoreAuthResponse',
+    'fields' => [
+        'success' => Type::nonNull(Type::boolean()),
+        'message' => Type::nonNull(Type::string()),
+        'store' => $StoreType,
+    ]
+]);
+
 

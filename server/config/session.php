@@ -1,38 +1,36 @@
 <?php
-// Choose session name per origin to separate dashboard store sessions
-$sessionName = 'NOON_SESSION_ID';
-if (($originHost ?? '') === 'dashboard.localhost') {
-    $sessionName = 'NOON_STORE_SESSION_ID';
-}
-session_name($sessionName);
-
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $parsed = parse_url($origin);
 $originHost = $parsed['host'] ?? '';
 
-// Default cookie params
+$sessionName = 'NOON_SESSION_ID';
+if ($originHost === 'dashboard.localhost') {
+    $sessionName = 'NOON_STORE_SESSION_ID';
+}
+session_name($sessionName);
+
 $cookieParams = [
-    'lifetime' => 259200,
+    'lifetime' => 259200, // 3 days
     'path' => '/',
-    'secure' => isset($_SERVER['HTTPS']),
+    'secure' => isset($_SERVER['HTTPS']), // false on http, true on https
     'httponly' => true,
-    'samesite' => 'Strict'
+    'samesite' => 'Lax' // more compatible for localhost cross-port
 ];
 
-// If frontend is dashboard.localhost, align cookies to that site so requests remain same-site
+// Allow dashboard.localhost cookies to be same-site
 if ($originHost === 'dashboard.localhost') {
     $cookieParams['domain'] = 'dashboard.localhost';
-    // Same-site requests across ports work with Lax; keep http in dev
-    $cookieParams['samesite'] = 'Lax';
-    $cookieParams['secure'] = false;
 }
 
+// Apply cookie params before session_start()
 session_set_cookie_params($cookieParams);
 
+// --- Start session if not active ---
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// --- Initialize default session data ---
 if (!isset($_SESSION['guest_cart'])) {
     $_SESSION['guest_cart'] = []; // [product_id => quantity]
 }

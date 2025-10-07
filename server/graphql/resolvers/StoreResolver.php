@@ -1,11 +1,11 @@
 <?php
 
 require_once __DIR__ . '/../../models/Store.php';
+require_once __DIR__ . '/../../services/StoreAuthService.php';
 
 function createStore(mysqli $db, array $input): ?array
 {
     $model = new Store($db);
-    // Transaction, in case later we add file move logic
     $db->begin_transaction();
     try {
         $store = $model->create($input);
@@ -18,6 +18,24 @@ function createStore(mysqli $db, array $input): ?array
         error_log('createStore error: ' . $e->getMessage());
         return null;
     }
+}
+
+function loginStore(mysqli $db, array $args): array
+{
+    $auth = new StoreAuthService($db);
+    return $auth->login($args['email'], $args['password']);
+}
+
+function registerStore(mysqli $db, array $args): array
+{
+    $auth = new StoreAuthService($db);
+    return $auth->register($args);
+}
+
+function logoutStore(): array
+{
+    $auth = new StoreAuthService(null);
+    return $auth->logout();
 }
 
 function updateStore(mysqli $db, array $input): ?array

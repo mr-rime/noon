@@ -5,9 +5,9 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../middleware/StoreAuthMiddleware.php';
 require_once __DIR__ . '/types/UserTypes.php';
 require_once __DIR__ . '/types/PartnerTypes.php';
-require_once __DIR__ . '/types/ProductTypes.php';
 require_once __DIR__ . '/types/ProductOptionTypes.php';
 require_once __DIR__ . '/types/ProductSpecificationTypes.php';
 require_once __DIR__ . '/types/ProductVariantTypes.php';
@@ -184,7 +184,7 @@ $MutationType = new ObjectType([
                 'productOptions' => Type::listOf($ProductOptionInputType),
                 'productSpecifications' => Type::listOf($ProductSpecInputType),
             ],
-            'resolve' => requireAuth(fn($root, $args, $context) => createProduct($context['db'], $args))
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => createProduct($context['db'], $args))
         ],
 
         'createOrder' => [
@@ -203,7 +203,7 @@ $MutationType = new ObjectType([
             'args' => [
                 'file' => Type::nonNull($UploadScalar),
             ],
-            'resolve' => requireAuth(fn($root, $args, $context) => uploadImageResolver($args))
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => uploadImageResolver($args))
         ],
         'createDiscount' => [
             'type' => $DiscountResponseType,
@@ -213,7 +213,8 @@ $MutationType = new ObjectType([
                 'value' => Type::nonNull(Type::float()),
                 'starts_at' => Type::nonNull(Type::string()),
                 'ends_at' => Type::nonNull(Type::string())
-            ]
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => createDiscount($context['db'], $args))
         ],
         'updateProduct' => [
             'type' => $ProductResponseType,
@@ -231,7 +232,7 @@ $MutationType = new ObjectType([
                 'productOptions' => Type::listOf($ProductOptionInputType),
                 'productSpecifications' => Type::listOf($ProductSpecInputType),
             ],
-            'resolve' => requireAuth(fn($root, $args, $context) => updateProduct($context["db"], $args))
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => updateProduct($context["db"], $args))
         ],
         'addToCart' => [
             'type' => $CartResponseType,
@@ -291,7 +292,7 @@ $MutationType = new ObjectType([
                 // variants (explicit)
                 'variants' => Type::listOf($ProductVariantInputType),
             ],
-            'resolve' => requireAuth(fn($root, $args, $context) => createProductWithVariants($context['db'], $args))
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => createProductWithVariants($context['db'], $args))
         ],
 
         'removeWishlistItem' => [
@@ -324,14 +325,44 @@ $MutationType = new ObjectType([
         'updateStore' => [
             'type' => $StoreType,
             'args' => ['input' => Type::nonNull($StoreUpdateInputType)],
-            'resolve' => fn($root, $args, $context) => updateStore($context['db'], $args['input'])
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => updateStore($context['db'], $args['input']))
         ],
         'deleteStore' => [
             'type' => Type::nonNull(Type::boolean()),
             'args' => ['id' => Type::nonNull(Type::int())],
-            'resolve' => fn($root, $args, $context) => deleteStore($context['db'], $args['id'])
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteStore($context['db'], $args['id']))
+        ],
+        'loginStore' => [
+            'type' => $StoreAuthResponseType,
+            'args' => [
+                'email' => Type::nonNull(Type::string()),
+                'password' => Type::nonNull(Type::string()),
+            ],
+            'resolve' => fn($root, $args, $context) => loginStore($context['db'], $args)
+        ],
+        'registerStore' => [
+            'type' => $StoreAuthResponseType,
+            'args' => [
+                'name' => Type::nonNull(Type::string()),
+                'email' => Type::nonNull(Type::string()),
+                'password' => Type::nonNull(Type::string()),
+                'number' => Type::string(),
+                'thumbnail_url' => Type::string(),
+            ],
+            'resolve' => fn($root, $args, $context) => registerStore($context['db'], $args)
+        ],
+        'logoutStore' => [
+            'type' => $StoreAuthResponseType,
+            'resolve' => fn($root, $args, $context) => logoutStore()
+        ],
+        'deleteProduct' => [
+            'type' => $DeleteProductResponseType,
+            'args' => [
+                'id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteProduct($context['db'], $args['id']))
         ]
-    ],
+    ]
 ]);
 
 return new Schema([

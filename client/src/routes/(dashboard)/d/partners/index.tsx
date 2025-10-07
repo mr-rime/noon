@@ -5,7 +5,7 @@ type PartnersSearch = {
   page?: 'login' | 'register'
 }
 
-export const Route = createFileRoute('/(dashboard)/partners/')({
+export const Route = createFileRoute('/(dashboard)/d/partners/')({
   component: PartnerPage,
   validateSearch: (search: Record<string, PartnersSearch['page']>): PartnersSearch => {
     return {

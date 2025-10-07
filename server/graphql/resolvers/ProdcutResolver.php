@@ -8,20 +8,26 @@ function getAllProducts(mysqli $db, array $data): array
 {
     try {
         $model = new Product($db);
-        $userId = $_SESSION['user']['id'];
-        $products = $model->findAll($userId, $data['limit'], $data['offset'], $data['search']);
-
+        $userId = $_SESSION['user']['id'] ?? null;
+        $limit = $data['limit'] ?? 10;
+        $offset = $data['offset'] ?? 0;
+        $search = $data['search'] ?? '';
+        
+        $products = $model->findAll($userId, $limit, $offset, $search);
+        $total = $model->getTotalCount($search);
 
         return [
             'success' => true,
             'message' => 'Products retrieved.',
-            'products' => $products
+            'products' => $products,
+            'total' => $total
         ];
     } catch (Exception $e) {
         return [
             'success' => false,
             'message' => 'Error: ' . $e->getMessage(),
-            'products' => []
+            'products' => [],
+            'total' => 0
         ];
     }
 }
@@ -48,10 +54,16 @@ function getProductById(mysqli $db, string $id): array
 
 function createProduct(mysqli $db, array $data): array
 {
-
     try {
         $model = new Product($db);
-        $product = $model->create($data);
+
+        // Get store_id from context if available (for store authentication)
+        $storeId = null;
+        if (isset($_SESSION['store']['id'])) {
+            $storeId = $_SESSION['store']['id'];
+        }
+
+        $product = $model->create($data, $storeId);
 
         return [
             'success' => true,
@@ -205,7 +217,13 @@ function createProductWithVariants(mysqli $db, array $args): array
             }
         }
 
-        $product = $productModel->create($baseProductData);
+        // Get store_id from context if available (for store authentication)
+        $storeId = null;
+        if (isset($_SESSION['store']['id'])) {
+            $storeId = $_SESSION['store']['id'];
+        }
+
+        $product = $productModel->create($baseProductData, $storeId);
         if (!$product) {
             throw new Exception('Failed to create product');
         }
@@ -261,6 +279,25 @@ function createProductWithVariants(mysqli $db, array $args): array
             'success' => false,
             'message' => 'Error: ' . $e->getMessage(),
             'product' => null,
+        ];
+    }
+}
+
+function deleteProduct(mysqli $db, string $id): array
+{
+    try {
+        $model = new Product($db);
+        $deleted = $model->delete($id);
+
+        return [
+            'success' => $deleted,
+            'message' => $deleted ? 'Product deleted successfully.' : 'Product not found or could not be deleted.',
+        ];
+    } catch (Exception $e) {
+        error_log('deleteProduct error: ' . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage(),
         ];
     }
 }

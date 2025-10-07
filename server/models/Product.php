@@ -190,6 +190,21 @@ class Product
         return array_values($products);
     }
 
+    public function getTotalCount(string $search = ''): int
+    {
+        [$where, $order, $params, $types] = $this->buildWhereSearch($search);
+
+        $query = "SELECT COUNT(*) as total FROM products $where";
+        $stmt = $this->db->prepare($query);
+        
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
+        
+        $result = $this->fetchAssocAll($stmt);
+        return (int) ($result[0]['total'] ?? 0);
+    }
+
     public function findById(string $id): ?array
     {
         $query = "
@@ -238,7 +253,7 @@ class Product
         return $product;
     }
 
-    public function create(array $data): ?array
+    public function create(array $data, ?int $storeId = null): ?array
     {
         $validator = v::key('name', v::stringType()->notEmpty()->length(1, 500))
             ->key('price', v::floatVal()->positive())
@@ -252,7 +267,7 @@ class Product
             return null;
         }
 
-        $query = 'INSERT INTO products (id, user_id, name, price, currency, product_overview, is_returnable, final_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+        $query = 'INSERT INTO products (id, user_id, store_id, name, price, currency, product_overview, is_returnable, final_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
 
         $stmt = $this->db->prepare($query);
@@ -262,7 +277,19 @@ class Product
         }
 
         $hash = generateHash();
-        $userId = $_SESSION['user']['id'];
+        
+        // If store session exists, set user_id to NULL and use store_id
+        // Otherwise use regular user session
+        if ($storeId !== null) {
+            $userId = null; // Stores don't have user_id
+        } elseif (isset($_SESSION['user']['id'])) {
+            $userId = $_SESSION['user']['id'];
+            $storeId = null;
+        } else {
+            error_log("No valid user or store session found");
+            return null;
+        }
+        
         $productOverview = $data['product_overview'] ?? null;
         $isReturnable = isset($data['is_returnable']) ? (int) (bool) $data['is_returnable'] : 0;
 
@@ -270,9 +297,10 @@ class Product
 
 
         $stmt->bind_param(
-            'sisdssid',
+            'siisdssid',
             $hash,
             $userId,
+            $storeId,
             $data['name'],
             $data['price'],
             $data['currency'],

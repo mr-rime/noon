@@ -77,5 +77,14 @@ $ProductsResponseType = new ObjectType([
         'success' => Type::nonNull(Type::boolean()),
         'message' => Type::string(),
         'products' => Type::listOf($ProductType),
+        'total' => Type::int(),
+    ]
+]);
+
+$DeleteProductResponseType = new ObjectType([
+    'name' => 'DeleteProductResponse',
+    'fields' => [
+        'success' => Type::nonNull(Type::boolean()),
+        'message' => Type::string(),
     ]
 ]);

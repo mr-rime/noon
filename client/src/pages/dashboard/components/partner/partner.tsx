@@ -5,7 +5,7 @@ import { PartnerRegister } from '../partner-register/partner-register'
 
 export function PartnerPage() {
   const page = useSearch({
-    from: '/(dashboard)/partners/',
+    from: '/(dashboard)/d/partners/',
     select: (state) => state.page,
   })
   const [form, setForm] = useState<'login' | 'register'>(page || 'login')

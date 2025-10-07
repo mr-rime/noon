@@ -1,43 +1,59 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 import {
     Edit,
     Save,
     X,
-    Upload,
-    Plus
+    Loader2,
+    AlertCircle
 } from "lucide-react"
 import { CardContent, CardHeader, CardTitle } from "../ui/card"
 import { Button } from "../ui/button"
 import { Label } from "../ui/label"
 import { Input } from "../ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { Textarea } from "../ui/textarea"
-import { Badge } from "../ui/badge"
-import { useMutation } from "@apollo/client"
-import { CREATE_PRODUCT_WITH_VARIANTS } from "@/graphql/product"
-import { UPLOAD_FILE } from "@/graphql/upload-file"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { useMutation, useQuery } from "@apollo/client"
+import { GET_PRODUCT, UPDATE_PRODUCT } from "@/graphql/product"
+import { toast } from "sonner"
 
 interface ProductEditFormProps {
-    productId: number
+    productId: string
     onClose: () => void
     onSave: () => void
 }
 
-export function ProductEditForm({ onClose, onSave }: ProductEditFormProps) {
-    const [formData, setFormData] = useState({
-        name: "Wireless Bluetooth Headphones",
-        sku: "WH-001",
-        price: "99.99",
-        stock: "45",
-        category: "Electronics",
-        subcategory: "Audio",
-        status: "Active",
-        description: "High-quality wireless bluetooth headphones with noise cancellation and 30-hour battery life.",
-        weight: "250",
-        dimensions: "20cm x 15cm x 8cm",
-        tags: ["wireless", "bluetooth", "noise-cancelling"]
+export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormProps) {
+    const { data, loading: loadingProduct, error } = useQuery(GET_PRODUCT, {
+        variables: { id: productId }
     })
+
+    const product = data?.getProduct?.product
+
+    const [formData, setFormData] = useState({
+        name: "",
+        price: "",
+        stock: "",
+        category_id: "",
+        currency: "USD",
+        is_returnable: false,
+        product_overview: ""
+    })
+
+    // Update form data when product loads
+    useEffect(() => {
+        if (product) {
+            setFormData({
+                name: product.name || "",
+                price: product.price?.toString() || "",
+                stock: product.stock || "",
+                category_id: product.category_id || "",
+                currency: product.currency || "USD",
+                is_returnable: product.is_returnable || false,
+                product_overview: product.product_overview || ""
+            })
+        }
+    }, [product])
 
     const [newTag, setNewTag] = useState("")
     const [specName, setSpecName] = useState("")

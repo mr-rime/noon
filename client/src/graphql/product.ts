@@ -122,6 +122,7 @@ export const GET_PRODUCTS = gql`
             getProducts(limit:$limit,offset:$offset, search: $search) {
                 success
                 message
+                total
                 products {
                     id
                     name
@@ -133,6 +134,7 @@ export const GET_PRODUCTS = gql`
                     stock
                     category_id
                     discount_percentage
+                    created_at
                     discount {
                         id
                         product_id
@@ -253,5 +255,14 @@ query ($id: ID!) {
         }
         }
     }
+    }
+`
+
+export const DELETE_PRODUCT = gql`
+    mutation DeleteProduct($id: String!) {
+        deleteProduct(id: $id) {
+            success
+            message
+        }
     }
 `
