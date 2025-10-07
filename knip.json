@@ -1,0 +1,20 @@
+{
+    "$schema": "https://unpkg.com/knip@latest/schema.json",
+    "workspaces": {
+      ".": {
+        "entry": ["client/src/main.tsx"],
+        "project": [
+          "client/src/**/*.ts",
+          "client/src/**/*.tsx"
+        ],
+        "ignore": [
+          "client/src/**/*.lazy.ts*",
+          "client/src/routes/**",
+          "client/src/pages/**",
+          "client/src/**/*.test.ts*",
+          "scripts/**"
+        ]
+      }
+    }
+  }
+  
