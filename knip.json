@@ -2,18 +2,35 @@
     "$schema": "https://unpkg.com/knip@latest/schema.json",
     "workspaces": {
       ".": {
-        "entry": ["client/src/main.tsx"],
+        "entry": [
+          "client/src/main.tsx",
+          "client/src/app.tsx",
+          "client/src/router.tsx"
+        ],
         "project": [
           "client/src/**/*.ts",
           "client/src/**/*.tsx"
         ],
         "ignore": [
-          "client/src/**/*.lazy.ts*",
           "client/src/routes/**",
           "client/src/pages/**",
+          "client/src/**/*.lazy.ts*",
+          "client/src/**/*.gen.ts*",
+          "client/src/**/*.bench.ts*",
           "client/src/**/*.test.ts*",
+          "client/src/**/*.d.ts",
+          "client/src/graphql/**",
+          "client/src/components/**",
+          "client/src/entry-client.tsx",
+          "client/src/entry-server.tsx",
+          "client/src/utils/**",
+          "client/src/hooks/**",
+          "client/src/types/**",
+          "client/src/store/**",
+          "client/src/layouts/**",
           "scripts/**"
-        ]
+        ],
+        "ignoreBinaries": ["eslint"]
       }
     }
   }
