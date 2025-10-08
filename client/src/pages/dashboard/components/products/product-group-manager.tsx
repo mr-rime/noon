@@ -340,13 +340,12 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                 {groupProducts.map((groupProduct: any, index: number) => {
                                     const isCurrentProduct = groupProduct.id === product.id
                                     return (
-                                        <div 
-                                            key={index} 
-                                            className={`border rounded-lg p-4 ${
-                                                isCurrentProduct 
-                                                    ? 'bg-blue-50 border-blue-200 ring-2 ring-blue-100' 
+                                        <div
+                                            key={index}
+                                            className={`border rounded-lg p-4 ${isCurrentProduct
+                                                    ? 'bg-blue-50 border-blue-200 ring-2 ring-blue-100'
                                                     : 'bg-white'
-                                            }`}
+                                                }`}
                                         >
                                             <div className="flex items-start gap-3">
                                                 {groupProduct.images?.[0] && (
@@ -360,10 +359,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                     <div className="font-mono text-[11px] text-gray-600 mb-1">{groupProduct.psku || groupProduct.id}</div>
                                                     <div className="text-[12px] mb-1 break-words truncate whitespace-nowrap w-[150px]">{groupProduct.name}</div>
                                                     <div className="flex items-center gap-2">
-                                                        <Badge variant="secondary" className="text-xs">Generic</Badge>
-                                                        {isCurrentProduct && (
-                                                            <Badge variant="default" className="text-xs bg-blue-600">Current</Badge>
-                                                        )}
+                                                        <Badge variant="secondary" className="text-xs">{groupProduct.brand_name || 'Generic'}</Badge>
                                                     </div>
                                                     <Link
                                                         to='/d/products/$productId'
@@ -393,7 +389,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                         </div>
                                     )
                                 })}
-                                
+
                                 {/* Current Product (if not in group products list) */}
                                 {!groupProducts.some((gp: any) => gp.id === product.id) && (
                                     <div className="bg-blue-50 border-blue-200 ring-2 ring-blue-100 rounded-lg p-4">
@@ -409,7 +405,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                 <div className="font-mono text-[11px] text-gray-600 mb-1">{product.psku || product.id}</div>
                                                 <div className="text-[12px] mb-1 break-words truncate whitespace-nowrap w-[150px]">{product.name}</div>
                                                 <div className="flex items-center gap-2">
-                                                    <Badge variant="secondary" className="text-xs">Generic</Badge>
+                                                    <Badge variant="secondary" className="text-xs">{product.brand_name || 'Generic'}</Badge>
                                                     <Badge variant="default" className="text-xs bg-blue-600">Current</Badge>
                                                 </div>
                                                 <span className="block text-gray-500 text-sm mt-2">This product</span>
@@ -588,13 +584,12 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                         {groupProducts.map((groupProduct: any, index: number) => {
                                             const isCurrentProduct = groupProduct.id === product.id
                                             return (
-                                                <div 
-                                                    key={index} 
-                                                    className={`border rounded-lg p-4 ${
-                                                        isCurrentProduct 
-                                                            ? 'bg-blue-50 border-blue-200 ring-2 ring-blue-100' 
+                                                <div
+                                                    key={index}
+                                                    className={`border rounded-lg p-4 ${isCurrentProduct
+                                                            ? 'bg-blue-50 border-blue-200 ring-2 ring-blue-100'
                                                             : ''
-                                                    }`}
+                                                        }`}
                                                 >
                                                     <div className="flex items-start gap-3 mb-4">
                                                         {groupProduct.images?.[0] && (
@@ -608,7 +603,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                             <div className="font-mono text-sm text-gray-600 mb-1">{groupProduct.psku}</div>
                                                             <div className="text-sm mb-1">{groupProduct.name}</div>
                                                             <div className="flex items-center gap-2">
-                                                                <Badge variant="secondary" className="text-xs">Generic</Badge>
+                                                                <Badge variant="secondary" className="text-xs">{groupProduct.brand_name || 'Generic'}</Badge>
                                                                 {isCurrentProduct && (
                                                                     <Badge variant="default" className="text-xs bg-blue-600">Current</Badge>
                                                                 )}
@@ -646,7 +641,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                 </div>
                                             )
                                         })}
-                                        
+
                                         {/* Current Product (if not in group products list) */}
                                         {!groupProducts.some((gp: any) => gp.id === product.id) && (
                                             <div className="bg-blue-50 border-blue-200 ring-2 ring-blue-100 rounded-lg p-4">
@@ -662,7 +657,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                         <div className="font-mono text-sm text-gray-600 mb-1">{product.psku}</div>
                                                         <div className="text-sm mb-1">{product.name}</div>
                                                         <div className="flex items-center gap-2">
-                                                            <Badge variant="secondary" className="text-xs">Generic</Badge>
+                                                            <Badge variant="secondary" className="text-xs">{product.brand_name || 'Generic'}</Badge>
                                                             <Badge variant="default" className="text-xs bg-blue-600">Current</Badge>
                                                         </div>
                                                         <span className="block text-gray-500 text-sm mt-2">This product</span>
@@ -761,7 +756,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                         <div className="flex-1">
                                             <div className="font-mono text-sm text-gray-600">{prod.psku || prod.id}</div>
                                             <div className="text-sm mt-1">--</div>
-                                            <Badge variant="secondary" className="mt-1 text-xs">Generic</Badge>
+                                            <Badge variant="secondary" className="mt-1 text-xs">{prod.brand_name || 'Generic'}</Badge>
                                             <div className="text-xs text-gray-500 mt-1">PSKU_{prod.id}</div>
                                         </div>
                                     </div>

@@ -24,6 +24,7 @@ import { ProductFilters } from "../components/products/product-filters"
 import { Pagination } from "../components/ui/pagination"
 import { GET_PRODUCTS, DELETE_PRODUCT } from "../../../graphql/product"
 import { toast } from "sonner"
+import { DeleteConfirmationModal } from "../components/ui/delete-confirmation-modal"
 
 const ITEMS_PER_PAGE = 10
 
@@ -38,6 +39,15 @@ export default function Products() {
         status: [] as string[],
         category: [] as string[],
         stockLevel: [] as string[]
+    })
+    const [deleteModal, setDeleteModal] = useState<{
+        isOpen: boolean
+        productId: string | null
+        productName: string | null
+    }>({
+        isOpen: false,
+        productId: null,
+        productName: null
     })
 
     // Fetch products with pagination
@@ -135,10 +145,23 @@ export default function Products() {
         refetch()
     }
 
-    const handleDeleteProduct = async (productId: string) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
-            await deleteProductMutation({ variables: { id: productId } })
-        }
+    const handleDeleteProduct = (productId: string, productName: string) => {
+        setDeleteModal({
+            isOpen: true,
+            productId,
+            productName
+        })
+    }
+
+    const handleConfirmDelete = async () => {
+        if (!deleteModal.productId) return
+        
+        await deleteProductMutation({ variables: { id: deleteModal.productId } })
+        setDeleteModal({ isOpen: false, productId: null, productName: null })
+    }
+
+    const handleCloseDeleteModal = () => {
+        setDeleteModal({ isOpen: false, productId: null, productName: null })
     }
 
     const handlePageChange = (page: number) => {
@@ -287,7 +310,7 @@ export default function Products() {
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem
                                                                     className="text-destructive"
-                                                                    onClick={() => handleDeleteProduct(product.id)}
+                                                                    onClick={() => handleDeleteProduct(product.id, product.name)}
                                                                 >
                                                                     <Trash2 className="mr-2 h-4 w-4" />
                                                                     Delete
@@ -359,7 +382,7 @@ export default function Products() {
                                                                     </DropdownMenuItem>
                                                                     <DropdownMenuItem
                                                                         className="text-destructive"
-                                                                        onClick={() => handleDeleteProduct(product.id)}
+                                                                        onClick={() => handleDeleteProduct(product.id, product.name)}
                                                                     >
                                                                         <Trash2 className="mr-2 h-4 w-4" />
                                                                         Delete
@@ -412,6 +435,17 @@ export default function Products() {
                     onSave={handleSaveProduct}
                 />
             )}
+
+            {/* Delete Confirmation Modal */}
+            <DeleteConfirmationModal
+                isOpen={deleteModal.isOpen}
+                onClose={handleCloseDeleteModal}
+                onConfirm={handleConfirmDelete}
+                title="Delete Product"
+                description="Are you sure you want to delete this product? This action cannot be undone."
+                itemName={deleteModal.productName || undefined}
+                isLoading={deleting}
+            />
         </div>
     )
 }

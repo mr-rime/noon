@@ -93,6 +93,63 @@ function createCategory(mysqli $db, array $input): array
     }
 }
 
+function updateCategory(mysqli $db, int $id, array $input): array
+{
+    $categoryModel = new Category($db);
+
+    try {
+        $category = $categoryModel->update($id, $input);
+
+        if (!$category) {
+            return [
+                'success' => false,
+                'message' => 'Failed to update category',
+                'category' => null
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Category updated successfully',
+            'category' => $category
+        ];
+    } catch (Exception $e) {
+        error_log("Error updating category: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Failed to update category: ' . $e->getMessage(),
+            'category' => null
+        ];
+    }
+}
+
+function deleteCategory(mysqli $db, int $id): array
+{
+    $categoryModel = new Category($db);
+
+    try {
+        $deleted = $categoryModel->delete($id);
+
+        if (!$deleted) {
+            return [
+                'success' => false,
+                'message' => 'Failed to delete category'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Category deleted successfully'
+        ];
+    } catch (Exception $e) {
+        error_log("Error deleting category: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Failed to delete category: ' . $e->getMessage()
+        ];
+    }
+}
+
 // Subcategory Resolvers
 function getSubcategories(mysqli $db, ?int $categoryId = null, string $search = ''): array
 {
@@ -133,21 +190,78 @@ function createSubcategory(mysqli $db, array $input): array
             return [
                 'success' => false,
                 'message' => 'Failed to create subcategory',
-                'category' => null
+                'subcategory' => null
             ];
         }
 
         return [
             'success' => true,
             'message' => 'Subcategory created successfully',
-            'category' => $subcategory
+            'subcategory' => $subcategory
         ];
     } catch (Exception $e) {
         error_log("Error creating subcategory: " . $e->getMessage());
         return [
             'success' => false,
             'message' => 'Failed to create subcategory: ' . $e->getMessage(),
-            'category' => null
+            'subcategory' => null
+        ];
+    }
+}
+
+function updateSubcategory(mysqli $db, int $id, array $input): array
+{
+    $subcategoryModel = new Subcategory($db);
+
+    try {
+        $subcategory = $subcategoryModel->update($id, $input);
+
+        if (!$subcategory) {
+            return [
+                'success' => false,
+                'message' => 'Failed to update subcategory',
+                'subcategory' => null
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Subcategory updated successfully',
+            'subcategory' => $subcategory
+        ];
+    } catch (Exception $e) {
+        error_log("Error updating subcategory: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Failed to update subcategory: ' . $e->getMessage(),
+            'subcategory' => null
+        ];
+    }
+}
+
+function deleteSubcategory(mysqli $db, int $id): array
+{
+    $subcategoryModel = new Subcategory($db);
+
+    try {
+        $deleted = $subcategoryModel->delete($id);
+
+        if (!$deleted) {
+            return [
+                'success' => false,
+                'message' => 'Failed to delete subcategory'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Subcategory deleted successfully'
+        ];
+    } catch (Exception $e) {
+        error_log("Error deleting subcategory: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Failed to delete subcategory: ' . $e->getMessage()
         ];
     }
 }

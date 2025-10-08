@@ -180,6 +180,15 @@ $SubcategoriesResponseType = new ObjectType([
     ]
 ]);
 
+$SubcategoryResponseType = new ObjectType([
+    'name' => 'SubcategoryResponse',
+    'fields' => [
+        'success' => Type::boolean(),
+        'message' => Type::string(),
+        'subcategory' => $SubcategoryType
+    ]
+]);
+
 $BrandsResponseType = new ObjectType([
     'name' => 'BrandsResponse',
     'fields' => [

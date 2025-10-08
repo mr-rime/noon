@@ -140,7 +140,7 @@ class Subcategory
         }
     }
 
-    public function update(int $id, array $data): bool
+    public function update(int $id, array $data)
     {
         $fields = [];
         $types = '';
@@ -177,7 +177,12 @@ class Subcategory
         $values[] = $id;
 
         $stmt->bind_param($types, ...$values);
-        return $stmt->execute();
+        
+        if ($stmt->execute()) {
+            return $this->findById($id);
+        }
+        
+        return false;
     }
 
     public function delete(int $id): bool

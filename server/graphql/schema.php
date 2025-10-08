@@ -330,10 +330,36 @@ $MutationType = new ObjectType([
             'args' => ['input' => Type::nonNull($CategoryInputType)],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => createCategory($context['db'], $args['input']))
         ],
-        'createSubcategory' => [
+        'updateCategory' => [
             'type' => $CategoryResponseType,
+            'args' => [
+                'id' => Type::nonNull(Type::int()),
+                'input' => Type::nonNull($CategoryInputType)
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => updateCategory($context['db'], $args['id'], $args['input']))
+        ],
+        'deleteCategory' => [
+            'type' => $CategoryResponseType,
+            'args' => ['id' => Type::nonNull(Type::int())],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteCategory($context['db'], $args['id']))
+        ],
+        'createSubcategory' => [
+            'type' => $SubcategoryResponseType,
             'args' => ['input' => Type::nonNull($SubcategoryInputType)],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => createSubcategory($context['db'], $args['input']))
+        ],
+        'updateSubcategory' => [
+            'type' => $SubcategoryResponseType,
+            'args' => [
+                'id' => Type::nonNull(Type::int()),
+                'input' => Type::nonNull($SubcategoryInputType)
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => updateSubcategory($context['db'], $args['id'], $args['input']))
+        ],
+        'deleteSubcategory' => [
+            'type' => $SubcategoryResponseType,
+            'args' => ['id' => Type::nonNull(Type::int())],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteSubcategory($context['db'], $args['id']))
         ],
         'createBrand' => [
             'type' => $CategoryResponseType,
