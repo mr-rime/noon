@@ -12,7 +12,7 @@ function getAllProducts(mysqli $db, array $data): array
         $limit = $data['limit'] ?? 10;
         $offset = $data['offset'] ?? 0;
         $search = $data['search'] ?? '';
-        
+
         $products = $model->findAll($userId, $limit, $offset, $search);
         $total = $model->getTotalCount($search);
 
@@ -110,6 +110,13 @@ function updateProduct(mysqli $db, array $args): array
             ], $args['productSpecifications']);
         }
 
+        if (!empty($args['productAttributes'])) {
+            $args['productAttributes'] = array_map(fn($attr) => [
+                'attribute_name' => $attr['attribute_name'],
+                'attribute_value' => $attr['attribute_value'],
+            ], $args['productAttributes']);
+        }
+
         $model = new Product($db);
         $product = $model->update($id, $args);
 
@@ -134,6 +141,12 @@ function updateProduct(mysqli $db, array $args): array
         if (!empty($args['productSpecifications'])) {
             $specModel = new ProductSpecification($db);
             $specModel->replaceForProduct($id, $args['productSpecifications']);
+        }
+
+        if (!empty($args['productAttributes'])) {
+            require_once __DIR__ . '/../../models/ProductAttribute.php';
+            $attrModel = new ProductAttribute($db);
+            $attrModel->replaceForProduct($id, $args['productAttributes']);
         }
 
         $updated = $model->findById($id);
@@ -278,7 +291,130 @@ function createProductWithVariants(mysqli $db, array $args): array
         return [
             'success' => false,
             'message' => 'Error: ' . $e->getMessage(),
-            'product' => null,
+            'product' => null
+        ];
+    }
+}
+
+function getProductBySku(mysqli $db, string $sku): array
+{
+    try {
+        $variantModel = new ProductVariant($db);
+        $variant = $variantModel->findBySku($sku);
+
+        if (!$variant) {
+            return [
+                'success' => false,
+                'message' => 'Product variant not found',
+                'product' => null
+            ];
+        }
+
+        // Get the product for this variant
+        $productModel = new Product($db);
+        $product = $productModel->findById($variant['product_id']);
+
+        if (!$product) {
+            return [
+                'success' => false,
+                'message' => 'Product not found',
+                'product' => null
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Product retrieved successfully',
+            'product' => $product
+        ];
+    } catch (Exception $e) {
+        return [
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage(),
+            'product' => null
+        ];
+    }
+}
+
+function getRelatedProducts(mysqli $db, string $productId, int $limit = 8): array
+{
+    try {
+        $productModel = new Product($db);
+
+        // Get the current product to find its category and brand
+        $currentProduct = $productModel->findById($productId);
+        if (!$currentProduct) {
+            return [
+                'success' => false,
+                'message' => 'Product not found.',
+                'products' => []
+            ];
+        }
+
+        // Find related products based on category and brand
+        $relatedProducts = $productModel->findRelatedProducts(
+            $productId,
+            $currentProduct['category_id'],
+            $currentProduct['brand_id'],
+            $limit
+        );
+
+        return [
+            'success' => true,
+            'message' => 'Related products retrieved successfully.',
+            'products' => $relatedProducts
+        ];
+    } catch (Exception $e) {
+        return [
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage(),
+            'products' => []
+        ];
+    }
+}
+
+function getRelatedVariants(mysqli $db, string $productId): array
+{
+    try {
+        $variantModel = new ProductVariant($db);
+        $productModel = new Product($db);
+
+        // Get the current product to find its base name or category
+        $currentProduct = $productModel->findById($productId);
+        if (!$currentProduct) {
+            return [
+                'success' => false,
+                'message' => 'Product not found.',
+                'variants' => []
+            ];
+        }
+
+        // For now, we'll return variants that share similar names or are in the same category
+        // This is a simplified approach - in a real system you might have a separate table
+        // to define product relationships or use more sophisticated matching
+        $relatedVariants = $variantModel->findRelatedVariants($productId, $currentProduct['name']);
+
+        // Enrich variants with product information
+        $enrichedVariants = [];
+        foreach ($relatedVariants as $variant) {
+            $variantProduct = $productModel->findById($variant['product_id']);
+            $variant['product'] = [
+                'id' => $variantProduct['id'],
+                'name' => $variantProduct['name']
+            ];
+            $enrichedVariants[] = $variant;
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Related variants retrieved.',
+            'variants' => $enrichedVariants
+        ];
+    } catch (Exception $e) {
+        return [
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage(),
+            'variants' => []
         ];
     }
 }
@@ -298,6 +434,38 @@ function deleteProduct(mysqli $db, string $id): array
         return [
             'success' => false,
             'message' => 'Error: ' . $e->getMessage(),
+        ];
+    }
+}
+
+function generateVariantsForProduct(mysqli $db, string $productId): array
+{
+    try {
+        $productModel = new Product($db);
+        $variants = $productModel->generateVariants($productId);
+
+        if (empty($variants)) {
+            return [
+                'success' => false,
+                'message' => 'No variants generated. Make sure the product has options defined.',
+                'product' => null
+            ];
+        }
+
+        // Return updated product with variants
+        $product = $productModel->findById($productId);
+
+        return [
+            'success' => true,
+            'message' => count($variants) . ' variants generated successfully.',
+            'product' => $product
+        ];
+    } catch (Exception $e) {
+        error_log('generateVariantsForProduct error: ' . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage(),
+            'product' => null
         ];
     }
 }

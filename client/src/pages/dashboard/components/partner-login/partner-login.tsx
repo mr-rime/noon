@@ -7,8 +7,8 @@ import { toast } from 'sonner'
 import { PartnerLoginSchema, type PartnerLoginSchemaType } from '../../schema'
 import { LOGIN_STORE } from '@/graphql/store'
 import { dashboard_icons, PartnerLogo } from '../../constants'
+import { Button } from '../ui/button'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 
 export function PartnerLogin({ setForm }: { setForm: React.Dispatch<React.SetStateAction<'login' | 'register'>> }) {
   const { register, handleSubmit } = useForm<PartnerLoginSchemaType>({

@@ -18,16 +18,6 @@ export type GetUserResponse = {
   }
 }
 
-export type ProductOptionType = {
-  id?: string
-  product_id?: ProductType['id']
-  name: string
-  value: string
-  image_url: string
-  linked_product_id?: string
-  type: 'link' | 'text'
-}
-
 export type ProductSpecification = {
   id?: string
   product_id?: ProductType['id']
@@ -41,23 +31,118 @@ export type ProductImage = {
   is_primary: boolean
 }
 
+export type ProductVariant = {
+  id?: string
+  product_id?: string
+  sku: string
+  price?: number
+  stock?: number
+  image_url?: string
+  option_combination?: string | any[]
+  options?: Array<{ name: string; value: string }>
+  created_at?: string
+  updated_at?: string
+}
+
+export type ProductAttribute = {
+  id?: string
+  product_id?: string
+  attribute_name: string
+  attribute_value: string
+  created_at?: string
+  updated_at?: string
+}
+
+export type GroupAttribute = {
+  id?: string
+  group_id?: string
+  attribute_name: string
+  attribute_values: string[]
+  is_required: boolean
+  display_order: number
+  created_at?: string
+  updated_at?: string
+}
+
+export type Category = {
+  category_id: number
+  name: string
+  slug: string
+  description?: string
+  is_active: boolean
+  created_at?: string
+  updated_at?: string
+  subcategories?: Subcategory[]
+}
+
+export type Subcategory = {
+  subcategory_id: number
+  category_id: number
+  name: string
+  slug: string
+  description?: string
+  is_active: boolean
+  created_at?: string
+  updated_at?: string
+}
+
+export type Brand = {
+  brand_id: number
+  name: string
+  slug: string
+  description?: string
+  logo_url?: string
+  is_active: boolean
+  created_at?: string
+  updated_at?: string
+}
+
+export type ProductGroup = {
+  group_id: string
+  name: string
+  description?: string
+  category_id?: number
+  subcategory_id?: number
+  brand_id?: number
+  attributes?: string
+  created_at?: string
+  updated_at?: string
+}
+
+
 export type ProductType = {
+  productOptions: any
   id: string
+  psku?: string
   name: string
   price: number
-  currency: string
-  product_overview?: string
-  category_id: string
-  is_returnable: boolean
-  is_in_wishlist: boolean
-  wishlist_id: string
-  discount_percentage?: number
   final_price: number
+  currency: string
   stock: number
+  is_returnable: boolean
+  product_overview?: string
+  user_id?: number
+  store_id?: number
+  category_id?: number
+  subcategory_id?: number
+  brand_id?: number
+  group_id?: string
+  category_name?: string
+  subcategory_name?: string
+  brand_name?: string
+  group_name?: string
   discount?: DiscountType | null
+  discount_percentage?: number
+  is_in_wishlist?: boolean
+  wishlist_id?: string
   images: ProductImage[]
-  productOptions: ProductOptionType[]
   productSpecifications: ProductSpecification[]
+  productAttributes?: ProductAttribute[]
+  groupAttributes?: GroupAttribute[]
+  groupProducts?: ProductType[]
+  variants?: ProductVariant[]
+  created_at?: string
+  updated_at?: string
 }
 
 export type DiscountType = {

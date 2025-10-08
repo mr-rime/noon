@@ -4,26 +4,35 @@ use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\ValidationException;
 
 require_once __DIR__ . '/ProductImage.php';
-require_once __DIR__ . '/ProductOption.php';
 require_once __DIR__ . '/ProductSpecification.php';
 require_once __DIR__ . '/Discount.php';
+require_once __DIR__ . '/ProductGroup.php';
+require_once __DIR__ . '/Category.php';
+require_once __DIR__ . '/Subcategory.php';
+require_once __DIR__ . '/Brand.php';
 require_once __DIR__ . '/../utils/generateHash.php';
 
 class Product
 {
     private mysqli $db;
     private Discount $discountModel;
-    private ProductOption $optionModel;
     private ProductSpecification $specModel;
     private ProductImage $imageModel;
+    private ProductGroup $groupModel;
+    private Category $categoryModel;
+    private Subcategory $subcategoryModel;
+    private Brand $brandModel;
 
     public function __construct(mysqli $db)
     {
         $this->db = $db;
         $this->discountModel = new Discount($db);
-        $this->optionModel = new ProductOption($db);
         $this->specModel = new ProductSpecification($db);
         $this->imageModel = new ProductImage($db);
+        $this->groupModel = new ProductGroup($db);
+        $this->categoryModel = new Category($db);
+        $this->subcategoryModel = new Subcategory($db);
+        $this->brandModel = new Brand($db);
     }
 
     /* -------------------- DISCOUNT HELPERS -------------------- */
@@ -137,19 +146,26 @@ class Product
             $wishlistTypes = 'i';
         }
 
-        // Main fetch
+        // Main fetch with new PSKU system joins
         $placeholders = implode(',', array_fill(0, count($productIds), '?'));
         $query = "
             SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary, $wishlistSelect
+                   c.name as category_name, s.name as subcategory_name, b.name as brand_name,
+                   pg.name as group_name, pg.group_id,
                    0 as dummy -- ensures trailing comma handled
             FROM products p
             LEFT JOIN product_images pi ON p.id = pi.product_id
+            LEFT JOIN categories c ON p.category_id = c.category_id
+            LEFT JOIN subcategories s ON p.subcategory_id = s.subcategory_id
+            LEFT JOIN brands b ON p.brand_id = b.brand_id
+            LEFT JOIN product_groups pg ON p.group_id = pg.group_id
             $wishlistJoin
             WHERE p.id IN ($placeholders)
             ORDER BY p.id";
 
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param($wishlistTypes . str_repeat('i', count($productIds)), ...array_merge($wishlistParams, $productIds));
+        $params = array_merge($wishlistParams, $productIds);
+        $stmt->bind_param($wishlistTypes . str_repeat('i', count($productIds)), ...$params);
         $rows = $this->fetchAssocAll($stmt);
 
         // Group rows
@@ -158,12 +174,22 @@ class Product
             $pid = $row['id'];
             $products[$pid] ??= [
                 'id' => $pid,
+                'psku' => $row['psku'],
                 'name' => $row['name'],
                 'price' => $row['price'],
                 'currency' => $row['currency'],
                 'stock' => $row['stock'],
                 'product_overview' => $row['product_overview'],
                 'is_returnable' => $row['is_returnable'],
+                'final_price' => $row['final_price'],
+                'category_id' => $row['category_id'],
+                'subcategory_id' => $row['subcategory_id'],
+                'brand_id' => $row['brand_id'],
+                'group_id' => $row['group_id'],
+                'category_name' => $row['category_name'],
+                'subcategory_name' => $row['subcategory_name'],
+                'brand_name' => $row['brand_name'],
+                'group_name' => $row['group_name'],
                 'created_at' => $row['created_at'],
                 'updated_at' => $row['updated_at'],
                 'is_in_wishlist' => (bool) ($row['is_in_wishlist'] ?? 0),
@@ -182,8 +208,17 @@ class Product
 
         // Attach related data
         foreach ($products as $pid => &$product) {
-            $product['productOptions'] = $this->optionModel->findByProductId($pid);
             $product['productSpecifications'] = $this->specModel->findByProductId($pid);
+
+            // Get product attributes if part of a group
+            if ($product['group_id']) {
+                $product['groupAttributes'] = $this->groupModel->getGroupAttributes($product['group_id']);
+                $product['productAttributes'] = $this->getProductAttributes($pid);
+            } else {
+                $product['groupAttributes'] = [];
+                $product['productAttributes'] = [];
+            }
+
             $this->attachDiscountData($product, $product['price']);
         }
 
@@ -196,21 +231,122 @@ class Product
 
         $query = "SELECT COUNT(*) as total FROM products $where";
         $stmt = $this->db->prepare($query);
-        
+
         if (!empty($params)) {
             $stmt->bind_param($types, ...$params);
         }
-        
+
         $result = $this->fetchAssocAll($stmt);
         return (int) ($result[0]['total'] ?? 0);
+    }
+
+    public function findRelatedProducts(string $productId, ?int $categoryId, ?int $brandId, int $limit = 8): array
+    {
+        // Get current product to exclude products from the same group
+        $currentProduct = $this->findById($productId);
+        $excludeGroupId = $currentProduct['group_id'] ?? null;
+
+        $query = "
+            SELECT DISTINCT p.id, p.name, p.price, p.currency, p.stock, p.product_overview, p.category_id,
+                   c.name as category_name
+            FROM products p
+            LEFT JOIN categories c ON p.category_id = c.category_id
+            WHERE p.id != ?";
+
+        $params = [$productId];
+        $types = 's';
+
+        // Add category filter if available
+        if ($categoryId) {
+            $query .= " AND p.category_id = ?";
+            $params[] = $categoryId;
+            $types .= 'i';
+        }
+
+        $query .= " ORDER BY 
+            CASE 
+                WHEN p.category_id = ? THEN 1
+                ELSE 2
+            END, p.name ASC
+            LIMIT ?";
+
+        // Add ordering parameters
+        $params[] = $categoryId;
+        $params[] = $limit;
+        $types .= 'ii';
+
+        $stmt = $this->db->prepare($query);
+        if (!$stmt) {
+            return [];
+        }
+
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $products = [];
+        while ($row = $result->fetch_assoc()) {
+            $products[] = $row;
+        }
+
+        // Get images and other related data for each product
+        foreach ($products as $pid => &$product) {
+            // Add missing columns with default values
+            $product['psku'] = null;
+            $product['subcategory_id'] = null;
+            $product['brand_id'] = null;
+            $product['group_id'] = null;
+            $product['subcategory_name'] = null;
+            $product['brand_name'] = null;
+            $product['group_name'] = null;
+            $product['final_price'] = $product['price']; // Use price as final_price
+            $product['discount_percentage'] = 0;
+            $product['created_at'] = $product['created_at'] ?? null;
+            $product['updated_at'] = $product['updated_at'] ?? null;
+
+            $product['productSpecifications'] = $this->specModel->findByProductId($product['id']);
+
+            // Get images for this product
+            $imageQuery = 'SELECT id, image_url, is_primary FROM product_images WHERE product_id = ? ORDER BY is_primary DESC, id ASC';
+            $imageStmt = $this->db->prepare($imageQuery);
+            if ($imageStmt) {
+                $imageStmt->bind_param('s', $product['id']);
+                $imageStmt->execute();
+                $imageResult = $imageStmt->get_result();
+                $product['images'] = [];
+                while ($imageRow = $imageResult->fetch_assoc()) {
+                    $product['images'][] = [
+                        'id' => $imageRow['id'],
+                        'image_url' => $imageRow['image_url'],
+                        'is_primary' => (bool) $imageRow['is_primary']
+                    ];
+                }
+            } else {
+                $product['images'] = [];
+            }
+
+            // Get product attributes (simplified - no group logic for now)
+            $product['productAttributes'] = $this->getProductAttributes($product['id']);
+
+            // Attach discount data (this might need adjustment too)
+            $this->attachDiscountData($product, $product['price']);
+        }
+
+        return $products;
     }
 
     public function findById(string $id): ?array
     {
         $query = "
-            SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary
+            SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary,
+                   c.name as category_name, s.name as subcategory_name, b.name as brand_name,
+                   pg.name as group_name, pg.group_id
             FROM products p
             LEFT JOIN product_images pi ON p.id = pi.product_id
+            LEFT JOIN categories c ON p.category_id = c.category_id
+            LEFT JOIN subcategories s ON p.subcategory_id = s.subcategory_id
+            LEFT JOIN brands b ON p.brand_id = b.brand_id
+            LEFT JOIN product_groups pg ON p.group_id = pg.group_id
             WHERE p.id = ?";
 
         $stmt = $this->db->prepare($query);
@@ -223,14 +359,24 @@ class Product
         $base = $rows[0];
         $product = [
             'id' => $base['id'],
+            'psku' => $base['psku'],
             'user_id' => $base['user_id'],
+            'store_id' => $base['store_id'],
             'category_id' => $base['category_id'],
+            'subcategory_id' => $base['subcategory_id'],
+            'brand_id' => $base['brand_id'],
+            'group_id' => $base['group_id'],
             'name' => $base['name'],
             'price' => $base['price'],
             'currency' => $base['currency'],
             'stock' => $base['stock'],
             'is_returnable' => $base['is_returnable'],
+            'final_price' => $base['final_price'],
             'product_overview' => $base['product_overview'],
+            'category_name' => $base['category_name'],
+            'subcategory_name' => $base['subcategory_name'],
+            'brand_name' => $base['brand_name'],
+            'group_name' => $base['group_name'],
             'created_at' => $base['created_at'],
             'updated_at' => $base['updated_at'],
             'images' => [],
@@ -246,29 +392,148 @@ class Product
             }
         }
 
-        $product['productOptions'] = $this->optionModel->findByProductId($id);
         $product['productSpecifications'] = $this->specModel->findByProductId($id);
+
+        // Get product attributes if part of a group
+        if ($product['group_id']) {
+            $product['groupAttributes'] = $this->groupModel->getGroupAttributes($product['group_id']);
+            $product['productAttributes'] = $this->getProductAttributes($id);
+            $product['groupProducts'] = $this->groupModel->getProductsInGroup($product['group_id']);
+        } else {
+            $product['groupAttributes'] = [];
+            $product['productAttributes'] = [];
+            $product['groupProducts'] = [];
+        }
+
         $this->attachDiscountData($product, $product['price']);
 
         return $product;
     }
 
-    public function create(array $data, ?int $storeId = null): ?array
+    public function getProductAttributes(string $productId): array
     {
-        $validator = v::key('name', v::stringType()->notEmpty()->length(1, 500))
-            ->key('price', v::floatVal()->positive())
-            ->key('currency', v::stringType()->notEmpty()->length(3, 4))
-            ->key('product_overview', v::optional(v::stringType()));
+        $query = 'SELECT * FROM product_attribute_values WHERE product_id = ? ORDER BY attribute_name';
+        $stmt = $this->db->prepare($query);
+
+        if (!$stmt) {
+            error_log("Prepare failed: " . $this->db->error);
+            return [];
+        }
+
+        $stmt->bind_param('s', $productId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function setProductAttributes(string $productId, array $attributes): bool
+    {
+        // Start transaction
+        $this->db->begin_transaction();
 
         try {
-            $validator->assert($data);
-        } catch (ValidationException $err) {
-            error_log("Validation failed: " . $err->getMessage());
+            // Delete existing attributes
+            $deleteQuery = 'DELETE FROM product_attribute_values WHERE product_id = ?';
+            $deleteStmt = $this->db->prepare($deleteQuery);
+            $deleteStmt->bind_param('s', $productId);
+            $deleteStmt->execute();
+
+            // Insert new attributes
+            if (!empty($attributes)) {
+                $insertQuery = 'INSERT INTO product_attribute_values (product_id, attribute_name, attribute_value) VALUES (?, ?, ?)';
+                $insertStmt = $this->db->prepare($insertQuery);
+
+                foreach ($attributes as $attribute) {
+                    $insertStmt->bind_param('sss', $productId, $attribute['attribute_name'], $attribute['attribute_value']);
+                    $insertStmt->execute();
+                }
+            }
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollback();
+            error_log("Failed to set product attributes: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function findByPsku(string $psku): ?array
+    {
+        $query = "
+            SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary,
+                   c.name as category_name, s.name as subcategory_name, b.name as brand_name,
+                   pg.name as group_name, pg.group_id
+            FROM products p
+            LEFT JOIN product_images pi ON p.id = pi.product_id
+            LEFT JOIN categories c ON p.category_id = c.category_id
+            LEFT JOIN subcategories s ON p.subcategory_id = s.subcategory_id
+            LEFT JOIN brands b ON p.brand_id = b.brand_id
+            LEFT JOIN product_groups pg ON p.group_id = pg.group_id
+            WHERE p.psku = ?";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param('s', $psku);
+        $rows = $this->fetchAssocAll($stmt);
+
+        if (!$rows)
+            return null;
+
+        // Use the same logic as findById for consistency
+        return $this->findById($rows[0]['id']);
+    }
+
+    private function generatePsku(string $productName): string
+    {
+        // Generate PSKU from product name
+        $basePsku = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $productName));
+        $basePsku = substr($basePsku, 0, 8); // Limit to 8 characters
+
+        // Add random suffix to ensure uniqueness
+        $suffix = strtoupper(substr(md5(uniqid()), 0, 4));
+
+        return $basePsku . '-' . $suffix;
+    }
+
+    public function create(array $data, ?int $storeId = null): ?array
+    {
+        // Basic validation for required fields
+        if (empty($data['name']) || !is_string($data['name'])) {
+            error_log("Validation failed: name is required and must be a string");
             return null;
         }
 
-        $query = 'INSERT INTO products (id, user_id, store_id, name, price, currency, product_overview, is_returnable, final_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        if (!isset($data['price']) || !is_numeric($data['price']) || $data['price'] <= 0) {
+            error_log("Validation failed: price must be a positive number");
+            return null;
+        }
 
+        if (empty($data['currency']) || !is_string($data['currency'])) {
+            error_log("Validation failed: currency is required and must be a string");
+            return null;
+        }
+
+        // Clean up data - convert null values to appropriate defaults
+        $cleanData = [
+            'name' => trim($data['name']),
+            'price' => (float) $data['price'],
+            'currency' => trim($data['currency']),
+            'psku' => isset($data['psku']) && $data['psku'] !== null ? trim($data['psku']) : null,
+            'category_id' => isset($data['category_id']) && $data['category_id'] !== null ? (int) $data['category_id'] : null,
+            'subcategory_id' => isset($data['subcategory_id']) && $data['subcategory_id'] !== null ? (int) $data['subcategory_id'] : null,
+            'brand_id' => isset($data['brand_id']) && $data['brand_id'] !== null ? (int) $data['brand_id'] : null,
+            'group_id' => isset($data['group_id']) && $data['group_id'] !== null ? trim($data['group_id']) : null,
+            'stock' => isset($data['stock']) && $data['stock'] !== null ? (int) $data['stock'] : 0,
+            'product_overview' => isset($data['product_overview']) && $data['product_overview'] !== null ? trim($data['product_overview']) : null,
+            'is_returnable' => isset($data['is_returnable']) ? (bool) $data['is_returnable'] : false,
+            'images' => isset($data['images']) ? $data['images'] : [],
+            'productSpecifications' => isset($data['productSpecifications']) ? $data['productSpecifications'] : [],
+            'productAttributes' => isset($data['productAttributes']) ? $data['productAttributes'] : [],
+            'discount' => isset($data['discount']) ? $data['discount'] : null
+        ];
+
+        $query = 'INSERT INTO products (id, psku, user_id, store_id, category_id, subcategory_id, brand_id, group_id, name, price, currency, stock, product_overview, is_returnable, final_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
         $stmt = $this->db->prepare($query);
         if (!$stmt) {
@@ -277,7 +542,10 @@ class Product
         }
 
         $hash = generateHash();
-        
+
+        // Generate PSKU if not provided
+        $psku = $cleanData['psku'] ?? $this->generatePsku($cleanData['name']);
+
         // If store session exists, set user_id to NULL and use store_id
         // Otherwise use regular user session
         if ($storeId !== null) {
@@ -289,22 +557,25 @@ class Product
             error_log("No valid user or store session found");
             return null;
         }
-        
-        $productOverview = $data['product_overview'] ?? null;
-        $isReturnable = isset($data['is_returnable']) ? (int) (bool) $data['is_returnable'] : 0;
 
-        $finalPrice = $this->calculateFinalPrice($data['price'], $data['discount'] ?? null);
-
+        $finalPrice = $this->calculateFinalPrice($cleanData['price'], $cleanData['discount']);
+        $isReturnable = (int) $cleanData['is_returnable'];
 
         $stmt->bind_param(
-            'siisdssid',
+            'sssiiiissdiisid',
             $hash,
+            $psku,
             $userId,
             $storeId,
-            $data['name'],
-            $data['price'],
-            $data['currency'],
-            $productOverview,
+            $cleanData['category_id'],
+            $cleanData['subcategory_id'],
+            $cleanData['brand_id'],
+            $cleanData['group_id'],
+            $cleanData['name'],
+            $cleanData['price'],
+            $cleanData['currency'],
+            $cleanData['stock'],
+            $cleanData['product_overview'],
             $isReturnable,
             $finalPrice
         );
@@ -314,29 +585,27 @@ class Product
             return null;
         }
 
-        if (!empty($data['images'])) {
+        if (!empty($cleanData['images'])) {
             $imageModel = new ProductImage($this->db);
-            foreach ($data['images'] as $img) {
+            foreach ($cleanData['images'] as $img) {
                 $imageModel->create($hash, $img['image_url'], $img['is_primary'] ?? false);
             }
         }
 
-        if (!empty($data['productOptions'])) {
-            $optionModel = new ProductOption($this->db);
-            foreach ($data['productOptions'] as $opt) {
-                $optionModel->create($hash, $opt['name'], $opt['value'], $opt['image_url'] ?? null, $opt['type']);
-            }
-        }
-
-        if (!empty($data['productSpecifications'])) {
+        if (!empty($cleanData['productSpecifications'])) {
             $specModel = new ProductSpecification($this->db);
-            foreach ($data['productSpecifications'] as $spec) {
+            foreach ($cleanData['productSpecifications'] as $spec) {
                 $specModel->create($hash, $spec['spec_name'], $spec['spec_value']);
             }
         }
 
-        if (!empty($data['discount'])) {
-            $discountData = $data['discount'];
+        // Handle product attributes for PSKU system
+        if (!empty($cleanData['productAttributes'])) {
+            $this->setProductAttributes($hash, $cleanData['productAttributes']);
+        }
+
+        if (!empty($cleanData['discount'])) {
+            $discountData = $cleanData['discount'];
             $discountData['product_id'] = $hash;
             $discountModel = new Discount($this->db);
             $discountModel->create($discountData);
@@ -351,9 +620,12 @@ class Product
             ->key('price', v::floatVal()->positive(), false)
             ->key('currency', v::stringType()->notEmpty()->length(3, 4), false)
             ->key('product_overview', v::optional(v::stringType()), false)
-            ->key('category_id', v::optional(v::stringType()->length(1, 21)), false)
+            ->key('psku', v::optional(v::stringType()->length(1, 100)), false)
+            ->key('category_id', v::optional(v::intVal()->positive()), false)
+            ->key('subcategory_id', v::optional(v::intVal()->positive()), false)
+            ->key('brand_id', v::optional(v::intVal()->positive()), false)
+            ->key('group_id', v::optional(v::stringType()), false)
             ->key('stock', v::optional(v::intVal()->min(0)), false)
-            ->key('category_id', v::optional(v::stringType()->length(1, 21)), false)
             ->key('is_returnable', v::optional(v::boolType()), false);
         try {
             $validator->assert($data);
@@ -368,13 +640,14 @@ class Product
         $types = '';
         $values = [];
 
-        $nonDbFields = ['discount', 'images', 'productOptions', 'productSpecifications', '__typename'];
+        $nonDbFields = ['discount', 'images', 'productAttributes', 'productSpecifications', '__typename'];
 
         foreach ($data as $key => $value) {
             if (in_array($key, $nonDbFields))
                 continue;
 
-            if ($key === 'category_id' && $value === '') {
+            // Handle null values for foreign keys
+            if (in_array($key, ['category_id', 'subcategory_id', 'brand_id', 'group_id']) && $value === '') {
                 $value = null;
             }
 
@@ -383,13 +656,13 @@ class Product
             }
 
             $fields[] = "$key = ?";
-            if (is_int($value)) {
+            if (is_int($value) || ($key === 'is_returnable' && is_bool($value))) {
                 $types .= 'i';
+                if (is_bool($value)) {
+                    $value = $value ? 1 : 0;
+                }
             } elseif (is_float($value)) {
                 $types .= 'd';
-            } elseif (is_bool($value)) {
-                $types .= 'i';
-                $value = $value ? 1 : 0;
             } else {
                 $types .= 's';
             }
@@ -468,6 +741,10 @@ class Product
             }
         }
 
+        // Handle product attributes update
+        if (isset($data['productAttributes'])) {
+            $this->setProductAttributes($id, $data['productAttributes']);
+        }
 
         return $this->findById($id);
     }

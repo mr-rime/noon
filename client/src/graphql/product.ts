@@ -6,12 +6,16 @@ export const CREATE_PRODUCT = gql`
             $price: Float!
             $currency: String!
             $product_overview: String
-            $category_id: String
+            $category_id: Int
+            $subcategory_id: Int
+            $brand_id: Int
+            $group_id: String
+            $stock: Int
             $discount: DiscountInput
             $is_returnable: Boolean!
             $images: [ProductImageInput]
-            $productOptions: [ProductOptionInput]
             $productSpecifications: [ProductSpecificationInput]
+            $productAttributes: [ProductAttributeInput]
     ) {
         createProduct(
             name: $name
@@ -19,39 +23,78 @@ export const CREATE_PRODUCT = gql`
             currency: $currency
             product_overview: $product_overview
             category_id: $category_id
+            subcategory_id: $subcategory_id
+            brand_id: $brand_id
+            group_id: $group_id
+            stock: $stock
             images: $images
             is_returnable: $is_returnable
             discount: $discount
-            productOptions: $productOptions
             productSpecifications: $productSpecifications
+            productAttributes: $productAttributes
         ) {
             success
             message
             product {
                     id
+                    psku
                     name
                     price
+                    final_price
                     currency
+                    stock
                     product_overview
                     category_id
+                    subcategory_id
+                    brand_id
+                    group_id
+                    category_name
+                    subcategory_name
+                    brand_name
+                    group_name
                     is_returnable
                     created_at
+                    updated_at
                 images {
                     id
                     image_url
                     is_primary
                 }
-                productOptions {
-                    id
-                    name
-                    link
-                    value
-                    type
-                }
                 productSpecifications {
                     id
                     spec_name
                     spec_value
+                }
+                productAttributes {
+                    id
+                    attribute_name
+                    attribute_value
+                }
+                groupAttributes {
+                    id
+                    attribute_name
+                    attribute_values
+                    is_required
+                    display_order
+                }
+                groupProducts {
+                    id
+                    psku
+                    name
+                    price
+                    final_price
+                    currency
+                    stock
+                    images {
+                        id
+                        image_url
+                        is_primary
+                    }
+                    productAttributes {
+                        id
+                        attribute_name
+                        attribute_value
+                    }
                 }
         }
         }
@@ -65,12 +108,12 @@ export const UPDATE_PRODUCT = gql`
         $price: Float
         $currency: String
         $product_overview: String
-        $category_id: String
+        $stock: Int
         $discount: DiscountInput
         $is_returnable: Boolean
         $images: [ProductImageInput]
-        $productOptions: [ProductOptionInput]
         $productSpecifications: [ProductSpecificationInput]
+        $productAttributes: [ProductAttributeInput]
     ) {
         updateProduct(
             id: $id
@@ -78,39 +121,75 @@ export const UPDATE_PRODUCT = gql`
             price: $price
             currency: $currency
             product_overview: $product_overview
-            category_id: $category_id
+            stock: $stock
             images: $images
             is_returnable: $is_returnable
             discount: $discount
-            productOptions: $productOptions
             productSpecifications: $productSpecifications
+            productAttributes: $productAttributes
         ) {
         success
         message
         product {
             id
+            psku
             name
             price
+            final_price
             currency
+            stock
             product_overview
             category_id
+            subcategory_id
+            brand_id
+            group_id
+            category_name
+            subcategory_name
+            brand_name
+            group_name
             is_returnable
             created_at
+            updated_at
             images {
-            id
-            image_url
-            is_primary
-            }
-            productOptions {
                 id
-                name
-                value
-                type
+                image_url
+                is_primary
             }
             productSpecifications {
                 id
                 spec_name
                 spec_value
+            }
+            productAttributes {
+                id
+                attribute_name
+                attribute_value
+            }
+            groupAttributes {
+                id
+                attribute_name
+                attribute_values
+                is_required
+                display_order
+            }
+            groupProducts {
+                id
+                psku
+                name
+                price
+                final_price
+                currency
+                stock
+                images {
+                    id
+                    image_url
+                    is_primary
+                }
+                productAttributes {
+                    id
+                    attribute_name
+                    attribute_value
+                }
             }
         }
         }
@@ -148,14 +227,6 @@ export const GET_PRODUCTS = gql`
                         image_url
                         is_primary
                     }
-                    productOptions {
-                        id
-                        name
-                        value
-                        linked_product_id
-                        image_url
-                        type
-                    }
                     productSpecifications {
                         id
                         spec_name
@@ -167,65 +238,31 @@ export const GET_PRODUCTS = gql`
 
 `
 
-export const CREATE_PRODUCT_WITH_VARIANTS = gql`
-  mutation CreateProductWithVariants(
-    $name: String!
-    $price: Float!
-    $currency: String!
-    $product_overview: String
-    $category_id: String
-    $discount: DiscountInput
-    $is_returnable: Boolean!
-    $images: [ProductImageInput]
-    $specifications: [ProductSpecificationInput]
-    $options: [ProductOptionGroupInput]
-    $variants: [ProductVariantInput]
-  ) {
-    createProductWithVariants(
-      name: $name
-      price: $price
-      currency: $currency
-      product_overview: $product_overview
-      category_id: $category_id
-      images: $images
-      is_returnable: $is_returnable
-      discount: $discount
-      specifications: $specifications
-      options: $options
-      variants: $variants
-    ) {
-      success
-      message
-      product {
-        id
-        name
-        price
-        final_price
-        currency
-        category_id
-        product_overview
-        is_returnable
-        productOptions { id name value type }
-        productSpecifications { id spec_name spec_value }
-        variants { id sku option_combination price stock image_url }
-      }
-    }
-  }
-`
 
 export const GET_PRODUCT = gql`
-
 query ($id: ID!) {
     getProduct(id: $id) {
         product {
         id
+        psku
         name
         price
-        currency
-        is_returnable
         final_price
-        discount_percentage
+        currency
         stock
+        is_returnable
+        product_overview
+        category_id
+        subcategory_id
+        brand_id
+        group_id
+        category_name
+        subcategory_name
+        brand_name
+        group_name
+        created_at
+        updated_at
+        discount_percentage
         discount {
             id
             product_id
@@ -234,27 +271,101 @@ query ($id: ID!) {
             starts_at
             ends_at
         }
-        product_overview
         images {
             id
             image_url
+            is_primary
         }
         productSpecifications {
             id
             spec_name
             spec_value
         }
-
-        productOptions {
+        productAttributes {
             id
-            linked_product_id
-            image_url
+            attribute_name
+            attribute_value
+        }
+        groupAttributes {
+            id
+            attribute_name
+            attribute_values
+            is_required
+            display_order
+        }
+        groupProducts {
+            id
+            psku
             name
-            value
-            type
+            price
+            final_price
+            currency
+            stock
+            images {
+                id
+                image_url
+                is_primary
+            }
+            productAttributes {
+                id
+                attribute_name
+                attribute_value
+            }
         }
         }
     }
+    }
+`
+
+export const GET_PRODUCT_VARIANTS = gql`
+    query GetProductVariants($productId: ID!) {
+        getProduct(id: $productId) {
+            product {
+                id
+                psku
+                name
+                price
+                final_price
+                stock
+                currency
+                images {
+                    id
+                    image_url
+                    is_primary
+                }
+                productAttributes {
+                    id
+                    attribute_name
+                    attribute_value
+                }
+                groupAttributes {
+                    id
+                    attribute_name
+                    attribute_values
+                    is_required
+                    display_order
+                }
+                groupProducts {
+                    id
+                    psku
+                    name
+                    price
+                    final_price
+                    currency
+                    stock
+                    images {
+                        id
+                        image_url
+                        is_primary
+                    }
+                    productAttributes {
+                        id
+                        attribute_name
+                        attribute_value
+                    }
+                }
+            }
+        }
     }
 `
 
@@ -266,3 +377,71 @@ export const DELETE_PRODUCT = gql`
         }
     }
 `
+
+export const GET_PRODUCT_BY_SKU = gql`
+    query GetProductBySku($sku: String!) {
+        getProductBySku(sku: $sku) {
+            success
+            message
+            product {
+                id
+                psku
+                name
+                price
+                final_price
+                currency
+                stock
+                is_returnable
+                product_overview
+                category_id
+                subcategory_id
+                brand_id
+                group_id
+                category_name
+                subcategory_name
+                brand_name
+                group_name
+                created_at
+                updated_at
+                discount_percentage
+                images {
+                    id
+                    image_url
+                    is_primary
+                }
+                productAttributes {
+                    id
+                    attribute_name
+                    attribute_value
+                }
+                groupAttributes {
+                    id
+                    attribute_name
+                    attribute_values
+                    is_required
+                    display_order
+                }
+                groupProducts {
+                    id
+                    psku
+                    name
+                    price
+                    final_price
+                    currency
+                    stock
+                    images {
+                        id
+                        image_url
+                        is_primary
+                    }
+                    productAttributes {
+                        id
+                        attribute_name
+                        attribute_value
+                    }
+                }
+            }
+        }
+    }
+`
+

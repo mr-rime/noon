@@ -61,6 +61,8 @@ const mainHomeLayoutprofileProfileLayoutAddressesIndexLazyImport =
 const dashboardDDashboardLayoutProductsNewIndexLazyImport = createFileRoute(
   '/(dashboard)/d/_dashboardLayout/products/new/',
 )()
+const dashboardDDashboardLayoutProductsProductIdIndexLazyImport =
+  createFileRoute('/(dashboard)/d/_dashboardLayout/products/$productId/')()
 const mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyImport =
   createFileRoute(
     '/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/',
@@ -285,6 +287,19 @@ const dashboardDDashboardLayoutProductsNewIndexLazyRoute =
       ).then((d) => d.Route),
     )
 
+const dashboardDDashboardLayoutProductsProductIdIndexLazyRoute =
+  dashboardDDashboardLayoutProductsProductIdIndexLazyImport
+    .update({
+      id: '/products/$productId/',
+      path: '/products/$productId/',
+      getParentRoute: () => dashboardDDashboardLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(dashboard)/d/_dashboardLayout/products/$productId/index.lazy'
+      ).then((d) => d.Route),
+    )
+
 const mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute =
   mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyImport
     .update({
@@ -432,6 +447,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/seller/$sellerId'
       preLoaderRoute: typeof mainHomeLayoutSellerSellerIdIndexLazyImport
       parentRoute: typeof mainHomeLayoutImport
+    }
+    '/(dashboard)/d/_dashboardLayout/products/$productId/': {
+      id: '/(dashboard)/d/_dashboardLayout/products/$productId/'
+      path: '/products/$productId'
+      fullPath: '/d/products/$productId'
+      preLoaderRoute: typeof dashboardDDashboardLayoutProductsProductIdIndexLazyImport
+      parentRoute: typeof dashboardDDashboardLayoutImport
     }
     '/(dashboard)/d/_dashboardLayout/products/new/': {
       id: '/(dashboard)/d/_dashboardLayout/products/new/'
@@ -596,6 +618,7 @@ interface dashboardDDashboardLayoutRouteChildren {
   dashboardDDashboardLayoutProductsIndexRoute: typeof dashboardDDashboardLayoutProductsIndexRoute
   dashboardDDashboardLayoutOrdersIndexLazyRoute: typeof dashboardDDashboardLayoutOrdersIndexLazyRoute
   dashboardDDashboardLayoutOverviewIndexLazyRoute: typeof dashboardDDashboardLayoutOverviewIndexLazyRoute
+  dashboardDDashboardLayoutProductsProductIdIndexLazyRoute: typeof dashboardDDashboardLayoutProductsProductIdIndexLazyRoute
   dashboardDDashboardLayoutProductsNewIndexLazyRoute: typeof dashboardDDashboardLayoutProductsNewIndexLazyRoute
   dashboardDDashboardLayoutProductsEditProductIdIndexLazyRoute: typeof dashboardDDashboardLayoutProductsEditProductIdIndexLazyRoute
 }
@@ -608,6 +631,8 @@ const dashboardDDashboardLayoutRouteChildren: dashboardDDashboardLayoutRouteChil
       dashboardDDashboardLayoutOrdersIndexLazyRoute,
     dashboardDDashboardLayoutOverviewIndexLazyRoute:
       dashboardDDashboardLayoutOverviewIndexLazyRoute,
+    dashboardDDashboardLayoutProductsProductIdIndexLazyRoute:
+      dashboardDDashboardLayoutProductsProductIdIndexLazyRoute,
     dashboardDDashboardLayoutProductsNewIndexLazyRoute:
       dashboardDDashboardLayoutProductsNewIndexLazyRoute,
     dashboardDDashboardLayoutProductsEditProductIdIndexLazyRoute:
@@ -644,6 +669,7 @@ export interface FileRoutesByFullPath {
   '/d/overview': typeof dashboardDDashboardLayoutOverviewIndexLazyRoute
   '/$title/$productId': typeof mainHomeLayoutTitleProductIdIndexLazyRoute
   '/seller/$sellerId': typeof mainHomeLayoutSellerSellerIdIndexLazyRoute
+  '/d/products/$productId': typeof dashboardDDashboardLayoutProductsProductIdIndexLazyRoute
   '/d/products/new': typeof dashboardDDashboardLayoutProductsNewIndexLazyRoute
   '/addresses': typeof mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute
   '/orders': typeof mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute
@@ -667,6 +693,7 @@ export interface FileRoutesByTo {
   '/d/overview': typeof dashboardDDashboardLayoutOverviewIndexLazyRoute
   '/$title/$productId': typeof mainHomeLayoutTitleProductIdIndexLazyRoute
   '/seller/$sellerId': typeof mainHomeLayoutSellerSellerIdIndexLazyRoute
+  '/d/products/$productId': typeof dashboardDDashboardLayoutProductsProductIdIndexLazyRoute
   '/d/products/new': typeof dashboardDDashboardLayoutProductsNewIndexLazyRoute
   '/addresses': typeof mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute
   '/orders': typeof mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute
@@ -696,6 +723,7 @@ export interface FileRoutesById {
   '/(dashboard)/d/_dashboardLayout/overview/': typeof dashboardDDashboardLayoutOverviewIndexLazyRoute
   '/(main)/_homeLayout/$title/$productId/': typeof mainHomeLayoutTitleProductIdIndexLazyRoute
   '/(main)/_homeLayout/seller/$sellerId/': typeof mainHomeLayoutSellerSellerIdIndexLazyRoute
+  '/(dashboard)/d/_dashboardLayout/products/$productId/': typeof dashboardDDashboardLayoutProductsProductIdIndexLazyRoute
   '/(dashboard)/d/_dashboardLayout/products/new/': typeof dashboardDDashboardLayoutProductsNewIndexLazyRoute
   '/(main)/_homeLayout/(profile)/_profileLayout/addresses/': typeof mainHomeLayoutprofileProfileLayoutAddressesIndexLazyRoute
   '/(main)/_homeLayout/(profile)/_profileLayout/orders/': typeof mainHomeLayoutprofileProfileLayoutOrdersIndexLazyRoute
@@ -721,6 +749,7 @@ export interface FileRouteTypes {
     | '/d/overview'
     | '/$title/$productId'
     | '/seller/$sellerId'
+    | '/d/products/$productId'
     | '/d/products/new'
     | '/addresses'
     | '/orders'
@@ -743,6 +772,7 @@ export interface FileRouteTypes {
     | '/d/overview'
     | '/$title/$productId'
     | '/seller/$sellerId'
+    | '/d/products/$productId'
     | '/d/products/new'
     | '/addresses'
     | '/orders'
@@ -770,6 +800,7 @@ export interface FileRouteTypes {
     | '/(dashboard)/d/_dashboardLayout/overview/'
     | '/(main)/_homeLayout/$title/$productId/'
     | '/(main)/_homeLayout/seller/$sellerId/'
+    | '/(dashboard)/d/_dashboardLayout/products/$productId/'
     | '/(dashboard)/d/_dashboardLayout/products/new/'
     | '/(main)/_homeLayout/(profile)/_profileLayout/addresses/'
     | '/(main)/_homeLayout/(profile)/_profileLayout/orders/'
@@ -839,6 +870,7 @@ export const routeTree = rootRoute
         "/(dashboard)/d/_dashboardLayout/products/",
         "/(dashboard)/d/_dashboardLayout/orders/",
         "/(dashboard)/d/_dashboardLayout/overview/",
+        "/(dashboard)/d/_dashboardLayout/products/$productId/",
         "/(dashboard)/d/_dashboardLayout/products/new/",
         "/(dashboard)/d/_dashboardLayout/products/edit/$productId/"
       ]
@@ -899,6 +931,10 @@ export const routeTree = rootRoute
     "/(main)/_homeLayout/seller/$sellerId/": {
       "filePath": "(main)/_homeLayout/seller/$sellerId/index.lazy.tsx",
       "parent": "/(main)/_homeLayout"
+    },
+    "/(dashboard)/d/_dashboardLayout/products/$productId/": {
+      "filePath": "(dashboard)/d/_dashboardLayout/products/$productId/index.lazy.tsx",
+      "parent": "/(dashboard)/d/_dashboardLayout"
     },
     "/(dashboard)/d/_dashboardLayout/products/new/": {
       "filePath": "(dashboard)/d/_dashboardLayout/products/new/index.lazy.tsx",

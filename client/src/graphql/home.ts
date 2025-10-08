@@ -24,14 +24,7 @@ query ($limit: Int, $offset: Int, $search: String) {
           is_primary
         }
         discount_percentage
-        productOptions {
-          id
-          name
-          value
-          image_url
-          type
-          linked_product_id          
-        }
+       
         productSpecifications {
           id
           spec_name

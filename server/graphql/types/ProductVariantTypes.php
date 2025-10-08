@@ -38,4 +38,33 @@ $ProductVariantType = new ObjectType([
     ]
 ]);
 
+$RelatedVariantType = new ObjectType([
+    'name' => 'RelatedVariant',
+    'fields' => [
+        'id' => Type::nonNull(Type::int()),
+        'product_id' => Type::nonNull(Type::string()),
+        'sku' => Type::nonNull(Type::string()),
+        'option_combination' => Type::nonNull(Type::string()),
+        'price' => Type::float(),
+        'stock' => Type::int(),
+        'image_url' => Type::string(),
+        'product' => new ObjectType([
+            'name' => 'RelatedVariantProduct',
+            'fields' => [
+                'id' => Type::nonNull(Type::string()),
+                'name' => Type::nonNull(Type::string()),
+            ]
+        ])
+    ]
+]);
+
+$RelatedVariantsResponseType = new ObjectType([
+    'name' => 'RelatedVariantsResponse',
+    'fields' => [
+        'success' => Type::nonNull(Type::boolean()),
+        'message' => Type::nonNull(Type::string()),
+        'variants' => Type::listOf($RelatedVariantType),
+    ]
+]);
+
 

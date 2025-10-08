@@ -8,9 +8,8 @@ require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../middleware/StoreAuthMiddleware.php';
 require_once __DIR__ . '/types/UserTypes.php';
 require_once __DIR__ . '/types/PartnerTypes.php';
-require_once __DIR__ . '/types/ProductOptionTypes.php';
 require_once __DIR__ . '/types/ProductSpecificationTypes.php';
-require_once __DIR__ . '/types/ProductVariantTypes.php';
+require_once __DIR__ . '/types/PskuTypes.php';
 require_once __DIR__ . '/types/StoreTypes.php';
 require_once __DIR__ . '/types/OrderTypes.php';
 require_once __DIR__ . '/types/UploadTypes.php';
@@ -29,6 +28,7 @@ require_once __DIR__ . '/resolvers/HomeResolver.php';
 require_once __DIR__ . '/resolvers/CartResolver.php';
 require_once __DIR__ . '/resolvers/WishlistResolver.php';
 require_once __DIR__ . '/resolvers/StoreResolver.php';
+require_once __DIR__ . '/resolvers/PskuResolver.php';
 
 $QueryType = new ObjectType([
     'name' => 'query',
@@ -116,6 +116,46 @@ $QueryType = new ObjectType([
             'type' => $StoreType,
             'args' => ['id' => Type::nonNull(Type::int())],
             'resolve' => fn($root, $args, $context) => getStore($context['db'], $args['id'])
+        ],
+
+        // PSKU System Queries
+        'getCategories' => [
+            'type' => $CategoriesResponseType,
+            'args' => ['search' => Type::string()],
+            'resolve' => fn($root, $args, $context) => getCategories($context['db'], $args['search'] ?? '')
+        ],
+        'getCategory' => [
+            'type' => $CategoryResponseType,
+            'args' => ['id' => Type::nonNull(Type::int())],
+            'resolve' => fn($root, $args, $context) => getCategory($context['db'], $args['id'])
+        ],
+        'getSubcategories' => [
+            'type' => $SubcategoriesResponseType,
+            'args' => ['category_id' => Type::int(), 'search' => Type::string()],
+            'resolve' => fn($root, $args, $context) => getSubcategories($context['db'], $args['category_id'] ?? null, $args['search'] ?? '')
+        ],
+        'getBrands' => [
+            'type' => $BrandsResponseType,
+            'args' => ['search' => Type::string()],
+            'resolve' => fn($root, $args, $context) => getBrands($context['db'], $args['search'] ?? '')
+        ],
+        'getProductGroups' => [
+            'type' => $ProductGroupsResponseType,
+            'args' => ['category_id' => Type::int()],
+            'resolve' => fn($root, $args, $context) => getProductGroups($context['db'], $args['category_id'] ?? null)
+        ],
+        'getProductByPsku' => [
+            'type' => $ProductResponseType,
+            'args' => ['psku' => Type::nonNull(Type::string())],
+            'resolve' => fn($root, $args, $context) => getProductByPsku($context['db'], $args['psku'])
+        ],
+        'getRelatedProducts' => [
+            'type' => $ProductsResponseType,
+            'args' => [
+                'productId' => Type::nonNull(Type::string()),
+                'limit' => Type::int()
+            ],
+            'resolve' => fn($root, $args, $context) => getRelatedProducts($context['db'], $args['productId'], $args['limit'] ?? 8)
         ]
     ],
 
@@ -175,14 +215,19 @@ $MutationType = new ObjectType([
             'args' => [
                 'name' => Type::nonNull(Type::string()),
                 'price' => Type::nonNull(Type::float()),
-                'category_id' => Type::string(),
-                'currency' => Type::string(),
-                'is_returnable' => Type::nonNull(Type::boolean()),
+                'currency' => Type::nonNull(Type::string()),
+                'psku' => Type::string(),
+                'category_id' => Type::int(),
+                'subcategory_id' => Type::int(),
+                'brand_id' => Type::int(),
+                'group_id' => Type::string(),
+                'stock' => Type::int(),
+                'is_returnable' => Type::boolean(),
                 'product_overview' => Type::string(),
                 'discount' => $DiscountInputType,
                 'images' => Type::listOf($ProductImageInputType),
-                'productOptions' => Type::listOf($ProductOptionInputType),
                 'productSpecifications' => Type::listOf($ProductSpecInputType),
+                'productAttributes' => Type::listOf($ProductAttributeInputType),
             ],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => createProduct($context['db'], $args))
         ],
@@ -222,15 +267,19 @@ $MutationType = new ObjectType([
                 'id' => Type::nonNull(Type::string()),
                 'name' => Type::string(),
                 'price' => Type::float(),
-                'category_id' => Type::string(),
                 'currency' => Type::string(),
-                'stock' => Type::string(),
+                'psku' => Type::string(),
+                'category_id' => Type::int(),
+                'subcategory_id' => Type::int(),
+                'brand_id' => Type::int(),
+                'group_id' => Type::string(),
+                'stock' => Type::int(),
                 'is_returnable' => Type::boolean(),
                 'product_overview' => Type::string(),
                 'discount' => $DiscountInputType,
                 'images' => Type::listOf($ProductImageInputType),
-                'productOptions' => Type::listOf($ProductOptionInputType),
                 'productSpecifications' => Type::listOf($ProductSpecInputType),
+                'productAttributes' => Type::listOf($ProductAttributeInputType),
             ],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => updateProduct($context["db"], $args))
         ],
@@ -275,24 +324,49 @@ $MutationType = new ObjectType([
             ],
             'resolve' => fn($root, $args, $context) => updateWishlist($context['db'], $args)
         ],
-        'createProductWithVariants' => [
+        // PSKU System Mutations
+        'createCategory' => [
+            'type' => $CategoryResponseType,
+            'args' => ['input' => Type::nonNull($CategoryInputType)],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => createCategory($context['db'], $args['input']))
+        ],
+        'createSubcategory' => [
+            'type' => $CategoryResponseType,
+            'args' => ['input' => Type::nonNull($SubcategoryInputType)],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => createSubcategory($context['db'], $args['input']))
+        ],
+        'createBrand' => [
+            'type' => $CategoryResponseType,
+            'args' => ['input' => Type::nonNull($BrandInputType)],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => createBrand($context['db'], $args['input']))
+        ],
+        'createProductGroup' => [
+            'type' => $ProductGroupResponseType,
+            'args' => ['input' => Type::nonNull($ProductGroupInputType)],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => createProductGroup($context['db'], $args['input']))
+        ],
+        'updateProductGroup' => [
+            'type' => $ProductGroupResponseType,
+            'args' => [
+                'groupId' => Type::nonNull(Type::string()),
+                'name' => Type::string(),
+                'description' => Type::string(),
+                'attributes' => Type::listOf(Type::string())
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => updateProductGroup($context['db'], $args))
+        ],
+        'deleteProductGroup' => [
+            'type' => $ProductGroupResponseType,
+            'args' => ['groupId' => Type::nonNull(Type::string())],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteProductGroup($context['db'], $args['groupId']))
+        ],
+        'addProductToGroup' => [
             'type' => $ProductResponseType,
             'args' => [
-                'name' => Type::nonNull(Type::string()),
-                'price' => Type::nonNull(Type::float()),
-                'category_id' => Type::string(),
-                'currency' => Type::string(),
-                'is_returnable' => Type::nonNull(Type::boolean()),
-                'product_overview' => Type::string(),
-                'discount' => $DiscountInputType,
-                'images' => Type::listOf($ProductImageInputType),
-                // specifications and options (option groups)
-                'specifications' => Type::listOf($ProductSpecInputType),
-                'options' => Type::listOf($ProductOptionGroupInput),
-                // variants (explicit)
-                'variants' => Type::listOf($ProductVariantInputType),
+                'product_id' => Type::nonNull(Type::string()),
+                'group_id' => Type::nonNull(Type::string())
             ],
-            'resolve' => requireStoreAuth(fn($root, $args, $context) => createProductWithVariants($context['db'], $args))
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => addProductToGroup($context['db'], $args['product_id'], $args['group_id']))
         ],
 
         'removeWishlistItem' => [

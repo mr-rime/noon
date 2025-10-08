@@ -1,5 +1,4 @@
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from '../ui/button'
 import { REGISTER_STORE } from '@/graphql/store'
 import { useMutation } from '@apollo/client'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -9,6 +8,7 @@ import { type SubmitHandler, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { PartnerRegisterSchema, type PartnerRegisterSchemaType } from '../../schema'
 import { PartnerLogo, dashboard_icons } from '../../constants'
+import { Input } from '@/components/ui/input'
 
 export function PartnerRegister({ setForm }: { setForm: React.Dispatch<React.SetStateAction<'login' | 'register'>> }) {
   const { register, handleSubmit } = useForm<PartnerRegisterSchemaType>({
