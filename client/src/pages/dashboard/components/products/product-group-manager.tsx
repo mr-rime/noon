@@ -9,6 +9,7 @@ import { ChevronDown, ChevronUp, Trash2, Package, X, Edit, Grid, Search, ArrowLe
 import { GET_PRODUCT_GROUPS, CREATE_PRODUCT_GROUP, UPDATE_PRODUCT_GROUP, ADD_PRODUCT_TO_GROUP, CREATE_PSKU_PRODUCT } from '@/graphql/psku'
 import { GET_PRODUCTS, UPDATE_PRODUCT } from '@/graphql/product'
 import type { ProductType, ProductGroup } from '@/types'
+import { Link } from '@tanstack/react-router'
 
 interface ProductGroupManagerProps {
     product: ProductType
@@ -196,10 +197,13 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
             const productIds = [product.id, ...groupProducts.map(p => p.id)]
             const updatePromises = productIds.map(async (productId) => {
                 const attributes = editableAttributes[productId] || {}
-                const productAttributes = Object.entries(attributes).map(([name, value]) => ({
-                    attribute_name: name,
-                    attribute_value: value
-                }))
+                // Only include attributes that match current axes
+                const productAttributes = Object.entries(attributes)
+                    .filter(([name]) => groupAxes.includes(name))
+                    .map(([name, value]) => ({
+                        attribute_name: name,
+                        attribute_value: value
+                    }))
 
                 return updateProduct({
                     variables: {
@@ -332,60 +336,83 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                             </div>
                         ) : (
                             <>
-                                {/* Current Product */}
-                                <div className="bg-white border rounded-lg p-4">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <div className="flex-1">
-                                            <div className="font-mono text-sm text-gray-600 mb-1">{product.psku || product.id}</div>
-                                            <div className="text-xs text-gray-500">--</div>
-                                            <Badge variant="secondary" className="mt-1 text-xs">Generic</Badge>
-                                            <button
-                                                className="block text-blue-600 text-sm mt-2 hover:underline"
-                                                onClick={() => setShowGroupModal(true)}
-                                            >
-                                                View product info
-                                            </button>
-                                        </div>
-                                        <Button variant="ghost" size="sm" onClick={() => setShowGroupModal(true)}>
-                                            <Edit className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-
-                                    {/* Product Attributes */}
-                                    <div className="space-y-2 text-sm">
-                                        {groupAxes.map(axis => {
-                                            const attr = product.productAttributes?.find(a => a.attribute_name === axis)
-                                            return (
-                                                <div key={axis} className="flex justify-between">
-                                                    <span className="text-gray-600">{axis}</span>
-                                                    <span className="text-gray-900">{attr?.attribute_value || '--'}</span>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
-
                                 {/* Group Products */}
-                                {groupProducts.map((groupProduct: any, index: number) => (
-                                    <div key={index} className="bg-white border rounded-lg p-4">
+                                {groupProducts.map((groupProduct: any, index: number) => {
+                                    const isCurrentProduct = groupProduct.id === product.id
+                                    return (
+                                        <div 
+                                            key={index} 
+                                            className={`border rounded-lg p-4 ${
+                                                isCurrentProduct 
+                                                    ? 'bg-blue-50 border-blue-200 ring-2 ring-blue-100' 
+                                                    : 'bg-white'
+                                            }`}
+                                        >
+                                            <div className="flex items-start gap-3">
+                                                {groupProduct.images?.[0] && (
+                                                    <img
+                                                        src={groupProduct.images[0].image_url}
+                                                        alt={groupProduct.name}
+                                                        className="w-16 h-16 object-cover rounded border"
+                                                    />
+                                                )}
+                                                <div className="flex-1">
+                                                    <div className="font-mono text-[11px] text-gray-600 mb-1">{groupProduct.psku || groupProduct.id}</div>
+                                                    <div className="text-[12px] mb-1 break-words truncate whitespace-nowrap w-[150px]">{groupProduct.name}</div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge variant="secondary" className="text-xs">Generic</Badge>
+                                                        {isCurrentProduct && (
+                                                            <Badge variant="default" className="text-xs bg-blue-600">Current</Badge>
+                                                        )}
+                                                    </div>
+                                                    <Link
+                                                        to='/d/products/$productId'
+                                                        params={{ productId: groupProduct.id }}
+                                                        className="block text-blue-600 text-sm mt-2 hover:underline cursor-pointer"
+                                                    >
+                                                        View product info
+                                                    </Link>
+                                                </div>
+                                                <Button variant="ghost" size="sm" onClick={() => setShowGroupModal(true)}>
+                                                    <Edit className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+
+                                            {/* Product Attributes */}
+                                            <div className="mt-3 space-y-2 text-sm">
+                                                {groupAxes.map(axis => {
+                                                    const attr = groupProduct.productAttributes?.find((a: any) => a.attribute_name === axis)
+                                                    return (
+                                                        <div key={axis} className="flex justify-between">
+                                                            <span className="text-gray-600">{axis}</span>
+                                                            <span className="text-gray-900">{attr?.attribute_value || '--'}</span>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                                
+                                {/* Current Product (if not in group products list) */}
+                                {!groupProducts.some((gp: any) => gp.id === product.id) && (
+                                    <div className="bg-blue-50 border-blue-200 ring-2 ring-blue-100 rounded-lg p-4">
                                         <div className="flex items-start gap-3">
-                                            {groupProduct.images?.[0] && (
+                                            {product.images?.[0] && (
                                                 <img
-                                                    src={groupProduct.images[0].image_url}
-                                                    alt={groupProduct.name}
+                                                    src={product.images[0].image_url}
+                                                    alt={product.name}
                                                     className="w-16 h-16 object-cover rounded border"
                                                 />
                                             )}
                                             <div className="flex-1">
-                                                <div className="font-mono text-sm text-gray-600 mb-1">{groupProduct.psku || groupProduct.id}</div>
-                                                <div className="text-sm mb-1">{groupProduct.name}</div>
-                                                <Badge variant="secondary" className="text-xs">Generic</Badge>
-                                                <button
-                                                    className="block text-blue-600 text-sm mt-2 hover:underline"
-                                                    onClick={() => setShowGroupModal(true)}
-                                                >
-                                                    View product info
-                                                </button>
+                                                <div className="font-mono text-[11px] text-gray-600 mb-1">{product.psku || product.id}</div>
+                                                <div className="text-[12px] mb-1 break-words truncate whitespace-nowrap w-[150px]">{product.name}</div>
+                                                <div className="flex items-center gap-2">
+                                                    <Badge variant="secondary" className="text-xs">Generic</Badge>
+                                                    <Badge variant="default" className="text-xs bg-blue-600">Current</Badge>
+                                                </div>
+                                                <span className="block text-gray-500 text-sm mt-2">This product</span>
                                             </div>
                                             <Button variant="ghost" size="sm" onClick={() => setShowGroupModal(true)}>
                                                 <Edit className="h-4 w-4" />
@@ -395,7 +422,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                         {/* Product Attributes */}
                                         <div className="mt-3 space-y-2 text-sm">
                                             {groupAxes.map(axis => {
-                                                const attr = groupProduct.productAttributes?.find((a: any) => a.attribute_name === axis)
+                                                const attr = product.productAttributes?.find((a: any) => a.attribute_name === axis)
                                                 return (
                                                     <div key={axis} className="flex justify-between">
                                                         <span className="text-gray-600">{axis}</span>
@@ -405,7 +432,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                             })}
                                         </div>
                                     </div>
-                                ))}
+                                )}
 
                                 {/* Add Partner SKU Section */}
                                 <div className="border-t pt-4">
@@ -450,7 +477,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                         {/* Modal Header */}
                         <div className="border-b px-6 py-4 flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <h2 className="text-lg font-semibold">test</h2>
+                                <h2 className="text-lg font-semibold">{currentGroup?.name}</h2>
                                 <Button variant="ghost" size="sm">
                                     <Trash2 className="h-4 w-4 text-red-600" />
                                 </Button>
@@ -547,7 +574,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                 placeholder="Enter axis name"
                                                 value={newAxisName}
                                                 onChange={(e) => setNewAxisName(e.target.value)}
-                                                onKeyPress={(e) => e.key === 'Enter' && handleAddAxis()}
+                                                onKeyDown={(e) => e.key === 'Enter' && handleAddAxis()}
                                             />
                                             <Button variant="outline" onClick={handleAddAxis}>
                                                 + Add Axis
@@ -557,63 +584,88 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
 
                                     {/* Products List */}
                                     <div className="space-y-4">
-                                        {/* Current Product */}
-                                        <div className="border rounded-lg p-4 bg-gray-50">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <div>
-                                                    <div className="font-mono text-sm text-gray-600 mb-1">{product.psku}</div>
-                                                    <div className="text-xs text-gray-500">--</div>
-                                                    <Badge variant="secondary" className="mt-1 text-xs">Generic</Badge>
-                                                    <button className="block text-blue-600 text-sm mt-2 hover:underline">
-                                                        View product info
-                                                    </button>
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <Button variant="ghost" size="sm">
-                                                        <Edit className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="sm">
-                                                        <Trash2 className="h-4 w-4 text-red-600" />
-                                                    </Button>
-                                                </div>
-                                            </div>
-
-                                            {/* Editable Attributes */}
-                                            <div className="space-y-3">
-                                                {groupAxes.map((axis) => {
-                                                    const value = editableAttributes[product.id]?.[axis] || ''
-                                                    return (
-                                                        <div key={axis}>
-                                                            <Label className="text-sm text-gray-600 mb-1">{axis}</Label>
-                                                            <Input
-                                                                value={value}
-                                                                onChange={(e) => handleAttributeChange(product.id, axis, e.target.value)}
-                                                                placeholder={`Enter ${axis}`}
-                                                            />
-                                                        </div>
-                                                    )
-                                                })}
-                                            </div>
-                                        </div>
-
                                         {/* Group Products */}
-                                        {groupProducts.map((groupProduct: any, index: number) => (
-                                            <div key={index} className="border rounded-lg p-4">
+                                        {groupProducts.map((groupProduct: any, index: number) => {
+                                            const isCurrentProduct = groupProduct.id === product.id
+                                            return (
+                                                <div 
+                                                    key={index} 
+                                                    className={`border rounded-lg p-4 ${
+                                                        isCurrentProduct 
+                                                            ? 'bg-blue-50 border-blue-200 ring-2 ring-blue-100' 
+                                                            : ''
+                                                    }`}
+                                                >
+                                                    <div className="flex items-start gap-3 mb-4">
+                                                        {groupProduct.images?.[0] && (
+                                                            <img
+                                                                src={groupProduct.images[0].image_url}
+                                                                alt={groupProduct.name}
+                                                                className="w-16 h-16 object-cover rounded border"
+                                                            />
+                                                        )}
+                                                        <div className="flex-1">
+                                                            <div className="font-mono text-sm text-gray-600 mb-1">{groupProduct.psku}</div>
+                                                            <div className="text-sm mb-1">{groupProduct.name}</div>
+                                                            <div className="flex items-center gap-2">
+                                                                <Badge variant="secondary" className="text-xs">Generic</Badge>
+                                                                {isCurrentProduct && (
+                                                                    <Badge variant="default" className="text-xs bg-blue-600">Current</Badge>
+                                                                )}
+                                                            </div>
+                                                            <button className="block text-blue-600 text-sm mt-2 hover:underline cursor-pointer">
+                                                                View Details
+                                                            </button>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <Button variant="ghost" size="sm">
+                                                                <Edit className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button variant="ghost" size="sm">
+                                                                <Trash2 className="h-4 w-4 text-red-600" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Editable Attributes */}
+                                                    <div className="space-y-3">
+                                                        {groupAxes.map((axis) => {
+                                                            const value = editableAttributes[groupProduct.id]?.[axis] || ''
+                                                            return (
+                                                                <div key={axis}>
+                                                                    <Label className="text-sm text-gray-600 mb-1">{axis}</Label>
+                                                                    <Input
+                                                                        value={value}
+                                                                        onChange={(e) => handleAttributeChange(groupProduct.id, axis, e.target.value)}
+                                                                        placeholder={`Enter ${axis}`}
+                                                                    />
+                                                                </div>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )
+                                        })}
+                                        
+                                        {/* Current Product (if not in group products list) */}
+                                        {!groupProducts.some((gp: any) => gp.id === product.id) && (
+                                            <div className="bg-blue-50 border-blue-200 ring-2 ring-blue-100 rounded-lg p-4">
                                                 <div className="flex items-start gap-3 mb-4">
-                                                    {groupProduct.images?.[0] && (
+                                                    {product.images?.[0] && (
                                                         <img
-                                                            src={groupProduct.images[0].image_url}
-                                                            alt={groupProduct.name}
+                                                            src={product.images[0].image_url}
+                                                            alt={product.name}
                                                             className="w-16 h-16 object-cover rounded border"
                                                         />
                                                     )}
                                                     <div className="flex-1">
-                                                        <div className="font-mono text-sm text-gray-600 mb-1">{groupProduct.psku}</div>
-                                                        <div className="text-sm mb-1">{groupProduct.name}</div>
-                                                        <Badge variant="secondary" className="text-xs">Generic</Badge>
-                                                        <button className="block text-blue-600 text-sm mt-2 hover:underline">
-                                                            View product info
-                                                        </button>
+                                                        <div className="font-mono text-sm text-gray-600 mb-1">{product.psku}</div>
+                                                        <div className="text-sm mb-1">{product.name}</div>
+                                                        <div className="flex items-center gap-2">
+                                                            <Badge variant="secondary" className="text-xs">Generic</Badge>
+                                                            <Badge variant="default" className="text-xs bg-blue-600">Current</Badge>
+                                                        </div>
+                                                        <span className="block text-gray-500 text-sm mt-2">This product</span>
                                                     </div>
                                                     <div className="flex gap-2">
                                                         <Button variant="ghost" size="sm">
@@ -625,16 +677,16 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                     </div>
                                                 </div>
 
-                                                {/* Editable Attributes */}
+                                                {/* Editable Attributes for Current Product */}
                                                 <div className="space-y-3">
                                                     {groupAxes.map((axis) => {
-                                                        const value = editableAttributes[groupProduct.id]?.[axis] || ''
+                                                        const value = editableAttributes[product.id]?.[axis] || ''
                                                         return (
                                                             <div key={axis}>
                                                                 <Label className="text-sm text-gray-600 mb-1">{axis}</Label>
                                                                 <Input
                                                                     value={value}
-                                                                    onChange={(e) => handleAttributeChange(groupProduct.id, axis, e.target.value)}
+                                                                    onChange={(e) => handleAttributeChange(product.id, axis, e.target.value)}
                                                                     placeholder={`Enter ${axis}`}
                                                                 />
                                                             </div>
@@ -642,7 +694,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                     })}
                                                 </div>
                                             </div>
-                                        ))}
+                                        )}
                                     </div>
                                 </>
                             )}

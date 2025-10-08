@@ -180,7 +180,9 @@ class ProductGroup
     public function getProductsInGroup(string $groupId): array
     {
         $query = '
-            SELECT p.*, 
+            SELECT p.id, p.psku, p.name, p.price, p.final_price, p.currency, p.stock,
+                   p.product_overview, p.is_returnable, p.category_id, p.subcategory_id,
+                   p.brand_id, p.group_id, p.created_at, p.updated_at,
                    c.name as category_name,
                    s.name as subcategory_name,
                    b.name as brand_name
@@ -189,7 +191,7 @@ class ProductGroup
             LEFT JOIN subcategories s ON p.subcategory_id = s.subcategory_id
             LEFT JOIN brands b ON p.brand_id = b.brand_id
             WHERE p.group_id = ?
-            ORDER BY p.name
+            ORDER BY p.created_at ASC, p.id ASC
         ';
 
         $stmt = $this->db->prepare($query);
@@ -202,8 +204,41 @@ class ProductGroup
         $stmt->bind_param('s', $groupId);
         $stmt->execute();
         $result = $stmt->get_result();
+        $products = $result->fetch_all(MYSQLI_ASSOC);
 
-        return $result->fetch_all(MYSQLI_ASSOC);
+        // Enrich each product with images and attributes
+        foreach ($products as &$product) {
+            // Fetch images
+            $imageQuery = 'SELECT id, image_url, is_primary FROM product_images WHERE product_id = ? ORDER BY is_primary DESC, id ASC';
+            $imageStmt = $this->db->prepare($imageQuery);
+            if ($imageStmt) {
+                $imageStmt->bind_param('s', $product['id']);
+                $imageStmt->execute();
+                $imageResult = $imageStmt->get_result();
+                $product['images'] = $imageResult->fetch_all(MYSQLI_ASSOC);
+                
+                // Convert is_primary to boolean
+                foreach ($product['images'] as &$image) {
+                    $image['is_primary'] = (bool) $image['is_primary'];
+                }
+            } else {
+                $product['images'] = [];
+            }
+
+            // Fetch product attributes
+            $attrQuery = 'SELECT id, attribute_name, attribute_value FROM product_attribute_values WHERE product_id = ? ORDER BY attribute_name';
+            $attrStmt = $this->db->prepare($attrQuery);
+            if ($attrStmt) {
+                $attrStmt->bind_param('s', $product['id']);
+                $attrStmt->execute();
+                $attrResult = $attrStmt->get_result();
+                $product['productAttributes'] = $attrResult->fetch_all(MYSQLI_ASSOC);
+            } else {
+                $product['productAttributes'] = [];
+            }
+        }
+
+        return $products;
     }
 
     public function addProductToGroup(string $groupId, string $productId): bool

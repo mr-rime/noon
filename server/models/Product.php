@@ -350,11 +350,27 @@ class Product
             WHERE p.id = ?";
 
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param('s', $id);
-        $rows = $this->fetchAssocAll($stmt);
-
-        if (!$rows)
+        
+        if (!$stmt) {
+            error_log("findById prepare failed: " . $this->db->error);
             return null;
+        }
+        
+        $stmt->bind_param('s', $id);
+        $stmt->execute();
+        
+        $result = $stmt->get_result();
+        if (!$result) {
+            error_log("findById get_result failed: " . $stmt->error);
+            return null;
+        }
+        
+        $rows = $result->fetch_all(MYSQLI_ASSOC);
+
+        if (!$rows) {
+            error_log("findById: No rows found for product ID: $id");
+            return null;
+        }
 
         $base = $rows[0];
         $product = [
@@ -426,6 +442,7 @@ class Product
 
         return $result->fetch_all(MYSQLI_ASSOC);
     }
+
 
     public function setProductAttributes(string $productId, array $attributes): bool
     {
@@ -611,7 +628,14 @@ class Product
             $discountModel->create($discountData);
         }
 
-        return $this->findById($hash);
+        $createdProduct = $this->findById($hash);
+        
+        if (!$createdProduct) {
+            error_log("Product created with ID: $hash but findById returned null");
+            error_log("Query might be failing. Check database state for product ID: $hash");
+        }
+        
+        return $createdProduct;
     }
 
     public function update(string $id, array $data): ?array
@@ -752,14 +776,74 @@ class Product
 
     public function delete(string $id): bool
     {
-        $query = 'DELETE FROM products WHERE id = ?';
-        $stmt = $this->db->prepare($query);
-        if (!$stmt) {
-            error_log("Prepare failed: " . $this->db->error);
+        // Start transaction
+        $this->db->begin_transaction();
+
+        try {
+            // Delete from wishlist_items first (foreign key constraint)
+            $stmt = $this->db->prepare('DELETE FROM wishlist_items WHERE product_id = ?');
+            if ($stmt) {
+                $stmt->bind_param('s', $id);
+                $stmt->execute();
+            }
+
+            // Delete product images
+            $stmt = $this->db->prepare('DELETE FROM product_images WHERE product_id = ?');
+            if ($stmt) {
+                $stmt->bind_param('s', $id);
+                $stmt->execute();
+            }
+
+            // Delete product specifications
+            $stmt = $this->db->prepare('DELETE FROM product_specifications WHERE product_id = ?');
+            if ($stmt) {
+                $stmt->bind_param('s', $id);
+                $stmt->execute();
+            }
+
+            // Delete product attributes
+            $stmt = $this->db->prepare('DELETE FROM product_attribute_values WHERE product_id = ?');
+            if ($stmt) {
+                $stmt->bind_param('s', $id);
+                $stmt->execute();
+            }
+
+            // Delete discounts
+            $stmt = $this->db->prepare('DELETE FROM discounts WHERE product_id = ?');
+            if ($stmt) {
+                $stmt->bind_param('s', $id);
+                $stmt->execute();
+            }
+
+            // Delete product variants if they exist
+            $stmt = $this->db->prepare('DELETE FROM product_variants WHERE product_id = ?');
+            if ($stmt) {
+                $stmt->bind_param('s', $id);
+                $stmt->execute();
+            }
+
+            // Finally delete the product
+            $stmt = $this->db->prepare('DELETE FROM products WHERE id = ?');
+            if (!$stmt) {
+                throw new Exception("Prepare failed: " . $this->db->error);
+            }
+
+            $stmt->bind_param('s', $id);
+            if (!$stmt->execute()) {
+                throw new Exception("Execute failed: " . $stmt->error);
+            }
+
+            $affectedRows = $stmt->affected_rows;
+
+            // Commit transaction
+            $this->db->commit();
+
+            return $affectedRows > 0;
+        } catch (Exception $e) {
+            // Rollback on error
+            $this->db->rollback();
+            error_log("Product deletion failed: " . $e->getMessage());
             return false;
         }
-
-        $stmt->bind_param('s', $id);
-        return $stmt->execute() && $stmt->affected_rows > 0;
     }
 }

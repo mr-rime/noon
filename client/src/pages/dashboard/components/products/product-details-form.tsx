@@ -151,11 +151,10 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 bg-gray-50 p-4 rounded-lg border">
             {/* Product Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold">{product.name}</h1>
                     <div className="flex items-center gap-2 mt-2">
                         <Badge variant="secondary">PSKU: {product.psku}</Badge>
                         {product.category_name && (

@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client'
-import { useParams } from '@tanstack/react-router'
+import { useNavigate, useParams } from '@tanstack/react-router'
 import { useState, useEffect, useMemo } from 'react'
 import { GET_PRODUCT } from '@/graphql/product'
 import type { ProductSpecification, ProductType } from '@/types'
@@ -34,6 +34,8 @@ export function ProductPage() {
 
   const currentProduct = data?.getProduct?.product
 
+  const navigate = useNavigate();
+
   // Set selected product when data loads
   useEffect(() => {
     if (currentProduct) {
@@ -47,18 +49,18 @@ export function ProductPage() {
     }
   }, [currentProduct])
 
-  // Get all products in the group (current + group products)
+  // Get all products in the group (maintaining original order from server)
   const allGroupProducts = useMemo(() => {
     if (!currentProduct) return []
-    const products: ProductType[] = [currentProduct]
-    if (currentProduct.groupProducts && currentProduct.groupProducts.length > 0) {
-      // Filter out duplicates and add unique group products
-      const uniqueGroupProducts = currentProduct.groupProducts.filter(
-        groupProduct => groupProduct.id !== currentProduct.id
-      )
-      products.push(...uniqueGroupProducts)
+    
+    // If no group products, just return current product
+    if (!currentProduct.groupProducts || currentProduct.groupProducts.length === 0) {
+      return [currentProduct]
     }
-    return products
+    
+    // Return group products in their original order from the server
+    // The server already includes the current product in the groupProducts array
+    return currentProduct.groupProducts
   }, [currentProduct])
 
   // Build attribute options from all products in the group
@@ -152,16 +154,14 @@ export function ProductPage() {
     return attrs
   }, [selectedProduct])
 
-  // Handle attribute selection - update the current product display
-  const handleAttributeSelect = (attributeName: string, attributeValue: string) => {
-    // First, try to find a product that has this attribute value
+  const handleAttributeSelect = async (attributeName: string, attributeValue: string) => {
+
     let matchingProduct = allGroupProducts.find(product => {
       return product.productAttributes?.some(attr =>
         attr.attribute_name === attributeName && attr.attribute_value === attributeValue
       )
     })
 
-    // If no product has this attribute, try to match by product name
     if (!matchingProduct) {
       matchingProduct = allGroupProducts.find(product => {
         const productName = product.name?.toLowerCase() || ''
@@ -186,9 +186,16 @@ export function ProductPage() {
       }
     }
 
-    if (matchingProduct) {
-      // Update the selected product state instead of navigating
-      setSelectedProduct(matchingProduct)
+    if (matchingProduct && matchingProduct.id !== currentProduct?.id) {
+
+      // Generate URL-friendly title
+      const urlTitle = matchingProduct.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+
+      // Navigate to the product page
+      navigate({ to: "/$title/$productId", params: { title: urlTitle, productId: matchingProduct.id } })
     }
   }
 
@@ -273,10 +280,10 @@ export function ProductPage() {
                             key={value}
                             onClick={() => handleAttributeSelect(attributeName, value)}
                             className={cn(
-                              "relative border-2 rounded-lg transition-all duration-200 transform hover:scale-105",
+                              "relative border-2 cursor-pointer rounded-lg transition-all duration-200 transform hover:scale-105",
                               isSelected
                                 ? "border-[#2B4CD7] shadow-md ring-2 ring-[#2B4CD7] ring-opacity-20"
-                                : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                                : "border-gray-200 hover:border-gray-300 hover:shadow-sm",
                             )}
                           >
                             {hasImage ? (
@@ -295,13 +302,6 @@ export function ProductPage() {
                             ) : (
                               <div className="px-4 py-3">
                                 <p className="text-sm font-medium">{value}</p>
-                              </div>
-                            )}
-                            {isSelected && (
-                              <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#2B4CD7] rounded-full flex items-center justify-center animate-pulse">
-                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
                               </div>
                             )}
                           </button>

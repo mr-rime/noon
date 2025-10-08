@@ -70,7 +70,6 @@ export function ProductDetailsPage() {
                         </Button>
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-bold">{product.name}</h1>
                         <div className="flex items-center gap-2 mt-1">
                             <Badge variant="secondary" className="font-mono">PSKU: {product.psku}</Badge>
                             {product.group_id && (
@@ -91,24 +90,6 @@ export function ProductDetailsPage() {
 
                 {/* Quick Stats */}
                 <div className="flex items-center gap-4">
-                    <div className="border rounded-lg p-3">
-                        <div className="flex items-center gap-2">
-                            <div className="text-2xl font-bold">
-                                ${product.final_price || product.price}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                                {product.currency}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="border rounded-lg p-3">
-                        <div className="flex items-center gap-2">
-                            <div className="text-2xl font-bold">{product.stock}</div>
-                            <div className="text-sm text-muted-foreground">in stock</div>
-                        </div>
-                    </div>
-
                     {product.group_id && (
                         <div className="border rounded-lg p-3">
                             <div className="flex items-center gap-2">
@@ -139,59 +120,8 @@ export function ProductDetailsPage() {
                     />
                 </div>
             </div>
-
-            {/* Group Products Section */}
-            {product.group_id && product.groupProducts && product.groupProducts.length > 0 && (
-                <div className="border rounded-lg p-6">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Package className="h-5 w-5" />
-                        <h3 className="text-lg font-semibold">Related Products in Group</h3>
-                        <Badge variant="secondary">{product.groupProducts.length} products</Badge>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {product.groupProducts.map((groupProduct: any) => (
-                            <div key={groupProduct.id} className="border rounded-lg p-4">
-                                <div className="space-y-2">
-                                    <div className="flex items-start justify-between">
-                                        <h4 className="font-medium text-sm">{groupProduct.name}</h4>
-                                        <Badge variant="secondary" className="text-xs">
-                                            {groupProduct.psku}
-                                        </Badge>
-                                    </div>
-
-                                    <div className="flex items-center justify-between">
-                                        <div className="text-sm font-medium">
-                                            ${groupProduct.final_price || groupProduct.price}
-                                        </div>
-                                        <div className="text-xs text-muted-foreground">
-                                            Stock: {groupProduct.stock}
-                                        </div>
-                                    </div>
-
-                                    {groupProduct.productAttributes && groupProduct.productAttributes.length > 0 && (
-                                        <div className="flex flex-wrap gap-1">
-                                            {groupProduct.productAttributes.map((attr: any) => (
-                                                <Badge key={attr.id} variant="secondary" className="text-xs">
-                                                    {attr.attribute_name}: {attr.attribute_value}
-                                                </Badge>
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    <div className="pt-2">
-                                        <Link to={`/d/products/$productId`} params={{ productId: groupProduct.id }}>
-                                            <Button className="w-full h-8 px-3 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200">
-                                                View Details
-                                            </Button>
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
         </div>
     )
 }
+
+export default ProductDetailsPage
