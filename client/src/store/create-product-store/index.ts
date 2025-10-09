@@ -1,11 +1,11 @@
 import { create } from 'zustand'
-import type { DiscountType, ProductImage, ProductOptionType, ProductSpecification, ProductType } from '@/types'
+import type { DiscountType, ProductImage, ProductSpecification, ProductType } from '@/types'
 
 type ProductStore = {
   product: ProductType
   setProduct: (data: Partial<ProductType>) => void
   addImage: (img: ProductImage) => void
-  addOption: (option: ProductOptionType) => void
+  addOption: (option: any) => void
   addSpecification: (spec: ProductSpecification) => void
   addDiscount: (discount: DiscountType) => void
   reset: () => void
@@ -19,7 +19,7 @@ const defaultProduct: ProductType = {
   is_returnable: false,
   currency: 'USD',
   product_overview: '',
-  category_id: '',
+  category_id: 0,
   images: [],
   productOptions: [],
   productSpecifications: [],
@@ -28,6 +28,7 @@ const defaultProduct: ProductType = {
   is_in_wishlist: false,
   wishlist_id: '',
   discount_percentage: 0,
+  is_public: false
 }
 
 export const useProductStore = create<ProductStore>((set) => ({

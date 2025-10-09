@@ -394,7 +394,7 @@ export function ImageSlider({
                 <div
                   key={i}
                   className={cn(
-                    'w-full flex-shrink-0 overflow-hidden bg-[#F6F6F7] transition-transform',
+                    'w-full flex-shrink-0 overflow-hidden bg-[#F6F6F7] transition-transform min-h-[295px]',
                     isMobile ? 'h-full' : '',
                   )}
                   style={{
@@ -402,9 +402,9 @@ export function ImageSlider({
                     height: 'fit-content',
                     ...(isMobile &&
                       !showProductControls && {
-                        scale: isCenter ? '1 .9' : '',
-                        transition: 'scale .1s ease',
-                      }),
+                      scale: isCenter ? '1 .9' : '',
+                      transition: 'scale .1s ease',
+                    }),
                   }}>
                   <div
                     className={cn(

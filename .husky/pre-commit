@@ -3,10 +3,13 @@ set -e
 
 echo "🎛️ [husky] Starting pre-commit checks..."
 
+echo "🧹 Running Knip (unused files & exports check)..."
+pnpm exec knip || echo "⚠️ Knip found unused files"
+
 cd client || exit 1
 
 echo "🧪 Running ESLint..."
-pnpm eslint ./src --ext .js,.ts,.jsx,.tsx --fix
+pnpm exec eslint ./src --ext .js,.ts,.jsx,.tsx --fix
 
 echo "🔍 Checking for TypeScript errors..."
 pnpm run type-check

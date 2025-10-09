@@ -90,7 +90,14 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
                 <ProductSkeleton />
               </>
             ) : (
-              data?.getWishlistItems.data.map((item) => <Product key={item.id} isWishlistProduct {...item} />)
+              data?.getWishlistItems.data.map((item) => (
+                <Product
+                  key={item.id}
+                  isWishlistProduct
+                  {...item}
+                  user_id={parseInt(item.user_id)}
+                />
+              ))
             )}
           </div>
         )}

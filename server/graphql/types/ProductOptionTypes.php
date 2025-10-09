@@ -1,5 +1,4 @@
 <?php
-
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -25,4 +24,14 @@ $ProductOptionInputType = new InputObjectType([
         'linked_product_id' => Type::string(),
         'type' => Type::nonNull(Type::string()),
     ],
+]);
+
+// Option group input for generating variant combinations
+$ProductOptionGroupInput = new InputObjectType([
+    'name' => 'ProductOptionGroupInput',
+    'fields' => [
+        'name' => Type::nonNull(Type::string()),
+        'values' => Type::nonNull(Type::listOf(Type::string())),
+        'type' => Type::string(),
+    ]
 ]);

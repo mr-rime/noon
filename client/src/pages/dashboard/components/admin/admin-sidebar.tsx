@@ -26,15 +26,15 @@ const navigation = [
         icon: Package,
         items: [
             { title: "All Products", url: "/d/products" },
-            { title: "Add New Product", url: "/products/new" },
-            { title: "Categories & Tags", url: "/categories" },
+            { title: "Add New Product", url: "/d/products/new" },
+            { title: "Categories", url: "/d/categories" },
         ],
     },
     {
         title: "Marketing",
         icon: Megaphone,
         items: [
-            { title: "Advertisement Banners", url: "/banners" },
+            { title: "Advertisement Banners", url: "/d/banners" },
             { title: "Coupons", url: "/coupons" },
             { title: "Discounts", url: "/discounts" },
             { title: "Product Offers", url: "/offers" },

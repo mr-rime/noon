@@ -5,29 +5,34 @@ import { Loader2 } from 'lucide-react'
 import { type SubmitHandler, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { PartnerLoginSchema, type PartnerLoginSchemaType } from '../../schema'
-import { LOGIN_PARTNER } from '@/graphql/partner'
+import { LOGIN_STORE } from '@/graphql/store'
 import { dashboard_icons, PartnerLogo } from '../../constants'
+import { Button } from '../ui/button'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 
 export function PartnerLogin({ setForm }: { setForm: React.Dispatch<React.SetStateAction<'login' | 'register'>> }) {
   const { register, handleSubmit } = useForm<PartnerLoginSchemaType>({
     resolver: zodResolver(PartnerLoginSchema),
   })
-  const [createPartner, { loading }] = useMutation<{
-    loginPartner: { success: boolean; message: string }
-  }>(LOGIN_PARTNER)
-  const navigate = useNavigate({ from: '/partners' })
+  const [loginStore, { loading }] = useMutation<{
+    loginStore: { success: boolean; message: string; store: any }
+  }>(LOGIN_STORE)
+  const navigate = useNavigate({ from: '/d/partners' })
 
   const handleLogin: SubmitHandler<PartnerLoginSchemaType> = async ({ email, password }) => {
     try {
-      const { data } = await createPartner({
-        variables: { business_email: email, password: password },
+      const { data } = await loginStore({
+        variables: { email, password },
       })
-      toast.success(data?.loginPartner.message)
-      navigate({ to: '/d/overview' })
+      if (data?.loginStore.success) {
+        toast.success(data?.loginStore.message)
+        navigate({ to: '/d/overview' })
+      } else {
+        toast.error(data?.loginStore.message || 'Login failed')
+      }
     } catch (err) {
       console.error(err)
+      toast.error('An error occurred during login')
     }
   }
 
@@ -90,7 +95,7 @@ export function PartnerLogin({ setForm }: { setForm: React.Dispatch<React.SetSta
             }}
             className="cursor-pointer text-[#3866df]">
             click here
-          </button>
+          </button> 
         )}
       </div>
     </form>
