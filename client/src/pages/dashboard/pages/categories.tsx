@@ -67,7 +67,7 @@ export default function Categories() {
         item: null
     })
 
-    // Fetch categories
+
     const { data, loading, error, refetch } = useQuery(GET_CATEGORIES, {
         variables: {
             search: searchQuery
@@ -75,7 +75,7 @@ export default function Categories() {
         fetchPolicy: 'cache-and-network'
     })
 
-    // Delete category mutation
+
     const [deleteCategoryMutation, { loading: deletingCategory }] = useMutation(DELETE_CATEGORY, {
         onCompleted: (data) => {
             if (data.deleteCategory.success) {
@@ -90,7 +90,7 @@ export default function Categories() {
         }
     })
 
-    // Delete subcategory mutation
+
     const [deleteSubcategoryMutation, { loading: deletingSubcategory }] = useMutation(DELETE_SUBCATEGORY, {
         onCompleted: (data) => {
             if (data.deleteSubcategory.success) {
@@ -107,7 +107,7 @@ export default function Categories() {
 
     const categories = data?.getCategories?.categories || []
 
-    // Handle search with debouncing
+
     useEffect(() => {
         const timer = setTimeout(() => {
             setSearchQuery(searchTerm)
@@ -145,7 +145,7 @@ export default function Categories() {
             toast.error('Cannot delete category with subcategories. Please delete all subcategories first.')
             return
         }
-        
+
         setDeleteModal({
             isOpen: true,
             type: 'category',
@@ -223,7 +223,7 @@ export default function Categories() {
                 </div>
             </div>
 
-            {/* Search Bar */}
+
             <Card className="shadow-card">
                 <CardContent className="pt-6">
                     <div className="relative max-w-md">
@@ -238,7 +238,7 @@ export default function Categories() {
                 </CardContent>
             </Card>
 
-            {/* Categories Display */}
+
             <Card className="shadow-card">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
@@ -354,7 +354,7 @@ export default function Categories() {
                                                         </DropdownMenu>
                                                     </TableCell>
                                                 </TableRow>
-                                                {/* Subcategories */}
+
                                                 {isExpanded && category.subcategories?.map((subcategory: Subcategory) => (
                                                     <TableRow key={`sub-${subcategory.subcategory_id}`} className="bg-muted/10">
                                                         <TableCell></TableCell>
@@ -490,7 +490,7 @@ export default function Categories() {
                 </CardContent>
             </Card>
 
-            {/* Modals */}
+
             {(editingCategory || isCreatingCategory) && (
                 <CategoryEditModal
                     category={editingCategory}
@@ -509,7 +509,7 @@ export default function Categories() {
                 />
             )}
 
-            {/* Delete Confirmation Modal */}
+
             <DeleteConfirmationModal
                 isOpen={deleteModal.isOpen}
                 onClose={handleCloseDeleteModal}

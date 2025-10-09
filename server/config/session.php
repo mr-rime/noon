@@ -10,27 +10,27 @@ if ($originHost === 'dashboard.localhost') {
 session_name($sessionName);
 
 $cookieParams = [
-    'lifetime' => 259200, // 3 days
+    'lifetime' => 259200,
     'path' => '/',
-    'secure' => isset($_SERVER['HTTPS']), // false on http, true on https
+    'secure' => isset($_SERVER['HTTPS']),
     'httponly' => true,
-    'samesite' => 'Lax' // more compatible for localhost cross-port
+    'samesite' => 'Lax'
 ];
 
-// Allow dashboard.localhost cookies to be same-site
+
 if ($originHost === 'dashboard.localhost') {
     $cookieParams['domain'] = 'dashboard.localhost';
 }
 
-// Apply cookie params before session_start()
+
 session_set_cookie_params($cookieParams);
 
-// --- Start session if not active ---
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// --- Initialize default session data ---
+
 if (!isset($_SESSION['guest_cart'])) {
-    $_SESSION['guest_cart'] = []; // [product_id => quantity]
+    $_SESSION['guest_cart'] = [];
 }

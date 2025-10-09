@@ -1,20 +1,18 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
 
-// Config
 export const options = {
-  stages: [
-    { duration: "30s", target: 100 },   // ramp up to 100 users
-    { duration: "30s", target: 500 },   // ramp up to 500 users
-    { duration: "30s", target: 1000 },  // ramp up to 1000 users
-    { duration: "2m", target: 1000 },   // stay at 1000 users
-    { duration: "30s", target: 0 },     // ramp down
-  ],
+    stages: [
+        { duration: "30s", target: 100 },
+        { duration: "30s", target: 500 },
+        { duration: "30s", target: 1000 },
+        { duration: "2m", target: 1000 },
+        { duration: "30s", target: 0 },
+    ],
 };
 
 const url = "http://localhost:8000/graphql";
 
-// Register mutation
 const registerMutation = `
   mutation Register($first_name: String!, $last_name: String, $email: String!, $password: String!) {
     register(first_name: $first_name, last_name: $last_name, email: $email, password: $password) {
@@ -29,7 +27,6 @@ const registerMutation = `
   }
 `;
 
-// Home query
 const getHomeQuery = `
   query GetHome($limit: Int, $offset: Int, $search: String) {
     getHome(limit: $limit, offset: $offset, search: $search) {
@@ -49,7 +46,6 @@ const getHomeQuery = `
   }
 `;
 
-// Random user generator
 function randomUser() {
     const id = Math.floor(Math.random() * 1e6);
     return {
@@ -63,7 +59,6 @@ function randomUser() {
 export default function () {
     const user = randomUser();
 
-    // --- 1. Register ---
     let registerRes = http.post(url, JSON.stringify({ query: registerMutation, variables: user }), { headers: { "Content-Type": "application/json" } });
 
     check(registerRes, {
@@ -77,10 +72,8 @@ export default function () {
         },
     });
 
-    // Optional log
     console.log("REGISTER RESPONSE:", registerRes.body);
 
-    // --- 2. Get Home ---
     let homeRes = http.post(url, JSON.stringify({ query: getHomeQuery, variables: { limit: 10, offset: 0, search: "" } }), { headers: { "Content-Type": "application/json" } });
 
     check(homeRes, {
@@ -96,6 +89,5 @@ export default function () {
 
     console.log("HOME RESPONSE:", homeRes.body);
 
-    // --- Pause before next iteration ---
     sleep(Math.random() * 2);
 }

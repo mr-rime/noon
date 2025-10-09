@@ -74,7 +74,7 @@ class Brand
 
     public function create(array $data): ?array
     {
-        // Ensure is_active is a boolean
+
         if (isset($data['is_active']) && $data['is_active'] === null) {
             $data['is_active'] = true;
         }

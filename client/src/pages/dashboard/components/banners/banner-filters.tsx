@@ -32,7 +32,7 @@ export function BannerFilters({ onFiltersChange }: BannerFiltersProps) {
     const newPlacement = checked
       ? [...filters.placement, value]
       : filters.placement.filter(p => p !== value)
-    
+
     const newFilters = { ...filters, placement: newPlacement }
     setFilters(newFilters)
     onFiltersChange(newFilters)
@@ -42,7 +42,7 @@ export function BannerFilters({ onFiltersChange }: BannerFiltersProps) {
     const newStatus = checked
       ? [...filters.status, value]
       : filters.status.filter(s => s !== value)
-    
+
     const newFilters = { ...filters, status: newStatus }
     setFilters(newFilters)
     onFiltersChange(newFilters)
@@ -86,7 +86,7 @@ export function BannerFilters({ onFiltersChange }: BannerFiltersProps) {
             )}
           </div>
 
-          {/* Status Filters */}
+
           <div className="space-y-2">
             <Label className="text-sm font-medium">Status</Label>
             <div className="space-y-2">
@@ -110,7 +110,7 @@ export function BannerFilters({ onFiltersChange }: BannerFiltersProps) {
             </div>
           </div>
 
-          {/* Placement Filters */}
+
           <div className="space-y-2">
             <Label className="text-sm font-medium">Placement</Label>
             <div className="space-y-2 max-h-48 overflow-y-auto">

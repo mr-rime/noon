@@ -19,19 +19,17 @@ export function BannerDisplay({ placement, className = '', showCloseButton = fal
   
   const { data, loading, error } = useQuery(GET_ACTIVE_BANNERS_BY_PLACEMENT, {
     variables: { placement },
-    errorPolicy: 'ignore' // Don't show errors to users for banner loading
+    errorPolicy: 'ignore' 
   })
 
   const banners: Banner[] = useMemo(() => data?.getActiveBannersByPlacement || [], [data?.getActiveBannersByPlacement])
 
-  // Track banner views when they load
   useEffect(() => {
     if (banners.length > 0) {
       banners.forEach(banner => trackBannerView(banner))
     }
   }, [banners, trackBannerView])
 
-  // Don't render if dismissed, loading, error, or no banners
   if (dismissed || loading || error || !banners.length) {
     return null
   }
@@ -52,7 +50,6 @@ export function BannerDisplay({ placement, className = '', showCloseButton = fal
     <div className={`banner-container ${className}`}>
       {banners.map((banner) => (
         <div key={banner.id} className="relative group">
-          {/* Close button for dismissible banners */}
           {showCloseButton && (
             <button
               onClick={() => handleDismiss(banner)}
@@ -63,7 +60,6 @@ export function BannerDisplay({ placement, className = '', showCloseButton = fal
             </button>
           )}
 
-          {/* Banner content */}
           {banner.target_url ? (
             <Link
               to={banner.target_url}
@@ -86,7 +82,6 @@ export function BannerDisplay({ placement, className = '', showCloseButton = fal
 function BannerContent({ banner }: { banner: Banner }) {
   return (
     <>
-      {/* Banner Image */}
       {banner.image_url ? (
         <div className="relative">
           <img
@@ -95,17 +90,14 @@ function BannerContent({ banner }: { banner: Banner }) {
             className="w-full h-auto object-cover"
             loading="lazy"
             onError={(e) => {
-              // Hide image if it fails to load
               (e.target as HTMLImageElement).style.display = 'none'
             }}
           />
           
-          {/* Overlay for better text readability if needed */}
           {(banner.name || banner.description) && (
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           )}
           
-          {/* Text overlay */}
           {(banner.name || banner.description) && (
             <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
               {banner.name && (
@@ -124,7 +116,6 @@ function BannerContent({ banner }: { banner: Banner }) {
           )}
         </div>
       ) : (
-        // Text-only banner fallback
         <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 rounded-lg">
           {banner.name && (
             <h3 className="text-xl font-bold mb-2">{banner.name}</h3>
@@ -144,7 +135,6 @@ function BannerContent({ banner }: { banner: Banner }) {
   )
 }
 
-// Specialized banner components for different placements
 export function HeroBanner({ className = '' }: { className?: string }) {
   return (
     <BannerDisplay

@@ -127,8 +127,8 @@ class PartnerAuthService
     public function logout(): array
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_write_close(); // close any existing session
-            session_name('PARTNER_SESSION'); // custom session name
+            session_write_close();
+            session_name('PARTNER_SESSION');
             session_start();
         }
 

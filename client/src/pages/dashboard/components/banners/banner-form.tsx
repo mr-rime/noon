@@ -39,11 +39,9 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
 
   useEffect(() => {
     if (banner) {
-      // Format dates for datetime-local input
       const formatDate = (date: string) => {
         if (!date) return ""
         const d = new Date(date)
-        // Format: YYYY-MM-DDTHH:mm
         return d.toISOString().slice(0, 16)
       }
 
@@ -58,7 +56,6 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
         isActive: banner.is_active !== undefined ? banner.is_active : true
       })
     } else {
-      // Set default dates for new banner
       const now = new Date()
       const nextMonth = new Date(now)
       nextMonth.setMonth(nextMonth.getMonth() + 1)
@@ -79,13 +76,11 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Validate required fields
     if (!formData.name || !formData.placement || !formData.startDate || !formData.endDate) {
       toast.error("Please fill in all required fields")
       return
     }
 
-    // Validate dates
     if (new Date(formData.startDate) >= new Date(formData.endDate)) {
       toast.error("End date must be after start date")
       return
@@ -141,7 +136,6 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid gap-6">
-            {/* Name Field */}
             <div className="space-y-2">
               <Label htmlFor="name" className="flex items-center gap-2">
                 <Type className="h-4 w-4" />
@@ -156,7 +150,6 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
               />
             </div>
 
-            {/* Placement Field */}
             <div className="space-y-2">
               <Label htmlFor="placement" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
@@ -180,7 +173,6 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
               </Select>
             </div>
 
-            {/* Description Field */}
             <div className="space-y-2">
               <Label htmlFor="description" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
@@ -195,7 +187,6 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
               />
             </div>
 
-            {/* Image URL Field */}
             <div className="space-y-2">
               <Label htmlFor="imageUrl" className="flex items-center gap-2">
                 <Image className="h-4 w-4" />
@@ -222,7 +213,6 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
               )}
             </div>
 
-            {/* Target URL Field */}
             <div className="space-y-2">
               <Label htmlFor="targetUrl" className="flex items-center gap-2">
                 <Link className="h-4 w-4" />
@@ -237,7 +227,6 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
               />
             </div>
 
-            {/* Date Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="startDate" className="flex items-center gap-2">
@@ -268,7 +257,6 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
               </div>
             </div>
 
-            {/* Active Status */}
             <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
               <div className="space-y-0.5">
                 <Label htmlFor="isActive" className="flex items-center gap-2 cursor-pointer">

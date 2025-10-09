@@ -34,7 +34,7 @@ const upcomingDeliveries = [
     { order: "#ORD-1236", customer: "Bob Wilson", date: "June 16", status: "confirmed" },
 ]
 
-// Chart data
+
 const salesData = [
     { name: 'Mon', sales: 4000, orders: 24 },
     { name: 'Tue', sales: 3000, orders: 18 },
@@ -53,7 +53,7 @@ const topProducts = [
     { name: 'Phone Case', sales: 67, value: 2010 },
 ]
 
-// const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))', 'hsl(var(--info))']
+
 
 export default function Dashboard() {
     return (
@@ -71,7 +71,7 @@ export default function Dashboard() {
 
             <DashboardStats />
 
-            {/* Charts Row */}
+
             <div className="grid gap-6 md:grid-cols-2">
                 <Card className="shadow-card">
                     <CardHeader>
@@ -220,7 +220,7 @@ export default function Dashboard() {
                     </CardContent>
                 </Card>
 
-                {/* Upcoming Deliveries */}
+
                 <Card className="shadow-card">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">

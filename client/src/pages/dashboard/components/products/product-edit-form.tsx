@@ -57,7 +57,6 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
     const [newSpec, setNewSpec] = useState({ name: "", value: "" })
     const [newOption, setNewOption] = useState({ name: "", value: "", type: "text", image_url: "" })
     const [uploadingImages, setUploadingImages] = useState(false)
-    // Update form data when product loads
     useEffect(() => {
         if (product) {
             setFormData({
@@ -104,7 +103,7 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
                 const { data } = await uploadFile({ variables: { file } })
                 return {
                     image_url: data.uploadImage.url,
-                    is_primary: images.length === 0 // First image is primary
+                    is_primary: images.length === 0
                 }
             })
 
@@ -122,7 +121,6 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
     const removeImage = (index: number) => {
         setImages(prev => {
             const newImages = prev.filter((_, i) => i !== index)
-            // If we removed the primary image, make the first remaining image primary
             if (prev[index]?.is_primary && newImages.length > 0) {
                 newImages[0].is_primary = true
             }
@@ -180,17 +178,14 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
         ))
     }
 
-    // Helper function to convert simple text to JSON format
     const convertToJsonFormat = (index: number) => {
         const variant = variants[index]
         const text = variant.option_combination || ''
 
-        // If it's already JSON, don't convert
         if (text.trim().startsWith('[') || text.trim().startsWith('{')) {
             return
         }
 
-        // Convert simple text like "Color: Red, Size: Large" to JSON
         try {
             const pairs = text.split(',').map(pair => pair.trim())
             const jsonArray = pairs.map(pair => {
@@ -255,11 +250,9 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
                         let options = []
                         try {
                             if (typeof variant.option_combination === 'string') {
-                                // Only try to parse if it looks like JSON (starts with [ or {)
                                 if (variant.option_combination.trim().startsWith('[') || variant.option_combination.trim().startsWith('{')) {
                                     options = JSON.parse(variant.option_combination)
                                 } else {
-                                    // If it's a simple string, treat it as a single option value
                                     console.warn('Invalid JSON format for option_combination:', variant.option_combination)
                                     options = []
                                 }
@@ -327,7 +320,7 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
 
                 <CardContent className="p-6 max-h-[80vh] overflow-y-auto">
                     <div className="space-y-8">
-                        {/* Product Images */}
+
                         <div className="space-y-4">
                             <div className="flex items-center gap-2">
                                 <ImageIcon className="h-5 w-5 text-primary" />
@@ -393,7 +386,7 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
                             )}
                         </div>
 
-                        {/* Basic Information */}
+
                         <div className="space-y-4">
                             <div className="flex items-center gap-2">
                                 <Package className="h-5 w-5 text-primary" />
@@ -490,7 +483,7 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
                         </div>
 
 
-                        {/* Specifications */}
+
                         <div className="space-y-4">
                             <div className="flex items-center gap-2">
                                 <Tag className="h-5 w-5 text-primary" />
@@ -534,7 +527,7 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
                             )}
                         </div>
 
-                        {/* Product Options */}
+
                         <div className="space-y-4">
                             <div className="flex items-center gap-2">
                                 <Layers className="h-5 w-5 text-primary" />
@@ -579,7 +572,7 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
                             )}
                         </div>
 
-                        {/* Product Variants */}
+
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
@@ -708,7 +701,7 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
                         </div>
 
 
-                        {/* Save Actions */}
+
                         <div className="flex gap-3 pt-4 border-t">
                             <Button
                                 onClick={handleSave}

@@ -12,14 +12,14 @@ function getAllProducts(mysqli $db, array $data): array
         $limit = $data['limit'] ?? 10;
         $offset = $data['offset'] ?? 0;
         $search = $data['search'] ?? '';
-        
-        // Dashboard access - check store permissions
+
+
         $publicOnly = false;
         if (isset($_SESSION['store']['id'])) {
-            // Store is authenticated - can see all their products (including private)
+
             $publicOnly = false;
         } else {
-            // No store session - this is public site access, only show public products
+
             $publicOnly = true;
         }
 
@@ -46,17 +46,17 @@ function getProductById(mysqli $db, string $id): array
 {
     try {
         $model = new Product($db);
-        
-        // Dashboard access - check store permissions
+
+
         $publicOnly = false;
         if (isset($_SESSION['store']['id'])) {
-            // Store is authenticated - can see all their products (including private)
+
             $publicOnly = false;
         } else {
-            // No store session - this is public site access, only show public products
+
             $publicOnly = true;
         }
-        
+
         $product = $model->findById($id, $publicOnly);
 
         return [
@@ -77,7 +77,7 @@ function getPublicProductById(mysqli $db, string $id): array
 {
     try {
         $model = new Product($db);
-        $product = $model->findById($id, true); // Public version - only shows public products
+        $product = $model->findById($id, true);
 
         return [
             'success' => $product !== null,
@@ -98,7 +98,7 @@ function createProduct(mysqli $db, array $data): array
     try {
         $model = new Product($db);
 
-        // Get store_id from context if available (for store authentication)
+
         $storeId = null;
         if (isset($_SESSION['store']['id'])) {
             $storeId = $_SESSION['store']['id'];
@@ -239,10 +239,10 @@ function createProductWithVariants(mysqli $db, array $args): array
 {
     $db->begin_transaction();
     try {
-        // Create base product using existing model
+
         $productModel = new Product($db);
 
-        // Map inputs to Product::create
+
         $baseProductData = [
             'name' => $args['name'],
             'price' => $args['price'],
@@ -255,7 +255,7 @@ function createProductWithVariants(mysqli $db, array $args): array
             'productSpecifications' => $args['specifications'] ?? [],
         ];
 
-        // If options provided as groups, also flatten them into product_options rows for display/filtering
+
         if (!empty($args['options'])) {
             foreach ($args['options'] as $group) {
                 $groupName = $group['name'];
@@ -271,7 +271,7 @@ function createProductWithVariants(mysqli $db, array $args): array
             }
         }
 
-        // Get store_id from context if available (for store authentication)
+
         $storeId = null;
         if (isset($_SESSION['store']['id'])) {
             $storeId = $_SESSION['store']['id'];
@@ -284,14 +284,14 @@ function createProductWithVariants(mysqli $db, array $args): array
 
         $productId = $product['id'];
 
-        // Create variants
+
         $variantModel = new ProductVariant($db);
 
         $variantsInput = $args['variants'] ?? [];
         if (empty($variantsInput) && !empty($args['options'])) {
-            // Generate variants from Cartesian product if not explicitly provided
+
             $combos = generateOptionCombinations($args['options']);
-            // Assign SKUs automatically with base product id and index
+
             $i = 1;
             foreach ($combos as $combo) {
                 $sku = $productId . '-' . str_pad((string) $i, 3, '0', STR_PAD_LEFT);
@@ -317,7 +317,7 @@ function createProductWithVariants(mysqli $db, array $args): array
 
         $db->commit();
 
-        // Return nested product with variants included
+
         $full = $productModel->findById($productId);
         $full['variants'] = $variantModel->findByProductId($productId);
 
@@ -351,7 +351,7 @@ function getProductBySku(mysqli $db, string $sku): array
             ];
         }
 
-        // Get the product for this variant
+
         $productModel = new Product($db);
         $product = $productModel->findById($variant['product_id']);
 
@@ -382,10 +382,10 @@ function getRelatedProducts(mysqli $db, string $productId, int $limit = 8): arra
     try {
         $productModel = new Product($db);
 
-        // Check if this is public site access
+
         $publicOnly = !isset($_SESSION['store']['id']);
-        
-        // Get the current product to find its category and brand
+
+
         $currentProduct = $productModel->findById($productId, $publicOnly);
         if (!$currentProduct) {
             return [
@@ -395,7 +395,7 @@ function getRelatedProducts(mysqli $db, string $productId, int $limit = 8): arra
             ];
         }
 
-        // Find related products based on category and brand
+
         $relatedProducts = $productModel->findRelatedProducts(
             $productId,
             $currentProduct['category_id'],
@@ -423,7 +423,7 @@ function getRelatedVariants(mysqli $db, string $productId): array
         $variantModel = new ProductVariant($db);
         $productModel = new Product($db);
 
-        // Get the current product to find its base name or category
+
         $currentProduct = $productModel->findById($productId);
         if (!$currentProduct) {
             return [
@@ -433,12 +433,12 @@ function getRelatedVariants(mysqli $db, string $productId): array
             ];
         }
 
-        // For now, we'll return variants that share similar names or are in the same category
-        // This is a simplified approach - in a real system you might have a separate table
-        // to define product relationships or use more sophisticated matching
+
+
+
         $relatedVariants = $variantModel->findRelatedVariants($productId, $currentProduct['name']);
 
-        // Enrich variants with product information
+
         $enrichedVariants = [];
         foreach ($relatedVariants as $variant) {
             $variantProduct = $productModel->findById($variant['product_id']);
@@ -496,7 +496,7 @@ function generateVariantsForProduct(mysqli $db, string $productId): array
             ];
         }
 
-        // Return updated product with variants
+
         $product = $productModel->findById($productId);
 
         return [

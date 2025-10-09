@@ -32,7 +32,7 @@ export function Table<T extends object>({
     direction: 'asc' | 'desc'
   } | null>(null)
 
-  // Use internal state if pagination is controlled internally
+
   const [internalCurrentPage, setInternalCurrentPage] = useState(1)
   const isControlled = onPageChange !== undefined
   const currentPage = isControlled ? externalCurrentPage : internalCurrentPage
@@ -49,15 +49,15 @@ export function Table<T extends object>({
 
   const sortedData = sortConfig
     ? [...data].sort((a, b) => {
-        const valA = a[sortConfig.key]
-        const valB = b[sortConfig.key]
-        if (typeof valA === 'number' && typeof valB === 'number') {
-          return sortConfig.direction === 'asc' ? valA - valB : valB - valA
-        }
-        return sortConfig.direction === 'asc'
-          ? String(valA).localeCompare(String(valB))
-          : String(valB).localeCompare(String(valA))
-      })
+      const valA = a[sortConfig.key]
+      const valB = b[sortConfig.key]
+      if (typeof valA === 'number' && typeof valB === 'number') {
+        return sortConfig.direction === 'asc' ? valA - valB : valB - valA
+      }
+      return sortConfig.direction === 'asc'
+        ? String(valA).localeCompare(String(valB))
+        : String(valB).localeCompare(String(valA))
+    })
     : data
 
   const handlePageChange = (page: number) => {
@@ -79,9 +79,8 @@ export function Table<T extends object>({
               <th
                 key={String(col.key)}
                 onClick={() => col.sortable && handleSort(col.key)}
-                className={`px-4 py-2 text-left font-bold text-[#737373] cursor-${
-                  col.sortable ? 'pointer' : 'default'
-                }`}>
+                className={`px-4 py-2 text-left font-bold text-[#737373] cursor-${col.sortable ? 'pointer' : 'default'
+                  }`}>
                 {col.header}
                 {sortConfig?.key === col.key && (
                   <span className="ml-1">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>

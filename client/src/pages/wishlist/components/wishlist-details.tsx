@@ -22,8 +22,8 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
     variables: { wishlist_id: wishlistCode },
   })
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const currentWishlist = useMemo(() => wishlists.find((w) => w.id === wishlistCode), [wishlistCode])
+
+  const currentWishlist = useMemo(() => wishlists.find((w) => w.id === wishlistCode), [wishlistCode, wishlists])
 
   return (
     <section className="w-full flex-auto">

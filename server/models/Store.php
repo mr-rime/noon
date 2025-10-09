@@ -11,7 +11,7 @@ class Store
 
     public function create(array $data): ?array
     {
-        // Unique email check
+
         $stmt = $this->db->prepare('SELECT id FROM stores WHERE email = ? LIMIT 1');
         $stmt->bind_param('s', $data['email']);
         $stmt->execute();
@@ -69,7 +69,7 @@ class Store
 
     public function delete(int $id): bool
     {
-        // Nullify store_id in products first
+
         $stmt = $this->db->prepare('UPDATE products SET store_id = NULL WHERE store_id = ?');
         $stmt->bind_param('i', $id);
         $stmt->execute();

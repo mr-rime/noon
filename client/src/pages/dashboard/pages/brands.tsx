@@ -49,7 +49,7 @@ export default function Brands() {
         brand: null
     })
 
-    // Fetch brands
+
     const { data, loading, error, refetch } = useQuery(GET_BRANDS, {
         variables: {
             search: searchQuery
@@ -57,7 +57,7 @@ export default function Brands() {
         fetchPolicy: 'cache-and-network'
     })
 
-    // Delete brand mutation
+
     const [deleteBrandMutation, { loading: deleting }] = useMutation(DELETE_BRAND, {
         onCompleted: (data) => {
             if (data.deleteBrand.success) {
@@ -74,7 +74,7 @@ export default function Brands() {
 
     const brands = data?.getBrands?.brands || []
 
-    // Handle search with debouncing
+
     useEffect(() => {
         const timer = setTimeout(() => {
             setSearchQuery(searchTerm)
@@ -155,7 +155,7 @@ export default function Brands() {
                 </div>
             </div>
 
-            {/* Search Bar */}
+
             <Card className="shadow-card">
                 <CardContent className="pt-6">
                     <div className="relative max-w-md">
@@ -170,7 +170,7 @@ export default function Brands() {
                 </CardContent>
             </Card>
 
-            {/* Brands Display */}
+
             <Card className="shadow-card">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
@@ -268,7 +268,7 @@ export default function Brands() {
                                                             Edit Brand
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem onClick={() => {
-                                                            // TODO: View products for this brand
+
                                                             toast.info("View products coming soon")
                                                         }}>
                                                             <Package className="mr-2 h-4 w-4" />
@@ -306,7 +306,7 @@ export default function Brands() {
                                                             onError={(e) => {
                                                                 e.currentTarget.style.display = 'none'
                                                                 e.currentTarget.parentElement?.classList.add('text-lg', 'font-semibold')
-                                                                // e.currentTarget.parentElement?.innerHTML = brand.name[0].toUpperCase()
+
                                                             }}
                                                         />
                                                     ) : (
@@ -370,7 +370,7 @@ export default function Brands() {
                 </CardContent>
             </Card>
 
-            {/* Modals */}
+
             {(editingBrand || isCreatingBrand) && (
                 <BrandEditModal
                     brand={editingBrand}
@@ -380,7 +380,7 @@ export default function Brands() {
                 />
             )}
 
-            {/* Delete Confirmation Modal */}
+
             <DeleteConfirmationModal
                 isOpen={deleteModal.isOpen}
                 onClose={handleCloseDeleteModal}

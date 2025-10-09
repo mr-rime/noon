@@ -35,7 +35,6 @@ export function SubcategoryEditModal({ subcategory, parentCategory, onClose, onS
                 is_active: subcategory.is_active !== false
             })
         } else {
-            // Reset form for new subcategory
             setFormData({
                 name: '',
                 slug: '',
@@ -79,11 +78,11 @@ export function SubcategoryEditModal({ subcategory, parentCategory, onClose, onS
         return name
             .toLowerCase()
             .trim()
-            .replace(/[^\w\s-]/g, '') // Remove special characters
-            .replace(/\s+/g, '-') // Replace spaces with hyphens
-            .replace(/--+/g, '-') // Replace multiple hyphens with single hyphen
-            .replace(/^-+/, '') // Remove leading hyphens
-            .replace(/-+$/, '') // Remove trailing hyphens
+            .replace(/[^\w\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/--+/g, '-')
+            .replace(/^-+/, '')
+            .replace(/-+$/, '')
     }
 
     const handleNameChange = (name: string) => {
@@ -136,7 +135,7 @@ export function SubcategoryEditModal({ subcategory, parentCategory, onClose, onS
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
-                {/* Header */}
+
                 <div className="border-b px-6 py-4">
                     <div className="flex items-center justify-between mb-2">
                         <h2 className="text-lg font-semibold">
@@ -156,10 +155,10 @@ export function SubcategoryEditModal({ subcategory, parentCategory, onClose, onS
                     </p>
                 </div>
 
-                {/* Form */}
+
                 <form onSubmit={handleSubmit}>
                     <div className="p-6 space-y-4">
-                        {/* Name */}
+
                         <div className="space-y-2">
                             <Label htmlFor="name">
                                 Subcategory Name <span className="text-red-500">*</span>
@@ -177,7 +176,7 @@ export function SubcategoryEditModal({ subcategory, parentCategory, onClose, onS
                             )}
                         </div>
 
-                        {/* Slug */}
+
                         <div className="space-y-2">
                             <Label htmlFor="slug">
                                 URL Slug <span className="text-red-500">*</span>
@@ -198,7 +197,7 @@ export function SubcategoryEditModal({ subcategory, parentCategory, onClose, onS
                             </p>
                         </div>
 
-                        {/* Description */}
+
                         <div className="space-y-2">
                             <Label htmlFor="description">Description</Label>
                             <Textarea
@@ -211,7 +210,7 @@ export function SubcategoryEditModal({ subcategory, parentCategory, onClose, onS
                             />
                         </div>
 
-                        {/* Active Status */}
+
                         <div className="flex items-center justify-between">
                             <div className="space-y-0.5">
                                 <Label htmlFor="is_active">Active Status</Label>
@@ -227,7 +226,7 @@ export function SubcategoryEditModal({ subcategory, parentCategory, onClose, onS
                         </div>
                     </div>
 
-                    {/* Footer */}
+
                     <div className="border-t px-6 py-4 flex justify-end gap-3">
                         <Button
                             type="button"

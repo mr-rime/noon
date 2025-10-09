@@ -35,7 +35,6 @@ export function BrandEditModal({ brand, isCreating, onClose, onSave }: BrandEdit
     })
     const [errors, setErrors] = useState<Record<string, string>>({})
 
-    // Mutations
     const [createBrand, { loading: creating }] = useMutation(CREATE_BRAND)
     const [updateBrand, { loading: updating }] = useMutation(UPDATE_BRAND)
 
@@ -124,9 +123,9 @@ export function BrandEditModal({ brand, isCreating, onClose, onSave }: BrandEdit
                 }
             } else if (brand) {
                 const result = await updateBrand({
-                    variables: { 
+                    variables: {
                         id: brand.brand_id,
-                        input 
+                        input
                     }
                 })
 
@@ -163,7 +162,7 @@ export function BrandEditModal({ brand, isCreating, onClose, onSave }: BrandEdit
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                    {/* Brand Name */}
+
                     <div className="space-y-2">
                         <Label htmlFor="name">
                             Brand Name <span className="text-destructive">*</span>
@@ -181,7 +180,7 @@ export function BrandEditModal({ brand, isCreating, onClose, onSave }: BrandEdit
                         )}
                     </div>
 
-                    {/* Brand Slug */}
+
                     <div className="space-y-2">
                         <Label htmlFor="slug">
                             Brand Slug <span className="text-destructive">*</span>
@@ -202,7 +201,7 @@ export function BrandEditModal({ brand, isCreating, onClose, onSave }: BrandEdit
                         </p>
                     </div>
 
-                    {/* Logo URL */}
+
                     <div className="space-y-2">
                         <Label htmlFor="logo_url">Logo URL</Label>
                         <div className="flex gap-2">
@@ -219,7 +218,6 @@ export function BrandEditModal({ brand, isCreating, onClose, onSave }: BrandEdit
                                 size="icon"
                                 disabled={isLoading}
                                 onClick={() => {
-                                    // TODO: Implement file upload
                                     toast.info("File upload coming soon")
                                 }}
                             >
@@ -240,7 +238,6 @@ export function BrandEditModal({ brand, isCreating, onClose, onSave }: BrandEdit
                         )}
                     </div>
 
-                    {/* Description */}
                     <div className="space-y-2">
                         <Label htmlFor="description">Description</Label>
                         <Textarea
@@ -253,7 +250,7 @@ export function BrandEditModal({ brand, isCreating, onClose, onSave }: BrandEdit
                         />
                     </div>
 
-                    {/* Active Status */}
+
                     <div className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="space-y-0.5">
                             <Label htmlFor="is_active">Active Status</Label>
@@ -269,7 +266,6 @@ export function BrandEditModal({ brand, isCreating, onClose, onSave }: BrandEdit
                         />
                     </div>
 
-                    {/* Actions */}
                     <div className="flex justify-end gap-3 pt-4 border-t">
                         <Button
                             type="button"

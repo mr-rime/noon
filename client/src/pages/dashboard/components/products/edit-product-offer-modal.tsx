@@ -58,10 +58,10 @@ export default function EditProductOfferModal({ isOpen, onClose, offer, onSave }
         }
 
         onSave(updatedOffer)
-        // toast({
-        //     title: "Offer Updated",
-        //     description: "Product offer has been updated successfully.",
-        // })
+
+
+
+
         onClose()
     }
 
@@ -96,7 +96,7 @@ export default function EditProductOfferModal({ isOpen, onClose, offer, onSave }
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Basic Information */}
+
                     <Card>
                         <CardContent className="pt-6 space-y-4">
                             <div className="grid grid-cols-2 gap-4">
@@ -153,7 +153,7 @@ export default function EditProductOfferModal({ isOpen, onClose, offer, onSave }
                         </CardContent>
                     </Card>
 
-                    {/* Discount Settings */}
+
                     {(formData.type === "Percentage Discount" || formData.type === "Fixed Discount") && (
                         <Card>
                             <CardContent className="pt-6 space-y-4">
@@ -203,7 +203,7 @@ export default function EditProductOfferModal({ isOpen, onClose, offer, onSave }
                         </Card>
                     )}
 
-                    {/* Linked Products */}
+
                     <Card>
                         <CardContent className="pt-6 space-y-4">
                             <Label className="text-sm font-medium">Linked Products</Label>
@@ -241,7 +241,7 @@ export default function EditProductOfferModal({ isOpen, onClose, offer, onSave }
                         </CardContent>
                     </Card>
 
-                    {/* Schedule */}
+
                     <Card>
                         <CardContent className="pt-6 space-y-4">
                             <Label className="text-sm font-medium">Offer Schedule</Label>
@@ -270,7 +270,7 @@ export default function EditProductOfferModal({ isOpen, onClose, offer, onSave }
                         </CardContent>
                     </Card>
 
-                    {/* Usage Statistics */}
+
                     <Card>
                         <CardContent className="pt-6">
                             <Label className="text-sm font-medium">Usage Statistics</Label>
@@ -291,7 +291,7 @@ export default function EditProductOfferModal({ isOpen, onClose, offer, onSave }
                         </CardContent>
                     </Card>
 
-                    {/* Action Buttons */}
+
                     <div className="flex justify-end gap-3 pt-4">
                         <Button type="button" variant="outline" onClick={onClose}>
                             <X className="h-4 w-4 mr-2" />

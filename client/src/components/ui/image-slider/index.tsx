@@ -157,7 +157,6 @@ export function ImageSlider({
   }, [])
 
   useEffect(() => {
-    // reset loaded state when image set changes
     setLoadedImages(new Array(extendedImages.length).fill(false))
   }, [extendedImages.length])
 
@@ -444,7 +443,7 @@ export function ImageSlider({
                         isLoaded ? 'opacity-100' : 'opacity-0',
                       )}
                       alt={`Slide ${i}`}
-                      onLoad={() => handleImageLoad(i)} // ADD
+                      onLoad={() => handleImageLoad(i)}
                     />
                   </div>
                 </div>

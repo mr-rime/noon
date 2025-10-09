@@ -128,7 +128,7 @@ $QueryType = new ObjectType([
             'resolve' => fn($root, $args, $context) => getStore($context['db'], $args['id'])
         ],
 
-        // PSKU System Queries
+
         'getCategories' => [
             'type' => $CategoriesResponseType,
             'args' => ['search' => Type::string()],
@@ -173,7 +173,7 @@ $QueryType = new ObjectType([
             'resolve' => fn($root, $args, $context) => getRelatedProducts($context['db'], $args['productId'], $args['limit'] ?? 8)
         ],
 
-        // Banner queries
+
         'getBanners' => [
             'type' => \App\GraphQL\Types\BannerTypes::bannerList(),
             'args' => [
@@ -370,7 +370,7 @@ $MutationType = new ObjectType([
             ],
             'resolve' => fn($root, $args, $context) => updateWishlist($context['db'], $args)
         ],
-        // PSKU System Mutations
+
         'createCategory' => [
             'type' => $CategoryResponseType,
             'args' => ['input' => Type::nonNull($CategoryInputType)],
@@ -522,7 +522,7 @@ $MutationType = new ObjectType([
             'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteProduct($context['db'], $args['id']))
         ],
 
-        // Banner mutations
+
         'createBanner' => [
             'type' => \App\GraphQL\Types\BannerTypes::bannerResponse(),
             'args' => [

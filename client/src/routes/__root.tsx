@@ -14,7 +14,7 @@ function RootComponent() {
   return (
     <React.Fragment>
       <Outlet />
-      {/* <TanStackRouterDevtools initialIsOpen={false} position='bottom-right' /> */}
+
       <Toaster closeButton theme="light" richColors position="top-right" duration={1000} />
     </React.Fragment>
   )

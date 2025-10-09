@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../models/Brand.php';
 require_once __DIR__ . '/../../models/ProductGroup.php';
 require_once __DIR__ . '/../../models/Product.php';
 
-// Category Resolvers
+
 function getCategories(mysqli $db, string $search = ''): array
 {
     $categoryModel = new Category($db);
@@ -150,7 +150,7 @@ function deleteCategory(mysqli $db, int $id): array
     }
 }
 
-// Subcategory Resolvers
+
 function getSubcategories(mysqli $db, ?int $categoryId = null, string $search = ''): array
 {
     $subcategoryModel = new Subcategory($db);
@@ -266,7 +266,7 @@ function deleteSubcategory(mysqli $db, int $id): array
     }
 }
 
-// Brand Resolvers
+
 function getBrands(mysqli $db, string $search = ''): array
 {
     $brandModel = new Brand($db);
@@ -361,7 +361,7 @@ function deleteBrand(mysqli $db, int $id): array
     $productModel = new Product($db);
 
     try {
-        // Check if brand has products
+
         $products = $productModel->findByBrandId($id);
         if (!empty($products)) {
             return [
@@ -392,7 +392,7 @@ function deleteBrand(mysqli $db, int $id): array
     }
 }
 
-// Product Group Resolvers
+
 function getProductGroups(mysqli $db, ?int $categoryId = null): array
 {
     $groupModel = new ProductGroup($db);
@@ -552,13 +552,13 @@ function addProductToGroup(mysqli $db, string $productId, string $groupId): arra
     }
 }
 
-// Product PSKU Resolvers
+
 function getProductByPsku(mysqli $db, string $psku): array
 {
     $productModel = new Product($db);
 
     try {
-        // Check if this is public site access
+
         $publicOnly = !isset($_SESSION['store']['id']);
 
         $product = $productModel->findByPsku($psku, $publicOnly);
@@ -586,13 +586,13 @@ function getProductByPsku(mysqli $db, string $psku): array
     }
 }
 
-// PSKU Validation - checks uniqueness across ALL products regardless of visibility
+
 function validatePskuUniqueness(mysqli $db, string $psku): bool
 {
     try {
         error_log("NEW VALIDATION ENDPOINT CALLED for PSKU: '$psku'");
 
-        // Check if PSKU exists without any visibility filtering
+
         $query = "SELECT id, name FROM products WHERE psku = ? LIMIT 1";
         $stmt = $db->prepare($query);
         $stmt->bind_param('s', $psku);
@@ -608,11 +608,11 @@ function validatePskuUniqueness(mysqli $db, string $psku): bool
             error_log("PSKU '$psku' is available - returning TRUE");
         }
 
-        // Return true if PSKU is available (no existing product found)
+
         return $isAvailable;
     } catch (Exception $e) {
         error_log("Error validating PSKU uniqueness: " . $e->getMessage());
-        // Return false on error to be safe
+
         return false;
     }
 }

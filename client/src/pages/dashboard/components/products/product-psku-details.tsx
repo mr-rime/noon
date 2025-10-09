@@ -131,10 +131,10 @@ export function ProductPskuDetails({ productId, onClose, onEdit }: ProductPskuDe
                 <CardContent className="flex-1 overflow-y-auto p-0">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
 
-                        {/* Left Column - Product Info */}
+
                         <div className="lg:col-span-2 space-y-6">
 
-                            {/* Product Images */}
+
                             <div>
                                 <div className="w-full h-64 bg-muted rounded-lg flex items-center justify-center mb-4 overflow-hidden">
                                     {primaryImage ? (
@@ -154,7 +154,7 @@ export function ProductPskuDetails({ productId, onClose, onEdit }: ProductPskuDe
                                 )}
                             </div>
 
-                            {/* Product Info */}
+
                             <div className="space-y-4">
                                 <div>
                                     <h1 className="text-2xl font-bold break-words">{product.name}</h1>
@@ -211,7 +211,7 @@ export function ProductPskuDetails({ productId, onClose, onEdit }: ProductPskuDe
                                     </div>
                                 </div>
 
-                                {/* Category and Brand Info */}
+
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {product.category_name && (
                                         <div className="bg-muted/30 rounded-lg p-3">
@@ -243,7 +243,7 @@ export function ProductPskuDetails({ productId, onClose, onEdit }: ProductPskuDe
                                     )}
                                 </div>
 
-                                {/* Product Overview */}
+
                                 {product.product_overview && (
                                     <div>
                                         <h3 className="text-lg font-semibold mb-2">Product Overview</h3>
@@ -251,7 +251,7 @@ export function ProductPskuDetails({ productId, onClose, onEdit }: ProductPskuDe
                                     </div>
                                 )}
 
-                                {/* Specifications */}
+
                                 {product.productSpecifications && product.productSpecifications.length > 0 && (
                                     <div className="space-y-3">
                                         <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -269,7 +269,7 @@ export function ProductPskuDetails({ productId, onClose, onEdit }: ProductPskuDe
                                     </div>
                                 )}
 
-                                {/* Product Attributes */}
+
                                 {product.productAttributes && product.productAttributes.length > 0 && (
                                     <div className="space-y-3">
                                         <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -289,10 +289,10 @@ export function ProductPskuDetails({ productId, onClose, onEdit }: ProductPskuDe
                             </div>
                         </div>
 
-                        {/* Right Column - Product Group Management */}
+
                         <div className="space-y-6">
 
-                            {/* Product Group Status */}
+
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2 text-lg">
@@ -311,7 +311,7 @@ export function ProductPskuDetails({ productId, onClose, onEdit }: ProductPskuDe
                                                 <p className="text-sm text-muted-foreground">ID: {product.group_id}</p>
                                             </div>
 
-                                            {/* Group Attributes */}
+
                                             {product.groupAttributes && product.groupAttributes.length > 0 && (
                                                 <div>
                                                     <h5 className="font-medium mb-2">Group Attributes</h5>
@@ -332,7 +332,7 @@ export function ProductPskuDetails({ productId, onClose, onEdit }: ProductPskuDe
                                                 </div>
                                             )}
 
-                                            {/* Group Products */}
+
                                             {product.groupProducts && product.groupProducts.length > 0 && (
                                                 <div>
                                                     <h5 className="font-medium mb-2">Products in Group ({product.groupProducts.length})</h5>
@@ -359,7 +359,7 @@ export function ProductPskuDetails({ productId, onClose, onEdit }: ProductPskuDe
                                 </CardContent>
                             </Card>
 
-                            {/* Available Groups */}
+
                             {editingGroup && (
                                 <Card>
                                     <CardHeader>
@@ -372,8 +372,8 @@ export function ProductPskuDetails({ productId, onClose, onEdit }: ProductPskuDe
                                                     <div
                                                         key={group.group_id}
                                                         className={`p-3 border rounded-lg cursor-pointer transition-colors ${selectedGroupId === group.group_id
-                                                                ? 'border-primary bg-primary/10'
-                                                                : 'hover:border-primary/50'
+                                                            ? 'border-primary bg-primary/10'
+                                                            : 'hover:border-primary/50'
                                                             }`}
                                                         onClick={() => setSelectedGroupId(group.group_id)}
                                                     >
@@ -420,7 +420,7 @@ export function ProductPskuDetails({ productId, onClose, onEdit }: ProductPskuDe
                                 </Card>
                             )}
 
-                            {/* Quick Actions */}
+
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="text-lg">Quick Actions</CardTitle>

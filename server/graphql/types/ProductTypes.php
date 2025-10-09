@@ -95,7 +95,7 @@ $ProductType = new ObjectType([
             'productSpecifications' => Type::listOf($ProductSpecificationType),
             'productAttributes' => Type::listOf($ProductAttributeType),
             'groupAttributes' => Type::listOf($GroupAttributeType),
-            'groupProducts' => Type::listOf($ProductType), // Returns full Product objects
+            'groupProducts' => Type::listOf($ProductType),
             'created_at' => Type::string(),
             'updated_at' => Type::string(),
         ];

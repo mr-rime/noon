@@ -191,12 +191,12 @@ class ProductGroup
             LEFT JOIN subcategories s ON p.subcategory_id = s.subcategory_id
             LEFT JOIN brands b ON p.brand_id = b.brand_id
             WHERE p.group_id = ?';
-        
-        // Add public filter if requested
+
+
         if ($publicOnly) {
             $query .= ' AND p.is_public = 1';
         }
-        
+
         $query .= ' ORDER BY p.created_at ASC, p.id ASC';
 
         $stmt = $this->db->prepare($query);
@@ -211,13 +211,13 @@ class ProductGroup
         $result = $stmt->get_result();
         $products = $result->fetch_all(MYSQLI_ASSOC);
 
-        // Enrich each product with images and attributes
+
         foreach ($products as &$product) {
-            // Ensure is_public has a default value if NULL
+
             if ($product['is_public'] === null) {
-                $product['is_public'] = 0; // Default to private
+                $product['is_public'] = 0;
             }
-            // Fetch images
+
             $imageQuery = 'SELECT id, image_url, is_primary FROM product_images WHERE product_id = ? ORDER BY is_primary DESC, id ASC';
             $imageStmt = $this->db->prepare($imageQuery);
             if ($imageStmt) {
@@ -225,8 +225,8 @@ class ProductGroup
                 $imageStmt->execute();
                 $imageResult = $imageStmt->get_result();
                 $product['images'] = $imageResult->fetch_all(MYSQLI_ASSOC);
-                
-                // Convert is_primary to boolean
+
+
                 foreach ($product['images'] as &$image) {
                     $image['is_primary'] = (bool) $image['is_primary'];
                 }
@@ -234,7 +234,7 @@ class ProductGroup
                 $product['images'] = [];
             }
 
-            // Fetch product attributes
+
             $attrQuery = 'SELECT id, attribute_name, attribute_value FROM product_attribute_values WHERE product_id = ? ORDER BY attribute_name';
             $attrStmt = $this->db->prepare($attrQuery);
             if ($attrStmt) {
@@ -294,7 +294,7 @@ class ProductGroup
 
         $attributes = $result->fetch_all(MYSQLI_ASSOC);
 
-        // Parse JSON attribute_values
+
         foreach ($attributes as &$attribute) {
             if ($attribute['attribute_values']) {
                 $attribute['attribute_values'] = json_decode($attribute['attribute_values'], true);
@@ -306,17 +306,17 @@ class ProductGroup
 
     public function setGroupAttributes(string $groupId, array $attributes): bool
     {
-        // Start transaction
+
         $this->db->begin_transaction();
 
         try {
-            // Delete existing attributes
+
             $deleteQuery = 'DELETE FROM product_group_attributes WHERE group_id = ?';
             $deleteStmt = $this->db->prepare($deleteQuery);
             $deleteStmt->bind_param('s', $groupId);
             $deleteStmt->execute();
 
-            // Insert new attributes
+
             $insertQuery = 'INSERT INTO product_group_attributes (group_id, attribute_name, attribute_values, is_required, display_order) VALUES (?, ?, ?, ?, ?)';
             $insertStmt = $this->db->prepare($insertQuery);
 

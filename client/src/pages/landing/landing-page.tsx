@@ -4,22 +4,22 @@ import RecommendedProducts from './components/recommended-products'
 import { ProductsListSkeleton } from '@/components/ui/products-list-skeleton'
 import { HeroBanner, SecondaryBanner, MobileBanner } from '@/components/banners/banner-display'
 
-// const LazyRecommendedProducts = lazy(() => import("./components/recommended-products"));
+
 
 export function Landing() {
   return (
     <div className="site-container flex min-h-screen w-full flex-col justify-center">
-      {/* Hero Banner - Desktop */}
+
       <div className="hidden md:block mb-6">
         <HeroBanner className="max-w-7xl mx-auto" />
       </div>
 
-      {/* Mobile Banner */}
+
       <MobileBanner className="mb-4 px-4" />
 
       <HeroSection />
 
-      {/* Secondary Banner */}
+
       <div className="my-8 px-4">
         <SecondaryBanner className="max-w-4xl mx-auto" />
       </div>
@@ -34,7 +34,7 @@ export function Landing() {
               <ProductsListSkeleton />
             </div>
           }>
-          {/* <LazyRecommendedProducts /> */}
+
           <RecommendedProducts />
         </Suspense>
       </div>

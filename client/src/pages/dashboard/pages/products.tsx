@@ -50,7 +50,7 @@ export default function Products() {
         productName: null
     })
 
-    // Fetch products with pagination
+
     const { data, loading, error, refetch } = useQuery(GET_PRODUCTS, {
         variables: {
             limit: ITEMS_PER_PAGE,
@@ -60,7 +60,7 @@ export default function Products() {
         fetchPolicy: 'cache-and-network'
     })
 
-    // Delete product mutation
+
     const [deleteProductMutation, { loading: deleting }] = useMutation(DELETE_PRODUCT, {
         onCompleted: (data) => {
             if (data.deleteProduct.success) {
@@ -79,7 +79,7 @@ export default function Products() {
     const total = data?.getProducts?.total || 0
     const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
 
-    // Handle search with debouncing
+
     useEffect(() => {
         const timer = setTimeout(() => {
             setSearchQuery(searchTerm)
@@ -90,7 +90,7 @@ export default function Products() {
     }, [searchTerm])
 
     const filteredProducts = products.filter((product: any) => {
-        // Stock level filter
+
         let matchesStockLevel = true
         if (filters.stockLevel.length > 0) {
             const stock = parseInt(product.stock) || 0
@@ -155,7 +155,7 @@ export default function Products() {
 
     const handleConfirmDelete = async () => {
         if (!deleteModal.productId) return
-        
+
         await deleteProductMutation({ variables: { id: deleteModal.productId } })
         setDeleteModal({ isOpen: false, productId: null, productName: null })
     }
@@ -191,7 +191,7 @@ export default function Products() {
                 </Button>
             </div>
 
-            {/* Filters and Search */}
+
             <Card className="shadow-card">
                 <CardContent className="pt-6">
                     <div className="flex items-center gap-4">
@@ -209,7 +209,7 @@ export default function Products() {
                 </CardContent>
             </Card>
 
-            {/* Products Table */}
+
             <Card className="shadow-card">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
@@ -235,7 +235,7 @@ export default function Products() {
                         </div>
                     ) : (
                         <>
-                            {/* Desktop Table View */}
+
                             <div className="hidden md:block overflow-x-auto">
                                 <Table>
                                     <TableHeader>
@@ -325,7 +325,7 @@ export default function Products() {
                                 </Table>
                             </div>
 
-                            {/* Mobile Card View */}
+
                             <div className="md:hidden space-y-4 p-4">
                                 {filteredProducts.map((product: any) => {
                                     const stock = parseInt(product.stock) || 0
@@ -402,7 +402,7 @@ export default function Products() {
                                 })}
                             </div>
 
-                            {/* Pagination */}
+
                             {totalPages > 1 && (
                                 <div className="mt-6 pt-6 border-t px-4 md:px-0">
                                     <Pagination
@@ -419,7 +419,7 @@ export default function Products() {
                 </CardContent>
             </Card>
 
-            {/* Modals */}
+
             {viewingProduct && (
                 <ProductViewDetails
                     productId={viewingProduct}
@@ -436,7 +436,7 @@ export default function Products() {
                 />
             )}
 
-            {/* Delete Confirmation Modal */}
+
             <DeleteConfirmationModal
                 isOpen={deleteModal.isOpen}
                 onClose={handleCloseDeleteModal}

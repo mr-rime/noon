@@ -65,7 +65,7 @@ export function Product({
         />
         <ProductTitle name={name || ''} />
 
-        {/* PSKU and Category Info */}
+
         {(psku || category_name || brand_name) && (
           <div className="my-2 space-y-1">
             {psku && (
