@@ -120,6 +120,7 @@ export type ProductType = {
   currency: string
   stock: number
   is_returnable: boolean
+  is_public: boolean
   product_overview?: string
   user_id?: number
   store_id?: number

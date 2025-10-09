@@ -489,7 +489,10 @@ function getProductByPsku(mysqli $db, string $psku): array
     $productModel = new Product($db);
 
     try {
-        $product = $productModel->findByPsku($psku);
+        // Check if this is public site access
+        $publicOnly = !isset($_SESSION['store']['id']);
+        
+        $product = $productModel->findByPsku($psku, $publicOnly);
 
         if (!$product) {
             return [

@@ -46,6 +46,7 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
         category_id: "",
         currency: "USD",
         is_returnable: false,
+        is_public: false,
         product_overview: ""
     })
 
@@ -65,6 +66,7 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
                 category_id: product.category_id || "",
                 currency: product.currency || "USD",
                 is_returnable: product.is_returnable || false,
+                is_public: product.is_public || false,
                 product_overview: product.product_overview || ""
             })
             setImages(product.images || [])
@@ -233,6 +235,7 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
                     category_id: formData.category_id || null,
                     currency: formData.currency,
                     is_returnable: formData.is_returnable,
+                    is_public: formData.is_public,
                     product_overview: formData.product_overview,
                     images: images.map(img => ({
                         image_url: img.image_url,
@@ -472,6 +475,17 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
                                     className="rounded border-gray-300"
                                 />
                                 <Label htmlFor="is_returnable">Product is returnable</Label>
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    id="is_public"
+                                    checked={formData.is_public}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, is_public: e.target.checked }))}
+                                    className="rounded border-gray-300"
+                                />
+                                <Label htmlFor="is_public">Product is public (visible to customers)</Label>
                             </div>
                         </div>
 

@@ -17,6 +17,7 @@ require_once __DIR__ . '/types/DiscountTypes.php';
 require_once __DIR__ . '/types/HomeTypes.php';
 require_once __DIR__ . '/types/CartTypes.php';
 require_once __DIR__ . '/types/WishlistTypes.php';
+require_once __DIR__ . '/types/BannerTypes.php';
 require_once __DIR__ . '/resolvers/UserResolver.php';
 require_once __DIR__ . '/resolvers/PartnerResolver.php';
 require_once __DIR__ . '/resolvers/AuthResolver.php';
@@ -29,6 +30,7 @@ require_once __DIR__ . '/resolvers/CartResolver.php';
 require_once __DIR__ . '/resolvers/WishlistResolver.php';
 require_once __DIR__ . '/resolvers/StoreResolver.php';
 require_once __DIR__ . '/resolvers/PskuResolver.php';
+require_once __DIR__ . '/resolvers/BannerResolver.php';
 
 $QueryType = new ObjectType([
     'name' => 'query',
@@ -70,6 +72,14 @@ $QueryType = new ObjectType([
                 'id' => Type::nonNull(Type::id())
             ],
             'resolve' => fn($root, $args, $context) => getProductById($context['db'], $args['id'])
+        ],
+
+        'getPublicProduct' => [
+            'type' => $ProductResponseType,
+            'args' => [
+                'id' => Type::nonNull(Type::id())
+            ],
+            'resolve' => fn($root, $args, $context) => getPublicProductById($context['db'], $args['id'])
         ],
 
         'getDiscount' => [
@@ -156,6 +166,35 @@ $QueryType = new ObjectType([
                 'limit' => Type::int()
             ],
             'resolve' => fn($root, $args, $context) => getRelatedProducts($context['db'], $args['productId'], $args['limit'] ?? 8)
+        ],
+
+        // Banner queries
+        'getBanners' => [
+            'type' => \App\GraphQL\Types\BannerTypes::bannerList(),
+            'args' => [
+                'placement' => Type::string(),
+                'isActive' => Type::boolean(),
+                'limit' => Type::int(),
+                'offset' => Type::int(),
+                'search' => Type::string()
+            ],
+            'resolve' => fn($root, $args, $context) => getBanners($context['db'], $args)
+        ],
+
+        'getBanner' => [
+            'type' => \App\GraphQL\Types\BannerTypes::banner(),
+            'args' => [
+                'id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => fn($root, $args, $context) => getBanner($context['db'], $args)
+        ],
+
+        'getActiveBannersByPlacement' => [
+            'type' => Type::listOf(\App\GraphQL\Types\BannerTypes::banner()),
+            'args' => [
+                'placement' => Type::nonNull(Type::string())
+            ],
+            'resolve' => fn($root, $args, $context) => getActiveBannersByPlacement($context['db'], $args)
         ]
     ],
 
@@ -223,6 +262,7 @@ $MutationType = new ObjectType([
                 'group_id' => Type::string(),
                 'stock' => Type::int(),
                 'is_returnable' => Type::boolean(),
+                'is_public' => Type::boolean(),
                 'product_overview' => Type::string(),
                 'discount' => $DiscountInputType,
                 'images' => Type::listOf($ProductImageInputType),
@@ -275,6 +315,7 @@ $MutationType = new ObjectType([
                 'group_id' => Type::string(),
                 'stock' => Type::int(),
                 'is_returnable' => Type::boolean(),
+                'is_public' => Type::boolean(),
                 'product_overview' => Type::string(),
                 'discount' => $DiscountInputType,
                 'images' => Type::listOf($ProductImageInputType),
@@ -461,6 +502,54 @@ $MutationType = new ObjectType([
                 'id' => Type::nonNull(Type::string())
             ],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteProduct($context['db'], $args['id']))
+        ],
+
+        // Banner mutations
+        'createBanner' => [
+            'type' => \App\GraphQL\Types\BannerTypes::bannerResponse(),
+            'args' => [
+                'name' => Type::nonNull(Type::string()),
+                'placement' => Type::nonNull(Type::string()),
+                'description' => Type::string(),
+                'targetUrl' => Type::string(),
+                'imageUrl' => Type::string(),
+                'startDate' => Type::nonNull(Type::string()),
+                'endDate' => Type::nonNull(Type::string()),
+                'isActive' => Type::boolean()
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => createBanner($context['db'], $args))
+        ],
+
+        'updateBanner' => [
+            'type' => \App\GraphQL\Types\BannerTypes::bannerResponse(),
+            'args' => [
+                'id' => Type::nonNull(Type::string()),
+                'name' => Type::nonNull(Type::string()),
+                'placement' => Type::nonNull(Type::string()),
+                'description' => Type::string(),
+                'targetUrl' => Type::string(),
+                'imageUrl' => Type::string(),
+                'startDate' => Type::nonNull(Type::string()),
+                'endDate' => Type::nonNull(Type::string()),
+                'isActive' => Type::boolean()
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => updateBanner($context['db'], $args))
+        ],
+
+        'deleteBanner' => [
+            'type' => \App\GraphQL\Types\BannerTypes::bannerResponse(),
+            'args' => [
+                'id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteBanner($context['db'], $args))
+        ],
+
+        'toggleBannerStatus' => [
+            'type' => \App\GraphQL\Types\BannerTypes::bannerResponse(),
+            'args' => [
+                'id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => toggleBannerStatus($context['db'], $args))
         ]
     ]
 ]);

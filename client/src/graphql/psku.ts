@@ -290,6 +290,22 @@ export const ADD_PRODUCT_TO_GROUP = gql`
   }
 `
 
+export const REMOVE_PRODUCT_FROM_GROUP = gql`
+  mutation RemoveProductFromGroup($product_id: String!) {
+    updateProduct(id: $product_id, group_id: null) {
+      success
+      message
+      product {
+        id
+        psku
+        name
+        group_id
+        group_name
+      }
+    }
+  }
+`
+
 // Category/Brand/Subcategory Mutations
 export const CREATE_CATEGORY = gql`
   mutation CreateCategory($input: CategoryInput!) {
@@ -376,6 +392,21 @@ export const DELETE_PRODUCT_GROUP = gql`
     deleteProductGroup(groupId: $groupId) {
       success
       message
+    }
+  }
+`
+
+// Check if PSKU exists
+export const CHECK_PSKU_EXISTS = gql`
+  query CheckPskuExists($psku: String!) {
+    getProductByPsku(psku: $psku) {
+      success
+      message
+      product {
+        id
+        psku
+        name
+      }
     }
   }
 `

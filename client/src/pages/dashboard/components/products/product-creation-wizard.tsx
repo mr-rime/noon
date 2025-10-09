@@ -19,13 +19,10 @@ import { Label } from "../ui/label"
 import { Badge } from "../ui/badge"
 import { Separator } from "../ui/separator"
 import { toast } from "sonner"
-import { Dropzone } from "@/components/ui/dropzone"
-import { UPLOAD_FILE } from "@/graphql/upload-file"
 import {
     GET_CATEGORIES,
     GET_SUBCATEGORIES,
     GET_BRANDS,
-    GET_PRODUCT_GROUPS,
     CREATE_PSKU_PRODUCT
 } from "@/graphql/psku"
 
@@ -59,15 +56,6 @@ interface Brand {
     logo_url?: string
 }
 
-interface ProductGroup {
-    group_id: string
-    name: string
-    description?: string
-    category_id?: number
-    subcategory_id?: number
-    brand_id?: number
-}
-
 export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
     const navigate = useNavigate()
     const [currentStep, setCurrentStep] = useState<Step>(1)
@@ -77,18 +65,12 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
     const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null)
     const [categorySearch, setCategorySearch] = useState("")
 
-    // Step 2: Brand Selection
     const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null)
     const [brandSearch, setBrandSearch] = useState("")
     const [useGenericBrand, setUseGenericBrand] = useState(false)
 
-    // Step 3: PSKU Setup
     const [psku, setPsku] = useState("")
     const [autoGeneratePsku, setAutoGeneratePsku] = useState(true)
-
-    // Image handling
-    const [images, setImages] = useState<Array<{ id: string; image_url: string; is_primary: boolean }>>([])
-    const [uploading, setUploading] = useState(false)
 
     // Queries
     const { data: categoriesData, loading: categoriesLoading } = useQuery(GET_CATEGORIES, {
@@ -107,18 +89,11 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
         variables: { search: brandSearch }
     })
 
-    const { data: groupsData } = useQuery(GET_PRODUCT_GROUPS, {
-        variables: { category_id: selectedCategory?.category_id },
-        skip: !selectedCategory
-    })
-
     // Mutations
     const [createProduct, { loading: creating }] = useMutation(CREATE_PSKU_PRODUCT)
-    const [uploadFile] = useMutation(UPLOAD_FILE)
 
     const categories = categoriesData?.getCategories?.categories || []
     const brands = brandsData?.getBrands?.brands || []
-    const productGroups = groupsData?.getProductGroups?.groups || []
 
     const handleNext = () => {
         if (currentStep < 3) {
@@ -132,45 +107,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
         }
     }
 
-    const handleImageUpload = async (files: File[]) => {
-        if (!files || files.length === 0) return
-
-        setUploading(true)
-        try {
-            const uploadPromises = files.map(async (file) => {
-                const formData = new FormData()
-                formData.append('file', file)
-
-                const result = await uploadFile({
-                    variables: { file: formData }
-                })
-
-                if (result.data?.uploadFile) {
-                    return {
-                        id: Date.now().toString() + Math.random(),
-                        image_url: result.data.uploadFile.url,
-                        is_primary: images.length === 0 // First image is primary
-                    }
-                }
-                return null
-            })
-
-            const uploadedImages = await Promise.all(uploadPromises)
-            const validImages = uploadedImages.filter(img => img !== null) as Array<{ id: string; image_url: string; is_primary: boolean }>
-
-            setImages(prev => [...prev, ...validImages])
-            toast.success(`${validImages.length} image(s) uploaded successfully`)
-        } catch (error) {
-            console.error('Upload error:', error)
-            toast.error('Failed to upload images')
-        } finally {
-            setUploading(false)
-        }
-    }
-
-    const removeImage = (imageId: string) => {
-        setImages(prev => prev.filter(img => img.id !== imageId))
-    }
 
     const handleCreateProduct = async () => {
         try {
@@ -198,11 +134,9 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
                 subcategory_id: selectedSubcategory?.subcategory_id,
                 stock: 0,
                 is_returnable: true,
+                is_public: false,
                 product_overview: "",
-                images: images.map(img => ({
-                    image_url: img.image_url,
-                    is_primary: img.is_primary
-                })),
+                images: [],
                 productSpecifications: [],
                 productAttributes: []
             }
@@ -481,70 +415,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
                                 </div>
                             )}
 
-                            {/* Product Groups */}
-                            {productGroups.length > 0 && (
-                                <div>
-                                    <Label>Available Product Groups</Label>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-                                        {productGroups.map((group: ProductGroup) => (
-                                            <div key={group.group_id} className="border rounded-lg p-3">
-                                                <h4 className="font-medium">{group.name}</h4>
-                                                {group.description && (
-                                                    <p className="text-sm text-muted-foreground">{group.description}</p>
-                                                )}
-                                                <p className="text-xs text-muted-foreground mt-1">ID: {group.group_id}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <p className="text-xs text-muted-foreground mt-2">
-                                        You can assign this product to a group after creation in the product details page.
-                                    </p>
-                                </div>
-                            )}
-
-                            {/* Product Images */}
-                            <div>
-                                <Label className="text-base font-medium">Product Images (Optional)</Label>
-                                <p className="text-sm text-muted-foreground mb-3">
-                                    Upload product images. You can add more images after creating the product.
-                                </p>
-
-                                <Dropzone
-                                    onFilesDrop={handleImageUpload}
-                                    accept="image/*"
-                                    multiple={true}
-                                    className="h-32"
-                                />
-                                {uploading && <p className="text-sm text-muted-foreground mt-2">Uploading...</p>}
-
-                                {/* Image Gallery */}
-                                {images.length > 0 && (
-                                    <div className="mt-4">
-                                        <Label className="text-sm font-medium">Uploaded Images:</Label>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
-                                            {images.map((image) => (
-                                                <div key={image.id} className="relative group">
-                                                    <img
-                                                        src={image.image_url}
-                                                        alt="Product"
-                                                        className="w-full h-20 object-cover rounded-lg border"
-                                                    />
-                                                    {image.is_primary && (
-                                                        <Badge className="absolute top-1 left-1 text-xs">Primary</Badge>
-                                                    )}
-                                                    <Button
-                                                        className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                                                        onClick={() => removeImage(image.id)}
-                                                    >
-                                                        <X className="h-3 w-3" />
-                                                    </Button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
                             <div className="p-4 bg-muted/50 rounded-lg">
                                 <h4 className="font-medium mb-2">Product Summary:</h4>
                                 <div className="space-y-1 text-sm">
@@ -552,7 +422,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
                                     {selectedSubcategory && <p><strong>Subcategory:</strong> {selectedSubcategory.name}</p>}
                                     <p><strong>Brand:</strong> {useGenericBrand ? 'Generic' : selectedBrand?.name}</p>
                                     <p><strong>PSKU:</strong> {autoGeneratePsku ? 'Auto-generated' : psku || 'Not specified'}</p>
-                                    <p><strong>Images:</strong> {images.length} uploaded</p>
                                 </div>
                             </div>
                         </div>

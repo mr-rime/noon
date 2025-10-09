@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useMutation } from '@apollo/client'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
+import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
 import { Save, X, Plus, Loader2, ImageIcon } from 'lucide-react'
 import { UPDATE_PRODUCT } from '@/graphql/product'
@@ -21,7 +22,8 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
         currency: product.currency || 'USD',
         stock: product.stock || 0,
         product_overview: product.product_overview || '',
-        is_returnable: product.is_returnable || false
+        is_returnable: product.is_returnable || false,
+        is_public: product.is_public || false
     })
 
     const [images, setImages] = useState<ProductImage[]>(product.images || [])
@@ -45,7 +47,8 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
             currency: validCurrency,
             stock: product.stock || 0,
             product_overview: product.product_overview || '',
-            is_returnable: product.is_returnable || false
+            is_returnable: product.is_returnable || false,
+            is_public: product.is_public || false
         })
         setImages(product.images || [])
         setSpecifications(product.productSpecifications || [])
@@ -165,19 +168,36 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                         )}
                     </div>
                 </div>
-                <Button onClick={handleSave} disabled={saving}>
-                    {saving ? (
-                        <>
-                            <Save className="h-4 w-4 mr-2 animate-spin" />
-                            Saving...
-                        </>
-                    ) : (
-                        <>
-                            <Save className="h-4 w-4 mr-2" />
-                            Save Changes
-                        </>
-                    )}
-                </Button>
+                <div className="flex items-center gap-4">
+                    {/* Visibility Toggle - Prominent placement */}
+                    <div className="flex items-center gap-3 px-4 py-2 bg-white border rounded-lg">
+                        <Switch
+                            checked={formData.is_public}
+                            onChange={(e) => handleInputChange('is_public', e.target.checked)}
+                            name="is_public"
+                        />
+                        <span className="text-sm font-medium">
+                            {formData.is_public ? (
+                                <span className="text-green-600">Public (Visible to customers)</span>
+                            ) : (
+                                <span className="text-orange-600">Private (Dashboard only)</span>
+                            )}
+                        </span>
+                    </div>
+                    <Button onClick={handleSave} disabled={saving}>
+                        {saving ? (
+                            <>
+                                <Save className="h-4 w-4 mr-2 animate-spin" />
+                                Saving...
+                            </>
+                        ) : (
+                            <>
+                                <Save className="h-4 w-4 mr-2" />
+                                Save Changes
+                            </>
+                        )}
+                    </Button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -252,15 +272,17 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                                 />
                             </div>
 
-                            <div className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    id="is_returnable"
-                                    checked={formData.is_returnable}
-                                    onChange={(e) => handleInputChange('is_returnable', e.target.checked)}
-                                    className="rounded"
-                                />
-                                <label htmlFor="is_returnable" className="text-sm font-medium">This product is returnable</label>
+                            {/* Product Settings */}
+                            <div className="pt-4 border-t">
+                                <h4 className="text-sm font-medium mb-3 text-gray-700">Product Settings</h4>
+                                <div className="flex items-center gap-3 px-3 py-2 bg-gray-50 rounded-lg">
+                                    <Switch
+                                        checked={formData.is_returnable}
+                                        onChange={(e) => handleInputChange('is_returnable', e.target.checked)}
+                                        name="is_returnable"
+                                    />
+                                    <span className="text-sm">This product is returnable</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -268,160 +290,158 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                     {/* Product Images */}
                     <div className="border rounded-lg p-6">
                         <h3 className="text-lg font-semibold mb-4">Product Images (Max 4)</h3>
-                        <div className="space-y-4">
-                            {/* Image Upload */}
-                            {images.length < 4 && (
-                                <div className="space-y-2">
-                                    <Dropzone
-                                        onFilesDrop={handleImageUpload}
-                                        accept="image/*"
-                                        multiple={true}
-                                        className="h-32"
-                                    />
-                                    {uploading && (
-                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            <Loader2 className="h-4 w-4 animate-spin" />
-                                            Uploading images...
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                        {/* Image Upload */}
+                        {images.length < 4 && (
+                            <div className="space-y-2">
+                                <Dropzone
+                                    onFilesDrop={handleImageUpload}
+                                    accept="image/*"
+                                    multiple={true}
+                                    className="h-32"
+                                />
+                                {uploading && (
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Uploading images...
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
-                            {/* Image Gallery */}
-                            {images.length > 0 && (
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    {images.map((image, index) => (
-                                        <div key={index} className="relative group">
-                                            <div className="aspect-square bg-muted rounded-lg overflow-hidden">
-                                                <img
-                                                    src={image.image_url}
-                                                    alt={`Product ${index + 1}`}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            </div>
-                                            <div className="absolute top-2 right-2 flex gap-1">
-                                                {!image.is_primary && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="secondary"
-                                                        className="h-6 w-6 p-0"
-                                                        onClick={() => setPrimaryImage(index)}
-                                                        title="Set as primary"
-                                                    >
-                                                        <ImageIcon className="h-3 w-3" />
-                                                    </Button>
-                                                )}
+                        {/* Image Gallery */}
+                        {images.length > 0 && (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {images.map((image, index) => (
+                                    <div key={index} className="relative group">
+                                        <div className="aspect-square bg-muted rounded-lg overflow-hidden">
+                                            <img
+                                                src={image.image_url}
+                                                alt={`Product ${index + 1}`}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                        <div className="absolute top-2 right-2 flex gap-1">
+                                            {!image.is_primary && (
                                                 <Button
                                                     size="sm"
-                                                    variant="destructive"
+                                                    variant="secondary"
                                                     className="h-6 w-6 p-0"
-                                                    onClick={() => removeImage(index)}
-                                                    title="Remove image"
+                                                    onClick={() => setPrimaryImage(index)}
+                                                    title="Set as primary"
                                                 >
-                                                    <X className="h-3 w-3" />
+                                                    <ImageIcon className="h-3 w-3" />
                                                 </Button>
-                                            </div>
-                                            {image.is_primary && (
-                                                <Badge className="absolute bottom-2 left-2 text-xs">Primary</Badge>
                                             )}
+                                            <Button
+                                                size="sm"
+                                                variant="destructive"
+                                                className="h-6 w-6 p-0"
+                                                onClick={() => removeImage(index)}
+                                                title="Remove image"
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </Button>
                                         </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Product Specifications */}
-                    <div className="border rounded-lg p-6">
-                        <h3 className="text-lg font-semibold mb-4">Product Specifications</h3>
-                        <div className="space-y-4">
-                            {/* Add New Specification */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                <input
-                                    type="text"
-                                    placeholder="Specification name"
-                                    value={newSpec.spec_name}
-                                    onChange={(e) => setNewSpec(prev => ({ ...prev, spec_name: e.target.value }))}
-                                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Specification value"
-                                    value={newSpec.spec_value}
-                                    onChange={(e) => setNewSpec(prev => ({ ...prev, spec_value: e.target.value }))}
-                                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                                <Button onClick={addSpecification} disabled={!newSpec.spec_name || !newSpec.spec_value}>
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Add
-                                </Button>
-                            </div>
-
-                            {/* Specifications List */}
-                            <div className="space-y-2">
-                                {specifications.map((spec) => (
-                                    <div key={spec.id} className="flex items-center justify-between p-3 border rounded-lg">
-                                        <div className="flex-1">
-                                            <span className="font-medium">{spec.spec_name}:</span>
-                                            <span className="ml-2 text-muted-foreground">{spec.spec_value}</span>
-                                        </div>
-                                        <Button
-                                            className="h-8 px-3 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200"
-                                            onClick={() => removeSpecification(spec.id || '')}
-                                        >
-                                            <X className="h-4 w-4" />
-                                        </Button>
+                                        {image.is_primary && (
+                                            <Badge className="absolute bottom-2 left-2 text-xs">Primary</Badge>
+                                        )}
                                     </div>
                                 ))}
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
 
-                {/* Right Sidebar - Product Info */}
-                <div className="space-y-6">
-                    <div className="border rounded-lg p-6">
-                        <h3 className="text-lg font-semibold mb-4">Product Information</h3>
-                        <div className="space-y-3">
-                            <div>
-                                <label className="block text-sm font-medium mb-1">PSKU</label>
-                                <p className="text-sm text-muted-foreground font-mono">{product.psku}</p>
-                            </div>
+                {/* Product Specifications */}
+                <div className="border rounded-lg p-6">
+                    <h3 className="text-lg font-semibold mb-4">Product Specifications</h3>
+                    <div className="space-y-4">
+                        {/* Add New Specification */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            <input
+                                type="text"
+                                placeholder="Specification name"
+                                value={newSpec.spec_name}
+                                onChange={(e) => setNewSpec(prev => ({ ...prev, spec_name: e.target.value }))}
+                                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            <input
+                                type="text"
+                                placeholder="Specification value"
+                                value={newSpec.spec_value}
+                                onChange={(e) => setNewSpec(prev => ({ ...prev, spec_value: e.target.value }))}
+                                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            <Button onClick={addSpecification} disabled={!newSpec.spec_name || !newSpec.spec_value}>
+                                <Plus className="h-4 w-4 mr-2" />
+                                Add
+                            </Button>
+                        </div>
 
-                            {product.category_name && (
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Category</label>
-                                    <p className="text-sm text-muted-foreground">{product.category_name}</p>
+                        {/* Specifications List */}
+                        <div className="space-y-2">
+                            {specifications.map((spec) => (
+                                <div key={spec.id} className="flex items-center justify-between p-3 border rounded-lg">
+                                    <div className="flex-1">
+                                        <span className="font-medium">{spec.spec_name}:</span>
+                                        <span className="ml-2 text-muted-foreground">{spec.spec_value}</span>
+                                    </div>
+                                    <Button
+                                        className="h-8 px-3 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                        onClick={() => removeSpecification(spec.id || '')}
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
                                 </div>
-                            )}
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                            {product.subcategory_name && (
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Subcategory</label>
-                                    <p className="text-sm text-muted-foreground">{product.subcategory_name}</p>
-                                </div>
-                            )}
+            {/* Right Sidebar - Product Info */}
+            <div className="space-y-6">
+                <div className="border rounded-lg p-6">
+                    <h3 className="text-lg font-semibold mb-4">Product Information</h3>
+                    <div className="space-y-3">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">PSKU</label>
+                            <p className="text-sm text-muted-foreground font-mono">{product.psku}</p>
+                        </div>
 
-                            {product.brand_name && (
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Brand</label>
-                                    <p className="text-sm text-muted-foreground">{product.brand_name}</p>
-                                </div>
-                            )}
-
+                        {product.category_name && (
                             <div>
-                                <label className="block text-sm font-medium mb-1">Created</label>
-                                <p className="text-sm text-muted-foreground">
-                                    {product.created_at ? new Date(product.created_at).toLocaleDateString() : 'N/A'}
-                                </p>
+                                <label className="block text-sm font-medium mb-1">Category</label>
+                                <p className="text-sm text-muted-foreground">{product.category_name}</p>
                             </div>
+                        )}
 
+                        {product.subcategory_name && (
                             <div>
-                                <label className="block text-sm font-medium mb-1">Last Updated</label>
-                                <p className="text-sm text-muted-foreground">
-                                    {product.updated_at ? new Date(product.updated_at).toLocaleDateString() : 'N/A'}
-                                </p>
+                                <label className="block text-sm font-medium mb-1">Subcategory</label>
+                                <p className="text-sm text-muted-foreground">{product.subcategory_name}</p>
                             </div>
+                        )}
+
+                        {product.brand_name && (
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Brand</label>
+                                <p className="text-sm text-muted-foreground">{product.brand_name}</p>
+                            </div>
+                        )}
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Created</label>
+                            <p className="text-sm text-muted-foreground">
+                                {product.created_at ? new Date(product.created_at).toLocaleDateString() : 'N/A'}
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Last Updated</label>
+                            <p className="text-sm text-muted-foreground">
+                                {product.updated_at ? new Date(product.updated_at).toLocaleDateString() : 'N/A'}
+                            </p>
                         </div>
                     </div>
                 </div>

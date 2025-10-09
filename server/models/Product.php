@@ -100,26 +100,38 @@ class Product
             return ['', 'ORDER BY id', [], ''];
         }
 
-        $where = "WHERE name LIKE CONCAT('%', ?, '%') OR product_overview LIKE CONCAT('%', ?, '%')";
+        $where = "WHERE name LIKE CONCAT('%', ?, '%') OR product_overview LIKE CONCAT('%', ?, '%') OR psku LIKE CONCAT('%', ?, '%')";
         $order = "
             ORDER BY CASE
-                WHEN name = ? THEN 1
-                WHEN name LIKE CONCAT(?, '%') THEN 2
-                WHEN name LIKE CONCAT('%', ?, '%') THEN 3
-                WHEN product_overview LIKE CONCAT('%', ?, '%') THEN 4
-                ELSE 5
+                WHEN psku = ? THEN 1
+                WHEN name = ? THEN 2
+                WHEN psku LIKE CONCAT(?, '%') THEN 3
+                WHEN name LIKE CONCAT(?, '%') THEN 4
+                WHEN name LIKE CONCAT('%', ?, '%') THEN 5
+                WHEN product_overview LIKE CONCAT('%', ?, '%') THEN 6
+                ELSE 7
             END, id";
-        $params = array_fill(0, 6, $search);
-        $types = 'ssssss';
+        $params = array_fill(0, 9, $search);
+        $types = 'sssssssss';
 
         return [$where, $order, $params, $types];
     }
 
     /* -------------------- PUBLIC METHODS -------------------- */
 
-    public function findAll(?int $userId, int $limit = 10, int $offset = 0, string $search = ''): array
+    public function findAll(?int $userId, int $limit = 10, int $offset = 0, string $search = '', bool $publicOnly = false): array
     {
         [$where, $order, $params, $types] = $this->buildWhereSearch($search);
+
+        // Add public filter if requested
+        if ($publicOnly) {
+            if (trim($where) === '') {
+                $where = "WHERE is_public = 1";
+            } else {
+                $where = preg_replace('/^\s*WHERE\s*/i', 'WHERE ', $where);
+                $where .= " AND is_public = 1";
+            }
+        }        
 
         // First fetch product IDs
         $query = "SELECT id FROM products $where $order LIMIT ? OFFSET ?";
@@ -149,19 +161,22 @@ class Product
         // Main fetch with new PSKU system joins
         $placeholders = implode(',', array_fill(0, count($productIds), '?'));
         $query = "
-            SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary, $wishlistSelect
-                   c.name as category_name, s.name as subcategory_name, b.name as brand_name,
-                   pg.name as group_name, pg.group_id,
-                   0 as dummy -- ensures trailing comma handled
-            FROM products p
-            LEFT JOIN product_images pi ON p.id = pi.product_id
-            LEFT JOIN categories c ON p.category_id = c.category_id
-            LEFT JOIN subcategories s ON p.subcategory_id = s.subcategory_id
-            LEFT JOIN brands b ON p.brand_id = b.brand_id
-            LEFT JOIN product_groups pg ON p.group_id = pg.group_id
-            $wishlistJoin
-            WHERE p.id IN ($placeholders)
-            ORDER BY p.id";
+    SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary, $wishlistSelect
+           c.name as category_name, s.name as subcategory_name, b.name as brand_name,
+           pg.name as group_name, pg.group_id,
+           0 as dummy
+    FROM products p
+    LEFT JOIN product_images pi ON p.id = pi.product_id
+    LEFT JOIN categories c ON p.category_id = c.category_id
+    LEFT JOIN subcategories s ON p.subcategory_id = s.subcategory_id
+    LEFT JOIN brands b ON p.brand_id = b.brand_id
+    LEFT JOIN product_groups pg ON p.group_id = pg.group_id
+    $wishlistJoin
+    WHERE p.id IN ($placeholders)"
+    . ($publicOnly ? " AND p.is_public = 1" : "") . "
+    ORDER BY p.id";
+
+
 
         $stmt = $this->db->prepare($query);
         $params = array_merge($wishlistParams, $productIds);
@@ -181,6 +196,7 @@ class Product
                 'stock' => $row['stock'],
                 'product_overview' => $row['product_overview'],
                 'is_returnable' => $row['is_returnable'],
+                'is_public' => $row['is_public'],
                 'final_price' => $row['final_price'],
                 'category_id' => $row['category_id'],
                 'subcategory_id' => $row['subcategory_id'],
@@ -225,9 +241,18 @@ class Product
         return array_values($products);
     }
 
-    public function getTotalCount(string $search = ''): int
+    public function getTotalCount(string $search = '', bool $publicOnly = false): int
     {
         [$where, $order, $params, $types] = $this->buildWhereSearch($search);
+
+        // Add public filter if requested
+        if ($publicOnly) {
+            if (empty($where)) {
+                $where = "WHERE is_public = 1";
+            } else {
+                $where .= " AND is_public = 1";
+            }
+        }
 
         $query = "SELECT COUNT(*) as total FROM products $where";
         $stmt = $this->db->prepare($query);
@@ -251,7 +276,7 @@ class Product
                    c.name as category_name
             FROM products p
             LEFT JOIN categories c ON p.category_id = c.category_id
-            WHERE p.id != ?";
+            WHERE p.id != ? AND p.is_public = 1";
 
         $params = [$productId];
         $types = 's';
@@ -299,6 +324,7 @@ class Product
             $product['subcategory_name'] = null;
             $product['brand_name'] = null;
             $product['group_name'] = null;
+            $product['is_public'] = false; // Default to false for legacy products
             $product['final_price'] = $product['price']; // Use price as final_price
             $product['discount_percentage'] = 0;
             $product['created_at'] = $product['created_at'] ?? null;
@@ -335,19 +361,25 @@ class Product
         return $products;
     }
 
-    public function findById(string $id): ?array
+    public function findById(string $id, bool $publicOnly = false): ?array
     {
-        $query = "
+            $query = "
             SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary,
-                   c.name as category_name, s.name as subcategory_name, b.name as brand_name,
-                   pg.name as group_name, pg.group_id
+                c.name as category_name, s.name as subcategory_name, b.name as brand_name,
+                pg.name as group_name, pg.group_id
             FROM products p
             LEFT JOIN product_images pi ON p.id = pi.product_id
             LEFT JOIN categories c ON p.category_id = c.category_id
             LEFT JOIN subcategories s ON p.subcategory_id = s.subcategory_id
             LEFT JOIN brands b ON p.brand_id = b.brand_id
             LEFT JOIN product_groups pg ON p.group_id = pg.group_id
-            WHERE p.id = ?";
+            WHERE p.id = ?
+        ";
+        
+        if ($publicOnly) {
+            $query .= " AND p.is_public = 1";
+        }
+        
 
         $stmt = $this->db->prepare($query);
         
@@ -387,6 +419,7 @@ class Product
             'currency' => $base['currency'],
             'stock' => $base['stock'],
             'is_returnable' => $base['is_returnable'],
+            'is_public' => $base['is_public'],
             'final_price' => $base['final_price'],
             'product_overview' => $base['product_overview'],
             'category_name' => $base['category_name'],
@@ -476,7 +509,7 @@ class Product
         }
     }
 
-    public function findByPsku(string $psku): ?array
+    public function findByPsku(string $psku, bool $publicOnly = false): ?array
     {
         $query = "
             SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary,
@@ -489,6 +522,10 @@ class Product
             LEFT JOIN brands b ON p.brand_id = b.brand_id
             LEFT JOIN product_groups pg ON p.group_id = pg.group_id
             WHERE p.psku = ?";
+            
+        if ($publicOnly) {
+            $query .= " AND p.is_public = 1";
+        }
 
         $stmt = $this->db->prepare($query);
         $stmt->bind_param('s', $psku);
@@ -498,19 +535,23 @@ class Product
             return null;
 
         // Use the same logic as findById for consistency
-        return $this->findById($rows[0]['id']);
+        return $this->findById($rows[0]['id'], $publicOnly);
     }
 
     private function generatePsku(string $productName): string
     {
-        // Generate PSKU from product name
-        $basePsku = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $productName));
-        $basePsku = substr($basePsku, 0, 8); // Limit to 8 characters
-
-        // Add random suffix to ensure uniqueness
-        $suffix = strtoupper(substr(md5(uniqid()), 0, 4));
-
-        return $basePsku . '-' . $suffix;
+        // Generate random alphanumeric string (15 characters)
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $randomString = '';
+        
+        for ($i = 0; $i < 15; $i++) {
+            $randomString .= $characters[random_int(0, strlen($characters) - 1)];
+        }
+        
+        // Add 3-digit number at the end
+        $number = str_pad(random_int(0, 999), 3, '0', STR_PAD_LEFT);
+        
+        return 'PSKU_' . $randomString . $number;
     }
 
     public function create(array $data, ?int $storeId = null): ?array
@@ -544,13 +585,14 @@ class Product
             'stock' => isset($data['stock']) && $data['stock'] !== null ? (int) $data['stock'] : 0,
             'product_overview' => isset($data['product_overview']) && $data['product_overview'] !== null ? trim($data['product_overview']) : null,
             'is_returnable' => isset($data['is_returnable']) ? (bool) $data['is_returnable'] : false,
+            'is_public' => isset($data['is_public']) ? (bool) $data['is_public'] : false,
             'images' => isset($data['images']) ? $data['images'] : [],
             'productSpecifications' => isset($data['productSpecifications']) ? $data['productSpecifications'] : [],
             'productAttributes' => isset($data['productAttributes']) ? $data['productAttributes'] : [],
             'discount' => isset($data['discount']) ? $data['discount'] : null
         ];
 
-        $query = 'INSERT INTO products (id, psku, user_id, store_id, category_id, subcategory_id, brand_id, group_id, name, price, currency, stock, product_overview, is_returnable, final_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        $query = 'INSERT INTO products (id, psku, user_id, store_id, category_id, subcategory_id, brand_id, group_id, name, price, currency, stock, product_overview, is_returnable, is_public, final_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
         $stmt = $this->db->prepare($query);
         if (!$stmt) {
@@ -562,6 +604,15 @@ class Product
 
         // Generate PSKU if not provided
         $psku = $cleanData['psku'] ?? $this->generatePsku($cleanData['name']);
+        
+        // Validate PSKU uniqueness
+        if (!empty($psku)) {
+            $existingProduct = $this->findByPsku($psku);
+            if ($existingProduct) {
+                error_log("PSKU validation failed: PSKU '$psku' already exists for product ID: " . $existingProduct['id']);
+                return null;
+            }
+        }
 
         // If store session exists, set user_id to NULL and use store_id
         // Otherwise use regular user session
@@ -577,9 +628,10 @@ class Product
 
         $finalPrice = $this->calculateFinalPrice($cleanData['price'], $cleanData['discount']);
         $isReturnable = (int) $cleanData['is_returnable'];
+        $isPublic = (int) $cleanData['is_public'];
 
         $stmt->bind_param(
-            'sssiiiissdiisid',
+            'sssiiiissdiisiid',
             $hash,
             $psku,
             $userId,
@@ -594,6 +646,7 @@ class Product
             $cleanData['stock'],
             $cleanData['product_overview'],
             $isReturnable,
+            $isPublic,
             $finalPrice
         );
 
@@ -650,7 +703,8 @@ class Product
             ->key('brand_id', v::optional(v::intVal()->positive()), false)
             ->key('group_id', v::optional(v::stringType()), false)
             ->key('stock', v::optional(v::intVal()->min(0)), false)
-            ->key('is_returnable', v::optional(v::boolType()), false);
+            ->key('is_returnable', v::optional(v::boolType()), false)
+            ->key('is_public', v::optional(v::boolType()), false);
         try {
             $validator->assert($data);
         } catch (ValidationException $err) {
@@ -658,7 +712,14 @@ class Product
             return null;
         }
 
-        error_log("Test" . json_encode($data['stock']));
+        // Validate PSKU uniqueness if PSKU is being updated
+        if (isset($data['psku']) && !empty($data['psku'])) {
+            $existingProduct = $this->findByPsku($data['psku']);
+            if ($existingProduct && $existingProduct['id'] !== $id) {
+                error_log("PSKU validation failed: PSKU '{$data['psku']}' already exists for product ID: " . $existingProduct['id']);
+                return null;
+            }
+        }
 
         $fields = [];
         $types = '';
@@ -675,12 +736,12 @@ class Product
                 $value = null;
             }
 
-            if ($key === 'is_returnable') {
+            if ($key === 'is_returnable' || $key === 'is_public') {
                 $value = (bool) $value;
             }
 
             $fields[] = "$key = ?";
-            if (is_int($value) || ($key === 'is_returnable' && is_bool($value))) {
+            if (is_int($value) || (($key === 'is_returnable' || $key === 'is_public') && is_bool($value))) {
                 $types .= 'i';
                 if (is_bool($value)) {
                     $value = $value ? 1 : 0;

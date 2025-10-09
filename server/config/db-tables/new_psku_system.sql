@@ -83,7 +83,8 @@ ADD COLUMN `brand_id` INT AFTER `group_id`,
 ADD COLUMN `subcategory_id` INT AFTER `category_id`,
 ADD COLUMN `stock` INT DEFAULT 0 AFTER `price`,
 ADD COLUMN `is_returnable` TINYINT(1) DEFAULT 0 AFTER `stock`,
-ADD COLUMN `final_price` FLOAT AFTER `is_returnable`,
+ADD COLUMN `is_public` TINYINT(1) NOT NULL DEFAULT 0 AFTER `is_returnable`,
+ADD COLUMN `final_price` FLOAT AFTER `is_public`,
 ADD COLUMN `store_id` INT UNSIGNED AFTER `user_id`,
 MODIFY COLUMN `name` VARCHAR(500),
 MODIFY COLUMN `user_id` INT NULL; -- Allow NULL for store products
@@ -106,7 +107,8 @@ ADD INDEX `idx_products_psku` (`psku`),
 ADD INDEX `idx_products_group` (`group_id`),
 ADD INDEX `idx_products_brand` (`brand_id`),
 ADD INDEX `idx_products_subcategory` (`subcategory_id`),
-ADD INDEX `idx_products_store` (`store_id`);
+ADD INDEX `idx_products_store` (`store_id`),
+ADD INDEX `idx_products_is_public` (`is_public`);
 
 -- Product Group Attributes table (for dynamic attribute management)
 DROP TABLE IF EXISTS `product_group_attributes`;

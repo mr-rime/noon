@@ -13,6 +13,7 @@ export const CREATE_PRODUCT = gql`
             $stock: Int
             $discount: DiscountInput
             $is_returnable: Boolean!
+            $is_public: Boolean
             $images: [ProductImageInput]
             $productSpecifications: [ProductSpecificationInput]
             $productAttributes: [ProductAttributeInput]
@@ -29,6 +30,7 @@ export const CREATE_PRODUCT = gql`
             stock: $stock
             images: $images
             is_returnable: $is_returnable
+            is_public: $is_public
             discount: $discount
             productSpecifications: $productSpecifications
             productAttributes: $productAttributes
@@ -53,6 +55,7 @@ export const CREATE_PRODUCT = gql`
                     brand_name
                     group_name
                     is_returnable
+                    is_public
                     created_at
                     updated_at
                 images {
@@ -111,6 +114,7 @@ export const UPDATE_PRODUCT = gql`
         $stock: Int
         $discount: DiscountInput
         $is_returnable: Boolean
+        $is_public: Boolean
         $images: [ProductImageInput]
         $productSpecifications: [ProductSpecificationInput]
         $productAttributes: [ProductAttributeInput]
@@ -124,6 +128,7 @@ export const UPDATE_PRODUCT = gql`
             stock: $stock
             images: $images
             is_returnable: $is_returnable
+            is_public: $is_public
             discount: $discount
             productSpecifications: $productSpecifications
             productAttributes: $productAttributes
@@ -148,6 +153,7 @@ export const UPDATE_PRODUCT = gql`
             brand_name
             group_name
             is_returnable
+            is_public
             created_at
             updated_at
             images {
@@ -204,14 +210,23 @@ export const GET_PRODUCTS = gql`
                 total
                 products {
                     id
+                    psku
                     name
                     price
                     currency
                     product_overview
                     is_returnable
+                    is_public
                     final_price
                     stock
                     category_id
+                    subcategory_id
+                    brand_id
+                    group_id
+                    category_name
+                    subcategory_name
+                    brand_name
+                    group_name
                     discount_percentage
                     created_at
                     discount {
@@ -251,6 +266,7 @@ query ($id: ID!) {
         currency
         stock
         is_returnable
+        is_public
         product_overview
         category_id
         subcategory_id
@@ -392,6 +408,7 @@ export const GET_PRODUCT_BY_SKU = gql`
                 currency
                 stock
                 is_returnable
+                is_public
                 product_overview
                 category_id
                 subcategory_id

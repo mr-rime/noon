@@ -200,8 +200,8 @@ export function ProductPskuPage() {
                                             <div
                                                 key={groupProduct.id}
                                                 className={`border rounded-lg p-4 cursor-pointer transition-colors ${selectedGroupProduct?.id === groupProduct.id
-                                                        ? 'border-primary bg-primary/10'
-                                                        : 'hover:border-primary/50'
+                                                    ? 'border-primary bg-primary/10'
+                                                    : 'hover:border-primary/50'
                                                     }`}
                                                 onClick={() => setSelectedGroupProduct(groupProduct)}
                                             >

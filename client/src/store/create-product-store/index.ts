@@ -28,7 +28,7 @@ const defaultProduct: ProductType = {
   is_in_wishlist: false,
   wishlist_id: '',
   discount_percentage: 0,
-  
+  is_public: false
 }
 
 export const useProductStore = create<ProductStore>((set) => ({

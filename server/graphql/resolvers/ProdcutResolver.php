@@ -12,9 +12,19 @@ function getAllProducts(mysqli $db, array $data): array
         $limit = $data['limit'] ?? 10;
         $offset = $data['offset'] ?? 0;
         $search = $data['search'] ?? '';
+        
+        // Dashboard access - check store permissions
+        $publicOnly = false;
+        if (isset($_SESSION['store']['id'])) {
+            // Store is authenticated - can see all their products (including private)
+            $publicOnly = false;
+        } else {
+            // No store session - this is public site access, only show public products
+            $publicOnly = true;
+        }
 
-        $products = $model->findAll($userId, $limit, $offset, $search);
-        $total = $model->getTotalCount($search);
+        $products = $model->findAll($userId, $limit, $offset, $search, $publicOnly);
+        $total = $model->getTotalCount($search, $publicOnly);
 
         return [
             'success' => true,
@@ -36,7 +46,38 @@ function getProductById(mysqli $db, string $id): array
 {
     try {
         $model = new Product($db);
-        $product = $model->findById($id);
+        
+        // Dashboard access - check store permissions
+        $publicOnly = false;
+        if (isset($_SESSION['store']['id'])) {
+            // Store is authenticated - can see all their products (including private)
+            $publicOnly = false;
+        } else {
+            // No store session - this is public site access, only show public products
+            $publicOnly = true;
+        }
+        
+        $product = $model->findById($id, $publicOnly);
+
+        return [
+            'success' => $product !== null,
+            'message' => $product ? 'Product found.' : 'Product not found.',
+            'product' => $product
+        ];
+    } catch (Exception $e) {
+        return [
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage(),
+            'product' => null
+        ];
+    }
+}
+
+function getPublicProductById(mysqli $db, string $id): array
+{
+    try {
+        $model = new Product($db);
+        $product = $model->findById($id, true); // Public version - only shows public products
 
         return [
             'success' => $product !== null,
@@ -341,8 +382,11 @@ function getRelatedProducts(mysqli $db, string $productId, int $limit = 8): arra
     try {
         $productModel = new Product($db);
 
+        // Check if this is public site access
+        $publicOnly = !isset($_SESSION['store']['id']);
+        
         // Get the current product to find its category and brand
-        $currentProduct = $productModel->findById($productId);
+        $currentProduct = $productModel->findById($productId, $publicOnly);
         if (!$currentProduct) {
             return [
                 'success' => false,

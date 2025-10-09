@@ -34,7 +34,7 @@ const navigation = [
         title: "Marketing",
         icon: Megaphone,
         items: [
-            { title: "Advertisement Banners", url: "/banners" },
+            { title: "Advertisement Banners", url: "/d/banners" },
             { title: "Coupons", url: "/coupons" },
             { title: "Discounts", url: "/discounts" },
             { title: "Product Offers", url: "/offers" },

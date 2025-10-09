@@ -24,7 +24,7 @@ export function ProductPageDetails({
   })
 
   return theme === 'desktop' ? (
-    <div className="w-full max-w-[312px] rounded-[8px] border border-[#eceef4]">
+    <div className="w-full rounded-[8px] border border-[#eceef4]">
       <div className="flex flex-col items-start justify-start space-x-4 px-4 py-3">
         <div className="flex items-center justify-start space-x-4 px-4 py-3">
           <Image
