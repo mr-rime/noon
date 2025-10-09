@@ -308,9 +308,8 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                             </div>
                         )}
 
-                        {/* Image Gallery */}
                         {images.length > 0 && (
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5">
                                 {images.map((image, index) => (
                                     <div key={index} className="relative group">
                                         <div className="aspect-square bg-muted rounded-lg overflow-hidden">

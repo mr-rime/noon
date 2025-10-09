@@ -159,6 +159,11 @@ $QueryType = new ObjectType([
             'args' => ['psku' => Type::nonNull(Type::string())],
             'resolve' => fn($root, $args, $context) => getProductByPsku($context['db'], $args['psku'])
         ],
+        'validatePsku' => [
+            'type' => Type::boolean(),
+            'args' => ['psku' => Type::nonNull(Type::string())],
+            'resolve' => fn($root, $args, $context) => validatePskuUniqueness($context['db'], $args['psku'])
+        ],
         'getRelatedProducts' => [
             'type' => $ProductsResponseType,
             'args' => [
@@ -403,9 +408,22 @@ $MutationType = new ObjectType([
             'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteSubcategory($context['db'], $args['id']))
         ],
         'createBrand' => [
-            'type' => $CategoryResponseType,
+            'type' => $BrandResponseType,
             'args' => ['input' => Type::nonNull($BrandInputType)],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => createBrand($context['db'], $args['input']))
+        ],
+        'updateBrand' => [
+            'type' => $BrandResponseType,
+            'args' => [
+                'id' => Type::nonNull(Type::int()),
+                'input' => Type::nonNull($BrandInputType)
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => updateBrand($context['db'], $args['id'], $args['input']))
+        ],
+        'deleteBrand' => [
+            'type' => $BrandResponseType,
+            'args' => ['id' => Type::nonNull(Type::int())],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteBrand($context['db'], $args['id']))
         ],
         'createProductGroup' => [
             'type' => $ProductGroupResponseType,

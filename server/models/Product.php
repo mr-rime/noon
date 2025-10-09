@@ -509,6 +509,23 @@ class Product
         }
     }
 
+    public function findByBrandId(int $brandId): array 
+    {
+        $query = 'SELECT id FROM products WHERE brand_id = ?';
+        $stmt = $this->db->prepare($query);
+
+        if (!$stmt) {
+            error_log("Prepare failed: " . $this->db->error);
+            return [];
+        }
+
+        $stmt->bind_param('i', $brandId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
     public function findByPsku(string $psku, bool $publicOnly = false): ?array
     {
         $query = "

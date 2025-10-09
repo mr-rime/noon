@@ -28,6 +28,7 @@ const navigation = [
             { title: "All Products", url: "/d/products" },
             { title: "Add New Product", url: "/d/products/new" },
             { title: "Categories", url: "/d/categories" },
+            { title: "Brands", url: "/d/brands" },
         ],
     },
     {

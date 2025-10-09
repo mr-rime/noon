@@ -8,6 +8,10 @@ require_once __DIR__ . '/ProductSpecificationTypes.php';
 require_once __DIR__ . '/DiscountTypes.php';
 require_once __DIR__ . '/PskuTypes.php';
 
+global $ProductSpecificationType, $ProductAttributeType, $GroupAttributeType,
+$ProductAttributeInputType, $DiscountInputType, $DiscountType, $ProductType;
+
+
 
 $ProductImageType = new ObjectType([
     'name' => 'ProductImage',
@@ -61,7 +65,7 @@ $ProductInputType = new InputObjectType([
 
 $ProductType = new ObjectType([
     'name' => 'Product',
-    'fields' => function () use (&$ProductType, $ProductImageType, $ProductSpecificationType, $DiscountType, $CategoryType, $SubcategoryType, $BrandType, $ProductGroupType, $ProductAttributeType, $GroupAttributeType) {
+    'fields' => function () use (&$ProductType, $ProductImageType, $ProductSpecificationType, $DiscountType, $ProductAttributeType, $GroupAttributeType) {
         return [
             'id' => Type::nonNull(Type::string()),
             'psku' => Type::string(),

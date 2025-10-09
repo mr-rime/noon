@@ -240,7 +240,7 @@ export default function Products() {
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead>Product</TableHead>
+                                            <TableHead>SKU Details</TableHead>
                                             <TableHead>Price</TableHead>
                                             <TableHead>Stock</TableHead>
                                             <TableHead>Status</TableHead>

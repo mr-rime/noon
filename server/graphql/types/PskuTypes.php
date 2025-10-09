@@ -198,6 +198,15 @@ $BrandsResponseType = new ObjectType([
     ]
 ]);
 
+$BrandResponseType = new ObjectType([
+    'name' => 'BrandResponse',
+    'fields' => [
+        'success' => Type::boolean(),
+        'message' => Type::string(),
+        'brand' => $BrandType
+    ]
+]);
+
 $ProductGroupsResponseType = new ObjectType([
     'name' => 'ProductGroupsResponse',
     'fields' => [

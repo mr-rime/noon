@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
-import { ChevronDown, ChevronUp, Trash2, Package, X, Edit, Grid, Search, ArrowLeft } from 'lucide-react'
+import { ChevronDown, ChevronUp, Trash2, Package, X, Edit, Grid, Search, ArrowLeft, Loader2 } from 'lucide-react'
 import { GET_PRODUCT_GROUPS, CREATE_PRODUCT_GROUP, UPDATE_PRODUCT_GROUP, ADD_PRODUCT_TO_GROUP, CREATE_PSKU_PRODUCT, REMOVE_PRODUCT_FROM_GROUP } from '@/graphql/psku'
 import { GET_PRODUCTS, UPDATE_PRODUCT } from '@/graphql/product'
 import type { ProductType, ProductGroup } from '@/types'
@@ -36,6 +36,9 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
     const [isValidatingPsku, setIsValidatingPsku] = useState(false)
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
     const [productToDelete, setProductToDelete] = useState<{ id: string, name: string } | null>(null)
+    const [isCreatingPsku, setIsCreatingPsku] = useState(false)
+    const [isSavingGroup, setIsSavingGroup] = useState(false)
+    const [isDeletingProduct, setIsDeletingProduct] = useState(false)
 
     // Queries
     const { data: groupsData, refetch: refetchGroups } = useQuery(GET_PRODUCT_GROUPS, {
@@ -126,26 +129,23 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
         }
 
         setIsValidatingPsku(true)
-        setPskuValidationMessage('')
 
         try {
-            const response = await fetch('/server/graphql/graphql.php', {
+            // Use the same GraphQL endpoint as Apollo Client
+            const isDashboard = window.location.hostname === 'dashboard.localhost'
+            const graphqlUrl = isDashboard 
+                ? 'http://dashboard.localhost:8000/graphql'
+                : 'http://localhost:8000/graphql'
+                
+            const response = await fetch(graphqlUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     query: `
-                        query CheckPskuExists($psku: String!) {
-                            getProductByPsku(psku: $psku) {
-                                success
-                                message
-                                product {
-                                    id
-                                    psku
-                                    name
-                                }
-                            }
+                        query ValidatePsku($psku: String!) {
+                            validatePsku(psku: $psku)
                         }
                     `,
                     variables: { psku: psku.trim() }
@@ -153,13 +153,25 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
             })
 
             const data = await response.json()
+            console.log('PSKU validation response for:', psku.trim(), data)
 
-            if (data.data?.getProductByPsku?.success) {
-                setPskuValidationMessage(`PSKU already exists: ${data.data.getProductByPsku.product.name}`)
+            // Check for GraphQL errors
+            if (data.errors) {
+                console.error('GraphQL errors:', data.errors)
+                setPskuValidationMessage('Error validating PSKU: ' + data.errors[0]?.message)
                 return false
-            } else {
+            }
+
+            if (data.data?.validatePsku === true) {
                 setPskuValidationMessage('PSKU is available')
                 return true
+            } else if (data.data?.validatePsku === false) {
+                setPskuValidationMessage('PSKU already exists')
+                return false
+            } else {
+                console.error('Unexpected response:', data.data)
+                setPskuValidationMessage('Error validating PSKU: unexpected response')
+                return false
             }
         } catch (error) {
             console.error('Error validating PSKU:', error)
@@ -199,10 +211,13 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
     }
 
     const handleSaveGroup = async () => {
+        setIsSavingGroup(true)
+        
         // Create new group
         if (!currentGroup) {
             if (!newGroupName.trim()) {
                 toast.error('Group name is required')
+                setIsSavingGroup(false)
                 return
             }
 
@@ -244,6 +259,8 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
             } catch (error) {
                 console.error('Error creating group:', error)
                 toast.error('An error occurred while creating the group')
+            } finally {
+                setIsSavingGroup(false)
             }
             return
         }
@@ -292,6 +309,8 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
         } catch (error) {
             console.error('Error updating group:', error)
             toast.error('An error occurred while updating the group')
+        } finally {
+            setIsSavingGroup(false)
         }
     }
 
@@ -357,6 +376,12 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
     const confirmRemoveProduct = async () => {
         if (!productToDelete) return
 
+        setIsDeletingProduct(true)
+        
+        // Optimistically remove from UI
+        const productToRemove = productToDelete
+        setGroupProducts(prev => prev.filter(p => p.id !== productToRemove.id))
+
         try {
             const { data } = await removeProductFromGroup({
                 variables: { product_id: productToDelete.id }
@@ -366,12 +391,23 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 toast.success(`Product removed from group successfully!`)
                 onGroupUpdate?.()
             } else {
+                // Restore product on failure
+                setGroupProducts(prev => {
+                    const existingProduct = groupProducts.find(p => p.id === productToRemove.id)
+                    return existingProduct ? [...prev, existingProduct] : prev
+                })
                 toast.error(data?.updateProduct?.message || 'Failed to remove product from group')
             }
         } catch (error) {
+            // Restore product on error
+            setGroupProducts(prev => {
+                const existingProduct = groupProducts.find(p => p.id === productToRemove.id)
+                return existingProduct ? [...prev, existingProduct] : prev
+            })
             console.error('Error removing product from group:', error)
             toast.error('An error occurred while removing the product from group')
         } finally {
+            setIsDeletingProduct(false)
             setShowDeleteConfirm(false)
             setProductToDelete(null)
         }
@@ -394,6 +430,22 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
             toast.error('PSKU already exists. Please choose a different one.')
             return
         }
+
+        setIsCreatingPsku(true)
+        
+        // Create optimistic product for immediate UI feedback
+        const optimisticProduct = {
+            id: `temp-${Date.now()}`,
+            name: `Product ${newPsku}`,
+            psku: newPsku.trim(),
+            price: product.price,
+            currency: product.currency,
+            group_id: currentGroup.group_id,
+            is_temp: true // Mark as temporary
+        }
+        
+        // Add to UI immediately
+        setGroupProducts(prev => [...prev, optimisticProduct])
 
         try {
             const { data } = await createPskuProduct({
@@ -421,13 +473,26 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 setShowCreateNew(false)
                 setNewPsku('')
                 setPskuValidationMessage('')
+                
+                // Replace optimistic product with real data
+                const realProduct = data.createProduct.product
+                setGroupProducts(prev => 
+                    prev.map(p => p.id === optimisticProduct.id ? realProduct : p)
+                )
+                
                 onGroupUpdate?.()
             } else {
+                // Remove optimistic product on failure
+                setGroupProducts(prev => prev.filter(p => p.id !== optimisticProduct.id))
                 toast.error(data?.createProduct?.message || 'Failed to create Partner SKU')
             }
         } catch (error) {
+            // Remove optimistic product on error
+            setGroupProducts(prev => prev.filter(p => p.id !== optimisticProduct.id))
             console.error('Error creating Partner SKU:', error)
             toast.error('An error occurred while creating the Partner SKU')
+        } finally {
+            setIsCreatingPsku(false)
         }
     }
 
@@ -473,6 +538,8 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                             key={index}
                                             className={`border rounded-lg p-4 ${isCurrentProduct
                                                 ? 'bg-blue-50 border-blue-200 ring-2 ring-blue-100'
+                                                : groupProduct.is_temp
+                                                ? 'bg-yellow-50 border-yellow-200'
                                                 : 'bg-white'
                                                 }`}
                                         >
@@ -485,10 +552,14 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                     />
                                                 )}
                                                 <div className="flex-1">
-                                                    <div className="font-mono text-[11px] text-gray-600 mb-1">{groupProduct.psku || groupProduct.id}</div>
+                                                    <div className="font-mono text-[11px] text-gray-600 mb-1 flex items-center gap-2">
+                                                        {groupProduct.psku || groupProduct.id}
+                                                        {groupProduct.is_temp && <Loader2 className="h-3 w-3 animate-spin text-yellow-600" />}
+                                                    </div>
                                                     <div className="text-[12px] mb-1 break-words truncate whitespace-nowrap w-[150px]">{groupProduct.name}</div>
                                                     <div className="flex items-center gap-2">
                                                         <Badge variant="secondary" className="text-xs">{groupProduct.brand_name || 'Generic'}</Badge>
+                                                        {groupProduct.is_temp && <Badge variant="outline" className="text-xs text-yellow-600 border-yellow-300">Creating...</Badge>}
                                                     </div>
                                                     <Link
                                                         to='/d/products/$productId'
@@ -499,15 +570,20 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                     </Link>
                                                 </div>
                                                 <div className="flex gap-1">
-                                                    <Button variant="ghost" size="sm" onClick={() => setShowGroupModal(true)}>
+                                                    <Button 
+                                                        variant="ghost" 
+                                                        size="sm" 
+                                                        onClick={() => setShowGroupModal(true)}
+                                                        disabled={groupProduct.is_temp}
+                                                    >
                                                         <Edit className="h-4 w-4" />
                                                     </Button>
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => handleRemoveProductFromGroup(groupProduct.id, groupProduct.name)}
-                                                        disabled={isCurrentProduct}
-                                                        title={isCurrentProduct ? "Cannot remove current product" : "Remove from group"}
+                                                        disabled={isCurrentProduct || groupProduct.is_temp}
+                                                        title={isCurrentProduct ? "Cannot remove current product" : groupProduct.is_temp ? "Product is being created" : "Remove from group"}
                                                     >
                                                         <Trash2 className="h-4 w-4 text-red-600" />
                                                     </Button>
@@ -738,6 +814,8 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                     key={index}
                                                     className={`border rounded-lg p-4 ${isCurrentProduct
                                                         ? 'bg-blue-50 border-blue-200 ring-2 ring-blue-100'
+                                                        : groupProduct.is_temp
+                                                        ? 'bg-yellow-50 border-yellow-200'
                                                         : ''
                                                         }`}
                                                 >
@@ -750,28 +828,36 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                             />
                                                         )}
                                                         <div className="flex-1">
-                                                            <div className="font-mono text-sm text-gray-600 mb-1">{groupProduct.psku}</div>
+                                                            <div className="font-mono text-sm text-gray-600 mb-1 flex items-center gap-2">
+                                                                {groupProduct.psku}
+                                                                {groupProduct.is_temp && <Loader2 className="h-3 w-3 animate-spin text-yellow-600" />}
+                                                            </div>
                                                             <div className="text-sm mb-1">{groupProduct.name}</div>
                                                             <div className="flex items-center gap-2">
                                                                 <Badge variant="secondary" className="text-xs">{groupProduct.brand_name || 'Generic'}</Badge>
                                                                 {isCurrentProduct && (
                                                                     <Badge variant="default" className="text-xs bg-blue-600">Current</Badge>
                                                                 )}
+                                                                {groupProduct.is_temp && <Badge variant="outline" className="text-xs text-yellow-600 border-yellow-300">Creating...</Badge>}
                                                             </div>
                                                             <button className="block text-blue-600 text-sm mt-2 hover:underline cursor-pointer">
                                                                 View Details
                                                             </button>
                                                         </div>
                                                         <div className="flex gap-2">
-                                                            <Button variant="ghost" size="sm">
+                                                            <Button 
+                                                                variant="ghost" 
+                                                                size="sm"
+                                                                disabled={groupProduct.is_temp}
+                                                            >
                                                                 <Edit className="h-4 w-4" />
                                                             </Button>
                                                             <Button
                                                                 variant="ghost"
                                                                 size="sm"
                                                                 onClick={() => handleRemoveProductFromGroup(groupProduct.id, groupProduct.name)}
-                                                                disabled={isCurrentProduct}
-                                                                title={isCurrentProduct ? "Cannot remove current product" : "Remove from group"}
+                                                                disabled={isCurrentProduct || groupProduct.is_temp}
+                                                                title={isCurrentProduct ? "Cannot remove current product" : groupProduct.is_temp ? "Product is being created" : "Remove from group"}
                                                             >
                                                                 <Trash2 className="h-4 w-4 text-red-600" />
                                                             </Button>
@@ -861,7 +947,8 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                             <Button variant="outline" onClick={handleCloseModal}>
                                 Cancel
                             </Button>
-                            <Button onClick={handleSaveGroup}>
+                            <Button onClick={handleSaveGroup} disabled={isSavingGroup}>
+                                {isSavingGroup && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                                 {currentGroup ? 'Save Changes' : 'Create Group'}
                             </Button>
                         </div>
@@ -1017,9 +1104,10 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                 Cancel
                             </Button>
                             <Button
-                                disabled={!newPsku.trim() || pskuValidationMessage.includes('already exists') || isValidatingPsku}
+                                disabled={!newPsku.trim() || pskuValidationMessage.includes('already exists') || isValidatingPsku || isCreatingPsku}
                                 onClick={handleCreateNewPsku}
                             >
+                                {isCreatingPsku && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                                 Save
                             </Button>
                         </div>
@@ -1053,13 +1141,16 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                         setShowDeleteConfirm(false)
                                         setProductToDelete(null)
                                     }}
+                                    disabled={isDeletingProduct}
                                 >
                                     Cancel
                                 </Button>
                                 <Button
                                     variant="destructive"
                                     onClick={confirmRemoveProduct}
+                                    disabled={isDeletingProduct}
                                 >
+                                    {isDeletingProduct && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                                     Remove Product
                                 </Button>
                             </div>

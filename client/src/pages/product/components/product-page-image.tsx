@@ -7,12 +7,13 @@ type ProductPageImageProps = {
 
 export function ProductPageImage({ images }: ProductPageImageProps) {
   return (
-    <div className="w-full md:w-[calc(300/1200*100%)]">
+    <div className="w-full md:w-[calc(300/1200*100%)] ">
       <ImageSlider
         images={images}
         mobileImages={images}
         autoPlay={false}
         showControls={false}
+        height={500}
         showDots={true}
         showProductControls
         dotsTheme="theme3"

@@ -295,7 +295,7 @@ function createProductWithVariants(mysqli $db, array $args): array
             $i = 1;
             foreach ($combos as $combo) {
                 $sku = $productId . '-' . str_pad((string) $i, 3, '0', STR_PAD_LEFT);
-                $created = $variantModel->create($productId, $sku, $combo, null, null, null);
+                $created = $variantModel->create($productId, $sku, $combo, null, null);
                 if (!$created) {
                     throw new Exception('Failed to create generated variant');
                 }
@@ -308,7 +308,7 @@ function createProductWithVariants(mysqli $db, array $args): array
                 $price = $v['price'] ?? null;
                 $stock = $v['stock'] ?? null;
                 $imageUrl = $v['image_url'] ?? null;
-                $created = $variantModel->create($productId, $sku, $options, $price, $stock, $imageUrl);
+                $created = $variantModel->create($productId, $sku, $options, $price, $stock);
                 if (!$created) {
                     throw new Exception('Failed to create variant');
                 }

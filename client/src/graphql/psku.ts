@@ -410,3 +410,10 @@ export const CHECK_PSKU_EXISTS = gql`
     }
   }
 `
+
+// Validate PSKU uniqueness (checks all products regardless of visibility)
+export const VALIDATE_PSKU = gql`
+  query ValidatePsku($psku: String!) {
+    validatePsku(psku: $psku)
+  }
+`

@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client'
 import { Link } from '@tanstack/react-router'
 import { ExternalLink, X } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { GET_ACTIVE_BANNERS_BY_PLACEMENT } from '../../graphql/banner-display'
 import { type Banner } from '../../types/banner'
 import { useBannerAnalytics } from '../../hooks/use-banner-analytics'
@@ -22,7 +22,7 @@ export function BannerDisplay({ placement, className = '', showCloseButton = fal
     errorPolicy: 'ignore' // Don't show errors to users for banner loading
   })
 
-  const banners: Banner[] = data?.getActiveBannersByPlacement || []
+  const banners: Banner[] = useMemo(() => data?.getActiveBannersByPlacement || [], [data?.getActiveBannersByPlacement])
 
   // Track banner views when they load
   useEffect(() => {

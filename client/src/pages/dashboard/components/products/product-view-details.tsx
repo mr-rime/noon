@@ -175,7 +175,7 @@ export function ProductViewDetails({ productId, onClose, onEdit }: ProductDetail
                                         <span className="text-sm font-medium text-muted-foreground">Stock Level</span>
                                     </div>
                                     <span className={`font-bold text-lg ${stock > 20 ? 'text-green-600' :
-                                            stock > 0 ? 'text-yellow-600' : 'text-red-600'
+                                        stock > 0 ? 'text-yellow-600' : 'text-red-600'
                                         }`}>
                                         {stock} units
                                     </span>
