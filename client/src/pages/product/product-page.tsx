@@ -50,17 +50,25 @@ export function ProductPage() {
   }, [currentProduct])
 
   // Get all products in the group (maintaining original order from server)
+  // Filter to only include public products, but always include the current product being viewed
   const allGroupProducts = useMemo(() => {
     if (!currentProduct) return []
-    
+
     // If no group products, just return current product
     if (!currentProduct.groupProducts || currentProduct.groupProducts.length === 0) {
       return [currentProduct]
     }
-    
-    // Return group products in their original order from the server
-    // The server already includes the current product in the groupProducts array
-    return currentProduct.groupProducts
+
+    // Filter to only public products, but ensure current product is always included
+    const publicProducts = currentProduct.groupProducts.filter(product => product.is_public)
+
+    // If current product is not public but is being viewed, include it
+    const currentProductInGroup = currentProduct.groupProducts.find(p => p.id === currentProduct.id)
+    if (currentProductInGroup && !currentProductInGroup.is_public && !publicProducts.find(p => p.id === currentProduct.id)) {
+      publicProducts.push(currentProductInGroup)
+    }
+
+    return publicProducts
   }, [currentProduct])
 
   // Build attribute options from all products in the group
@@ -253,10 +261,24 @@ export function ProductPage() {
           <Separator className="my-5" />
 
           {/* Product Variants/Attributes Selector */}
-          {Object.keys(attributeOptions).length > 0 && (
+          {Object.keys(attributeOptions).length > 0 && allGroupProducts.filter(p => p.is_public).length > 1 && (
             <div className="w-full space-y-6 mb-6">
               {Object.entries(attributeOptions).map(([attributeName, values]) => {
                 const selectedValue = selectedAttributes[attributeName]
+
+                // Filter values to only show those from public products (except current selection)
+                const publicValues = Array.from(values).filter(value => {
+                  const productWithAttr = allGroupProducts.find(p =>
+                    p.productAttributes?.some(attr =>
+                      attr.attribute_name === attributeName && attr.attribute_value === value
+                    )
+                  )
+                  // Show value if product is public OR if it's the currently selected value
+                  return productWithAttr && (productWithAttr.is_public || selectedValue === value)
+                })
+
+                // Only show attributes that have more than one public value
+                if (publicValues.length <= 1) return null
 
                 return (
                   <div key={attributeName} className="space-y-3">
@@ -264,7 +286,7 @@ export function ProductPage() {
                       {attributeName}
                     </h3>
                     <div className="flex flex-wrap gap-3">
-                      {Array.from(values).map((value) => {
+                      {publicValues.map((value) => {
                         const isSelected = selectedValue === value
 
                         // Find product with this attribute to show its image

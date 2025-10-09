@@ -196,7 +196,7 @@ class Product
                 'stock' => $row['stock'],
                 'product_overview' => $row['product_overview'],
                 'is_returnable' => $row['is_returnable'],
-                'is_public' => $row['is_public'],
+                'is_public' => $row['is_public'] ?? 0, // Default to 0 if NULL
                 'final_price' => $row['final_price'],
                 'category_id' => $row['category_id'],
                 'subcategory_id' => $row['subcategory_id'],
@@ -419,7 +419,7 @@ class Product
             'currency' => $base['currency'],
             'stock' => $base['stock'],
             'is_returnable' => $base['is_returnable'],
-            'is_public' => $base['is_public'],
+            'is_public' => $base['is_public'] ?? 0, // Default to 0 if NULL
             'final_price' => $base['final_price'],
             'product_overview' => $base['product_overview'],
             'category_name' => $base['category_name'],
@@ -447,7 +447,7 @@ class Product
         if ($product['group_id']) {
             $product['groupAttributes'] = $this->groupModel->getGroupAttributes($product['group_id']);
             $product['productAttributes'] = $this->getProductAttributes($id);
-            $product['groupProducts'] = $this->groupModel->getProductsInGroup($product['group_id']);
+            $product['groupProducts'] = $this->groupModel->getProductsInGroup($product['group_id'], $publicOnly);
         } else {
             $product['groupAttributes'] = [];
             $product['productAttributes'] = [];

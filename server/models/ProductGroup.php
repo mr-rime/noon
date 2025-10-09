@@ -177,11 +177,11 @@ class ProductGroup
         return $stmt->execute();
     }
 
-    public function getProductsInGroup(string $groupId): array
+    public function getProductsInGroup(string $groupId, bool $publicOnly = false): array
     {
         $query = '
             SELECT p.id, p.psku, p.name, p.price, p.final_price, p.currency, p.stock,
-                   p.product_overview, p.is_returnable, p.category_id, p.subcategory_id,
+                   p.product_overview, p.is_returnable, p.is_public, p.category_id, p.subcategory_id,
                    p.brand_id, p.group_id, p.created_at, p.updated_at,
                    c.name as category_name,
                    s.name as subcategory_name,
@@ -190,9 +190,14 @@ class ProductGroup
             LEFT JOIN categories c ON p.category_id = c.category_id
             LEFT JOIN subcategories s ON p.subcategory_id = s.subcategory_id
             LEFT JOIN brands b ON p.brand_id = b.brand_id
-            WHERE p.group_id = ?
-            ORDER BY p.created_at ASC, p.id ASC
-        ';
+            WHERE p.group_id = ?';
+        
+        // Add public filter if requested
+        if ($publicOnly) {
+            $query .= ' AND p.is_public = 1';
+        }
+        
+        $query .= ' ORDER BY p.created_at ASC, p.id ASC';
 
         $stmt = $this->db->prepare($query);
 
@@ -208,6 +213,10 @@ class ProductGroup
 
         // Enrich each product with images and attributes
         foreach ($products as &$product) {
+            // Ensure is_public has a default value if NULL
+            if ($product['is_public'] === null) {
+                $product['is_public'] = 0; // Default to private
+            }
             // Fetch images
             $imageQuery = 'SELECT id, image_url, is_primary FROM product_images WHERE product_id = ? ORDER BY is_primary DESC, id ASC';
             $imageStmt = $this->db->prepare($imageQuery);

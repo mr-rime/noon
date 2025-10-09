@@ -316,6 +316,7 @@ query ($id: ID!) {
             price
             final_price
             currency
+            is_public
             stock
             images {
                 id
