@@ -62,8 +62,8 @@ export function LoginFormContent({
     if (inputRef.current && !isPending) {
       animateElement(inputRef.current, [{ transform: 'scale(0.98)' }, { transform: 'scale(1)' }], { duration: 150 })
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLogin, isPending])
+
+  }, [inputRef, isLogin, isPending])
 
   return (
     <form onSubmit={handleSubmit(handleLogin)} className="w-full">

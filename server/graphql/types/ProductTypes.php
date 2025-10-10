@@ -4,9 +4,13 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
-require_once __DIR__ . '/ProductOptionTypes.php';
 require_once __DIR__ . '/ProductSpecificationTypes.php';
 require_once __DIR__ . '/DiscountTypes.php';
+require_once __DIR__ . '/PskuTypes.php';
+
+global $ProductSpecificationType, $ProductAttributeType, $GroupAttributeType,
+$ProductAttributeInputType, $DiscountInputType, $DiscountType, $ProductType;
+
 
 
 $ProductImageType = new ObjectType([
@@ -37,27 +41,65 @@ $ProductSpecInputType = new InputObjectType([
     ]
 ]);
 
-$ProductType = new ObjectType([
-    'name' => 'Product',
+$ProductInputType = new InputObjectType([
+    'name' => 'ProductInput',
     'fields' => [
-        'id' => Type::nonNull(Type::string()),
         'name' => Type::nonNull(Type::string()),
         'price' => Type::nonNull(Type::float()),
-        'final_price' => Type::nonNull(Type::float()),
-        'category_id' => Type::string(),
-        'is_returnable' => Type::nonNull(Type::boolean()),
-        'currency' => Type::string(),
+        'currency' => Type::nonNull(Type::string()),
+        'psku' => Type::string(),
+        'category_id' => Type::int(),
+        'subcategory_id' => Type::int(),
+        'brand_id' => Type::int(),
+        'group_id' => Type::string(),
+        'stock' => Type::int(),
+        'is_returnable' => Type::boolean(),
+        'is_public' => Type::boolean(),
         'product_overview' => Type::string(),
-        'stock' => Type::string(),
-        'discount' => $DiscountType,
-        'discount_percentage' => Type::float(),
-        'is_in_wishlist' => Type::boolean(),
-        'wishlist_id' => Type::string(),
-        'images' => Type::listOf($ProductImageType),
-        'productOptions' => Type::listOf($ProductOptionType),
-        'productSpecifications' => Type::listOf($ProductSpecificationType),
-        'created_at' => Type::string(),
+        'images' => Type::listOf($ProductImageInputType),
+        'productSpecifications' => Type::listOf($ProductSpecInputType),
+        'productAttributes' => Type::listOf($ProductAttributeInputType),
+        'discount' => $DiscountInputType
     ]
+]);
+
+$ProductType = new ObjectType([
+    'name' => 'Product',
+    'fields' => function () use (&$ProductType, $ProductImageType, $ProductSpecificationType, $DiscountType, $ProductAttributeType, $GroupAttributeType) {
+        return [
+            'id' => Type::nonNull(Type::string()),
+            'psku' => Type::string(),
+            'name' => Type::nonNull(Type::string()),
+            'price' => Type::nonNull(Type::float()),
+            'final_price' => Type::nonNull(Type::float()),
+            'currency' => Type::string(),
+            'stock' => Type::int(),
+            'is_returnable' => Type::nonNull(Type::boolean()),
+            'is_public' => Type::nonNull(Type::boolean()),
+            'product_overview' => Type::string(),
+            'user_id' => Type::int(),
+            'store_id' => Type::int(),
+            'category_id' => Type::int(),
+            'subcategory_id' => Type::int(),
+            'brand_id' => Type::int(),
+            'group_id' => Type::string(),
+            'category_name' => Type::string(),
+            'subcategory_name' => Type::string(),
+            'brand_name' => Type::string(),
+            'group_name' => Type::string(),
+            'discount' => $DiscountType,
+            'discount_percentage' => Type::float(),
+            'is_in_wishlist' => Type::boolean(),
+            'wishlist_id' => Type::string(),
+            'images' => Type::listOf($ProductImageType),
+            'productSpecifications' => Type::listOf($ProductSpecificationType),
+            'productAttributes' => Type::listOf($ProductAttributeType),
+            'groupAttributes' => Type::listOf($GroupAttributeType),
+            'groupProducts' => Type::listOf($ProductType),
+            'created_at' => Type::string(),
+            'updated_at' => Type::string(),
+        ];
+    }
 ]);
 
 $ProductResponseType = new ObjectType([
@@ -75,5 +117,14 @@ $ProductsResponseType = new ObjectType([
         'success' => Type::nonNull(Type::boolean()),
         'message' => Type::string(),
         'products' => Type::listOf($ProductType),
+        'total' => Type::int(),
+    ]
+]);
+
+$DeleteProductResponseType = new ObjectType([
+    'name' => 'DeleteProductResponse',
+    'fields' => [
+        'success' => Type::nonNull(Type::boolean()),
+        'message' => Type::string(),
     ]
 ]);

@@ -107,7 +107,7 @@ export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
                     </div>
 
                     <div className="p-4 space-y-4">
-                        {/* Status Filter */}
+
                         <div>
                             <h5 className="font-medium mb-2">Status</h5>
                             <div className="space-y-2">
@@ -154,7 +154,7 @@ export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
                             </div>
                         </div>
 
-                        {/* Stock Level Filter */}
+
                         <div>
                             <h5 className="font-medium mb-2">Stock Level</h5>
                             <div className="space-y-2">
@@ -181,7 +181,7 @@ export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
                 </PopoverContent>
             </Popover>
 
-            {/* Active Filters */}
+
             {getActiveFiltersCount() > 0 && (
                 <div className="flex items-center gap-2 flex-wrap">
                     {filters.status.map((status) => (

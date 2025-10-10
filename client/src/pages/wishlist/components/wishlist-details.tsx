@@ -22,8 +22,8 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
     variables: { wishlist_id: wishlistCode },
   })
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const currentWishlist = useMemo(() => wishlists.find((w) => w.id === wishlistCode), [wishlistCode])
+
+  const currentWishlist = useMemo(() => wishlists.find((w) => w.id === wishlistCode), [wishlistCode, wishlists])
 
   return (
     <section className="w-full flex-auto">
@@ -90,7 +90,14 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
                 <ProductSkeleton />
               </>
             ) : (
-              data?.getWishlistItems.data.map((item) => <Product key={item.id} isWishlistProduct {...item} />)
+              data?.getWishlistItems.data.map((item) => (
+                <Product
+                  key={item.id}
+                  isWishlistProduct
+                  {...item}
+                  user_id={parseInt(item.user_id)}
+                />
+              ))
             )}
           </div>
         )}

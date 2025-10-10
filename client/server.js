@@ -38,14 +38,24 @@ const app = express();
 app.use(
     helmet({
         contentSecurityPolicy: {
-            directives: {
-                ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-                "connect-src": ["'self'", "ws://localhost:24678", "http://localhost:8000"],
-                "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-                "img-src": ["'self'", "data:", "http://localhost:8000"],
-            },
+          directives: {
+            ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+            "connect-src": [
+              "'self'",
+              "ws://localhost:24678",
+              "http://localhost:8000",
+              "http://dashboard.localhost:8000"
+            ],
+            "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            "img-src": [
+              "'self'",
+              "data:",
+              "http://localhost:8000",
+              "http://dashboard.localhost:8000"
+            ],
+          },
         },
-    })
+      })      
 );
 
 app.use(compression(config.ssr.compression));

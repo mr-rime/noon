@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/client'
-import { useParams } from '@tanstack/react-router'
+import { useNavigate, useParams } from '@tanstack/react-router'
+import { useState, useEffect, useMemo } from 'react'
 import { GET_PRODUCT } from '@/graphql/product'
 import type { ProductSpecification, ProductType } from '@/types'
 import { ProductReviews } from '../../components/product-reviews/product-reviews'
@@ -9,19 +10,20 @@ import { ProductOverviewTabs } from './components/product-overview-tabs'
 import { ProductPageDetails } from './components/product-page-details'
 import { ProductPageFulfilmentBadge } from './components/product-page-fulfilment-badge'
 import { ProductPageImage } from './components/product-page-image'
-import { ProductOption } from './components/product-page-options'
 import { ProdcutPagePrice } from './components/product-page-price'
 import { ProductPageRates } from './components/product-page-rates'
 import { ProductPageTitle } from './components/product-page-title'
-import { getMergedOptions } from './utils/get-merged-options'
 import { Button } from '../../components/ui/button'
 import { AddToWishlistButton } from './components/add-to-wishlist-button'
 import { ProductPageLoadingSkeleton } from './components/product-page-loading-skeleton'
+import { cn } from '@/utils/cn'
 
 export function ProductPage() {
   const { productId } = useParams({
     from: '/(main)/_homeLayout/$title/$productId/',
   })
+  const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(null)
+
   const { data, loading } = useQuery<{
     getProduct: {
       success: boolean
@@ -29,6 +31,181 @@ export function ProductPage() {
       product: ProductType
     }
   }>(GET_PRODUCT, { variables: { id: productId } })
+
+  const currentProduct = data?.getProduct?.product
+
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+    if (currentProduct) {
+      setSelectedProduct(currentProduct)
+      console.log('🔍 DEBUGGING PRODUCT DATA:')
+      console.log('Current Product:', currentProduct)
+      console.log('Group Products:', currentProduct.groupProducts)
+      console.log('Product Attributes:', currentProduct.productAttributes)
+      console.log('Group ID:', currentProduct.group_id)
+      console.log('Product ID:', currentProduct.id)
+    }
+  }, [currentProduct])
+
+
+
+  const allGroupProducts = useMemo(() => {
+    if (!currentProduct) return []
+
+
+    if (!currentProduct.groupProducts || currentProduct.groupProducts.length === 0) {
+      return [currentProduct]
+    }
+
+
+    const publicProducts = currentProduct.groupProducts.filter(product => product.is_public)
+
+
+    const currentProductInGroup = currentProduct.groupProducts.find(p => p.id === currentProduct.id)
+    if (currentProductInGroup && !currentProductInGroup.is_public && !publicProducts.find(p => p.id === currentProduct.id)) {
+      publicProducts.push(currentProductInGroup)
+    }
+
+    return publicProducts
+  }, [currentProduct])
+
+
+  const attributeOptions = useMemo(() => {
+    const options: Record<string, Set<string>> = {}
+
+
+    allGroupProducts.forEach(product => {
+      product.productAttributes?.forEach(attr => {
+        if (!options[attr.attribute_name]) {
+          options[attr.attribute_name] = new Set()
+        }
+        options[attr.attribute_name].add(attr.attribute_value)
+      })
+    })
+
+
+
+    if (allGroupProducts.length > 1 && Object.keys(options).length === 0) {
+      options['Color'] = new Set()
+
+      allGroupProducts.forEach(product => {
+        const productName = product.name?.toLowerCase() || ''
+
+
+        if (productName.includes('black')) {
+          options['Color'].add('Black')
+        } else if (productName.includes('white')) {
+          options['Color'].add('White')
+        } else if (productName.includes('orange')) {
+          options['Color'].add('Cosmic Orange')
+        } else if (productName.includes('blue')) {
+          options['Color'].add('Deep Blue')
+        } else if (productName.includes('red')) {
+          options['Color'].add('Red')
+        } else if (productName.includes('green')) {
+          options['Color'].add('Green')
+        } else {
+
+          const colors = ['Black', 'White', 'Cosmic Orange', 'Deep Blue', 'Red', 'Green']
+          const colorIndex = allGroupProducts.findIndex(p => p.id === product.id)
+          if (colorIndex >= 0 && colorIndex < colors.length) {
+            options['Color'].add(colors[colorIndex])
+          }
+        }
+      })
+    }
+
+    console.log('🔍 DEBUGGING ATTRIBUTES:')
+    console.log('All Group Products:', allGroupProducts)
+    console.log('Attribute Options:', options)
+    console.log('Attribute Options Keys:', Object.keys(options))
+    console.log('Number of attribute types:', Object.keys(options).length)
+
+
+    allGroupProducts.forEach((product, index) => {
+      console.log(`Product ${index + 1} (${product.id}):`, product.productAttributes)
+    })
+
+    return options
+  }, [allGroupProducts])
+
+
+  const selectedAttributes = useMemo(() => {
+    const attrs: Record<string, string> = {}
+
+
+    selectedProduct?.productAttributes?.forEach(attr => {
+      attrs[attr.attribute_name] = attr.attribute_value
+    })
+
+
+    if (Object.keys(attrs).length === 0 && selectedProduct?.name) {
+      const productName = selectedProduct.name.toLowerCase()
+
+      if (productName.includes('black')) {
+        attrs['Color'] = 'Black'
+      } else if (productName.includes('white')) {
+        attrs['Color'] = 'White'
+      } else if (productName.includes('orange')) {
+        attrs['Color'] = 'Cosmic Orange'
+      } else if (productName.includes('blue')) {
+        attrs['Color'] = 'Deep Blue'
+      } else if (productName.includes('red')) {
+        attrs['Color'] = 'Red'
+      } else if (productName.includes('green')) {
+        attrs['Color'] = 'Green'
+      }
+    }
+
+    return attrs
+  }, [selectedProduct])
+
+  const handleAttributeSelect = async (attributeName: string, attributeValue: string) => {
+
+    let matchingProduct = allGroupProducts.find(product => {
+      return product.productAttributes?.some(attr =>
+        attr.attribute_name === attributeName && attr.attribute_value === attributeValue
+      )
+    })
+
+    if (!matchingProduct) {
+      matchingProduct = allGroupProducts.find(product => {
+        const productName = product.name?.toLowerCase() || ''
+        const colorValue = attributeValue.toLowerCase()
+
+        if (colorValue === 'black' && productName.includes('black')) return true
+        if (colorValue === 'white' && productName.includes('white')) return true
+        if (colorValue === 'cosmic orange' && productName.includes('orange')) return true
+        if (colorValue === 'deep blue' && productName.includes('blue')) return true
+        if (colorValue === 'red' && productName.includes('red')) return true
+        if (colorValue === 'green' && productName.includes('green')) return true
+
+        return false
+      })
+    }
+
+
+    if (!matchingProduct && allGroupProducts.length > 1) {
+      const colorIndex = ['black', 'white', 'cosmic orange', 'deep blue', 'red', 'green'].indexOf(attributeValue.toLowerCase())
+      if (colorIndex >= 0 && colorIndex < allGroupProducts.length) {
+        matchingProduct = allGroupProducts[colorIndex]
+      }
+    }
+
+    if (matchingProduct && matchingProduct.id !== currentProduct?.id) {
+
+
+      const urlTitle = matchingProduct.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+
+
+      navigate({ to: "/$title/$productId", params: { title: urlTitle, productId: matchingProduct.id } })
+    }
+  }
 
   if (loading) return <ProductPageLoadingSkeleton />
 
@@ -47,43 +224,126 @@ export function ProductPage() {
           </Button>
         </div>
         <div className="mb-0 block md:hidden">
-          <ProductPageTitle className="block text-[18px] md:hidden" title={data?.getProduct.product.name as string} />
+          <ProductPageTitle
+            key={`title-mobile-${selectedProduct?.id}`}
+            className="block text-[18px] md:hidden"
+            title={selectedProduct?.name as string}
+          />
           <div className="mt-6 mb-4 flex w-full items-center justify-between ">
             <ProductPageRates theme="mobile" />
             <AddToWishlistButton />
           </div>
         </div>
-        <ProductPageImage images={data?.getProduct.product.images.map((image) => image.image_url) || ['']} />
+        <ProductPageImage
+          key={selectedProduct?.id}
+          images={selectedProduct?.images.map((image) => image.image_url) || ['']}
+        />
 
         <div
           className="flex w-full flex-col items-start justify-center lg:w-[calc(500/1200*100%)]"
           aria-labelledby="product-info-section">
-          <ProductPageTitle className="hidden md:block" title={data?.getProduct.product?.name as string} />
+          <ProductPageTitle
+            key={`title-desktop-${selectedProduct?.id}`}
+            className="hidden md:block"
+            title={selectedProduct?.name as string}
+          />
           <div className="hidden md:block">
             <ProductPageRates />
           </div>
           <ProdcutPagePrice
-            price={data?.getProduct.product.price as number}
-            currency={data?.getProduct.product.currency as string}
-            discount_percentage={data?.getProduct.product.discount_percentage || 0}
-            final_price={data?.getProduct.product.final_price || 0}
+            key={`price-${selectedProduct?.id}`}
+            price={selectedProduct?.price as number}
+            currency={selectedProduct?.currency as string}
+            discount_percentage={selectedProduct?.discount_percentage || 0}
+            final_price={selectedProduct?.final_price || 0}
           />
           <ProductPageFulfilmentBadge />
           <Separator className="my-5" />
-          <div className="flex flex-col items-start justify-center space-y-5">
-            {getMergedOptions(data?.getProduct.product.productOptions || []).map((option) => (
-              <ProductOption key={option.name} name={option.name} values={option.values} />
-            ))}
-          </div>
+
+
+          {Object.keys(attributeOptions).length > 0 && allGroupProducts.filter(p => p.is_public).length > 1 && (
+            <div className="w-full space-y-6 mb-6">
+              {Object.entries(attributeOptions).map(([attributeName, values]) => {
+                const selectedValue = selectedAttributes[attributeName]
+
+
+                const publicValues = Array.from(values).filter(value => {
+                  const productWithAttr = allGroupProducts.find(p =>
+                    p.productAttributes?.some(attr =>
+                      attr.attribute_name === attributeName && attr.attribute_value === value
+                    )
+                  )
+
+                  return productWithAttr && (productWithAttr.is_public || selectedValue === value)
+                })
+
+
+                if (publicValues.length <= 1) return null
+
+                return (
+                  <div key={attributeName} className="space-y-3">
+                    <h3 className="text-sm font-medium text-gray-700 uppercase">
+                      {attributeName}
+                    </h3>
+                    <div className="flex flex-wrap gap-3">
+                      {publicValues.map((value) => {
+                        const isSelected = selectedValue === value
+
+
+                        const productWithAttr = allGroupProducts.find(p =>
+                          p.productAttributes?.some(attr =>
+                            attr.attribute_name === attributeName && attr.attribute_value === value
+                          )
+                        )
+                        const hasImage = productWithAttr?.images && productWithAttr.images.length > 0
+
+                        return (
+                          <button
+                            key={value}
+                            onClick={() => handleAttributeSelect(attributeName, value)}
+                            className={cn(
+                              "relative border-2 cursor-pointer rounded-lg transition-all duration-200 transform hover:scale-105",
+                              isSelected
+                                ? "border-[#2B4CD7] shadow-md ring-2 ring-[#2B4CD7] ring-opacity-20"
+                                : "border-gray-200 hover:border-gray-300 hover:shadow-sm",
+                            )}
+                          >
+                            {hasImage ? (
+                              <div className="p-2">
+                                <div className="w-16 h-16 relative rounded overflow-hidden">
+                                  <img
+                                    src={productWithAttr.images[0].image_url}
+                                    alt={value}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                                <p className="mt-2 text-xs text-center font-medium">
+                                  {value}
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="px-4 py-3">
+                                <p className="text-sm font-medium">{value}</p>
+                              </div>
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
 
         <div className="flex w-full flex-col items-start justify-center md:hidden">
           <div className="w-full">
-            <ProductPageDetails product={data?.getProduct.product as ProductType} theme="mobile" />
+            <ProductPageDetails product={selectedProduct as ProductType} theme="mobile" />
           </div>
         </div>
         <div className="max-md:hidden">
-          <ProductPageDetails product={data?.getProduct.product as ProductType} />
+          <ProductPageDetails product={selectedProduct as ProductType} />
         </div>
       </section>
       <section id="porduct_overview">
@@ -92,8 +352,8 @@ export function ProductPage() {
       </section>
       <section className="site-container mt-10">
         <ProductOverview
-          overview={data?.getProduct.product.product_overview as string}
-          specs={data?.getProduct.product.productSpecifications as ProductSpecification[]}
+          overview={selectedProduct?.product_overview as string}
+          specs={selectedProduct?.productSpecifications as ProductSpecification[]}
         />
       </section>
 

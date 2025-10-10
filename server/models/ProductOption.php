@@ -91,7 +91,7 @@ class ProductOption
         }
 
         if (empty($set)) {
-            return $this->findById($id); // Nothing to update
+            return $this->findById($id);
         }
 
         $params[] = $id;

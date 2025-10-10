@@ -3,7 +3,7 @@
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\ValidationException;
 require_once __DIR__ . '/../utils/generateHash.php';
-
+require_once __DIR__ . '/../log/logger.php';
 
 
 class AuthService
@@ -17,6 +17,7 @@ class AuthService
 
     public function login(string $email, string $password)
     {
+        $start = microtime(true);
 
         $emailValidator = v::email()->notEmpty();
         $passwordValidator = v::stringType()->notEmpty()->length(6, null);
@@ -49,6 +50,14 @@ class AuthService
 
         $_SESSION['user'] = $currentUser;
 
+        $duration = round((microtime(true) - $start) * 1000, 2);
+
+        app_log("Login attempt", [
+            "email" => $email,
+            "success" => true,
+            "duration_ms" => $duration
+        ]);
+
         return [
             'success' => true,
             'message' => 'Login successful',
@@ -58,47 +67,70 @@ class AuthService
 
     public function register(array $data)
     {
+        $start = microtime(true);
         $userModel = new User($this->db);
-        $existingUser = $userModel->findByEmail($data['email']);
 
-        if ($existingUser) {
+        try {
+            $hashedPassword = password_hash($data['password'], PASSWORD_BCRYPT);
+
+            $newUser = $userModel->create([
+                'hash' => generateHash(),
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'] ?? '',
+                'email' => $data['email'],
+                'password' => $hashedPassword,
+            ]);
+
+            if (!$newUser) {
+                $this->logRegister($data['email'], false, $start);
+                return [
+                    'success' => false,
+                    'message' => 'User registration failed',
+                    'user' => null,
+                ];
+            }
+
+
+            if (session_status() !== PHP_SESSION_ACTIVE) {
+                session_start();
+            }
+            $_SESSION['user'] = $newUser;
+
+            $this->logRegister($data['email'], true, $start);
+
             return [
-                'success' => false,
-                'message' => 'Email is already registered',
-                'user' => null,
+                'success' => true,
+                'message' => 'Registration successful',
+                'user' => $newUser,
             ];
+
+        } catch (\PDOException $e) {
+
+            if ($e->errorInfo[1] == 1062) {
+                $this->logRegister($data['email'], false, $start, "Duplicate email");
+                return [
+                    'success' => false,
+                    'message' => 'Email is already registered',
+                    'user' => null,
+                ];
+            }
+
+            $this->logRegister($data['email'], false, $start, $e->getMessage());
+            throw $e;
         }
-
-        $newUser = $userModel->create([
-            'hash' => generateHash(),
-            'first_name' => $data['first_name'],
-            'last_name' => $data['last_name'],
-            'email' => $data['email'],
-            'password' => $data['password'],
-        ]);
-
-
-
-        if (!$newUser) {
-            return [
-                'success' => false,
-                'message' => 'User registration failed',
-                'user' => null,
-            ];
-        }
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
-        }
-
-        $_SESSION['user'] = $newUser;
-
-        return [
-            'success' => true,
-            'message' => 'Registration successful',
-            'user' => [$newUser] ?? null,
-        ];
     }
+
+    private function logRegister(string $email, bool $success, float $start, string $note = '')
+    {
+        $duration = round((microtime(true) - $start) * 1000, 2);
+        app_log("Register attempt", [
+            "email" => $email,
+            "success" => $success,
+            "duration_ms" => $duration,
+            "note" => $note
+        ]);
+    }
+
 
     public function logout()
     {

@@ -21,10 +21,20 @@ export function Product({
   final_price,
   is_in_wishlist,
   wishlist_id,
+  psku,
+  category_name,
+  brand_name,
   isWishlistProduct = false,
 }: Partial<ProductType> & { isWishlistProduct?: boolean }) {
   const [hasFetched, setHasFetched] = useState(false)
   const { refetch } = useQuery(GET_PRODUCT, { variables: { id }, skip: true })
+
+
+  const productImages = images
+    ? [...images].sort(
+      (a, b) => Number(b.is_primary ?? false) - Number(a.is_primary ?? false)
+    )
+    : []
 
   const handlePrefetch = async () => {
     if (!hasFetched) {
@@ -47,13 +57,39 @@ export function Product({
         className="h-full w-full"
         preload="intent">
         <ProductImage
-          images={images?.map((img) => img.image_url) || []}
+          images={productImages?.map((img) => img.image_url) || []}
           product_id={id!}
           wishlist_id={wishlist_id!}
           isWishlistProduct={isWishlistProduct}
           is_in_wishlist={is_in_wishlist!}
         />
         <ProductTitle name={name || ''} />
+
+
+        {(psku || category_name || brand_name) && (
+          <div className="my-2 space-y-1">
+            {psku && (
+              <div className="text-xs text-muted-foreground font-mono">
+                PSKU: {psku}
+              </div>
+            )}
+            {(category_name || brand_name) && (
+              <div className="flex flex-wrap gap-1">
+                {category_name && (
+                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                    {category_name}
+                  </span>
+                )}
+                {brand_name && (
+                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                    {brand_name}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="my-2 flex w-fit items-center justify-center space-x-2 rounded-[6px] bg-[#f3f4f8] px-[6px] py-[4px]">
           <div className="flex items-center space-x-1">
             <Star fill="#008000" color="#008000" size={14} />

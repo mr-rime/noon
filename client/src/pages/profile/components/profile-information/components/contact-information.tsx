@@ -42,7 +42,7 @@ export function ContactInformation({ user, loading }: { user: User | undefined; 
               }}
             />
           )}
-          {/* <p className="text-[#6a6a6a] text-[12px] my-[6px] h-[20px]">This can be used to login across all noon apps.</p> */}
+
         </div>
       </div>
     </section>

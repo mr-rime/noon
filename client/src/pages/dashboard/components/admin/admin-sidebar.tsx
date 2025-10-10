@@ -26,15 +26,16 @@ const navigation = [
         icon: Package,
         items: [
             { title: "All Products", url: "/d/products" },
-            { title: "Add New Product", url: "/products/new" },
-            { title: "Categories & Tags", url: "/categories" },
+            { title: "Add New Product", url: "/d/products/new" },
+            { title: "Categories", url: "/d/categories" },
+            { title: "Brands", url: "/d/brands" },
         ],
     },
     {
         title: "Marketing",
         icon: Megaphone,
         items: [
-            { title: "Advertisement Banners", url: "/banners" },
+            { title: "Advertisement Banners", url: "/d/banners" },
             { title: "Coupons", url: "/coupons" },
             { title: "Discounts", url: "/discounts" },
             { title: "Product Offers", url: "/offers" },
@@ -76,7 +77,6 @@ export function AdminSidebar() {
     const [openGroups, setOpenGroups] = useState<string[]>(["Products", "Marketing", "Orders"])
     const [isTransitioning, setIsTransitioning] = useState(false)
 
-    // Add transition state management for smoother animations
     useEffect(() => {
         setIsTransitioning(true)
         const timer = setTimeout(() => setIsTransitioning(false), 100)

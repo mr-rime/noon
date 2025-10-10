@@ -1,6 +1,5 @@
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { CREATE_PARTNER } from '@/graphql/partner'
+import { Button } from '../ui/button'
+import { REGISTER_STORE } from '@/graphql/store'
 import { useMutation } from '@apollo/client'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
@@ -9,32 +8,34 @@ import { type SubmitHandler, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { PartnerRegisterSchema, type PartnerRegisterSchemaType } from '../../schema'
 import { PartnerLogo, dashboard_icons } from '../../constants'
+import { Input } from '@/components/ui/input'
 
-export default function Register({ setForm }: { setForm: React.Dispatch<React.SetStateAction<'login' | 'register'>> }) {
+export function PartnerRegister({ setForm }: { setForm: React.Dispatch<React.SetStateAction<'login' | 'register'>> }) {
   const { register, handleSubmit } = useForm<PartnerRegisterSchemaType>({
     resolver: zodResolver(PartnerRegisterSchema),
   })
-  const [createPartner, { loading }] = useMutation<{
-    createPartner: { success: boolean; message: string }
-  }>(CREATE_PARTNER)
-  const navigate = useNavigate({ from: '/partners' })
+  const [registerStore, { loading }] = useMutation<{
+    registerStore: { success: boolean; message: string; store: any }
+  }>(REGISTER_STORE)
+  const navigate = useNavigate({ from: '/d/partners' })
   const handleCreatePartner: SubmitHandler<PartnerRegisterSchemaType> = async ({ email, password, storeName }) => {
     try {
-      const { data } = await createPartner({
+      const { data } = await registerStore({
         variables: {
-          business_email: email,
-          store_name: storeName,
-          password: password,
+          name: storeName,
+          email,
+          password,
         },
       })
-      if (data?.createPartner.success) {
-        toast.success(data?.createPartner.message)
+      if (data?.registerStore.success) {
+        toast.success(data?.registerStore.message)
         navigate({ to: '/d/overview' })
       } else {
-        toast.error(data?.createPartner.message)
+        toast.error(data?.registerStore.message || 'Registration failed')
       }
     } catch (err) {
       console.error(err)
+      toast.error('An error occurred during registration')
     }
   }
   return (

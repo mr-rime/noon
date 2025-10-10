@@ -3,8 +3,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { product_icons } from '@/components/product/constants/icons'
 import { cn } from '@/utils/cn'
-import { Image } from '@unpic/react'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { Image } from '@unpic/react'
 
 type DotsThemeType = 'theme1' | 'theme2' | 'theme3'
 
@@ -54,6 +54,7 @@ export function ImageSlider({
   const autoplayRef = useRef<NodeJS.Timeout | null>(null)
 
   const [isAnimating, setIsAnimating] = useState(false)
+  const [loadedImages, setLoadedImages] = useState<boolean[]>([])
 
   const isDragDisabled = isMobile ? disableDragMobile : disableDragDesktop
 
@@ -74,6 +75,14 @@ export function ImageSlider({
 
   const stopEventPropagation = (e: React.SyntheticEvent) => {
     e.stopPropagation()
+  }
+
+  const handleImageLoad = (i: number) => {
+    setLoadedImages(prev => {
+      const next = [...prev]
+      next[i] = true
+      return next
+    })
   }
 
   useEffect(() => {
@@ -146,6 +155,10 @@ export function ImageSlider({
       autoplayRef.current = null
     }
   }, [])
+
+  useEffect(() => {
+    setLoadedImages(new Array(extendedImages.length).fill(false))
+  }, [extendedImages.length])
 
   useEffect(() => {
     startAutoplay()
@@ -388,28 +401,28 @@ export function ImageSlider({
               width: `${showProductControls || !isMobile ? extendedImages.length * 100 : 490}%`,
             }}>
             {extendedImages.map((src, i) => {
-              const isCenter = index === i + 1
+              const isLoaded = loadedImages[i]
 
               return (
                 <div
                   key={i}
                   className={cn(
-                    'w-full flex-shrink-0 overflow-hidden bg-[#F6F6F7] transition-transform',
+                    `relative w-full flex-shrink-0 overflow-hidden bg-[#F6F6F7] transition-transform `,
                     isMobile ? 'h-full' : '',
                   )}
                   style={{
                     width: `${100 / extendedImages.length}%`,
-                    height: 'fit-content',
-                    ...(isMobile &&
-                      !showProductControls && {
-                        scale: isCenter ? '1 .9' : '',
-                        transition: 'scale .1s ease',
-                      }),
+                    height
                   }}>
+
+                  {!isLoaded && (
+                    <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 " />
+                  )}
+
                   <div
                     className={cn(
                       showProductControls
-                        ? 'flex w-full items-center justify-center bg-[#F6F6F7] '
+                        ? 'flex w-full items-center justify-center bg-[#F6F6F7]'
                         : 'h-full w-full overflow-hidden',
                       scaleOnHover && 'duration-300 ease-in-out hover:scale-[1.1]',
                     )}>
@@ -425,8 +438,12 @@ export function ImageSlider({
                       height={330}
                       loading={lazyImage ? 'lazy' : 'eager'}
                       draggable={false}
-                      className={cn('pointer-events-none h-full w-full object-cover mix-blend-multiply')}
+                      className={cn(
+                        'pointer-events-none h-full w-full object-cover mix-blend-multiply transition-opacity duration-500',
+                        isLoaded ? 'opacity-100' : 'opacity-0',
+                      )}
                       alt={`Slide ${i}`}
+                      onLoad={() => handleImageLoad(i)}
                     />
                   </div>
                 </div>

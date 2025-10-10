@@ -88,6 +88,7 @@ export function Carousel({
         clearInterval(autoPlayRef.current)
       }
     }
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemsPerView, gap, children.length, fixedItemWidth, autoPlay, autoPlayInterval, isDragging])
 

@@ -131,7 +131,7 @@ export function DatePicker({ value, onChange, labelContent }: DatePickerProps) {
 
     const days = []
 
-    // Days from previous month
+
     for (let i = firstDay - 1; i >= 0; i--) {
       days.push(
         <div key={`prev-${i}`} className="flex h-9 w-9 items-center justify-center text-gray-400 text-sm">
