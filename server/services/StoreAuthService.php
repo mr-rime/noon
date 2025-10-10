@@ -39,13 +39,13 @@ class StoreAuthService
             ];
         }
 
-        // Start session and store the store data
+
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
             session_regenerate_id(true);
         }
 
-        // Remove password from session data
+
         unset($currentStore['password']);
         $_SESSION['store'] = $currentStore;
 
@@ -63,7 +63,7 @@ class StoreAuthService
         $start = microtime(true);
         $storeModel = new Store($this->db);
 
-        // Validate required fields
+
         if (empty($data['email']) || empty($data['password']) || empty($data['name'])) {
             return [
                 'success' => false,
@@ -73,7 +73,7 @@ class StoreAuthService
         }
 
         try {
-            // Check if email already exists
+
             $stmt = $this->db->prepare('SELECT id FROM stores WHERE email = ? LIMIT 1');
             $stmt->bind_param('s', $data['email']);
             $stmt->execute();
@@ -86,7 +86,7 @@ class StoreAuthService
                 ];
             }
 
-            // Create the store
+
             $newStore = $storeModel->create([
                 'name' => $data['name'],
                 'email' => $data['email'],
@@ -104,7 +104,7 @@ class StoreAuthService
                 ];
             }
 
-            // Start session and store the store data
+
             if (session_status() !== PHP_SESSION_ACTIVE) {
                 session_start();
             }

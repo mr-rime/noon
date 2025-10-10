@@ -60,7 +60,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
     const navigate = useNavigate()
     const [currentStep, setCurrentStep] = useState<Step>(1)
 
-    // Step 1: Category Selection
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
     const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null)
     const [categorySearch, setCategorySearch] = useState("")
@@ -72,7 +71,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
     const [psku, setPsku] = useState("")
     const [autoGeneratePsku, setAutoGeneratePsku] = useState(true)
 
-    // Queries
     const { data: categoriesData, loading: categoriesLoading } = useQuery(GET_CATEGORIES, {
         variables: { search: categorySearch }
     })
@@ -89,7 +87,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
         variables: { search: brandSearch }
     })
 
-    // Mutations
     const [createProduct, { loading: creating }] = useMutation(CREATE_PSKU_PRODUCT)
 
     const categories = categoriesData?.getCategories?.categories || []
@@ -127,7 +124,7 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
 
             const variables: any = {
                 name: `Product in ${selectedCategory.name}${selectedSubcategory ? ` - ${selectedSubcategory.name}` : ''}`,
-                price: 0.01, // Minimum price, will be updated in product details
+                price: 0.01,
                 currency: "USD",
                 psku: autoGeneratePsku ? undefined : psku.trim(),
                 category_id: selectedCategory.category_id,
@@ -141,7 +138,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
                 productAttributes: []
             }
 
-            // Only include brand_id if we're not using generic brand
             if (!useGenericBrand && selectedBrand?.brand_id) {
                 variables.brand_id = selectedBrand.brand_id
             }
@@ -167,7 +163,7 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {/* Header */}
+
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold text-foreground">Create New Product</h1>
@@ -179,7 +175,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
                 </Button>
             </div>
 
-            {/* Progress Steps */}
             <div className="flex items-center justify-center space-x-8">
                 {[1, 2, 3].map((step) => (
                     <div key={step} className="flex items-center">
@@ -212,7 +207,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
 
             <Separator />
 
-            {/* Step Content */}
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -223,7 +217,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
                 </CardHeader>
                 <CardContent className="space-y-6">
 
-                    {/* Step 1: Category Selection */}
                     {currentStep === 1 && (
                         <div className="space-y-6">
                             <div>
@@ -267,7 +260,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
                                                 )}
                                             </div>
 
-                                            {/* Subcategories */}
                                             {category.subcategories && category.subcategories.length > 0 && (
                                                 <div className="mt-3 ml-4 space-y-2">
                                                     <p className="text-sm font-medium text-muted-foreground">Subcategories:</p>
@@ -302,7 +294,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
                         </div>
                     )}
 
-                    {/* Step 2: Brand Selection */}
                     {currentStep === 2 && (
                         <div className="space-y-6">
                             <div className="flex items-center space-x-2">
@@ -384,7 +375,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
                         </div>
                     )}
 
-                    {/* Step 3: PSKU Setup */}
                     {currentStep === 3 && (
                         <div className="space-y-6">
                             <div className="flex items-center space-x-2">
@@ -427,7 +417,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
                         </div>
                     )}
 
-                    {/* Navigation Buttons */}
                     <div className="flex justify-between pt-6">
                         <Button
                             variant="outline"

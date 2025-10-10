@@ -8,10 +8,10 @@ class SkuGenerator
      */
     public static function generateSku(string $productId, array $optionCombination): string
     {
-        // Shorten product ID (take first 8 chars, remove special chars)
+
         $shortProductId = strtoupper(preg_replace('/[^A-Z0-9]/', '', substr($productId, 0, 8)));
-        
-        // Generate short option values
+
+
         $shortOptions = [];
         foreach ($optionCombination as $option) {
             $shortValue = self::shortenOptionValue($option['value']);
@@ -19,24 +19,24 @@ class SkuGenerator
                 $shortOptions[] = $shortValue;
             }
         }
-        
-        // Generate random 4-character suffix
+
+
         $randomSuffix = self::generateRandomSuffix();
-        
-        // Combine all parts
+
+
         $parts = array_filter([$shortProductId, implode('-', $shortOptions), $randomSuffix]);
-        
+
         return implode('-', $parts);
     }
-    
+
     /**
      * Shorten option values to 3-4 characters
      */
     private static function shortenOptionValue(string $value): string
     {
         $value = strtoupper(trim($value));
-        
-        // Common abbreviations
+
+
         $abbreviations = [
             'BLACK' => 'BLK',
             'WHITE' => 'WHT',
@@ -58,29 +58,29 @@ class SkuGenerator
             'XXL' => 'XXL',
             'XXXL' => 'XXXL',
         ];
-        
-        // Check for exact matches first
+
+
         if (isset($abbreviations[$value])) {
             return $abbreviations[$value];
         }
-        
-        // Handle storage sizes (256GB -> 256G, 1TB -> 1T)
+
+
         if (preg_match('/(\d+)\s*(GB|TB|MB)/i', $value, $matches)) {
             $size = $matches[1];
             $unit = strtoupper($matches[2]);
-            return $size . substr($unit, 0, 1); // 256GB -> 256G, 1TB -> 1T
+            return $size . substr($unit, 0, 1);
         }
-        
-        // Handle numeric values (keep as is if short)
+
+
         if (is_numeric($value) && strlen($value) <= 4) {
             return $value;
         }
-        
-        // For other values, take first 3-4 characters
+
+
         $cleaned = preg_replace('/[^A-Z0-9]/', '', $value);
         return substr($cleaned, 0, 4);
     }
-    
+
     /**
      * Generate random 4-character alphanumeric suffix
      */
@@ -93,16 +93,16 @@ class SkuGenerator
         }
         return $result;
     }
-    
+
     /**
      * Validate SKU format
      */
     public static function isValidSku(string $sku): bool
     {
-        // SKU should be alphanumeric with hyphens, 8-30 characters
+
         return preg_match('/^[A-Z0-9\-]{8,30}$/', $sku) === 1;
     }
-    
+
     /**
      * Extract product ID from SKU (first part before first hyphen)
      */
@@ -111,7 +111,7 @@ class SkuGenerator
         $parts = explode('-', $sku);
         return $parts[0] ?? '';
     }
-    
+
     /**
      * Check if SKU already exists in database
      */
@@ -121,14 +121,14 @@ class SkuGenerator
         if (!$stmt) {
             return false;
         }
-        
+
         $stmt->bind_param('s', $sku);
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
-        
+
         return ($result['count'] ?? 1) === 0;
     }
-    
+
     /**
      * Generate unique SKU (retry if collision)
      */
@@ -140,8 +140,8 @@ class SkuGenerator
                 return $sku;
             }
         }
-        
-        // Fallback: use timestamp suffix
+
+
         $timestamp = substr(time(), -4);
         $baseSku = self::generateSku($productId, $optionCombination);
         return substr($baseSku, 0, -4) . $timestamp;

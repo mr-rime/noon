@@ -5,7 +5,6 @@ import { Badge } from "../ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog"
 import { GET_BANNER } from "../../../../graphql/banner"
 import { getBannerPlacementLabel } from "../../../../types/banner"
-// Removed skeleton import - will use loading state instead
 
 interface BannerViewDetailsProps {
   bannerId: string
@@ -34,11 +33,11 @@ export function BannerViewDetails({ bannerId, onClose, onEdit }: BannerViewDetai
 
   const getBannerStatus = () => {
     if (!banner) return null
-    
+
     const now = new Date()
     const startDate = new Date(banner.start_date)
     const endDate = new Date(banner.end_date)
-    
+
     if (!banner.is_active) {
       return <Badge variant="secondary">Inactive</Badge>
     } else if (now < startDate) {
@@ -77,7 +76,7 @@ export function BannerViewDetails({ bannerId, onClose, onEdit }: BannerViewDetai
 
         {banner && (
           <div className="space-y-6">
-            {/* Banner Image */}
+
             {banner.image_url && (
               <div className="rounded-lg overflow-hidden border bg-muted">
                 <img
@@ -91,7 +90,7 @@ export function BannerViewDetails({ bannerId, onClose, onEdit }: BannerViewDetai
               </div>
             )}
 
-            {/* Banner Information */}
+
             <div className="grid gap-4">
               <div className="flex items-start gap-3">
                 <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />

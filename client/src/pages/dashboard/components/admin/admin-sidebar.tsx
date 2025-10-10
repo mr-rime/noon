@@ -28,6 +28,7 @@ const navigation = [
             { title: "All Products", url: "/d/products" },
             { title: "Add New Product", url: "/d/products/new" },
             { title: "Categories", url: "/d/categories" },
+            { title: "Brands", url: "/d/brands" },
         ],
     },
     {
@@ -76,7 +77,6 @@ export function AdminSidebar() {
     const [openGroups, setOpenGroups] = useState<string[]>(["Products", "Marketing", "Orders"])
     const [isTransitioning, setIsTransitioning] = useState(false)
 
-    // Add transition state management for smoother animations
     useEffect(() => {
         setIsTransitioning(true)
         const timer = setTimeout(() => setIsTransitioning(false), 100)

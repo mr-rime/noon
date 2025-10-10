@@ -127,7 +127,7 @@ class ProductSpecification
 
     public function replaceForProduct(string $productId, array $specs): void
     {
-        // Use prepared delete instead of raw query
+
         $delStmt = $this->db->prepare("DELETE FROM product_specifications WHERE product_id = ?");
         if (!$delStmt) {
             error_log("Prepare failed (replace - delete): " . $this->db->error);

@@ -128,7 +128,7 @@ $QueryType = new ObjectType([
             'resolve' => fn($root, $args, $context) => getStore($context['db'], $args['id'])
         ],
 
-        // PSKU System Queries
+
         'getCategories' => [
             'type' => $CategoriesResponseType,
             'args' => ['search' => Type::string()],
@@ -159,6 +159,11 @@ $QueryType = new ObjectType([
             'args' => ['psku' => Type::nonNull(Type::string())],
             'resolve' => fn($root, $args, $context) => getProductByPsku($context['db'], $args['psku'])
         ],
+        'validatePsku' => [
+            'type' => Type::boolean(),
+            'args' => ['psku' => Type::nonNull(Type::string())],
+            'resolve' => fn($root, $args, $context) => validatePskuUniqueness($context['db'], $args['psku'])
+        ],
         'getRelatedProducts' => [
             'type' => $ProductsResponseType,
             'args' => [
@@ -168,7 +173,7 @@ $QueryType = new ObjectType([
             'resolve' => fn($root, $args, $context) => getRelatedProducts($context['db'], $args['productId'], $args['limit'] ?? 8)
         ],
 
-        // Banner queries
+
         'getBanners' => [
             'type' => \App\GraphQL\Types\BannerTypes::bannerList(),
             'args' => [
@@ -365,7 +370,7 @@ $MutationType = new ObjectType([
             ],
             'resolve' => fn($root, $args, $context) => updateWishlist($context['db'], $args)
         ],
-        // PSKU System Mutations
+
         'createCategory' => [
             'type' => $CategoryResponseType,
             'args' => ['input' => Type::nonNull($CategoryInputType)],
@@ -403,9 +408,22 @@ $MutationType = new ObjectType([
             'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteSubcategory($context['db'], $args['id']))
         ],
         'createBrand' => [
-            'type' => $CategoryResponseType,
+            'type' => $BrandResponseType,
             'args' => ['input' => Type::nonNull($BrandInputType)],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => createBrand($context['db'], $args['input']))
+        ],
+        'updateBrand' => [
+            'type' => $BrandResponseType,
+            'args' => [
+                'id' => Type::nonNull(Type::int()),
+                'input' => Type::nonNull($BrandInputType)
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => updateBrand($context['db'], $args['id'], $args['input']))
+        ],
+        'deleteBrand' => [
+            'type' => $BrandResponseType,
+            'args' => ['id' => Type::nonNull(Type::int())],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteBrand($context['db'], $args['id']))
         ],
         'createProductGroup' => [
             'type' => $ProductGroupResponseType,
@@ -504,7 +522,7 @@ $MutationType = new ObjectType([
             'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteProduct($context['db'], $args['id']))
         ],
 
-        // Banner mutations
+
         'createBanner' => [
             'type' => \App\GraphQL\Types\BannerTypes::bannerResponse(),
             'args' => [

@@ -36,7 +36,6 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
     const [uploadFile] = useMutation(UPLOAD_FILE)
 
     useEffect(() => {
-        // Ensure currency is always a valid 3-4 character code
         const validCurrency = product.currency && product.currency.length >= 3
             ? product.currency
             : 'USD'
@@ -71,7 +70,7 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                 return {
                     id: Date.now().toString(),
                     image_url: data.uploadImage.url,
-                    is_primary: images.length === 0 // First image is primary
+                    is_primary: images.length === 0
                 }
             })
 
@@ -89,7 +88,6 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
     const removeImage = (index: number) => {
         setImages(prev => {
             const newImages = prev.filter((_, i) => i !== index)
-            // If we removed the primary image, make the first remaining image primary
             if (prev[index]?.is_primary && newImages.length > 0) {
                 newImages[0].is_primary = true
             }
@@ -155,7 +153,7 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
 
     return (
         <div className="space-y-6 bg-gray-50 p-4 rounded-lg border">
-            {/* Product Header */}
+
             <div className="flex items-center justify-between">
                 <div>
                     <div className="flex items-center gap-2 mt-2">
@@ -169,7 +167,7 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
-                    {/* Visibility Toggle - Prominent placement */}
+
                     <div className="flex items-center gap-3 px-4 py-2 bg-white border rounded-lg">
                         <Switch
                             checked={formData.is_public}
@@ -201,9 +199,9 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Main Details */}
+
                 <div className="lg:col-span-2 space-y-6">
-                    {/* Basic Information */}
+
                     <div className="border rounded-lg p-6">
                         <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
                         <div className="space-y-4">
@@ -272,7 +270,7 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                                 />
                             </div>
 
-                            {/* Product Settings */}
+
                             <div className="pt-4 border-t">
                                 <h4 className="text-sm font-medium mb-3 text-gray-700">Product Settings</h4>
                                 <div className="flex items-center gap-3 px-3 py-2 bg-gray-50 rounded-lg">
@@ -287,10 +285,8 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                         </div>
                     </div>
 
-                    {/* Product Images */}
                     <div className="border rounded-lg p-6">
                         <h3 className="text-lg font-semibold mb-4">Product Images (Max 4)</h3>
-                        {/* Image Upload */}
                         {images.length < 4 && (
                             <div className="space-y-2">
                                 <Dropzone
@@ -308,9 +304,8 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                             </div>
                         )}
 
-                        {/* Image Gallery */}
                         {images.length > 0 && (
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5">
                                 {images.map((image, index) => (
                                     <div key={index} className="relative group">
                                         <div className="aspect-square bg-muted rounded-lg overflow-hidden">
@@ -352,100 +347,119 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                     </div>
                 </div>
 
-                {/* Product Specifications */}
-                <div className="border rounded-lg p-6">
-                    <h3 className="text-lg font-semibold mb-4">Product Specifications</h3>
-                    <div className="space-y-4">
-                        {/* Add New Specification */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div className="space-y-6">
+                    <div className="border rounded-lg p-6">
+                        <h3 className="text-lg font-semibold mb-4">Product Information</h3>
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-sm font-medium mb-1">PSKU</label>
+                                <p className="text-sm text-muted-foreground font-mono">{product.psku}</p>
+                            </div>
+
+                            {product.category_name && (
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Category</label>
+                                    <p className="text-sm text-muted-foreground">{product.category_name}</p>
+                                </div>
+                            )}
+
+                            {product.subcategory_name && (
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Subcategory</label>
+                                    <p className="text-sm text-muted-foreground">{product.subcategory_name}</p>
+                                </div>
+                            )}
+
+                            {product.brand_name && (
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Brand</label>
+                                    <p className="text-sm text-muted-foreground">{product.brand_name}</p>
+                                </div>
+                            )}
+
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Created</label>
+                                <p className="text-sm text-muted-foreground">
+                                    {product.created_at ? new Date(product.created_at).toLocaleDateString() : 'N/A'}
+                                </p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Last Updated</label>
+                                <p className="text-sm text-muted-foreground">
+                                    {product.updated_at ? new Date(product.updated_at).toLocaleDateString() : 'N/A'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="border rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Product Specifications</h3>
+                <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <div className="md:col-span-2">
                             <input
                                 type="text"
                                 placeholder="Specification name"
                                 value={newSpec.spec_name}
                                 onChange={(e) => setNewSpec(prev => ({ ...prev, spec_name: e.target.value }))}
-                                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
+                        </div>
+                        <div className="md:col-span-2">
                             <input
                                 type="text"
                                 placeholder="Specification value"
                                 value={newSpec.spec_value}
                                 onChange={(e) => setNewSpec(prev => ({ ...prev, spec_value: e.target.value }))}
-                                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
-                            <Button onClick={addSpecification} disabled={!newSpec.spec_name || !newSpec.spec_value}>
+                        </div>
+                        <div>
+                            <Button
+                                onClick={addSpecification}
+                                disabled={!newSpec.spec_name || !newSpec.spec_value}
+                                className="w-full"
+                            >
                                 <Plus className="h-4 w-4 mr-2" />
                                 Add
                             </Button>
                         </div>
+                    </div>
 
-                        {/* Specifications List */}
-                        <div className="space-y-2">
-                            {specifications.map((spec) => (
-                                <div key={spec.id} className="flex items-center justify-between p-3 border rounded-lg">
-                                    <div className="flex-1">
-                                        <span className="font-medium">{spec.spec_name}:</span>
-                                        <span className="ml-2 text-muted-foreground">{spec.spec_value}</span>
+                    <div className="space-y-2">
+                        {specifications.length === 0 ? (
+                            <div className="text-center py-8 text-muted-foreground">
+                                <p>No specifications added yet.</p>
+                                <p className="text-sm">Add product specifications to help customers understand your product better.</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {specifications.map((spec) => (
+                                    <div key={spec.id} className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+                                        <div className="flex-1">
+                                            <span className="font-medium text-gray-900">{spec.spec_name}:</span>
+                                            <span className="ml-2 text-gray-600">{spec.spec_value}</span>
+                                        </div>
+                                        <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            className="h-8 w-8 p-0 text-gray-500 hover:text-red-600 hover:bg-red-50"
+                                            onClick={() => removeSpecification(spec.id || '')}
+                                            title="Remove specification"
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </Button>
                                     </div>
-                                    <Button
-                                        className="h-8 px-3 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200"
-                                        onClick={() => removeSpecification(spec.id || '')}
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
 
-            {/* Right Sidebar - Product Info */}
-            <div className="space-y-6">
-                <div className="border rounded-lg p-6">
-                    <h3 className="text-lg font-semibold mb-4">Product Information</h3>
-                    <div className="space-y-3">
-                        <div>
-                            <label className="block text-sm font-medium mb-1">PSKU</label>
-                            <p className="text-sm text-muted-foreground font-mono">{product.psku}</p>
-                        </div>
-
-                        {product.category_name && (
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Category</label>
-                                <p className="text-sm text-muted-foreground">{product.category_name}</p>
-                            </div>
-                        )}
-
-                        {product.subcategory_name && (
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Subcategory</label>
-                                <p className="text-sm text-muted-foreground">{product.subcategory_name}</p>
-                            </div>
-                        )}
-
-                        {product.brand_name && (
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Brand</label>
-                                <p className="text-sm text-muted-foreground">{product.brand_name}</p>
-                            </div>
-                        )}
-
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Created</label>
-                            <p className="text-sm text-muted-foreground">
-                                {product.created_at ? new Date(product.created_at).toLocaleDateString() : 'N/A'}
-                            </p>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Last Updated</label>
-                            <p className="text-sm text-muted-foreground">
-                                {product.updated_at ? new Date(product.updated_at).toLocaleDateString() : 'N/A'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     )
 }

@@ -38,7 +38,7 @@ export function ProductImage({
         showProductControls={true}
         showProductDots={true}
         scaleOnHover={true}
-        height={330}
+        height={290}
         disableDragDesktop={true}
       />
 

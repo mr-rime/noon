@@ -14,7 +14,7 @@ class Cart
         $this->productModel = new Product($db);
 
         if (!isset($_SESSION['guest_cart'])) {
-            $_SESSION['guest_cart'] = []; // [productId => quantity]
+            $_SESSION['guest_cart'] = [];
         }
     }
 
@@ -25,7 +25,7 @@ class Cart
 
     public function getCartItems(?int $userId): array
     {
-        // Auto merge guest cart when user logs in
+
         if (!$this->isGuest($userId) && !empty($_SESSION['guest_cart'])) {
             $this->mergeGuestCartWithUserCart($userId);
         }

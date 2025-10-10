@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 
-// Category Queries
 export const GET_CATEGORIES = gql`
   query GetCategories($search: String) {
     getCategories(search: $search) {
@@ -70,7 +69,6 @@ export const GET_SUBCATEGORIES = gql`
   }
 `
 
-// Category Mutations
 export const CREATE_CATEGORY = gql`
   mutation CreateCategory($input: CategoryInput!) {
     createCategory(input: $input) {
@@ -112,7 +110,6 @@ export const DELETE_CATEGORY = gql`
   }
 `
 
-// Subcategory Mutations
 export const CREATE_SUBCATEGORY = gql`
   mutation CreateSubcategory($input: SubcategoryInput!) {
     createSubcategory(input: $input) {

@@ -4,7 +4,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 
-// Subcategory Type (defined first)
+
 $SubcategoryType = new ObjectType([
     'name' => 'Subcategory',
     'fields' => [
@@ -19,7 +19,7 @@ $SubcategoryType = new ObjectType([
     ]
 ]);
 
-// Category Types
+
 $CategoryType = new ObjectType([
     'name' => 'Category',
     'fields' => [
@@ -57,7 +57,7 @@ $ProductGroupType = new ObjectType([
         'category_id' => Type::int(),
         'subcategory_id' => Type::int(),
         'brand_id' => Type::int(),
-        'attributes' => Type::string(), // JSON string
+        'attributes' => Type::string(),
         'created_at' => Type::string(),
         'updated_at' => Type::string()
     ]
@@ -81,7 +81,7 @@ $GroupAttributeType = new ObjectType([
         'id' => Type::int(),
         'group_id' => Type::string(),
         'attribute_name' => Type::string(),
-        'attribute_values' => Type::listOf(Type::string()), // JSON array
+        'attribute_values' => Type::listOf(Type::string()),
         'is_required' => Type::boolean(),
         'display_order' => Type::int(),
         'created_at' => Type::string(),
@@ -89,7 +89,7 @@ $GroupAttributeType = new ObjectType([
     ]
 ]);
 
-// Input Types
+
 $CategoryInputType = new InputObjectType([
     'name' => 'CategoryInput',
     'fields' => [
@@ -130,7 +130,7 @@ $ProductGroupInputType = new InputObjectType([
         'category_id' => Type::int(),
         'subcategory_id' => Type::int(),
         'brand_id' => Type::int(),
-        'attributes' => Type::listOf(Type::string()) // Array of attribute names
+        'attributes' => Type::listOf(Type::string())
     ]
 ]);
 
@@ -152,7 +152,7 @@ $GroupAttributeInputType = new InputObjectType([
     ]
 ]);
 
-// Response Types
+
 $CategoriesResponseType = new ObjectType([
     'name' => 'CategoriesResponse',
     'fields' => [
@@ -195,6 +195,15 @@ $BrandsResponseType = new ObjectType([
         'success' => Type::boolean(),
         'message' => Type::string(),
         'brands' => Type::listOf($BrandType)
+    ]
+]);
+
+$BrandResponseType = new ObjectType([
+    'name' => 'BrandResponse',
+    'fields' => [
+        'success' => Type::boolean(),
+        'message' => Type::string(),
+        'brand' => $BrandType
     ]
 ]);
 

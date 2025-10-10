@@ -127,7 +127,7 @@ class ProductAttribute
 
     public function replaceForProduct(string $productId, array $attributes): void
     {
-        // Delete existing attributes
+
         $delStmt = $this->db->prepare("DELETE FROM product_attribute_values WHERE product_id = ?");
         if (!$delStmt) {
             error_log("Prepare failed (replace - delete): " . $this->db->error);
@@ -140,7 +140,7 @@ class ProductAttribute
             return;
         }
 
-        // Insert new attributes
+
         $insStmt = $this->db->prepare("
             INSERT INTO product_attribute_values (product_id, attribute_name, attribute_value)
             VALUES (?, ?, ?)
@@ -155,7 +155,7 @@ class ProductAttribute
             $attributeValue = $attr['attribute_value'] ?? '';
 
             if (empty($attributeName) || empty($attributeValue)) {
-                continue; // Skip empty attributes
+                continue;
             }
 
             $insStmt->bind_param('sss', $productId, $attributeName, $attributeValue);

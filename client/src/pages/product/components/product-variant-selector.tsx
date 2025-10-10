@@ -31,7 +31,7 @@ export function ProductVariantSelector({
         currentVariant || variants.find(v => v.product_id === currentProductId) || variants[0] || null
     )
 
-    // Group variants by their option combinations
+
     const getVariantOptions = (variant: ProductVariant) => {
         try {
             if (Array.isArray(variant.options)) {
@@ -50,7 +50,7 @@ export function ProductVariantSelector({
         return []
     }
 
-    // Extract unique option names and their values
+
     const optionGroups = variants.reduce((acc, variant) => {
         const options = getVariantOptions(variant)
         options.forEach((opt: { name: string; value: string }) => {
@@ -68,7 +68,7 @@ export function ProductVariantSelector({
     }
 
     const handleOptionSelect = (optionName: string, optionValue: string) => {
-        // Find a variant that matches this option value
+
         const matchingVariant = variants.find(variant => {
             const options = getVariantOptions(variant)
             return options.some((opt: { name: string; value: string }) =>
@@ -130,7 +130,7 @@ export function ProductVariantSelector({
                 )
             })}
 
-            {/* Stock Information */}
+
             {selectedVariant && (
                 <div className="pt-2 border-t">
                     <div className="flex items-center justify-between">

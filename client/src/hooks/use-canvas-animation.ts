@@ -57,7 +57,7 @@ export function useCanvasAnimation() {
       const secondImgPos = firstImgPos - renderWidth
       ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight, secondImgPos, 0, renderWidth, canvas.height)
 
-      positionRef.current += 0.5 // speed
+      positionRef.current += 0.5
       requestRef.current = requestAnimationFrame(animate)
     }
 

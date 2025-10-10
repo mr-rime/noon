@@ -54,7 +54,7 @@ export default function Banners() {
         bannerName: null
     })
 
-    // Fetch banners with pagination
+
     const { data, loading, error, refetch } = useQuery(GET_BANNERS, {
         variables: {
             limit: ITEMS_PER_PAGE,
@@ -64,7 +64,7 @@ export default function Banners() {
         fetchPolicy: 'cache-and-network'
     })
 
-    // Delete banner mutation
+
     const [deleteBannerMutation, { loading: deleting }] = useMutation(DELETE_BANNER, {
         onCompleted: (data) => {
             if (data.deleteBanner.success) {
@@ -79,7 +79,7 @@ export default function Banners() {
         }
     })
 
-    // Toggle banner status mutation
+
     const [toggleStatus, { loading: toggling }] = useMutation(TOGGLE_BANNER_STATUS, {
         onCompleted: (data) => {
             if (data.toggleBannerStatus.success) {
@@ -98,7 +98,7 @@ export default function Banners() {
     const total = data?.getBanners?.total || 0
     const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
 
-    // Handle search with debouncing
+
     useEffect(() => {
         const timer = setTimeout(() => {
             setSearchQuery(searchTerm)
@@ -108,26 +108,26 @@ export default function Banners() {
         return () => clearTimeout(timer)
     }, [searchTerm])
 
-    // Filter banners based on selected filters
+
     const filteredBanners = banners.filter((banner: Banner) => {
         let matchesPlacement = true
         let matchesStatus = true
 
-        // Placement filter
+
         if (filters.placement.length > 0) {
             matchesPlacement = filters.placement.includes(banner.placement)
         }
 
-        // Status filter
+
         if (filters.status.length > 0) {
             const now = new Date()
             const startDate = new Date(banner.start_date)
             const endDate = new Date(banner.end_date)
-            
+
             const status = !banner.is_active ? 'inactive' :
-                          now < startDate ? 'scheduled' :
-                          now > endDate ? 'expired' : 'active'
-            
+                now < startDate ? 'scheduled' :
+                    now > endDate ? 'expired' : 'active'
+
             matchesStatus = filters.status.includes(status)
         }
 
@@ -138,7 +138,7 @@ export default function Banners() {
         const now = new Date()
         const startDate = new Date(banner.start_date)
         const endDate = new Date(banner.end_date)
-        
+
         if (!banner.is_active) {
             return { label: "Inactive", variant: "secondary" as const }
         } else if (now < startDate) {
@@ -189,7 +189,7 @@ export default function Banners() {
 
     const handleConfirmDelete = async () => {
         if (!deleteModal.bannerId) return
-        
+
         await deleteBannerMutation({ variables: { id: deleteModal.bannerId } })
         setDeleteModal({ isOpen: false, bannerId: null, bannerName: null })
     }
@@ -224,7 +224,7 @@ export default function Banners() {
                 </Button>
             </div>
 
-            {/* Filters and Search */}
+
             <Card className="shadow-card">
                 <CardContent className="pt-6">
                     <div className="flex items-center gap-4">
@@ -242,7 +242,7 @@ export default function Banners() {
                 </CardContent>
             </Card>
 
-            {/* Banners Table */}
+
             <Card className="shadow-card">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
@@ -271,7 +271,7 @@ export default function Banners() {
                         </div>
                     ) : (
                         <>
-                            {/* Desktop Table View */}
+
                             <div className="hidden md:block overflow-x-auto">
                                 <Table>
                                     <TableHeader>
@@ -294,9 +294,9 @@ export default function Banners() {
                                                         <div className="flex items-center gap-3 min-w-[250px]">
                                                             <div className="w-16 h-12 bg-muted rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                                                                 {banner.image_url ? (
-                                                                    <img 
-                                                                        src={banner.image_url} 
-                                                                        alt={banner.name} 
+                                                                    <img
+                                                                        src={banner.image_url}
+                                                                        alt={banner.name}
                                                                         className="w-full h-full object-cover"
                                                                         onError={(e) => {
                                                                             (e.target as HTMLImageElement).style.display = 'none'
@@ -309,7 +309,7 @@ export default function Banners() {
                                                             <div className="min-w-0 flex-1">
                                                                 <p className="font-medium truncate" title={banner.name}>{banner.name}</p>
                                                                 {banner.target_url && (
-                                                                    <a 
+                                                                    <a
                                                                         href={banner.target_url}
                                                                         target="_blank"
                                                                         rel="noopener noreferrer"
@@ -387,7 +387,7 @@ export default function Banners() {
                                 </Table>
                             </div>
 
-                            {/* Mobile Card View */}
+
                             <div className="md:hidden space-y-4 p-4">
                                 {filteredBanners.map((banner: Banner) => {
                                     const status = getBannerStatus(banner)
@@ -396,13 +396,13 @@ export default function Banners() {
                                         <Card key={banner.id} className="overflow-hidden">
                                             <CardContent className="p-4">
                                                 <div className="space-y-3">
-                                                    {/* Banner Preview and Name */}
+
                                                     <div className="flex gap-3">
                                                         <div className="w-20 h-14 bg-muted rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                                                             {banner.image_url ? (
-                                                                <img 
-                                                                    src={banner.image_url} 
-                                                                    alt={banner.name} 
+                                                                <img
+                                                                    src={banner.image_url}
+                                                                    alt={banner.name}
                                                                     className="w-full h-full object-cover"
                                                                     onError={(e) => {
                                                                         (e.target as HTMLImageElement).style.display = 'none'
@@ -422,7 +422,7 @@ export default function Banners() {
                                                         </div>
                                                     </div>
 
-                                                    {/* Status and Toggle */}
+
                                                     <div className="flex items-center justify-between">
                                                         <Badge variant={status.variant} className="text-xs">
                                                             {status.label}
@@ -438,13 +438,13 @@ export default function Banners() {
                                                         </div>
                                                     </div>
 
-                                                    {/* Dates */}
+
                                                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                                         <Calendar className="h-3 w-3" />
                                                         <span>{formatDate(banner.start_date)} - {formatDate(banner.end_date)}</span>
                                                     </div>
 
-                                                    {/* Actions */}
+
                                                     <div className="flex justify-end pt-2 border-t">
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
@@ -478,7 +478,7 @@ export default function Banners() {
                                 })}
                             </div>
 
-                            {/* Pagination */}
+
                             {totalPages > 1 && (
                                 <div className="mt-6 pt-6 border-t px-4 md:px-0">
                                     <Pagination
@@ -495,7 +495,7 @@ export default function Banners() {
                 </CardContent>
             </Card>
 
-            {/* Modals */}
+
             {creatingBanner && (
                 <BannerForm
                     isOpen={creatingBanner}
@@ -524,7 +524,7 @@ export default function Banners() {
                 />
             )}
 
-            {/* Delete Confirmation Modal */}
+
             <DeleteConfirmationModal
                 isOpen={deleteModal.isOpen}
                 onClose={handleCloseDeleteModal}

@@ -31,7 +31,7 @@ class ProductImage
 
     public function create(string $productId, string $imageUrl, bool $isPrimary = false): bool
     {
-        // Unset primary if needed
+
         if ($isPrimary && !$this->unsetPrimary($productId)) {
             return false;
         }
@@ -82,7 +82,7 @@ class ProductImage
 
     public function replaceForProduct(string $productId, array $images): void
     {
-        // Delete images safely using prepared statement
+
         $delStmt = $this->db->prepare("DELETE FROM {$this->table} WHERE product_id = ?");
         if ($delStmt) {
             $delStmt->bind_param('s', $productId);

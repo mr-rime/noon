@@ -45,7 +45,7 @@ export function ProductPskuPage() {
 
     const product = data?.getProduct.product
 
-    // Set initial selected product (current product)
+
     useEffect(() => {
         if (product) {
             setSelectedGroupProduct(product)
@@ -65,11 +65,11 @@ export function ProductPskuPage() {
         )
     }
 
-    // Get group products (other variants in the same group)
+
     const groupProducts = (product as any).groupProducts || []
     const hasGroupVariants = groupProducts.length > 1
 
-    // Get product attributes for variant selection
+
     const productAttributes = (product as any).productAttributes || []
     const groupAttributes = (product as any).groupAttributes || []
 
@@ -79,7 +79,7 @@ export function ProductPskuPage() {
                 aria-labelledby="product-main-section"
                 className="site-container relative flex w-full flex-col items-start justify-start space-y-10 px-5 pt-10 lg:flex-row lg:space-x-10 lg:space-y-0">
 
-                {/* Mobile Bottom Bar */}
+
                 <div className="fixed bottom-0 left-0 z-10 flex w-full items-center bg-white px-2 py-2 md:hidden">
                     <button className="flex h-[60px] w-[55px] flex-col items-center justify-center border border-[#f1f3f9] bg-white p-[3px] px-[10px] text-inherit">
                         <span className="text-[#8d94a7] text-[1rem]">Qty</span>
@@ -90,7 +90,7 @@ export function ProductPskuPage() {
                     </Button>
                 </div>
 
-                {/* Mobile Header */}
+
                 <div className="mb-0 block md:hidden">
                     <ProductPageTitle className="block text-[18px] md:hidden" title={product.name} />
                     <div className="mt-6 mb-4 flex w-full items-center justify-between">
@@ -99,21 +99,21 @@ export function ProductPskuPage() {
                     </div>
                 </div>
 
-                {/* Product Images */}
+
                 <ProductPageImage images={product.images?.map((image) => image.image_url) || ['']} />
 
-                {/* Product Info */}
+
                 <div
                     className="flex w-full flex-col items-start justify-center lg:w-[calc(500/1200*100%)]"
                     aria-labelledby="product-info-section">
 
-                    {/* Desktop Header */}
+
                     <ProductPageTitle className="hidden md:block" title={product.name} />
                     <div className="hidden md:block">
                         <ProductPageRates />
                     </div>
 
-                    {/* Product Badges */}
+
                     <div className="flex flex-wrap gap-2 mb-4">
                         {(product as any).psku && (
                             <Badge variant="secondary" className="text-xs font-mono">
@@ -141,7 +141,7 @@ export function ProductPskuPage() {
                         )}
                     </div>
 
-                    {/* Price */}
+
                     <ProdcutPagePrice
                         price={selectedGroupProduct?.price || product.price}
                         currency={product.currency}
@@ -149,14 +149,14 @@ export function ProductPskuPage() {
                         final_price={selectedGroupProduct?.price || product.final_price || 0}
                     />
 
-                    {/* Fulfilment */}
+
                     <ProductPageFulfilmentBadge />
                     <Separator className="my-5" />
 
-                    {/* Product Variants/Group Selection */}
+
                     <div className="flex flex-col items-start justify-center space-y-5 w-full">
 
-                        {/* Product Attributes */}
+
                         {productAttributes.length > 0 && (
                             <div className="w-full">
                                 <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -174,7 +174,7 @@ export function ProductPskuPage() {
                             </div>
                         )}
 
-                        {/* Group Variants */}
+
                         {hasGroupVariants && (
                             <div className="w-full">
                                 <div className="flex items-center justify-between mb-3">
@@ -236,7 +236,7 @@ export function ProductPskuPage() {
                             </div>
                         )}
 
-                        {/* Group Attributes Info */}
+
                         {groupAttributes.length > 0 && (
                             <div className="w-full">
                                 <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -265,7 +265,7 @@ export function ProductPskuPage() {
                             </div>
                         )}
 
-                        {/* Stock Information */}
+
                         <div className="w-full">
                             <div className="bg-muted/30 rounded-lg p-4">
                                 <div className="flex items-center justify-between">
@@ -296,26 +296,26 @@ export function ProductPskuPage() {
                     </div>
                 </div>
 
-                {/* Mobile Product Details */}
+
                 <div className="flex w-full flex-col items-start justify-center md:hidden">
                     <div className="w-full">
                         <ProductPageDetails product={product as ProductType} theme="mobile" />
                     </div>
                 </div>
 
-                {/* Desktop Product Details */}
+
                 <div className="max-md:hidden">
                     <ProductPageDetails product={product as ProductType} />
                 </div>
             </section>
 
-            {/* Product Overview Section */}
+
             <section id="product_overview">
                 <Separator className="mt-16 mb-5 h-[9px] bg-[#F3F4F8]" />
                 <ProductOverviewTabs />
             </section>
 
-            {/* Product Overview Content */}
+
             <section className="site-container mt-10">
                 <ProductOverview
                     overview={product.product_overview as string}
@@ -323,7 +323,7 @@ export function ProductPskuPage() {
                 />
             </section>
 
-            {/* Reviews Section */}
+
             <Separator className="mt-20 mb-5 h-[9px] bg-[#F3F4F8]" />
             <ProductReviews />
         </main>

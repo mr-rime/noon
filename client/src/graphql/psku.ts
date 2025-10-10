@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 
-// Category and Subcategory Queries
 export const GET_CATEGORIES = gql`
   query GetCategories($search: String) {
     getCategories(search: $search) {
@@ -40,7 +39,6 @@ export const GET_SUBCATEGORIES = gql`
   }
 `
 
-// Brand Queries
 export const GET_BRANDS = gql`
   query GetBrands($search: String) {
     getBrands(search: $search) {
@@ -58,7 +56,6 @@ export const GET_BRANDS = gql`
   }
 `
 
-// Product Group Queries
 export const GET_PRODUCT_GROUPS = gql`
   query GetProductGroups($category_id: Int) {
     getProductGroups(category_id: $category_id) {
@@ -79,7 +76,6 @@ export const GET_PRODUCT_GROUPS = gql`
   }
 `
 
-// PSKU Product Creation
 export const CREATE_PSKU_PRODUCT = gql`
   mutation CreatePskuProduct(
     $name: String!
@@ -181,7 +177,6 @@ export const CREATE_PSKU_PRODUCT = gql`
   }
 `
 
-// Get Product by PSKU
 export const GET_PRODUCT_BY_PSKU = gql`
   query GetProductByPsku($psku: String!) {
     getProductByPsku(psku: $psku) {
@@ -253,7 +248,6 @@ export const GET_PRODUCT_BY_PSKU = gql`
   }
 `
 
-// Product Group Mutations
 export const CREATE_PRODUCT_GROUP = gql`
   mutation CreateProductGroup($input: ProductGroupInput!) {
     createProductGroup(input: $input) {
@@ -306,7 +300,6 @@ export const REMOVE_PRODUCT_FROM_GROUP = gql`
   }
 `
 
-// Category/Brand/Subcategory Mutations
 export const CREATE_CATEGORY = gql`
   mutation CreateCategory($input: CategoryInput!) {
     createCategory(input: $input) {
@@ -396,7 +389,6 @@ export const DELETE_PRODUCT_GROUP = gql`
   }
 `
 
-// Check if PSKU exists
 export const CHECK_PSKU_EXISTS = gql`
   query CheckPskuExists($psku: String!) {
     getProductByPsku(psku: $psku) {
@@ -408,5 +400,10 @@ export const CHECK_PSKU_EXISTS = gql`
         name
       }
     }
+  }
+`
+export const VALIDATE_PSKU = gql`
+  query ValidatePsku($psku: String!) {
+    validatePsku(psku: $psku)
   }
 `

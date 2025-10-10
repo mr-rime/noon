@@ -36,7 +36,7 @@ export function ProductPage() {
 
   const navigate = useNavigate();
 
-  // Set selected product when data loads
+
   useEffect(() => {
     if (currentProduct) {
       setSelectedProduct(currentProduct)
@@ -49,20 +49,20 @@ export function ProductPage() {
     }
   }, [currentProduct])
 
-  // Get all products in the group (maintaining original order from server)
-  // Filter to only include public products, but always include the current product being viewed
+
+
   const allGroupProducts = useMemo(() => {
     if (!currentProduct) return []
 
-    // If no group products, just return current product
+
     if (!currentProduct.groupProducts || currentProduct.groupProducts.length === 0) {
       return [currentProduct]
     }
 
-    // Filter to only public products, but ensure current product is always included
+
     const publicProducts = currentProduct.groupProducts.filter(product => product.is_public)
 
-    // If current product is not public but is being viewed, include it
+
     const currentProductInGroup = currentProduct.groupProducts.find(p => p.id === currentProduct.id)
     if (currentProductInGroup && !currentProductInGroup.is_public && !publicProducts.find(p => p.id === currentProduct.id)) {
       publicProducts.push(currentProductInGroup)
@@ -71,11 +71,11 @@ export function ProductPage() {
     return publicProducts
   }, [currentProduct])
 
-  // Build attribute options from all products in the group
+
   const attributeOptions = useMemo(() => {
     const options: Record<string, Set<string>> = {}
 
-    // First, collect attributes from products that have them
+
     allGroupProducts.forEach(product => {
       product.productAttributes?.forEach(attr => {
         if (!options[attr.attribute_name]) {
@@ -85,15 +85,15 @@ export function ProductPage() {
       })
     })
 
-    // If we have multiple products in the group but no attributes, 
-    // create default color options based on product names
+
+
     if (allGroupProducts.length > 1 && Object.keys(options).length === 0) {
       options['Color'] = new Set()
 
       allGroupProducts.forEach(product => {
         const productName = product.name?.toLowerCase() || ''
 
-        // Extract color from product name
+
         if (productName.includes('black')) {
           options['Color'].add('Black')
         } else if (productName.includes('white')) {
@@ -107,7 +107,7 @@ export function ProductPage() {
         } else if (productName.includes('green')) {
           options['Color'].add('Green')
         } else {
-          // Default color based on product index
+
           const colors = ['Black', 'White', 'Cosmic Orange', 'Deep Blue', 'Red', 'Green']
           const colorIndex = allGroupProducts.findIndex(p => p.id === product.id)
           if (colorIndex >= 0 && colorIndex < colors.length) {
@@ -123,7 +123,7 @@ export function ProductPage() {
     console.log('Attribute Options Keys:', Object.keys(options))
     console.log('Number of attribute types:', Object.keys(options).length)
 
-    // Log each product's attributes individually
+
     allGroupProducts.forEach((product, index) => {
       console.log(`Product ${index + 1} (${product.id}):`, product.productAttributes)
     })
@@ -131,16 +131,16 @@ export function ProductPage() {
     return options
   }, [allGroupProducts])
 
-  // Get selected attributes for current product
+
   const selectedAttributes = useMemo(() => {
     const attrs: Record<string, string> = {}
 
-    // First, try to get attributes from the product's attributes
+
     selectedProduct?.productAttributes?.forEach(attr => {
       attrs[attr.attribute_name] = attr.attribute_value
     })
 
-    // If no attributes found, try to infer from product name
+
     if (Object.keys(attrs).length === 0 && selectedProduct?.name) {
       const productName = selectedProduct.name.toLowerCase()
 
@@ -186,7 +186,7 @@ export function ProductPage() {
       })
     }
 
-    // If still no match, use index-based selection
+
     if (!matchingProduct && allGroupProducts.length > 1) {
       const colorIndex = ['black', 'white', 'cosmic orange', 'deep blue', 'red', 'green'].indexOf(attributeValue.toLowerCase())
       if (colorIndex >= 0 && colorIndex < allGroupProducts.length) {
@@ -196,13 +196,13 @@ export function ProductPage() {
 
     if (matchingProduct && matchingProduct.id !== currentProduct?.id) {
 
-      // Generate URL-friendly title
+
       const urlTitle = matchingProduct.name
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '')
 
-      // Navigate to the product page
+
       navigate({ to: "/$title/$productId", params: { title: urlTitle, productId: matchingProduct.id } })
     }
   }
@@ -260,24 +260,24 @@ export function ProductPage() {
           <ProductPageFulfilmentBadge />
           <Separator className="my-5" />
 
-          {/* Product Variants/Attributes Selector */}
+
           {Object.keys(attributeOptions).length > 0 && allGroupProducts.filter(p => p.is_public).length > 1 && (
             <div className="w-full space-y-6 mb-6">
               {Object.entries(attributeOptions).map(([attributeName, values]) => {
                 const selectedValue = selectedAttributes[attributeName]
 
-                // Filter values to only show those from public products (except current selection)
+
                 const publicValues = Array.from(values).filter(value => {
                   const productWithAttr = allGroupProducts.find(p =>
                     p.productAttributes?.some(attr =>
                       attr.attribute_name === attributeName && attr.attribute_value === value
                     )
                   )
-                  // Show value if product is public OR if it's the currently selected value
+
                   return productWithAttr && (productWithAttr.is_public || selectedValue === value)
                 })
 
-                // Only show attributes that have more than one public value
+
                 if (publicValues.length <= 1) return null
 
                 return (
@@ -289,7 +289,7 @@ export function ProductPage() {
                       {publicValues.map((value) => {
                         const isSelected = selectedValue === value
 
-                        // Find product with this attribute to show its image
+
                         const productWithAttr = allGroupProducts.find(p =>
                           p.productAttributes?.some(attr =>
                             attr.attribute_name === attributeName && attr.attribute_value === value

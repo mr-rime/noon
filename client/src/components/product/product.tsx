@@ -29,6 +29,13 @@ export function Product({
   const [hasFetched, setHasFetched] = useState(false)
   const { refetch } = useQuery(GET_PRODUCT, { variables: { id }, skip: true })
 
+
+  const productImages = images
+    ? [...images].sort(
+      (a, b) => Number(b.is_primary ?? false) - Number(a.is_primary ?? false)
+    )
+    : []
+
   const handlePrefetch = async () => {
     if (!hasFetched) {
       await refetch({ fetchPolicy: 'network-only' })
@@ -50,7 +57,7 @@ export function Product({
         className="h-full w-full"
         preload="intent">
         <ProductImage
-          images={images?.map((img) => img.image_url) || []}
+          images={productImages?.map((img) => img.image_url) || []}
           product_id={id!}
           wishlist_id={wishlist_id!}
           isWishlistProduct={isWishlistProduct}
@@ -58,7 +65,7 @@ export function Product({
         />
         <ProductTitle name={name || ''} />
 
-        {/* PSKU and Category Info */}
+
         {(psku || category_name || brand_name) && (
           <div className="my-2 space-y-1">
             {psku && (

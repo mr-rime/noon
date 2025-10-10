@@ -4,13 +4,13 @@ function requireStoreAuth($resolver)
 {
     return function ($root, $args, $context) use ($resolver) {
         if (session_status() !== PHP_SESSION_ACTIVE) {
-            // Try to start session based on dashboard or regular session name
+
             $sessionName = 'NOON_STORE_SESSION_ID';
             if (isset($_COOKIE[$sessionName])) {
                 session_name($sessionName);
                 session_start();
             } else {
-                // Fallback to regular session
+
                 session_start();
             }
         }
@@ -23,7 +23,7 @@ function requireStoreAuth($resolver)
             ];
         }
 
-        // Add store info to context for resolvers
+
         $context['store'] = $_SESSION['store'];
 
         return $resolver($root, $args, $context);
@@ -40,14 +40,12 @@ function requireStoreOrUserAuth($resolver)
         $authenticated = false;
         $userType = null;
 
-        // Check for store authentication
+
         if (isset($_SESSION['store'])) {
             $authenticated = true;
             $userType = 'store';
             $context['store'] = $_SESSION['store'];
-        }
-        // Check for user authentication
-        elseif (isset($_SESSION['user'])) {
+        } elseif (isset($_SESSION['user'])) {
             $authenticated = true;
             $userType = 'user';
             $context['user'] = $_SESSION['user'];
@@ -62,7 +60,7 @@ function requireStoreOrUserAuth($resolver)
             ];
         }
 
-        // Add user type to context
+
         $context['userType'] = $userType;
 
         return $resolver($root, $args, $context);

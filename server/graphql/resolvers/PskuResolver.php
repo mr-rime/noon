@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../models/Brand.php';
 require_once __DIR__ . '/../../models/ProductGroup.php';
 require_once __DIR__ . '/../../models/Product.php';
 
-// Category Resolvers
+
 function getCategories(mysqli $db, string $search = ''): array
 {
     $categoryModel = new Category($db);
@@ -150,7 +150,7 @@ function deleteCategory(mysqli $db, int $id): array
     }
 }
 
-// Subcategory Resolvers
+
 function getSubcategories(mysqli $db, ?int $categoryId = null, string $search = ''): array
 {
     $subcategoryModel = new Subcategory($db);
@@ -266,7 +266,7 @@ function deleteSubcategory(mysqli $db, int $id): array
     }
 }
 
-// Brand Resolvers
+
 function getBrands(mysqli $db, string $search = ''): array
 {
     $brandModel = new Brand($db);
@@ -304,26 +304,95 @@ function createBrand(mysqli $db, array $input): array
             return [
                 'success' => false,
                 'message' => 'Failed to create brand',
-                'category' => null
+                'brand' => null
             ];
         }
 
         return [
             'success' => true,
             'message' => 'Brand created successfully',
-            'category' => $brand
+            'brand' => $brand
         ];
     } catch (Exception $e) {
         error_log("Error creating brand: " . $e->getMessage());
         return [
             'success' => false,
             'message' => 'Failed to create brand: ' . $e->getMessage(),
-            'category' => null
+            'brand' => null
         ];
     }
 }
 
-// Product Group Resolvers
+function updateBrand(mysqli $db, int $id, array $input): array
+{
+    $brandModel = new Brand($db);
+
+    try {
+        $success = $brandModel->update($id, $input);
+
+        if (!$success) {
+            return [
+                'success' => false,
+                'message' => 'Failed to update brand',
+                'brand' => null
+            ];
+        }
+
+        $brand = $brandModel->findById($id);
+
+        return [
+            'success' => true,
+            'message' => 'Brand updated successfully',
+            'brand' => $brand
+        ];
+    } catch (Exception $e) {
+        error_log("Error updating brand: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Failed to update brand: ' . $e->getMessage(),
+            'brand' => null
+        ];
+    }
+}
+
+function deleteBrand(mysqli $db, int $id): array
+{
+    $brandModel = new Brand($db);
+    $productModel = new Product($db);
+
+    try {
+
+        $products = $productModel->findByBrandId($id);
+        if (!empty($products)) {
+            return [
+                'success' => false,
+                'message' => 'Cannot delete brand with products. Please remove all products first.'
+            ];
+        }
+
+        $success = $brandModel->delete($id);
+
+        if (!$success) {
+            return [
+                'success' => false,
+                'message' => 'Failed to delete brand'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Brand deleted successfully'
+        ];
+    } catch (Exception $e) {
+        error_log("Error deleting brand: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Failed to delete brand: ' . $e->getMessage()
+        ];
+    }
+}
+
+
 function getProductGroups(mysqli $db, ?int $categoryId = null): array
 {
     $groupModel = new ProductGroup($db);
@@ -483,15 +552,15 @@ function addProductToGroup(mysqli $db, string $productId, string $groupId): arra
     }
 }
 
-// Product PSKU Resolvers
+
 function getProductByPsku(mysqli $db, string $psku): array
 {
     $productModel = new Product($db);
 
     try {
-        // Check if this is public site access
+
         $publicOnly = !isset($_SESSION['store']['id']);
-        
+
         $product = $productModel->findByPsku($psku, $publicOnly);
 
         if (!$product) {
@@ -514,5 +583,36 @@ function getProductByPsku(mysqli $db, string $psku): array
             'message' => 'Failed to retrieve product',
             'product' => null
         ];
+    }
+}
+
+
+function validatePskuUniqueness(mysqli $db, string $psku): bool
+{
+    try {
+        error_log("NEW VALIDATION ENDPOINT CALLED for PSKU: '$psku'");
+
+
+        $query = "SELECT id, name FROM products WHERE psku = ? LIMIT 1";
+        $stmt = $db->prepare($query);
+        $stmt->bind_param('s', $psku);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $isAvailable = $result->num_rows === 0;
+
+        if (!$isAvailable) {
+            $existingProduct = $result->fetch_assoc();
+            error_log("PSKU '$psku' already exists for product ID: {$existingProduct['id']}, Name: {$existingProduct['name']}");
+        } else {
+            error_log("PSKU '$psku' is available - returning TRUE");
+        }
+
+
+        return $isAvailable;
+    } catch (Exception $e) {
+        error_log("Error validating PSKU uniqueness: " . $e->getMessage());
+
+        return false;
     }
 }

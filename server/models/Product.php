@@ -123,7 +123,7 @@ class Product
     {
         [$where, $order, $params, $types] = $this->buildWhereSearch($search);
 
-        // Add public filter if requested
+
         if ($publicOnly) {
             if (trim($where) === '') {
                 $where = "WHERE is_public = 1";
@@ -131,9 +131,9 @@ class Product
                 $where = preg_replace('/^\s*WHERE\s*/i', 'WHERE ', $where);
                 $where .= " AND is_public = 1";
             }
-        }        
+        }
 
-        // First fetch product IDs
+
         $query = "SELECT id FROM products $where $order LIMIT ? OFFSET ?";
         $params = [...$params, $limit, $offset];
         $types .= 'ii';
@@ -145,7 +145,7 @@ class Product
         if (!$productIds)
             return [];
 
-        // Wishlist joins
+
         $wishlistJoin = $wishlistSelect = '';
         $wishlistParams = [];
         $wishlistTypes = '';
@@ -158,7 +158,7 @@ class Product
             $wishlistTypes = 'i';
         }
 
-        // Main fetch with new PSKU system joins
+
         $placeholders = implode(',', array_fill(0, count($productIds), '?'));
         $query = "
     SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary, $wishlistSelect
@@ -173,7 +173,7 @@ class Product
     LEFT JOIN product_groups pg ON p.group_id = pg.group_id
     $wishlistJoin
     WHERE p.id IN ($placeholders)"
-    . ($publicOnly ? " AND p.is_public = 1" : "") . "
+            . ($publicOnly ? " AND p.is_public = 1" : "") . "
     ORDER BY p.id";
 
 
@@ -183,7 +183,7 @@ class Product
         $stmt->bind_param($wishlistTypes . str_repeat('i', count($productIds)), ...$params);
         $rows = $this->fetchAssocAll($stmt);
 
-        // Group rows
+
         $products = [];
         foreach ($rows as $row) {
             $pid = $row['id'];
@@ -196,7 +196,7 @@ class Product
                 'stock' => $row['stock'],
                 'product_overview' => $row['product_overview'],
                 'is_returnable' => $row['is_returnable'],
-                'is_public' => $row['is_public'] ?? 0, // Default to 0 if NULL
+                'is_public' => $row['is_public'] ?? 0,
                 'final_price' => $row['final_price'],
                 'category_id' => $row['category_id'],
                 'subcategory_id' => $row['subcategory_id'],
@@ -222,11 +222,11 @@ class Product
             }
         }
 
-        // Attach related data
+
         foreach ($products as $pid => &$product) {
             $product['productSpecifications'] = $this->specModel->findByProductId($pid);
 
-            // Get product attributes if part of a group
+
             if ($product['group_id']) {
                 $product['groupAttributes'] = $this->groupModel->getGroupAttributes($product['group_id']);
                 $product['productAttributes'] = $this->getProductAttributes($pid);
@@ -245,7 +245,7 @@ class Product
     {
         [$where, $order, $params, $types] = $this->buildWhereSearch($search);
 
-        // Add public filter if requested
+
         if ($publicOnly) {
             if (empty($where)) {
                 $where = "WHERE is_public = 1";
@@ -267,7 +267,7 @@ class Product
 
     public function findRelatedProducts(string $productId, ?int $categoryId, ?int $brandId, int $limit = 8): array
     {
-        // Get current product to exclude products from the same group
+
         $currentProduct = $this->findById($productId);
         $excludeGroupId = $currentProduct['group_id'] ?? null;
 
@@ -281,7 +281,7 @@ class Product
         $params = [$productId];
         $types = 's';
 
-        // Add category filter if available
+
         if ($categoryId) {
             $query .= " AND p.category_id = ?";
             $params[] = $categoryId;
@@ -295,7 +295,7 @@ class Product
             END, p.name ASC
             LIMIT ?";
 
-        // Add ordering parameters
+
         $params[] = $categoryId;
         $params[] = $limit;
         $types .= 'ii';
@@ -314,9 +314,9 @@ class Product
             $products[] = $row;
         }
 
-        // Get images and other related data for each product
+
         foreach ($products as $pid => &$product) {
-            // Add missing columns with default values
+
             $product['psku'] = null;
             $product['subcategory_id'] = null;
             $product['brand_id'] = null;
@@ -324,15 +324,15 @@ class Product
             $product['subcategory_name'] = null;
             $product['brand_name'] = null;
             $product['group_name'] = null;
-            $product['is_public'] = false; // Default to false for legacy products
-            $product['final_price'] = $product['price']; // Use price as final_price
+            $product['is_public'] = false;
+            $product['final_price'] = $product['price'];
             $product['discount_percentage'] = 0;
             $product['created_at'] = $product['created_at'] ?? null;
             $product['updated_at'] = $product['updated_at'] ?? null;
 
             $product['productSpecifications'] = $this->specModel->findByProductId($product['id']);
 
-            // Get images for this product
+
             $imageQuery = 'SELECT id, image_url, is_primary FROM product_images WHERE product_id = ? ORDER BY is_primary DESC, id ASC';
             $imageStmt = $this->db->prepare($imageQuery);
             if ($imageStmt) {
@@ -351,10 +351,10 @@ class Product
                 $product['images'] = [];
             }
 
-            // Get product attributes (simplified - no group logic for now)
+
             $product['productAttributes'] = $this->getProductAttributes($product['id']);
 
-            // Attach discount data (this might need adjustment too)
+
             $this->attachDiscountData($product, $product['price']);
         }
 
@@ -363,7 +363,7 @@ class Product
 
     public function findById(string $id, bool $publicOnly = false): ?array
     {
-            $query = "
+        $query = "
             SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary,
                 c.name as category_name, s.name as subcategory_name, b.name as brand_name,
                 pg.name as group_name, pg.group_id
@@ -375,28 +375,28 @@ class Product
             LEFT JOIN product_groups pg ON p.group_id = pg.group_id
             WHERE p.id = ?
         ";
-        
+
         if ($publicOnly) {
             $query .= " AND p.is_public = 1";
         }
-        
+
 
         $stmt = $this->db->prepare($query);
-        
+
         if (!$stmt) {
             error_log("findById prepare failed: " . $this->db->error);
             return null;
         }
-        
+
         $stmt->bind_param('s', $id);
         $stmt->execute();
-        
+
         $result = $stmt->get_result();
         if (!$result) {
             error_log("findById get_result failed: " . $stmt->error);
             return null;
         }
-        
+
         $rows = $result->fetch_all(MYSQLI_ASSOC);
 
         if (!$rows) {
@@ -419,7 +419,7 @@ class Product
             'currency' => $base['currency'],
             'stock' => $base['stock'],
             'is_returnable' => $base['is_returnable'],
-            'is_public' => $base['is_public'] ?? 0, // Default to 0 if NULL
+            'is_public' => $base['is_public'] ?? 0,
             'final_price' => $base['final_price'],
             'product_overview' => $base['product_overview'],
             'category_name' => $base['category_name'],
@@ -443,7 +443,7 @@ class Product
 
         $product['productSpecifications'] = $this->specModel->findByProductId($id);
 
-        // Get product attributes if part of a group
+
         if ($product['group_id']) {
             $product['groupAttributes'] = $this->groupModel->getGroupAttributes($product['group_id']);
             $product['productAttributes'] = $this->getProductAttributes($id);
@@ -479,17 +479,17 @@ class Product
 
     public function setProductAttributes(string $productId, array $attributes): bool
     {
-        // Start transaction
+
         $this->db->begin_transaction();
 
         try {
-            // Delete existing attributes
+
             $deleteQuery = 'DELETE FROM product_attribute_values WHERE product_id = ?';
             $deleteStmt = $this->db->prepare($deleteQuery);
             $deleteStmt->bind_param('s', $productId);
             $deleteStmt->execute();
 
-            // Insert new attributes
+
             if (!empty($attributes)) {
                 $insertQuery = 'INSERT INTO product_attribute_values (product_id, attribute_name, attribute_value) VALUES (?, ?, ?)';
                 $insertStmt = $this->db->prepare($insertQuery);
@@ -509,6 +509,23 @@ class Product
         }
     }
 
+    public function findByBrandId(int $brandId): array
+    {
+        $query = 'SELECT id FROM products WHERE brand_id = ?';
+        $stmt = $this->db->prepare($query);
+
+        if (!$stmt) {
+            error_log("Prepare failed: " . $this->db->error);
+            return [];
+        }
+
+        $stmt->bind_param('i', $brandId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
     public function findByPsku(string $psku, bool $publicOnly = false): ?array
     {
         $query = "
@@ -522,7 +539,7 @@ class Product
             LEFT JOIN brands b ON p.brand_id = b.brand_id
             LEFT JOIN product_groups pg ON p.group_id = pg.group_id
             WHERE p.psku = ?";
-            
+
         if ($publicOnly) {
             $query .= " AND p.is_public = 1";
         }
@@ -534,29 +551,29 @@ class Product
         if (!$rows)
             return null;
 
-        // Use the same logic as findById for consistency
+
         return $this->findById($rows[0]['id'], $publicOnly);
     }
 
     private function generatePsku(string $productName): string
     {
-        // Generate random alphanumeric string (15 characters)
+
         $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $randomString = '';
-        
+
         for ($i = 0; $i < 15; $i++) {
             $randomString .= $characters[random_int(0, strlen($characters) - 1)];
         }
-        
-        // Add 3-digit number at the end
+
+
         $number = str_pad(random_int(0, 999), 3, '0', STR_PAD_LEFT);
-        
+
         return 'PSKU_' . $randomString . $number;
     }
 
     public function create(array $data, ?int $storeId = null): ?array
     {
-        // Basic validation for required fields
+
         if (empty($data['name']) || !is_string($data['name'])) {
             error_log("Validation failed: name is required and must be a string");
             return null;
@@ -572,7 +589,7 @@ class Product
             return null;
         }
 
-        // Clean up data - convert null values to appropriate defaults
+
         $cleanData = [
             'name' => trim($data['name']),
             'price' => (float) $data['price'],
@@ -602,10 +619,10 @@ class Product
 
         $hash = generateHash();
 
-        // Generate PSKU if not provided
+
         $psku = $cleanData['psku'] ?? $this->generatePsku($cleanData['name']);
-        
-        // Validate PSKU uniqueness
+
+
         if (!empty($psku)) {
             $existingProduct = $this->findByPsku($psku);
             if ($existingProduct) {
@@ -614,10 +631,10 @@ class Product
             }
         }
 
-        // If store session exists, set user_id to NULL and use store_id
-        // Otherwise use regular user session
+
+
         if ($storeId !== null) {
-            $userId = null; // Stores don't have user_id
+            $userId = null;
         } elseif (isset($_SESSION['user']['id'])) {
             $userId = $_SESSION['user']['id'];
             $storeId = null;
@@ -669,7 +686,7 @@ class Product
             }
         }
 
-        // Handle product attributes for PSKU system
+
         if (!empty($cleanData['productAttributes'])) {
             $this->setProductAttributes($hash, $cleanData['productAttributes']);
         }
@@ -682,12 +699,12 @@ class Product
         }
 
         $createdProduct = $this->findById($hash);
-        
+
         if (!$createdProduct) {
             error_log("Product created with ID: $hash but findById returned null");
             error_log("Query might be failing. Check database state for product ID: $hash");
         }
-        
+
         return $createdProduct;
     }
 
@@ -712,7 +729,7 @@ class Product
             return null;
         }
 
-        // Validate PSKU uniqueness if PSKU is being updated
+
         if (isset($data['psku']) && !empty($data['psku'])) {
             $existingProduct = $this->findByPsku($data['psku']);
             if ($existingProduct && $existingProduct['id'] !== $id) {
@@ -731,7 +748,7 @@ class Product
             if (in_array($key, $nonDbFields))
                 continue;
 
-            // Handle null values for foreign keys
+
             if (in_array($key, ['category_id', 'subcategory_id', 'brand_id', 'group_id']) && $value === '') {
                 $value = null;
             }
@@ -826,7 +843,7 @@ class Product
             }
         }
 
-        // Handle product attributes update
+
         if (isset($data['productAttributes'])) {
             $this->setProductAttributes($id, $data['productAttributes']);
         }
@@ -837,53 +854,53 @@ class Product
 
     public function delete(string $id): bool
     {
-        // Start transaction
+
         $this->db->begin_transaction();
 
         try {
-            // Delete from wishlist_items first (foreign key constraint)
+
             $stmt = $this->db->prepare('DELETE FROM wishlist_items WHERE product_id = ?');
             if ($stmt) {
                 $stmt->bind_param('s', $id);
                 $stmt->execute();
             }
 
-            // Delete product images
+
             $stmt = $this->db->prepare('DELETE FROM product_images WHERE product_id = ?');
             if ($stmt) {
                 $stmt->bind_param('s', $id);
                 $stmt->execute();
             }
 
-            // Delete product specifications
+
             $stmt = $this->db->prepare('DELETE FROM product_specifications WHERE product_id = ?');
             if ($stmt) {
                 $stmt->bind_param('s', $id);
                 $stmt->execute();
             }
 
-            // Delete product attributes
+
             $stmt = $this->db->prepare('DELETE FROM product_attribute_values WHERE product_id = ?');
             if ($stmt) {
                 $stmt->bind_param('s', $id);
                 $stmt->execute();
             }
 
-            // Delete discounts
+
             $stmt = $this->db->prepare('DELETE FROM discounts WHERE product_id = ?');
             if ($stmt) {
                 $stmt->bind_param('s', $id);
                 $stmt->execute();
             }
 
-            // Delete product variants if they exist
+
             $stmt = $this->db->prepare('DELETE FROM product_variants WHERE product_id = ?');
             if ($stmt) {
                 $stmt->bind_param('s', $id);
                 $stmt->execute();
             }
 
-            // Finally delete the product
+
             $stmt = $this->db->prepare('DELETE FROM products WHERE id = ?');
             if (!$stmt) {
                 throw new Exception("Prepare failed: " . $this->db->error);
@@ -896,12 +913,12 @@ class Product
 
             $affectedRows = $stmt->affected_rows;
 
-            // Commit transaction
+
             $this->db->commit();
 
             return $affectedRows > 0;
         } catch (Exception $e) {
-            // Rollback on error
+
             $this->db->rollback();
             error_log("Product deletion failed: " . $e->getMessage());
             return false;

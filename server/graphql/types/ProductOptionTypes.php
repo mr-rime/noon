@@ -11,7 +11,7 @@ $ProductOptionType = new ObjectType([
         'value' => Type::nonNull(Type::string()),
         'image_url' => Type::string(),
         'linked_product_id' => Type::string(),
-        'type' => Type::nonNull(Type::string()), // link or image
+        'type' => Type::nonNull(Type::string()),
     ],
 ]);
 
@@ -26,7 +26,7 @@ $ProductOptionInputType = new InputObjectType([
     ],
 ]);
 
-// Option group input for generating variant combinations
+
 $ProductOptionGroupInput = new InputObjectType([
     'name' => 'ProductOptionGroupInput',
     'fields' => [

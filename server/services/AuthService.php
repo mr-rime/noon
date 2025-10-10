@@ -90,7 +90,7 @@ class AuthService
                 ];
             }
 
-            // Ensure session only if not already active
+
             if (session_status() !== PHP_SESSION_ACTIVE) {
                 session_start();
             }
@@ -105,8 +105,8 @@ class AuthService
             ];
 
         } catch (\PDOException $e) {
-            // Handle duplicate email gracefully
-            if ($e->errorInfo[1] == 1062) { // MySQL duplicate entry
+
+            if ($e->errorInfo[1] == 1062) {
                 $this->logRegister($data['email'], false, $start, "Duplicate email");
                 return [
                     'success' => false,

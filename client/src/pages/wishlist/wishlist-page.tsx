@@ -5,19 +5,19 @@ import { WishlistSidebar } from './components/wishlist-sidebar'
 import { useQuery } from '@apollo/client'
 import { GET_WISHLISTS } from '@/graphql/wishlist'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import type { WishlistResponse, WishlistType } from './types'
 
 export function WishlistPage() {
   const navigate = useNavigate({ from: '/wishlist' })
   const { data, loading } = useQuery<WishlistResponse<'getWishlists', WishlistType[]>>(GET_WISHLISTS)
-  const wishlists = data?.getWishlists.data || []
+  const wishlists = useMemo(() => data?.getWishlists.data || [], [data])
 
   useEffect(() => {
     navigate({ search: { wishlistCode: wishlists[0]?.id } })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading])
+
+  }, [loading, navigate, wishlists])
 
   return (
     <main className="site-container mt-10 min-h-screen w-full px-[45px] py-2">

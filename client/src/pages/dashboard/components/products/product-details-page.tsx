@@ -60,7 +60,7 @@ export function ProductDetailsPage() {
 
     return (
         <div className="space-y-6">
-            {/* Header */}
+
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Link to="/d/products">
@@ -88,7 +88,7 @@ export function ProductDetailsPage() {
                     </div>
                 </div>
 
-                {/* Quick Stats */}
+
                 <div className="flex items-center gap-4">
                     {product.group_id && (
                         <div className="border rounded-lg p-3">
@@ -103,16 +103,16 @@ export function ProductDetailsPage() {
                 </div>
             </div>
 
-            {/* Main Content */}
+
             <div className="flex gap-6">
-                {/* Left Sidebar - Product Group Manager */}
+
                 <ProductGroupManager
                     product={product}
                     onProductUpdate={handleProductUpdate}
                     onGroupUpdate={handleGroupUpdate}
                 />
 
-                {/* Main Content - Product Details Form */}
+
                 <div className="flex-1">
                     <ProductDetailsForm
                         product={product}

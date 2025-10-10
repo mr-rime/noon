@@ -8,11 +8,11 @@ export function HomeLayout() {
     <>
       <Header />
       <Outlet />
-      {/* Footer Banner */}
+
       <div className="mt-16 mb-8 px-4">
         <FooterBanner className="max-w-6xl mx-auto" />
       </div>
-      {/* Popup Banner Manager */}
+
       <PopupBannerManager />
     </>
   )

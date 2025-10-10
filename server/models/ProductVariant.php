@@ -22,9 +22,9 @@ class ProductVariant
      */
     public function create(string $productId, array $optionCombination, ?float $price = null, ?int $stock = null, ?string $imageUrl = null): ?array
     {
-        // Generate unique SKU
+
         $sku = SkuGenerator::generateUniqueSku($this->db, $productId, $optionCombination);
-        
+
         return $this->createWithSku($productId, $sku, $optionCombination, $price, $stock, $imageUrl);
     }
 
@@ -37,7 +37,7 @@ class ProductVariant
             INSERT INTO product_variants (product_id, sku, option_combination, price, stock, image_url) 
             VALUES (?, ?, ?, ?, ?, ?)
         ');
-        
+
         if (!$stmt) {
             error_log(json_encode('Prepare failed (variant create): ' . $this->db->error));
             return null;
@@ -62,25 +62,25 @@ class ProductVariant
      */
     public function generateVariantsFromOptions(string $productId): array
     {
-        // Get base product ID (handle linked products)
+
         $baseProductId = $this->getBaseProductId($productId);
-        
-        // Get all options for the base product
+
+
         $options = $this->optionModel->findByProductId($baseProductId);
-        
+
         if (empty($options)) {
             return [];
         }
-        
-        // Group options by name
+
+
         $optionGroups = [];
         foreach ($options as $option) {
             $optionGroups[$option['name']][] = $option['value'];
         }
-        
-        // Generate cartesian product of all option combinations
+
+
         $combinations = $this->generateOptionCombinations($optionGroups);
-        
+
         $variants = [];
         foreach ($combinations as $combination) {
             $variant = $this->create($productId, $combination);
@@ -88,7 +88,7 @@ class ProductVariant
                 $variants[] = $variant;
             }
         }
-        
+
         return $variants;
     }
 
@@ -97,25 +97,25 @@ class ProductVariant
      */
     private function getBaseProductId(string $productId): string
     {
-        // Check if this product has a linked_product_id in product_options
+
         $stmt = $this->db->prepare('
             SELECT DISTINCT linked_product_id 
             FROM product_options 
             WHERE product_id = ? AND linked_product_id IS NOT NULL 
             LIMIT 1
         ');
-        
+
         if ($stmt) {
             $stmt->bind_param('s', $productId);
             $stmt->execute();
             $result = $stmt->get_result()->fetch_assoc();
-            
+
             if ($result && $result['linked_product_id']) {
                 return $result['linked_product_id'];
             }
         }
-        
-        return $productId; // No linked product, use original
+
+        return $productId;
     }
 
     /**
@@ -126,9 +126,9 @@ class ProductVariant
         if (empty($optionGroups)) {
             return [];
         }
-        
+
         $combinations = [[]];
-        
+
         foreach ($optionGroups as $optionName => $values) {
             $newCombinations = [];
             foreach ($combinations as $combination) {
@@ -140,7 +140,7 @@ class ProductVariant
             }
             $combinations = $newCombinations;
         }
-        
+
         return $combinations;
     }
 
@@ -162,20 +162,20 @@ class ProductVariant
      */
     public function getAllVariantsForProduct(string $productId): array
     {
-        // Get base product ID (handle linked products)
+
         $baseProductId = $this->getBaseProductId($productId);
-        
-        // Get all products that link to this base product (including the base itself)
+
+
         $linkedProductIds = $this->getLinkedProductIds($baseProductId);
-        $linkedProductIds[] = $baseProductId; // Include base product
+        $linkedProductIds[] = $baseProductId;
         $linkedProductIds = array_unique($linkedProductIds);
-        
+
         $allVariants = [];
         foreach ($linkedProductIds as $linkedId) {
             $variants = $this->findByProductId($linkedId);
             $allVariants = array_merge($allVariants, $variants);
         }
-        
+
         return $allVariants;
     }
 
@@ -189,20 +189,20 @@ class ProductVariant
             FROM product_options 
             WHERE linked_product_id = ?
         ');
-        
+
         if (!$stmt) {
             return [];
         }
-        
+
         $stmt->bind_param('s', $baseProductId);
         $stmt->execute();
         $result = $stmt->get_result();
-        
+
         $productIds = [];
         while ($row = $result->fetch_assoc()) {
             $productIds[] = $row['product_id'];
         }
-        
+
         return $productIds;
     }
 
@@ -232,13 +232,13 @@ class ProductVariant
 
     public function findRelatedVariants(string $productId, string $productName): array
     {
-        // Find variants from products with similar names (excluding current product)
-        // This is a simplified approach - you might want to implement a more sophisticated
-        // relationship system based on categories, brands, or explicit relationships
-        
-        // Extract base name (remove common variant suffixes like "Pro", "Max", "Mini", etc.)
+
+
+
+
+
         $baseName = $this->extractBaseName($productName);
-        
+
         $stmt = $this->db->prepare('
             SELECT pv.* 
             FROM product_variants pv 
@@ -247,11 +247,11 @@ class ProductVariant
             AND pv.product_id != ? 
             ORDER BY p.name, pv.sku
         ');
-        
+
         if (!$stmt) {
             return [];
         }
-        
+
         $searchPattern = '%' . $baseName . '%';
         $stmt->bind_param('ss', $searchPattern, $productId);
         $stmt->execute();
@@ -261,19 +261,19 @@ class ProductVariant
 
     private function extractBaseName(string $productName): string
     {
-        // Remove common variant suffixes to find related products
+
         $suffixes = ['Pro', 'Max', 'Mini', 'Plus', 'Lite', 'Air', 'Ultra', 'SE'];
         $baseName = $productName;
-        
+
         foreach ($suffixes as $suffix) {
             $baseName = preg_replace('/\s+' . preg_quote($suffix, '/') . '$/i', '', $baseName);
         }
-        
-        // Also try to extract brand + model (e.g., "iPhone 16" from "iPhone 16 Pro Max")
+
+
         if (preg_match('/^([A-Za-z]+\s+\d+)/', $baseName, $matches)) {
             return $matches[1];
         }
-        
+
         return trim($baseName);
     }
 }

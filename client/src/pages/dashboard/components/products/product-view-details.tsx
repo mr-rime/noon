@@ -83,7 +83,7 @@ export function ProductViewDetails({ productId, onClose, onEdit }: ProductDetail
 
                 <CardContent className="p-4 md:p-6">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Product Image */}
+
                         <div>
                             <div className="w-full h-64 bg-muted rounded-lg flex items-center justify-center mb-4 overflow-hidden">
                                 {primaryImage ? (
@@ -103,7 +103,7 @@ export function ProductViewDetails({ productId, onClose, onEdit }: ProductDetail
                             )}
                         </div>
 
-                        {/* Product Info */}
+
                         <div className="space-y-4">
                             <div>
                                 <h1 className="text-xl md:text-2xl font-bold break-words">{product.name}</h1>
@@ -175,7 +175,7 @@ export function ProductViewDetails({ productId, onClose, onEdit }: ProductDetail
                                         <span className="text-sm font-medium text-muted-foreground">Stock Level</span>
                                     </div>
                                     <span className={`font-bold text-lg ${stock > 20 ? 'text-green-600' :
-                                            stock > 0 ? 'text-yellow-600' : 'text-red-600'
+                                        stock > 0 ? 'text-yellow-600' : 'text-red-600'
                                         }`}>
                                         {stock} units
                                     </span>

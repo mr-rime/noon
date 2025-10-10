@@ -92,7 +92,7 @@ class Category
 
     public function create(array $data): ?array
     {
-        // Ensure is_active is a boolean
+
         if (isset($data['is_active']) && $data['is_active'] === null) {
             $data['is_active'] = true;
         }
@@ -167,11 +167,11 @@ class Category
         $values[] = $id;
 
         $stmt->bind_param($types, ...$values);
-        
+
         if ($stmt->execute()) {
             return $this->findById($id);
         }
-        
+
         return false;
     }
 

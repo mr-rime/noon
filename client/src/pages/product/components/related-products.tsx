@@ -23,11 +23,11 @@ export function RelatedProducts({ productId, limit = 8 }: RelatedProductsProps) 
         skip: !productId
     })
 
-    // Get only related products (no group variants)
+
     const getDisplayProducts = () => {
         const relatedProducts = data?.getRelatedProducts?.products || []
 
-        // Return only related products from other categories/brands
+
         return relatedProducts.slice(0, limit)
     }
 
