@@ -6,16 +6,59 @@ require_once __DIR__ . '/../../models/Brand.php';
 require_once __DIR__ . '/../../models/ProductGroup.php';
 require_once __DIR__ . '/../../models/Product.php';
 
+// Helper function to recursively map children to subcategories for backward compatibility
+function mapChildrenToSubcategories(&$category)
+{
+    if (isset($category['children']) && is_array($category['children'])) {
+        // First, recursively process all children
+        foreach ($category['children'] as &$child) {
+            mapChildrenToSubcategories($child);
+        }
 
-function getCategories(mysqli $db, string $search = ''): array
+        // Then map to subcategories structure
+        $category['subcategories'] = array_map(function ($child) {
+            return [
+                'subcategory_id' => $child['category_id'],
+                'category_id' => $child['parent_id'],
+                'name' => $child['name'],
+                'slug' => $child['slug'],
+                'description' => $child['description'] ?? null,
+                'is_active' => $child['is_active'] ?? true,
+                'created_at' => $child['created_at'] ?? null,
+                'updated_at' => $child['updated_at'] ?? null,
+                'subcategories' => $child['subcategories'] ?? []
+            ];
+        }, $category['children']);
+    } else {
+        $category['subcategories'] = [];
+    }
+}
+
+function getCategories(mysqli $db, ?int $parentId = null, bool $includeChildren = true, string $search = ''): array
 {
     $categoryModel = new Category($db);
 
     try {
-        if (empty($search)) {
-            $categories = $categoryModel->getWithSubcategories();
-        } else {
+        if (!empty($search)) {
             $categories = $categoryModel->search($search);
+        } else if ($includeChildren) {
+            $categories = $categoryModel->getCategoryTree($parentId);
+        } else {
+            $categories = $categoryModel->findByParentId($parentId);
+        }
+
+        // Add product count and backward compatibility for each category
+        foreach ($categories as &$category) {
+            $countQuery = "SELECT COUNT(*) as count FROM products WHERE category_id = ?";
+            $stmt = $db->prepare($countQuery);
+            $stmt->bind_param('i', $category['category_id']);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $count = $result->fetch_assoc();
+            $category['product_count'] = $count['count'] ?? 0;
+
+            // Map children to subcategories for backward compatibility
+            mapChildrenToSubcategories($category);
         }
 
         return [
@@ -33,12 +76,12 @@ function getCategories(mysqli $db, string $search = ''): array
     }
 }
 
-function getCategory(mysqli $db, int $id): array
+function getCategory(mysqli $db, int $id, bool $includeChildren = false): array
 {
     $categoryModel = new Category($db);
 
     try {
-        $category = $categoryModel->findById($id);
+        $category = $categoryModel->findById($id, $includeChildren);
 
         if (!$category) {
             return [
@@ -47,6 +90,9 @@ function getCategory(mysqli $db, int $id): array
                 'category' => null
             ];
         }
+
+        // Map children to subcategories for backward compatibility
+        mapChildrenToSubcategories($category);
 
         return [
             'success' => true,
@@ -150,6 +196,139 @@ function deleteCategory(mysqli $db, int $id): array
     }
 }
 
+
+function getCategoryBreadcrumb(mysqli $db, int $categoryId): array
+{
+    $categoryModel = new Category($db);
+
+    try {
+        $breadcrumb = $categoryModel->getBreadcrumb($categoryId);
+
+        return [
+            'success' => true,
+            'message' => 'Breadcrumb retrieved successfully',
+            'breadcrumb' => $breadcrumb
+        ];
+    } catch (Exception $e) {
+        error_log("Error getting breadcrumb: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Failed to retrieve breadcrumb',
+            'breadcrumb' => []
+        ];
+    }
+}
+
+function getCategoryBySlug(mysqli $db, string $slug, bool $includeChildren = true): array
+{
+    $categoryModel = new Category($db);
+
+    try {
+        $category = $categoryModel->findBySlug($slug, $includeChildren);
+
+        if (!$category) {
+            return [
+                'success' => false,
+                'message' => 'Category not found',
+                'category' => null
+            ];
+        }
+
+        // Add product count
+        $countQuery = "SELECT COUNT(*) as count FROM products WHERE category_id = ?";
+        $stmt = $db->prepare($countQuery);
+        $stmt->bind_param('i', $category['category_id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $count = $result->fetch_assoc();
+        $category['product_count'] = $count['count'] ?? 0;
+
+        // Map children to subcategories for backward compatibility
+        mapChildrenToSubcategories($category);
+
+        return [
+            'success' => true,
+            'message' => 'Category retrieved successfully',
+            'category' => $category
+        ];
+    } catch (Exception $e) {
+        error_log("Error getting category by slug: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Failed to retrieve category',
+            'category' => null
+        ];
+    }
+}
+
+function getCategoryByNestedPath(mysqli $db, string $path, bool $includeChildren = true): array
+{
+    $categoryModel = new Category($db);
+
+    try {
+        $category = $categoryModel->findByNestedPath($path, $includeChildren);
+
+        if (!$category) {
+            return [
+                'success' => false,
+                'message' => 'Category not found',
+                'category' => null
+            ];
+        }
+
+        // Add product count
+        $countQuery = "SELECT COUNT(*) as count FROM products WHERE category_id = ?";
+        $stmt = $db->prepare($countQuery);
+        $stmt->bind_param('i', $category['category_id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $count = $result->fetch_assoc();
+        $category['product_count'] = $count['count'] ?? 0;
+
+        // Map children to subcategories for backward compatibility
+        mapChildrenToSubcategories($category);
+
+        return [
+            'success' => true,
+            'message' => 'Category retrieved successfully',
+            'category' => $category
+        ];
+    } catch (Exception $e) {
+        error_log("Error getting category by nested path: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Failed to retrieve category',
+            'category' => null
+        ];
+    }
+}
+
+function moveCategory(mysqli $db, int $categoryId, ?int $newParentId = null): array
+{
+    $categoryModel = new Category($db);
+
+    try {
+        $moved = $categoryModel->moveCategory($categoryId, $newParentId);
+
+        if (!$moved) {
+            return [
+                'success' => false,
+                'message' => 'Failed to move category'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Category moved successfully'
+        ];
+    } catch (Exception $e) {
+        error_log("Error moving category: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Failed to move category: ' . $e->getMessage()
+        ];
+    }
+}
 
 function getSubcategories(mysqli $db, ?int $categoryId = null, string $search = ''): array
 {

@@ -17,7 +17,9 @@ import { Route as mainHomeLayoutImport } from './routes/(main)/_homeLayout'
 import { Route as mainHomeLayoutIndexImport } from './routes/(main)/_homeLayout/index'
 import { Route as dashboardDDashboardLayoutImport } from './routes/(dashboard)/d/_dashboardLayout'
 import { Route as mainHomeLayoutWishlistIndexImport } from './routes/(main)/_homeLayout/wishlist/index'
+import { Route as mainHomeLayoutCategoriesIndexImport } from './routes/(main)/_homeLayout/categories/index'
 import { Route as dashboardDPartnersIndexImport } from './routes/(dashboard)/d/partners/index'
+import { Route as mainHomeLayoutCategorySplatImport } from './routes/(main)/_homeLayout/category/$'
 import { Route as mainHomeLayoutprofileProfileLayoutImport } from './routes/(main)/_homeLayout/(profile)/_profileLayout'
 import { Route as dashboardDDashboardLayoutProductsIndexImport } from './routes/(dashboard)/d/_dashboardLayout/products/index'
 import { Route as dashboardDDashboardLayoutCategoriesIndexImport } from './routes/(dashboard)/d/_dashboardLayout/categories/index'
@@ -128,11 +130,25 @@ const mainHomeLayoutWishlistIndexRoute =
     getParentRoute: () => mainHomeLayoutRoute,
   } as any)
 
+const mainHomeLayoutCategoriesIndexRoute =
+  mainHomeLayoutCategoriesIndexImport.update({
+    id: '/categories/',
+    path: '/categories/',
+    getParentRoute: () => mainHomeLayoutRoute,
+  } as any)
+
 const dashboardDPartnersIndexRoute = dashboardDPartnersIndexImport.update({
   id: '/partners/',
   path: '/partners/',
   getParentRoute: () => dashboardDRoute,
 } as any)
+
+const mainHomeLayoutCategorySplatRoute =
+  mainHomeLayoutCategorySplatImport.update({
+    id: '/category/$',
+    path: '/category/$',
+    getParentRoute: () => mainHomeLayoutRoute,
+  } as any)
 
 const mainHomeLayoutprofileProfileLayoutRoute =
   mainHomeLayoutprofileProfileLayoutImport.update({
@@ -416,12 +432,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutImport
       parentRoute: typeof mainHomeLayoutprofileRoute
     }
+    '/(main)/_homeLayout/category/$': {
+      id: '/(main)/_homeLayout/category/$'
+      path: '/category/$'
+      fullPath: '/category/$'
+      preLoaderRoute: typeof mainHomeLayoutCategorySplatImport
+      parentRoute: typeof mainHomeLayoutImport
+    }
     '/(dashboard)/d/partners/': {
       id: '/(dashboard)/d/partners/'
       path: '/partners'
       fullPath: '/d/partners'
       preLoaderRoute: typeof dashboardDPartnersIndexImport
       parentRoute: typeof dashboardDImport
+    }
+    '/(main)/_homeLayout/categories/': {
+      id: '/(main)/_homeLayout/categories/'
+      path: '/categories'
+      fullPath: '/categories'
+      preLoaderRoute: typeof mainHomeLayoutCategoriesIndexImport
+      parentRoute: typeof mainHomeLayoutImport
     }
     '/(main)/_homeLayout/wishlist/': {
       id: '/(main)/_homeLayout/wishlist/'
@@ -628,6 +658,8 @@ const mainHomeLayoutprofileRouteWithChildren =
 interface mainHomeLayoutRouteChildren {
   mainHomeLayoutIndexRoute: typeof mainHomeLayoutIndexRoute
   mainHomeLayoutprofileRoute: typeof mainHomeLayoutprofileRouteWithChildren
+  mainHomeLayoutCategorySplatRoute: typeof mainHomeLayoutCategorySplatRoute
+  mainHomeLayoutCategoriesIndexRoute: typeof mainHomeLayoutCategoriesIndexRoute
   mainHomeLayoutWishlistIndexRoute: typeof mainHomeLayoutWishlistIndexRoute
   mainHomeLayoutCartIndexLazyRoute: typeof mainHomeLayoutCartIndexLazyRoute
   mainHomeLayoutTitleProductIdIndexLazyRoute: typeof mainHomeLayoutTitleProductIdIndexLazyRoute
@@ -637,6 +669,8 @@ interface mainHomeLayoutRouteChildren {
 const mainHomeLayoutRouteChildren: mainHomeLayoutRouteChildren = {
   mainHomeLayoutIndexRoute: mainHomeLayoutIndexRoute,
   mainHomeLayoutprofileRoute: mainHomeLayoutprofileRouteWithChildren,
+  mainHomeLayoutCategorySplatRoute: mainHomeLayoutCategorySplatRoute,
+  mainHomeLayoutCategoriesIndexRoute: mainHomeLayoutCategoriesIndexRoute,
   mainHomeLayoutWishlistIndexRoute: mainHomeLayoutWishlistIndexRoute,
   mainHomeLayoutCartIndexLazyRoute: mainHomeLayoutCartIndexLazyRoute,
   mainHomeLayoutTitleProductIdIndexLazyRoute:
@@ -715,7 +749,9 @@ const dashboardDRouteWithChildren = dashboardDRoute._addFileChildren(
 export interface FileRoutesByFullPath {
   '/': typeof mainHomeLayoutprofileProfileLayoutRouteWithChildren
   '/d': typeof dashboardDDashboardLayoutRouteWithChildren
+  '/category/$': typeof mainHomeLayoutCategorySplatRoute
   '/d/partners': typeof dashboardDPartnersIndexRoute
+  '/categories': typeof mainHomeLayoutCategoriesIndexRoute
   '/wishlist': typeof mainHomeLayoutWishlistIndexRoute
   '/cart': typeof mainHomeLayoutCartIndexLazyRoute
   '/d/banners': typeof dashboardDDashboardLayoutBannersIndexRoute
@@ -742,7 +778,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/d': typeof dashboardDDashboardLayoutRouteWithChildren
   '/': typeof mainHomeLayoutprofileProfileLayoutRouteWithChildren
+  '/category/$': typeof mainHomeLayoutCategorySplatRoute
   '/d/partners': typeof dashboardDPartnersIndexRoute
+  '/categories': typeof mainHomeLayoutCategoriesIndexRoute
   '/wishlist': typeof mainHomeLayoutWishlistIndexRoute
   '/cart': typeof mainHomeLayoutCartIndexLazyRoute
   '/d/banners': typeof dashboardDDashboardLayoutBannersIndexRoute
@@ -775,7 +813,9 @@ export interface FileRoutesById {
   '/(main)/_homeLayout/': typeof mainHomeLayoutIndexRoute
   '/(main)/_homeLayout/(profile)': typeof mainHomeLayoutprofileRouteWithChildren
   '/(main)/_homeLayout/(profile)/_profileLayout': typeof mainHomeLayoutprofileProfileLayoutRouteWithChildren
+  '/(main)/_homeLayout/category/$': typeof mainHomeLayoutCategorySplatRoute
   '/(dashboard)/d/partners/': typeof dashboardDPartnersIndexRoute
+  '/(main)/_homeLayout/categories/': typeof mainHomeLayoutCategoriesIndexRoute
   '/(main)/_homeLayout/wishlist/': typeof mainHomeLayoutWishlistIndexRoute
   '/(main)/_homeLayout/cart/': typeof mainHomeLayoutCartIndexLazyRoute
   '/(dashboard)/d/_dashboardLayout/banners/': typeof dashboardDDashboardLayoutBannersIndexRoute
@@ -804,7 +844,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/d'
+    | '/category/$'
     | '/d/partners'
+    | '/categories'
     | '/wishlist'
     | '/cart'
     | '/d/banners'
@@ -830,7 +872,9 @@ export interface FileRouteTypes {
   to:
     | '/d'
     | '/'
+    | '/category/$'
     | '/d/partners'
+    | '/categories'
     | '/wishlist'
     | '/cart'
     | '/d/banners'
@@ -861,7 +905,9 @@ export interface FileRouteTypes {
     | '/(main)/_homeLayout/'
     | '/(main)/_homeLayout/(profile)'
     | '/(main)/_homeLayout/(profile)/_profileLayout'
+    | '/(main)/_homeLayout/category/$'
     | '/(dashboard)/d/partners/'
+    | '/(main)/_homeLayout/categories/'
     | '/(main)/_homeLayout/wishlist/'
     | '/(main)/_homeLayout/cart/'
     | '/(dashboard)/d/_dashboardLayout/banners/'
@@ -922,6 +968,8 @@ export const routeTree = rootRoute
       "children": [
         "/(main)/_homeLayout/",
         "/(main)/_homeLayout/(profile)",
+        "/(main)/_homeLayout/category/$",
+        "/(main)/_homeLayout/categories/",
         "/(main)/_homeLayout/wishlist/",
         "/(main)/_homeLayout/cart/",
         "/(main)/_homeLayout/$title/$productId/",
@@ -975,9 +1023,17 @@ export const routeTree = rootRoute
         "/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/"
       ]
     },
+    "/(main)/_homeLayout/category/$": {
+      "filePath": "(main)/_homeLayout/category/$.tsx",
+      "parent": "/(main)/_homeLayout"
+    },
     "/(dashboard)/d/partners/": {
       "filePath": "(dashboard)/d/partners/index.tsx",
       "parent": "/(dashboard)/d"
+    },
+    "/(main)/_homeLayout/categories/": {
+      "filePath": "(main)/_homeLayout/categories/index.tsx",
+      "parent": "/(main)/_homeLayout"
     },
     "/(main)/_homeLayout/wishlist/": {
       "filePath": "(main)/_homeLayout/wishlist/index.tsx",

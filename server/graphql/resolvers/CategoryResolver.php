@@ -27,15 +27,24 @@ function createCategory(mysqli $db, array $data): array
         $model = new Category($db);
         $category = $model->create($data);
 
+        if (!$category) {
+            return [
+                'success' => false,
+                'message' => 'Failed to create category. Please check if the slug is unique and all required fields are valid.',
+                'category' => null
+            ];
+        }
+
         return [
             'success' => true,
-            'message' => 'Category created.',
+            'message' => 'Category created successfully.',
             'category' => $category
         ];
     } catch (Exception $e) {
+        error_log("createCategory error: " . $e->getMessage());
         return [
             'success' => false,
-            'message' => 'Error: ' . $e->getMessage(),
+            'message' => 'Error creating category: ' . $e->getMessage(),
             'category' => null
         ];
     }

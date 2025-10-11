@@ -70,6 +70,7 @@ $ProductType = new ObjectType([
             'id' => Type::nonNull(Type::string()),
             'psku' => Type::string(),
             'name' => Type::nonNull(Type::string()),
+            'slug' => Type::string(),
             'price' => Type::nonNull(Type::float()),
             'final_price' => Type::nonNull(Type::float()),
             'currency' => Type::string(),
@@ -87,6 +88,14 @@ $ProductType = new ObjectType([
             'subcategory_name' => Type::string(),
             'brand_name' => Type::string(),
             'group_name' => Type::string(),
+            'brand' => new ObjectType([
+                'name' => 'ProductBrand',
+                'fields' => [
+                    'name' => Type::string(),
+                ]
+            ]),
+            'rating' => Type::float(),
+            'review_count' => Type::int(),
             'discount' => $DiscountType,
             'discount_percentage' => Type::float(),
             'is_in_wishlist' => Type::boolean(),
@@ -118,6 +127,7 @@ $ProductsResponseType = new ObjectType([
         'message' => Type::string(),
         'products' => Type::listOf($ProductType),
         'total' => Type::int(),
+        'totalCount' => Type::int(),
     ]
 ]);
 

@@ -7,8 +7,8 @@ import { ArrowLeft, Package, Users } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { GET_PRODUCT } from '@/graphql/product'
 import { ProductDetailsForm } from './product-details-form'
-import { ProductGroupManager } from './product-group-manager'
 import type { ProductType } from '@/types'
+import { ProductGroupManager } from './product-group-manager'
 
 export function ProductDetailsPage() {
     const { productId } = useParams({ from: '/(dashboard)/d/_dashboardLayout/products/$productId/' })

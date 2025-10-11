@@ -12,6 +12,11 @@ function getAllProducts(mysqli $db, array $data): array
         $limit = $data['limit'] ?? 10;
         $offset = $data['offset'] ?? 0;
         $search = $data['search'] ?? '';
+        $categoryId = $data['categoryId'] ?? null;
+        $brands = $data['brands'] ?? null;
+        $minPrice = $data['minPrice'] ?? null;
+        $maxPrice = $data['maxPrice'] ?? null;
+        $minRating = $data['minRating'] ?? null;
 
 
         $publicOnly = false;
@@ -23,21 +28,23 @@ function getAllProducts(mysqli $db, array $data): array
             $publicOnly = true;
         }
 
-        $products = $model->findAll($userId, $limit, $offset, $search, $publicOnly);
-        $total = $model->getTotalCount($search, $publicOnly);
+        $products = $model->findAll($userId, $limit, $offset, $search, $publicOnly, $categoryId, $brands, $minPrice, $maxPrice, $minRating);
+        $total = $model->getTotalCount($search, $publicOnly, $categoryId, $brands, $minPrice, $maxPrice, $minRating);
 
         return [
             'success' => true,
             'message' => 'Products retrieved.',
             'products' => $products,
-            'total' => $total
+            'total' => $total,
+            'totalCount' => $total
         ];
     } catch (Exception $e) {
         return [
             'success' => false,
             'message' => 'Error: ' . $e->getMessage(),
             'products' => [],
-            'total' => 0
+            'total' => 0,
+            'totalCount' => 0
         ];
     }
 }

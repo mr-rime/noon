@@ -7,18 +7,76 @@ export const GET_CATEGORIES = gql`
       message
       categories {
         category_id
+        parent_id
         name
         slug
         description
+        level
+        path
+        display_order
         is_active
         created_at
         updated_at
+        children {
+          category_id
+          parent_id
+          name
+          slug
+          level
+          is_active
+          children {
+            category_id
+            parent_id
+            name
+            slug
+            level
+            is_active
+            children {
+              category_id
+              parent_id
+              name
+              slug
+              level
+              is_active
+              children {
+                category_id
+                parent_id
+                name
+                slug
+                level
+                is_active
+              }
+            }
+          }
+        }
         subcategories {
           subcategory_id
           name
           slug
           description
           is_active
+        }
+      }
+    }
+  }
+`
+
+export const GET_CATEGORY_BY_NESTED_PATH = gql`
+  query GetCategoryByNestedPath($path: String!) {
+    getCategoryByNestedPath(path: $path) {
+      success
+      message
+      category {
+        category_id
+        name
+        slug
+        description
+        level
+        children {
+          category_id
+          name
+          slug
+          product_count
         }
       }
     }

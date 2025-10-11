@@ -40,6 +40,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
     const [isSavingGroup, setIsSavingGroup] = useState(false)
     const [isDeletingProduct, setIsDeletingProduct] = useState(false)
 
+    // Queries
     const { data: groupsData, refetch: refetchGroups } = useQuery(GET_PRODUCT_GROUPS, {
         variables: { category_id: product.category_id },
         skip: !product.category_id
@@ -50,12 +51,16 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
         skip: !showAddExisting
     })
 
+    // Filter products to exclude those already in the current group
     const availableProducts = productsData?.getProducts?.products?.filter((prod: any) => {
+        // Exclude current product
         if (prod.id === product.id) return false
 
+        // Exclude products already in the group
         const isInGroup = groupProducts.some((gp: any) => gp.id === prod.id)
         if (isInGroup) return false
 
+        // Show all products (with or without PSKUs) - PSKUs can be assigned later
         return true
     }) || []
 
@@ -63,6 +68,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
 
     useEffect(() => {
         if (currentGroup) {
+            // Parse attributes if they're stored as JSON string
             let attributes = []
             try {
                 attributes = typeof currentGroup.attributes === 'string'
@@ -75,18 +81,18 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
         }
     }, [currentGroup])
 
-
+    // Initialize editable attributes when modal opens
     useEffect(() => {
         if (showGroupModal && currentGroup) {
             const attrs: Record<string, Record<string, string>> = {}
 
-
+            // Current product
             attrs[product.id] = {}
             product.productAttributes?.forEach(attr => {
                 attrs[product.id][attr.attribute_name] = attr.attribute_value
             })
 
-
+            // Group products
             groupProducts.forEach(gp => {
                 attrs[gp.id] = {}
                 gp.productAttributes?.forEach((attr: any) => {
@@ -99,9 +105,9 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
     }, [showGroupModal, currentGroup, product, groupProducts])
 
     useEffect(() => {
-
+        // Load group products
         if (product.groupProducts && product.groupProducts.length > 0) {
-
+            // Convert to full product objects if needed
             setGroupProducts(product.groupProducts.map((p: any) =>
                 typeof p === 'string' ? { id: p } : p
             ))
@@ -115,7 +121,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
     const [updateProduct] = useMutation(UPDATE_PRODUCT)
     const [removeProductFromGroup] = useMutation(REMOVE_PRODUCT_FROM_GROUP)
 
-
+    // PSKU validation
     const validatePsku = async (psku: string) => {
         if (!psku.trim()) {
             setPskuValidationMessage('')
@@ -125,7 +131,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
         setIsValidatingPsku(true)
 
         try {
-
+            // Use the same GraphQL endpoint as Apollo Client
             const isDashboard = window.location.hostname === 'dashboard.localhost'
             const graphqlUrl = isDashboard
                 ? 'http://dashboard.localhost:8000/graphql'
@@ -149,7 +155,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
             const data = await response.json()
             console.log('PSKU validation response for:', psku.trim(), data)
 
-
+            // Check for GraphQL errors
             if (data.errors) {
                 console.error('GraphQL errors:', data.errors)
                 setPskuValidationMessage('Error validating PSKU: ' + data.errors[0]?.message)
@@ -195,7 +201,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
 
     const handleCloseModal = () => {
         setShowGroupModal(false)
-
+        // Reset form if creating new group
         if (!currentGroup) {
             setNewGroupName('')
             setNewGroupDescription('')
@@ -207,7 +213,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
     const handleSaveGroup = async () => {
         setIsSavingGroup(true)
 
-
+        // Create new group
         if (!currentGroup) {
             if (!newGroupName.trim()) {
                 toast.error('Group name is required')
@@ -232,7 +238,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 if (data?.createProductGroup?.success) {
                     const newGroupId = data.createProductGroup.group.group_id
 
-
+                    // Add current product to the new group
                     await addProductToGroup({
                         variables: {
                             product_id: product.id,
@@ -259,9 +265,9 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
             return
         }
 
-
+        // Update existing group (axes and product attributes)
         try {
-
+            // Update group axes
             const { data } = await updateGroup({
                 variables: {
                     groupId: currentGroup.group_id,
@@ -274,11 +280,11 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 return
             }
 
-
+            // Update product attributes for all products
             const productIds = [product.id, ...groupProducts.map(p => p.id)]
             const updatePromises = productIds.map(async (productId) => {
                 const attributes = editableAttributes[productId] || {}
-
+                // Only include attributes that match current axes
                 const productAttributes = Object.entries(attributes)
                     .filter(([name]) => groupAxes.includes(name))
                     .map(([name, value]) => ({
@@ -333,7 +339,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
         }
 
         try {
-
+            // Add each selected product to the group
             const addPromises = selectedProducts.map(productId =>
                 addProductToGroup({
                     variables: {
@@ -356,7 +362,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
     }
 
     const handleGeneratePSKU = () => {
-
+        // Generate a random PSKU
         const timestamp = Date.now().toString(36)
         const random = Math.random().toString(36).substring(2, 15)
         setNewPsku(`PSKU_${timestamp}${random}`.toUpperCase())
@@ -372,7 +378,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
 
         setIsDeletingProduct(true)
 
-
+        // Optimistically remove from UI
         const productToRemove = productToDelete
         setGroupProducts(prev => prev.filter(p => p.id !== productToRemove.id))
 
@@ -385,7 +391,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 toast.success(`Product removed from group successfully!`)
                 onGroupUpdate?.()
             } else {
-
+                // Restore product on failure
                 setGroupProducts(prev => {
                     const existingProduct = groupProducts.find(p => p.id === productToRemove.id)
                     return existingProduct ? [...prev, existingProduct] : prev
@@ -393,7 +399,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 toast.error(data?.updateProduct?.message || 'Failed to remove product from group')
             }
         } catch (error) {
-
+            // Restore product on error
             setGroupProducts(prev => {
                 const existingProduct = groupProducts.find(p => p.id === productToRemove.id)
                 return existingProduct ? [...prev, existingProduct] : prev
@@ -418,7 +424,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
             return
         }
 
-
+        // Validate PSKU before creating
         const isValid = await validatePsku(newPsku.trim())
         if (!isValid) {
             toast.error('PSKU already exists. Please choose a different one.')
@@ -427,7 +433,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
 
         setIsCreatingPsku(true)
 
-
+        // Create optimistic product for immediate UI feedback
         const optimisticProduct = {
             id: `temp-${Date.now()}`,
             name: `Product ${newPsku}`,
@@ -435,53 +441,67 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
             price: product.price,
             currency: product.currency,
             group_id: currentGroup.group_id,
-            is_temp: true
+            is_temp: true // Mark as temporary
         }
 
-
+        // Add to UI immediately
         setGroupProducts(prev => [...prev, optimisticProduct])
 
         try {
+            const productData = {
+                name: `Product ${newPsku}`,
+                psku: newPsku.trim(),
+                price: product.price,
+                currency: (product.currency && product.currency !== '0') ? product.currency : 'USD',
+                category_id: product.category_id,
+                subcategory_id: product.subcategory_id,
+                brand_id: product.brand_id,
+                group_id: currentGroup.group_id,
+                stock: 0,
+                is_returnable: product.is_returnable,
+                is_public: product.is_public || false,
+                product_overview: '',
+                images: [],
+                productSpecifications: [],
+                productAttributes: []
+            }
+
+            console.log('Creating product with data:', productData)
+
             const { data } = await createPskuProduct({
-                variables: {
-                    name: `Product ${newPsku}`,
-                    psku: newPsku.trim(),
-                    price: product.price,
-                    currency: product.currency,
-                    category_id: product.category_id,
-                    subcategory_id: product.subcategory_id,
-                    brand_id: product.brand_id,
-                    group_id: currentGroup.group_id,
-                    stock: 0,
-                    is_returnable: product.is_returnable,
-                    is_public: product.is_public || false,
-                    product_overview: '',
-                    images: [],
-                    productSpecifications: [],
-                    productAttributes: []
-                }
+                variables: productData
             })
 
+            console.log('Create product response:', data)
+
             if (data?.createProduct?.success) {
-                toast.success('New Partner SKU created successfully!')
-                setShowCreateNew(false)
-                setNewPsku('')
-                setPskuValidationMessage('')
-
-
                 const realProduct = data.createProduct.product
-                setGroupProducts(prev =>
-                    prev.map(p => p.id === optimisticProduct.id ? realProduct : p)
-                )
 
-                onGroupUpdate?.()
+                if (realProduct) {
+                    toast.success('New Partner SKU created successfully!')
+                    setShowCreateNew(false)
+                    setNewPsku('')
+                    setPskuValidationMessage('')
+
+                    // Replace optimistic product with real data
+                    setGroupProducts(prev =>
+                        prev.map(p => p.id === optimisticProduct.id ? realProduct : p)
+                    )
+
+                    onGroupUpdate?.()
+                } else {
+                    // Remove optimistic product on failure
+                    setGroupProducts(prev => prev.filter(p => p.id !== optimisticProduct.id))
+                    console.error('Product creation succeeded but product data is null:', data)
+                    toast.error('Product was created but failed to retrieve data. Please refresh the page.')
+                }
             } else {
-
+                // Remove optimistic product on failure
                 setGroupProducts(prev => prev.filter(p => p.id !== optimisticProduct.id))
                 toast.error(data?.createProduct?.message || 'Failed to create Partner SKU')
             }
         } catch (error) {
-
+            // Remove optimistic product on error
             setGroupProducts(prev => prev.filter(p => p.id !== optimisticProduct.id))
             console.error('Error creating Partner SKU:', error)
             toast.error('An error occurred while creating the Partner SKU')
@@ -492,7 +512,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
 
     return (
         <>
-
+            {/* Main Product Group Section */}
             <div className="border rounded-lg bg-gray-50 w-fit min-w-80">
                 <div
                     className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors"
@@ -524,7 +544,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                             </div>
                         ) : (
                             <>
-
+                                {/* Group Products */}
                                 {groupProducts.map((groupProduct: any, index: number) => {
                                     const isCurrentProduct = groupProduct.id === product.id
                                     return (
@@ -584,7 +604,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                 </div>
                                             </div>
 
-
+                                            {/* Product Attributes */}
                                             <div className="mt-3 space-y-2 text-sm">
                                                 {groupAxes.map(axis => {
                                                     const attr = groupProduct.productAttributes?.find((a: any) => a.attribute_name === axis)
@@ -600,7 +620,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                     )
                                 })}
 
-
+                                {/* Current Product (if not in group products list) */}
                                 {!groupProducts.some((gp: any) => gp.id === product.id) && (
                                     <div className="bg-blue-50 border-blue-200 ring-2 ring-blue-100 rounded-lg p-4">
                                         <div className="flex items-start gap-3">
@@ -635,7 +655,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                             </div>
                                         </div>
 
-
+                                        {/* Product Attributes */}
                                         <div className="mt-3 space-y-2 text-sm">
                                             {groupAxes.map(axis => {
                                                 const attr = product.productAttributes?.find((a: any) => a.attribute_name === axis)
@@ -650,7 +670,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                     </div>
                                 )}
 
-
+                                {/* Add Partner SKU Section */}
                                 <div className="border-t pt-4">
                                     <button
                                         className="flex items-center justify-between w-full text-blue-600 hover:text-blue-700 font-medium text-sm"
@@ -686,11 +706,11 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 )}
             </div>
 
-
+            {/* Group Modal */}
             {showGroupModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-
+                        {/* Modal Header */}
                         <div className="border-b px-6 py-4 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <h2 className="text-lg font-semibold">{currentGroup?.name}</h2>
@@ -706,7 +726,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                             </Button>
                         </div>
 
-
+                        {/* Modal Content */}
                         <div className="flex-1 overflow-y-auto p-6 space-y-6">
                             {!currentGroup ? (
                                 /* Create New Group Form */
@@ -761,13 +781,13 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                 </div>
                             ) : (
                                 <>
-
+                                    {/* SKU Group ID */}
                                     <div>
                                         <Label className="text-sm text-gray-600">SKU Group:</Label>
                                         <div className="font-mono text-sm mt-1">{currentGroup.group_id}</div>
                                     </div>
 
-
+                                    {/* Axes Section */}
                                     <div>
                                         <div className="flex items-center gap-2 mb-3">
                                             <Label>Axes:</Label>
@@ -798,9 +818,9 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                         </div>
                                     </div>
 
-
+                                    {/* Products List */}
                                     <div className="space-y-4">
-
+                                        {/* Group Products */}
                                         {groupProducts.map((groupProduct: any, index: number) => {
                                             const isCurrentProduct = groupProduct.id === product.id
                                             return (
@@ -858,7 +878,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                         </div>
                                                     </div>
 
-
+                                                    {/* Editable Attributes */}
                                                     <div className="space-y-3">
                                                         {groupAxes.map((axis) => {
                                                             const value = editableAttributes[groupProduct.id]?.[axis] || ''
@@ -878,7 +898,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                             )
                                         })}
 
-
+                                        {/* Current Product (if not in group products list) */}
                                         {!groupProducts.some((gp: any) => gp.id === product.id) && (
                                             <div className="bg-blue-50 border-blue-200 ring-2 ring-blue-100 rounded-lg p-4">
                                                 <div className="flex items-start gap-3 mb-4">
@@ -913,7 +933,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                     </div>
                                                 </div>
 
-
+                                                {/* Editable Attributes for Current Product */}
                                                 <div className="space-y-3">
                                                     {groupAxes.map((axis) => {
                                                         const value = editableAttributes[product.id]?.[axis] || ''
@@ -936,7 +956,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                             )}
                         </div>
 
-
+                        {/* Modal Footer */}
                         <div className="border-t px-6 py-4 flex justify-end gap-3">
                             <Button variant="outline" onClick={handleCloseModal}>
                                 Cancel
@@ -950,7 +970,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 </div>
             )}
 
-
+            {/* Add Existing Partner SKU Modal */}
             {showAddExisting && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
@@ -1042,7 +1062,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 </div>
             )}
 
-
+            {/* Create New Partner SKU Modal */}
             {showCreateNew && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-lg w-full">
@@ -1064,7 +1084,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                     value={newPsku}
                                     onChange={(e) => {
                                         setNewPsku(e.target.value)
-
+                                        // Debounce validation
                                         setTimeout(() => validatePsku(e.target.value), 500)
                                     }}
                                     placeholder="Enter or generate PSKU"
@@ -1109,7 +1129,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 </div>
             )}
 
-
+            {/* Delete Confirmation Modal */}
             {showDeleteConfirm && productToDelete && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-md w-full">

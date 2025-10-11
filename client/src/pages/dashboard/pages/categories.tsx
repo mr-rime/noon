@@ -26,6 +26,7 @@ import { GET_CATEGORIES, DELETE_CATEGORY, DELETE_SUBCATEGORY } from "../../../gr
 import { toast } from "sonner"
 import { SubcategoryEditModal } from "../components/categories/subcategory-edit-modal"
 import { DeleteConfirmationModal } from "../components/ui/delete-confirmation-modal"
+import DashboardCategoryTree from "../components/categories/dashboard-category-tree"
 
 interface Category {
     category_id: number
@@ -35,6 +36,7 @@ interface Category {
     is_active: boolean
     created_at: string
     updated_at: string
+    children?: Category[]
     subcategories?: Subcategory[]
 }
 
@@ -56,7 +58,7 @@ export default function Categories() {
     const [editingSubcategory, setEditingSubcategory] = useState<{ subcategory: Subcategory | null, parentCategory: Category | null }>({ subcategory: null, parentCategory: null })
     const [isCreatingCategory, setIsCreatingCategory] = useState(false)
     const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set())
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
+    const [viewMode, setViewMode] = useState<'grid' | 'list' | 'tree'>('list')
     const [deleteModal, setDeleteModal] = useState<{
         isOpen: boolean
         type: 'category' | 'subcategory'
@@ -70,7 +72,9 @@ export default function Categories() {
 
     const { data, loading, error, refetch } = useQuery(GET_CATEGORIES, {
         variables: {
-            search: searchQuery
+            search: searchQuery,
+            parentId: null,
+            includeChildren: true
         },
         fetchPolicy: 'cache-and-network'
     })
@@ -106,6 +110,22 @@ export default function Categories() {
     })
 
     const categories = data?.getCategories?.categories || []
+
+    // Calculate total count including nested categories
+    const getTotalCategoryCount = (categories: Category[]): number => {
+        let count = categories.length
+        categories.forEach(category => {
+            if (category.children && category.children.length > 0) {
+                count += getTotalCategoryCount(category.children)
+            }
+            if (category.subcategories && category.subcategories.length > 0) {
+                count += category.subcategories.length
+            }
+        })
+        return count
+    }
+
+    const totalCategoryCount = getTotalCategoryCount(categories)
 
 
     useEffect(() => {
@@ -204,14 +224,38 @@ export default function Categories() {
                     <p className="text-sm md:text-base text-muted-foreground">Organize your product categories and subcategories</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
-                        className="hidden md:flex"
-                    >
-                        {viewMode === 'list' ? <Grid3X3 className="h-4 w-4" /> : <List className="h-4 w-4" />}
-                    </Button>
+                    <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={`flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors ${viewMode === 'list'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white text-gray-700 hover:bg-gray-50'
+                                }`}
+                        >
+                            <List className="h-4 w-4" />
+                            List
+                        </button>
+                        <button
+                            onClick={() => setViewMode('grid')}
+                            className={`flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors ${viewMode === 'grid'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white text-gray-700 hover:bg-gray-50'
+                                }`}
+                        >
+                            <Grid3X3 className="h-4 w-4" />
+                            Grid
+                        </button>
+                        <button
+                            onClick={() => setViewMode('tree')}
+                            className={`flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors ${viewMode === 'tree'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white text-gray-700 hover:bg-gray-50'
+                                }`}
+                        >
+                            <Folder className="h-4 w-4" />
+                            Tree
+                        </button>
+                    </div>
                     <Button
                         variant="admin"
                         className="gap-2"
@@ -243,7 +287,12 @@ export default function Categories() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
                         <Folder className="h-5 w-5 text-primary" />
-                        Categories ({categories.length})
+                        Categories ({totalCategoryCount} total)
+                        {categories.length !== totalCategoryCount && (
+                            <span className="text-sm text-muted-foreground font-normal">
+                                ({categories.length} root)
+                            </span>
+                        )}
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0 md:p-6">
@@ -286,12 +335,14 @@ export default function Categories() {
                                     {categories.map((category: Category) => {
                                         const isExpanded = expandedCategories.has(category.category_id)
                                         const subcategoryCount = category.subcategories?.length || 0
+                                        const childrenCount = category.children?.length || 0
+                                        const totalSubcategoryCount = subcategoryCount + childrenCount
 
                                         return (
                                             <>
                                                 <TableRow key={`cat-${category.category_id}`} className="hover:bg-muted/30">
                                                     <TableCell>
-                                                        {subcategoryCount > 0 && (
+                                                        {totalSubcategoryCount > 0 && (
                                                             <button
                                                                 onClick={() => toggleCategoryExpansion(category.category_id)}
                                                                 className="p-1 hover:bg-muted rounded"
@@ -316,7 +367,7 @@ export default function Categories() {
                                                     </TableCell>
                                                     <TableCell>
                                                         <Badge variant="outline">
-                                                            {subcategoryCount} subcategories
+                                                            {totalSubcategoryCount} subcategories
                                                         </Badge>
                                                     </TableCell>
                                                     <TableCell>
@@ -355,63 +406,129 @@ export default function Categories() {
                                                     </TableCell>
                                                 </TableRow>
 
-                                                {isExpanded && category.subcategories?.map((subcategory: Subcategory) => (
-                                                    <TableRow key={`sub-${subcategory.subcategory_id}`} className="bg-muted/10">
-                                                        <TableCell></TableCell>
-                                                        <TableCell>
-                                                            <div className="flex items-center gap-2 pl-6">
-                                                                <span className="text-muted-foreground">└</span>
-                                                                <span>{subcategory.name}</span>
-                                                            </div>
-                                                        </TableCell>
-                                                        <TableCell className="hidden md:table-cell">
-                                                            <code className="text-xs bg-muted px-2 py-1 rounded">{subcategory.slug}</code>
-                                                        </TableCell>
-                                                        <TableCell className="hidden lg:table-cell">
-                                                            <span className="text-sm text-muted-foreground truncate max-w-[200px] inline-block">
-                                                                {subcategory.description || '—'}
-                                                            </span>
-                                                        </TableCell>
-                                                        <TableCell>—</TableCell>
-                                                        <TableCell>
-                                                            <Badge variant={getStatusVariant(subcategory.is_active)}>
-                                                                {getStatusText(subcategory.is_active)}
-                                                            </Badge>
-                                                        </TableCell>
-                                                        <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
-                                                            —
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <DropdownMenu>
-                                                                <DropdownMenuTrigger asChild>
-                                                                    <Button variant="ghost" size="icon" disabled={deletingSubcategory}>
-                                                                        <MoreHorizontal className="h-4 w-4" />
-                                                                    </Button>
-                                                                </DropdownMenuTrigger>
-                                                                <DropdownMenuContent align="end">
-                                                                    <DropdownMenuItem onClick={() => handleEditSubcategory(subcategory, category)}>
-                                                                        <Edit className="mr-2 h-4 w-4" />
-                                                                        Edit Subcategory
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuItem
-                                                                        className="text-destructive"
-                                                                        onClick={() => handleDeleteSubcategory(subcategory)}
-                                                                    >
-                                                                        <Trash2 className="mr-2 h-4 w-4" />
-                                                                        Delete
-                                                                    </DropdownMenuItem>
-                                                                </DropdownMenuContent>
-                                                            </DropdownMenu>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
+                                                {isExpanded && (
+                                                    <>
+                                                        {/* Render children (nested categories) */}
+                                                        {category.children?.map((child: Category) => (
+                                                            <TableRow key={`child-${child.category_id}`} className="bg-muted/10">
+                                                                <TableCell></TableCell>
+                                                                <TableCell>
+                                                                    <div className="flex items-center gap-2 pl-6">
+                                                                        <span className="text-muted-foreground">└</span>
+                                                                        <Folder className="h-4 w-4 text-primary" />
+                                                                        <span>{child.name}</span>
+                                                                    </div>
+                                                                </TableCell>
+                                                                <TableCell className="hidden md:table-cell">
+                                                                    <code className="text-xs bg-muted px-2 py-1 rounded">{child.slug}</code>
+                                                                </TableCell>
+                                                                <TableCell className="hidden lg:table-cell">
+                                                                    <span className="text-sm text-muted-foreground truncate max-w-[200px] inline-block">
+                                                                        {child.description || '—'}
+                                                                    </span>
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    <Badge variant="outline">
+                                                                        {child.children?.length || 0} subcategories
+                                                                    </Badge>
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    <Badge variant={getStatusVariant(child.is_active)}>
+                                                                        {getStatusText(child.is_active)}
+                                                                    </Badge>
+                                                                </TableCell>
+                                                                <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                                                                    —
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    <DropdownMenu>
+                                                                        <DropdownMenuTrigger asChild>
+                                                                            <Button variant="ghost" size="icon">
+                                                                                <MoreHorizontal className="h-4 w-4" />
+                                                                            </Button>
+                                                                        </DropdownMenuTrigger>
+                                                                        <DropdownMenuContent align="end">
+                                                                            <DropdownMenuItem onClick={() => handleEditCategory(child)}>
+                                                                                <Edit className="mr-2 h-4 w-4" />
+                                                                                Edit Category
+                                                                            </DropdownMenuItem>
+                                                                            <DropdownMenuItem onClick={() => handleCreateSubcategory(child)}>
+                                                                                <Plus className="mr-2 h-4 w-4" />
+                                                                                Add Subcategory
+                                                                            </DropdownMenuItem>
+                                                                            <DropdownMenuItem
+                                                                                className="text-destructive"
+                                                                                onClick={() => handleDeleteCategory(child)}
+                                                                            >
+                                                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                                                Delete
+                                                                            </DropdownMenuItem>
+                                                                        </DropdownMenuContent>
+                                                                    </DropdownMenu>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ))}
+
+                                                        {/* Render subcategories (backward compatibility) */}
+                                                        {category.subcategories?.map((subcategory: Subcategory) => (
+                                                            <TableRow key={`sub-${subcategory.subcategory_id}`} className="bg-muted/10">
+                                                                <TableCell></TableCell>
+                                                                <TableCell>
+                                                                    <div className="flex items-center gap-2 pl-6">
+                                                                        <span className="text-muted-foreground">└</span>
+                                                                        <span>{subcategory.name}</span>
+                                                                    </div>
+                                                                </TableCell>
+                                                                <TableCell className="hidden md:table-cell">
+                                                                    <code className="text-xs bg-muted px-2 py-1 rounded">{subcategory.slug}</code>
+                                                                </TableCell>
+                                                                <TableCell className="hidden lg:table-cell">
+                                                                    <span className="text-sm text-muted-foreground truncate max-w-[200px] inline-block">
+                                                                        {subcategory.description || '—'}
+                                                                    </span>
+                                                                </TableCell>
+                                                                <TableCell>—</TableCell>
+                                                                <TableCell>
+                                                                    <Badge variant={getStatusVariant(subcategory.is_active)}>
+                                                                        {getStatusText(subcategory.is_active)}
+                                                                    </Badge>
+                                                                </TableCell>
+                                                                <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                                                                    —
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    <DropdownMenu>
+                                                                        <DropdownMenuTrigger asChild>
+                                                                            <Button variant="ghost" size="icon" disabled={deletingSubcategory}>
+                                                                                <MoreHorizontal className="h-4 w-4" />
+                                                                            </Button>
+                                                                        </DropdownMenuTrigger>
+                                                                        <DropdownMenuContent align="end">
+                                                                            <DropdownMenuItem onClick={() => handleEditSubcategory(subcategory, category)}>
+                                                                                <Edit className="mr-2 h-4 w-4" />
+                                                                                Edit Subcategory
+                                                                            </DropdownMenuItem>
+                                                                            <DropdownMenuItem
+                                                                                className="text-destructive"
+                                                                                onClick={() => handleDeleteSubcategory(subcategory)}
+                                                                            >
+                                                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                                                Delete
+                                                                            </DropdownMenuItem>
+                                                                        </DropdownMenuContent>
+                                                                    </DropdownMenu>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ))}
+                                                    </>
+                                                )}
                                             </>
                                         )
                                     })}
                                 </TableBody>
                             </Table>
                         </div>
-                    ) : (
+                    ) : viewMode === 'grid' ? (
                         /* Grid View */
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                             {categories.map((category: Category) => {
@@ -486,6 +603,20 @@ export default function Categories() {
                                 )
                             })}
                         </div>
+                    ) : (
+                        /* Tree View */
+                        <div className="p-6">
+                            <DashboardCategoryTree
+                                categories={categories}
+                                maxDepth={5}
+                                onEditCategory={handleEditCategory}
+                                onDeleteCategory={handleDeleteCategory}
+                                onCreateSubcategory={handleCreateSubcategory}
+                                onEditSubcategory={handleEditSubcategory}
+                                onDeleteSubcategory={(subcategory) => handleDeleteSubcategory(subcategory)}
+                                className=""
+                            />
+                        </div>
                     )}
                 </CardContent>
             </Card>
@@ -494,6 +625,7 @@ export default function Categories() {
             {(editingCategory || isCreatingCategory) && (
                 <CategoryEditModal
                     category={editingCategory}
+                    parentCategory={editingSubcategory.parentCategory}
                     isCreating={isCreatingCategory}
                     onClose={handleModalClose}
                     onSave={handleModalSave}

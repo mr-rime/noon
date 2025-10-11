@@ -61,7 +61,12 @@ $QueryType = new ObjectType([
             'args' => [
                 'limit' => Type::int(),
                 'offset' => Type::int(),
-                'search' => Type::string()
+                'search' => Type::string(),
+                'categoryId' => Type::int(),
+                'brands' => Type::listOf(Type::int()),
+                'minPrice' => Type::float(),
+                'maxPrice' => Type::float(),
+                'minRating' => Type::float()
             ],
             'resolve' => fn($root, $args, $context) => getAllProducts($context['db'], $args)
         ],
@@ -131,13 +136,70 @@ $QueryType = new ObjectType([
 
         'getCategories' => [
             'type' => $CategoriesResponseType,
-            'args' => ['search' => Type::string()],
-            'resolve' => fn($root, $args, $context) => getCategories($context['db'], $args['search'] ?? '')
+            'args' => [
+                'search' => Type::string(),
+                'parentId' => Type::int(),
+                'includeChildren' => Type::boolean()
+            ],
+            'resolve' => fn($root, $args, $context) => getCategories(
+                $context['db'],
+                $args['parentId'] ?? null,
+                $args['includeChildren'] ?? true,
+                $args['search'] ?? ''
+            )
         ],
         'getCategory' => [
             'type' => $CategoryResponseType,
-            'args' => ['id' => Type::nonNull(Type::int())],
-            'resolve' => fn($root, $args, $context) => getCategory($context['db'], $args['id'])
+            'args' => [
+                'id' => Type::nonNull(Type::int()),
+                'includeChildren' => Type::boolean()
+            ],
+            'resolve' => fn($root, $args, $context) => getCategory(
+                $context['db'],
+                $args['id'],
+                $args['includeChildren'] ?? false
+            )
+        ],
+        'getCategoryBreadcrumb' => [
+            'type' => new ObjectType([
+                'name' => 'CategoryBreadcrumbResponse',
+                'fields' => [
+                    'success' => Type::boolean(),
+                    'message' => Type::string(),
+                    'breadcrumb' => Type::listOf($CategoryBreadcrumbType)
+                ]
+            ]),
+            'args' => [
+                'categoryId' => Type::nonNull(Type::int())
+            ],
+            'resolve' => fn($root, $args, $context) => getCategoryBreadcrumb(
+                $context['db'],
+                $args['categoryId']
+            )
+        ],
+        'getCategoryBySlug' => [
+            'type' => $CategoryResponseType,
+            'args' => [
+                'slug' => Type::nonNull(Type::string()),
+                'includeChildren' => Type::boolean()
+            ],
+            'resolve' => fn($root, $args, $context) => getCategoryBySlug(
+                $context['db'],
+                $args['slug'],
+                $args['includeChildren'] ?? true
+            )
+        ],
+        'getCategoryByNestedPath' => [
+            'type' => $CategoryResponseType,
+            'args' => [
+                'path' => Type::nonNull(Type::string()),
+                'includeChildren' => Type::boolean()
+            ],
+            'resolve' => fn($root, $args, $context) => getCategoryByNestedPath(
+                $context['db'],
+                $args['path'],
+                $args['includeChildren'] ?? true
+            )
         ],
         'getSubcategories' => [
             'type' => $SubcategoriesResponseType,
