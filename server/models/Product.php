@@ -996,11 +996,7 @@ class Product
             }
 
 
-            $stmt = $this->db->prepare('DELETE FROM product_variants WHERE product_id = ?');
-            if ($stmt) {
-                $stmt->bind_param('s', $id);
-                $stmt->execute();
-            }
+            // Note: product_variants table doesn't exist, skipping this deletion
 
 
             $stmt = $this->db->prepare('DELETE FROM products WHERE id = ?');

@@ -40,6 +40,7 @@ export function ProductImage({
         scaleOnHover={true}
         height={290}
         disableDragDesktop={true}
+        rounded={true}
       />
 
       <div className="absolute right-2.5 bottom-2.5 z-10">
