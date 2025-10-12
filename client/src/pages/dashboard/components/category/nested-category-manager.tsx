@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 import { gql } from '@apollo/client'
 import { Plus, Edit2, Trash2, ChevronRight, ChevronDown, FolderPlus } from 'lucide-react'
-import { toast } from 'react-hot-toast'
+import { toast } from 'sonner'
 
 const GET_CATEGORY_TREE = gql`
   query GetCategoryTree {
