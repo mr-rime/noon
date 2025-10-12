@@ -94,6 +94,17 @@ $QueryType = new ObjectType([
             ],
             'resolve' => fn($root, $args, $context) => getDiscount($context['db'], $args['id'])
         ],
+
+        'getDiscounts' => [
+            'type' => $DiscountsResponseType,
+            'args' => [
+                'limit' => Type::int(),
+                'offset' => Type::int(),
+                'search' => Type::string(),
+                'productId' => Type::string()
+            ],
+            'resolve' => fn($root, $args, $context) => getAllDiscounts($context['db'], $args)
+        ],
         'getHome' => [
             'type' => $HomeResponseType,
             'args' => [
@@ -262,7 +273,8 @@ $QueryType = new ObjectType([
                 'placement' => Type::nonNull(Type::string())
             ],
             'resolve' => fn($root, $args, $context) => getActiveBannersByPlacement($context['db'], $args)
-        ]
+        ],
+
     ],
 
 ]);
@@ -360,13 +372,26 @@ $MutationType = new ObjectType([
         'createDiscount' => [
             'type' => $DiscountResponseType,
             'args' => [
-                'product_id' => Type::nonNull(Type::string()),
-                'type' => Type::nonNull(Type::string()),
-                'value' => Type::nonNull(Type::float()),
-                'starts_at' => Type::nonNull(Type::string()),
-                'ends_at' => Type::nonNull(Type::string())
+                'input' => Type::nonNull($DiscountInputType)
             ],
-            'resolve' => requireStoreAuth(fn($root, $args, $context) => createDiscount($context['db'], $args))
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => createDiscount($context['db'], $args['input']))
+        ],
+
+        'updateDiscount' => [
+            'type' => $DiscountResponseType,
+            'args' => [
+                'id' => Type::nonNull(Type::string()),
+                'input' => Type::nonNull($DiscountUpdateInputType)
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => updateDiscount($context['db'], array_merge(['id' => $args['id']], $args['input'])))
+        ],
+
+        'deleteDiscount' => [
+            'type' => $DeleteDiscountResponseType,
+            'args' => [
+                'id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteDiscount($context['db'], $args))
         ],
         'updateProduct' => [
             'type' => $ProductResponseType,

@@ -37,7 +37,7 @@ const navigation = [
         items: [
             { title: "Advertisement Banners", url: "/d/banners" },
             { title: "Coupons", url: "/coupons" },
-            { title: "Discounts", url: "/discounts" },
+            { title: "Discounts", url: "/d/discounts" },
             { title: "Product Offers", url: "/offers" },
         ],
     },
