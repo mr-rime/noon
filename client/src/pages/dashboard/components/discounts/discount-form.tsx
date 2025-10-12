@@ -47,7 +47,7 @@ export function DiscountForm({ isOpen, onClose, discount, onSuccess }: DiscountF
                 ends_at: discount.ends_at ? new Date(discount.ends_at).toISOString().slice(0, 16) : ""
             })
 
-            // Find the selected product
+
             const products = productsData?.getProducts?.products || []
             const product = products.find((p: any) => p.id === discount.product_id)
             setSelectedProduct(product)
@@ -66,7 +66,7 @@ export function DiscountForm({ isOpen, onClose, discount, onSuccess }: DiscountF
         setShowProductList(false)
     }, [discount, productsData])
 
-    // Close product list when clicking outside
+
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (productListRef.current && !productListRef.current.contains(event.target as Node)) {
@@ -288,8 +288,8 @@ export function DiscountForm({ isOpen, onClose, discount, onSuccess }: DiscountF
                                 onClick={() => setFormData(prev => ({ ...prev, type: "percentage" }))}
                                 disabled={isLoading}
                                 className={`p-3 border rounded-lg text-left transition-colors ${formData.type === "percentage"
-                                        ? "border-blue-500 bg-blue-50 text-blue-700"
-                                        : "border-gray-200 hover:bg-gray-50"
+                                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                                    : "border-gray-200 hover:bg-gray-50"
                                     }`}
                             >
                                 <div className="flex items-center gap-2">
@@ -302,8 +302,8 @@ export function DiscountForm({ isOpen, onClose, discount, onSuccess }: DiscountF
                                 onClick={() => setFormData(prev => ({ ...prev, type: "fixed" }))}
                                 disabled={isLoading}
                                 className={`p-3 border rounded-lg text-left transition-colors ${formData.type === "fixed"
-                                        ? "border-blue-500 bg-blue-50 text-blue-700"
-                                        : "border-gray-200 hover:bg-gray-50"
+                                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                                    : "border-gray-200 hover:bg-gray-50"
                                     }`}
                             >
                                 <div className="flex items-center gap-2">

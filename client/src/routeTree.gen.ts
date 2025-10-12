@@ -43,6 +43,9 @@ const mainHomeLayoutSellerSellerIdIndexLazyImport = createFileRoute(
 const mainHomeLayoutTitleProductIdIndexLazyImport = createFileRoute(
   '/(main)/_homeLayout/$title/$productId/',
 )()
+const dashboardDDashboardLayoutTrackingIndexLazyImport = createFileRoute(
+  '/(dashboard)/d/_dashboardLayout/tracking/',
+)()
 const dashboardDDashboardLayoutOverviewIndexLazyImport = createFileRoute(
   '/(dashboard)/d/_dashboardLayout/overview/',
 )()
@@ -75,6 +78,10 @@ const mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyImport =
   )()
 const dashboardDDashboardLayoutProductsEditProductIdIndexLazyImport =
   createFileRoute('/(dashboard)/d/_dashboardLayout/products/edit/$productId/')()
+const mainHomeLayoutprofileProfileLayoutOrdersInvoiceInvoiceIdIndexLazyImport =
+  createFileRoute(
+    '/(main)/_homeLayout/(profile)/_profileLayout/orders/invoice/$invoiceId/',
+  )()
 const mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyImport =
   createFileRoute(
     '/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/',
@@ -181,6 +188,19 @@ const mainHomeLayoutTitleProductIdIndexLazyRoute =
       import('./routes/(main)/_homeLayout/$title/$productId/index.lazy').then(
         (d) => d.Route,
       ),
+    )
+
+const dashboardDDashboardLayoutTrackingIndexLazyRoute =
+  dashboardDDashboardLayoutTrackingIndexLazyImport
+    .update({
+      id: '/tracking/',
+      path: '/tracking/',
+      getParentRoute: () => dashboardDDashboardLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(dashboard)/d/_dashboardLayout/tracking/index.lazy'
+      ).then((d) => d.Route),
     )
 
 const dashboardDDashboardLayoutOverviewIndexLazyRoute =
@@ -374,6 +394,19 @@ const dashboardDDashboardLayoutProductsEditProductIdIndexLazyRoute =
       ).then((d) => d.Route),
     )
 
+const mainHomeLayoutprofileProfileLayoutOrdersInvoiceInvoiceIdIndexLazyRoute =
+  mainHomeLayoutprofileProfileLayoutOrdersInvoiceInvoiceIdIndexLazyImport
+    .update({
+      id: '/orders/invoice/$invoiceId/',
+      path: '/orders/invoice/$invoiceId/',
+      getParentRoute: () => mainHomeLayoutprofileProfileLayoutRoute,
+    } as any)
+    .lazy(() =>
+      import(
+        './routes/(main)/_homeLayout/(profile)/_profileLayout/orders/invoice/$invoiceId/index.lazy'
+      ).then((d) => d.Route),
+    )
+
 const mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute =
   mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyImport
     .update({
@@ -524,6 +557,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof dashboardDDashboardLayoutOverviewIndexLazyImport
       parentRoute: typeof dashboardDDashboardLayoutImport
     }
+    '/(dashboard)/d/_dashboardLayout/tracking/': {
+      id: '/(dashboard)/d/_dashboardLayout/tracking/'
+      path: '/tracking'
+      fullPath: '/d/tracking'
+      preLoaderRoute: typeof dashboardDDashboardLayoutTrackingIndexLazyImport
+      parentRoute: typeof dashboardDDashboardLayoutImport
+    }
     '/(main)/_homeLayout/$title/$productId/': {
       id: '/(main)/_homeLayout/$title/$productId/'
       path: '/$title/$productId'
@@ -608,6 +648,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyImport
       parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport
     }
+    '/(main)/_homeLayout/(profile)/_profileLayout/orders/invoice/$invoiceId/': {
+      id: '/(main)/_homeLayout/(profile)/_profileLayout/orders/invoice/$invoiceId/'
+      path: '/orders/invoice/$invoiceId'
+      fullPath: '/orders/invoice/$invoiceId'
+      preLoaderRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersInvoiceInvoiceIdIndexLazyImport
+      parentRoute: typeof mainHomeLayoutprofileProfileLayoutImport
+    }
     '/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/': {
       id: '/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/'
       path: '/orders/track/order/$orderId'
@@ -628,6 +675,7 @@ interface mainHomeLayoutprofileProfileLayoutRouteChildren {
   mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutReturnsIndexLazyRoute
   mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute
   mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute
+  mainHomeLayoutprofileProfileLayoutOrdersInvoiceInvoiceIdIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersInvoiceInvoiceIdIndexLazyRoute
   mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute: typeof mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute
 }
 
@@ -647,6 +695,8 @@ const mainHomeLayoutprofileProfileLayoutRouteChildren: mainHomeLayoutprofileProf
       mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute,
     mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute:
       mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute,
+    mainHomeLayoutprofileProfileLayoutOrdersInvoiceInvoiceIdIndexLazyRoute:
+      mainHomeLayoutprofileProfileLayoutOrdersInvoiceInvoiceIdIndexLazyRoute,
     mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute:
       mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute,
   }
@@ -716,6 +766,7 @@ interface dashboardDDashboardLayoutRouteChildren {
   dashboardDDashboardLayoutProductsIndexRoute: typeof dashboardDDashboardLayoutProductsIndexRoute
   dashboardDDashboardLayoutOrdersIndexLazyRoute: typeof dashboardDDashboardLayoutOrdersIndexLazyRoute
   dashboardDDashboardLayoutOverviewIndexLazyRoute: typeof dashboardDDashboardLayoutOverviewIndexLazyRoute
+  dashboardDDashboardLayoutTrackingIndexLazyRoute: typeof dashboardDDashboardLayoutTrackingIndexLazyRoute
   dashboardDDashboardLayoutProductsProductIdIndexLazyRoute: typeof dashboardDDashboardLayoutProductsProductIdIndexLazyRoute
   dashboardDDashboardLayoutProductsNewIndexLazyRoute: typeof dashboardDDashboardLayoutProductsNewIndexLazyRoute
   dashboardDDashboardLayoutProductsEditProductIdIndexLazyRoute: typeof dashboardDDashboardLayoutProductsEditProductIdIndexLazyRoute
@@ -737,6 +788,8 @@ const dashboardDDashboardLayoutRouteChildren: dashboardDDashboardLayoutRouteChil
       dashboardDDashboardLayoutOrdersIndexLazyRoute,
     dashboardDDashboardLayoutOverviewIndexLazyRoute:
       dashboardDDashboardLayoutOverviewIndexLazyRoute,
+    dashboardDDashboardLayoutTrackingIndexLazyRoute:
+      dashboardDDashboardLayoutTrackingIndexLazyRoute,
     dashboardDDashboardLayoutProductsProductIdIndexLazyRoute:
       dashboardDDashboardLayoutProductsProductIdIndexLazyRoute,
     dashboardDDashboardLayoutProductsNewIndexLazyRoute:
@@ -779,6 +832,7 @@ export interface FileRoutesByFullPath {
   '/d/products': typeof dashboardDDashboardLayoutProductsIndexRoute
   '/d/orders': typeof dashboardDDashboardLayoutOrdersIndexLazyRoute
   '/d/overview': typeof dashboardDDashboardLayoutOverviewIndexLazyRoute
+  '/d/tracking': typeof dashboardDDashboardLayoutTrackingIndexLazyRoute
   '/$title/$productId': typeof mainHomeLayoutTitleProductIdIndexLazyRoute
   '/seller/$sellerId': typeof mainHomeLayoutSellerSellerIdIndexLazyRoute
   '/d/products/$productId': typeof dashboardDDashboardLayoutProductsProductIdIndexLazyRoute
@@ -791,6 +845,7 @@ export interface FileRoutesByFullPath {
   '/security-settings': typeof mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute
   '/d/products/edit/$productId': typeof dashboardDDashboardLayoutProductsEditProductIdIndexLazyRoute
   '/orders/$orderId': typeof mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute
+  '/orders/invoice/$invoiceId': typeof mainHomeLayoutprofileProfileLayoutOrdersInvoiceInvoiceIdIndexLazyRoute
   '/orders/track/order/$orderId': typeof mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute
 }
 
@@ -809,6 +864,7 @@ export interface FileRoutesByTo {
   '/d/products': typeof dashboardDDashboardLayoutProductsIndexRoute
   '/d/orders': typeof dashboardDDashboardLayoutOrdersIndexLazyRoute
   '/d/overview': typeof dashboardDDashboardLayoutOverviewIndexLazyRoute
+  '/d/tracking': typeof dashboardDDashboardLayoutTrackingIndexLazyRoute
   '/$title/$productId': typeof mainHomeLayoutTitleProductIdIndexLazyRoute
   '/seller/$sellerId': typeof mainHomeLayoutSellerSellerIdIndexLazyRoute
   '/d/products/$productId': typeof dashboardDDashboardLayoutProductsProductIdIndexLazyRoute
@@ -821,6 +877,7 @@ export interface FileRoutesByTo {
   '/security-settings': typeof mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute
   '/d/products/edit/$productId': typeof dashboardDDashboardLayoutProductsEditProductIdIndexLazyRoute
   '/orders/$orderId': typeof mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute
+  '/orders/invoice/$invoiceId': typeof mainHomeLayoutprofileProfileLayoutOrdersInvoiceInvoiceIdIndexLazyRoute
   '/orders/track/order/$orderId': typeof mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute
 }
 
@@ -845,6 +902,7 @@ export interface FileRoutesById {
   '/(dashboard)/d/_dashboardLayout/products/': typeof dashboardDDashboardLayoutProductsIndexRoute
   '/(dashboard)/d/_dashboardLayout/orders/': typeof dashboardDDashboardLayoutOrdersIndexLazyRoute
   '/(dashboard)/d/_dashboardLayout/overview/': typeof dashboardDDashboardLayoutOverviewIndexLazyRoute
+  '/(dashboard)/d/_dashboardLayout/tracking/': typeof dashboardDDashboardLayoutTrackingIndexLazyRoute
   '/(main)/_homeLayout/$title/$productId/': typeof mainHomeLayoutTitleProductIdIndexLazyRoute
   '/(main)/_homeLayout/seller/$sellerId/': typeof mainHomeLayoutSellerSellerIdIndexLazyRoute
   '/(dashboard)/d/_dashboardLayout/products/$productId/': typeof dashboardDDashboardLayoutProductsProductIdIndexLazyRoute
@@ -857,6 +915,7 @@ export interface FileRoutesById {
   '/(main)/_homeLayout/(profile)/_profileLayout/security-settings/': typeof mainHomeLayoutprofileProfileLayoutSecuritySettingsIndexLazyRoute
   '/(dashboard)/d/_dashboardLayout/products/edit/$productId/': typeof dashboardDDashboardLayoutProductsEditProductIdIndexLazyRoute
   '/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/': typeof mainHomeLayoutprofileProfileLayoutOrdersOrderIdIndexLazyRoute
+  '/(main)/_homeLayout/(profile)/_profileLayout/orders/invoice/$invoiceId/': typeof mainHomeLayoutprofileProfileLayoutOrdersInvoiceInvoiceIdIndexLazyRoute
   '/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/': typeof mainHomeLayoutprofileProfileLayoutOrdersTrackOrderOrderIdIndexLazyRoute
 }
 
@@ -877,6 +936,7 @@ export interface FileRouteTypes {
     | '/d/products'
     | '/d/orders'
     | '/d/overview'
+    | '/d/tracking'
     | '/$title/$productId'
     | '/seller/$sellerId'
     | '/d/products/$productId'
@@ -889,6 +949,7 @@ export interface FileRouteTypes {
     | '/security-settings'
     | '/d/products/edit/$productId'
     | '/orders/$orderId'
+    | '/orders/invoice/$invoiceId'
     | '/orders/track/order/$orderId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -906,6 +967,7 @@ export interface FileRouteTypes {
     | '/d/products'
     | '/d/orders'
     | '/d/overview'
+    | '/d/tracking'
     | '/$title/$productId'
     | '/seller/$sellerId'
     | '/d/products/$productId'
@@ -918,6 +980,7 @@ export interface FileRouteTypes {
     | '/security-settings'
     | '/d/products/edit/$productId'
     | '/orders/$orderId'
+    | '/orders/invoice/$invoiceId'
     | '/orders/track/order/$orderId'
   id:
     | '__root__'
@@ -940,6 +1003,7 @@ export interface FileRouteTypes {
     | '/(dashboard)/d/_dashboardLayout/products/'
     | '/(dashboard)/d/_dashboardLayout/orders/'
     | '/(dashboard)/d/_dashboardLayout/overview/'
+    | '/(dashboard)/d/_dashboardLayout/tracking/'
     | '/(main)/_homeLayout/$title/$productId/'
     | '/(main)/_homeLayout/seller/$sellerId/'
     | '/(dashboard)/d/_dashboardLayout/products/$productId/'
@@ -952,6 +1016,7 @@ export interface FileRouteTypes {
     | '/(main)/_homeLayout/(profile)/_profileLayout/security-settings/'
     | '/(dashboard)/d/_dashboardLayout/products/edit/$productId/'
     | '/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/'
+    | '/(main)/_homeLayout/(profile)/_profileLayout/orders/invoice/$invoiceId/'
     | '/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/'
   fileRoutesById: FileRoutesById
 }
@@ -1018,6 +1083,7 @@ export const routeTree = rootRoute
         "/(dashboard)/d/_dashboardLayout/products/",
         "/(dashboard)/d/_dashboardLayout/orders/",
         "/(dashboard)/d/_dashboardLayout/overview/",
+        "/(dashboard)/d/_dashboardLayout/tracking/",
         "/(dashboard)/d/_dashboardLayout/products/$productId/",
         "/(dashboard)/d/_dashboardLayout/products/new/",
         "/(dashboard)/d/_dashboardLayout/products/edit/$productId/"
@@ -1045,6 +1111,7 @@ export const routeTree = rootRoute
         "/(main)/_homeLayout/(profile)/_profileLayout/returns/",
         "/(main)/_homeLayout/(profile)/_profileLayout/security-settings/",
         "/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/",
+        "/(main)/_homeLayout/(profile)/_profileLayout/orders/invoice/$invoiceId/",
         "/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/"
       ]
     },
@@ -1096,6 +1163,10 @@ export const routeTree = rootRoute
       "filePath": "(dashboard)/d/_dashboardLayout/overview/index.lazy.tsx",
       "parent": "/(dashboard)/d/_dashboardLayout"
     },
+    "/(dashboard)/d/_dashboardLayout/tracking/": {
+      "filePath": "(dashboard)/d/_dashboardLayout/tracking/index.lazy.tsx",
+      "parent": "/(dashboard)/d/_dashboardLayout"
+    },
     "/(main)/_homeLayout/$title/$productId/": {
       "filePath": "(main)/_homeLayout/$title/$productId/index.lazy.tsx",
       "parent": "/(main)/_homeLayout"
@@ -1142,6 +1213,10 @@ export const routeTree = rootRoute
     },
     "/(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/": {
       "filePath": "(main)/_homeLayout/(profile)/_profileLayout/orders/$orderId/index.lazy.tsx",
+      "parent": "/(main)/_homeLayout/(profile)/_profileLayout"
+    },
+    "/(main)/_homeLayout/(profile)/_profileLayout/orders/invoice/$invoiceId/": {
+      "filePath": "(main)/_homeLayout/(profile)/_profileLayout/orders/invoice/$invoiceId/index.lazy.tsx",
       "parent": "/(main)/_homeLayout/(profile)/_profileLayout"
     },
     "/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/": {

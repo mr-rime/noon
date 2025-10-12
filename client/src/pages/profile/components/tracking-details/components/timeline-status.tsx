@@ -1,12 +1,12 @@
-import { cn } from '../../../../../utils/cn'
+import { cn } from "@/utils/cn"
 
-type StatusNameType = 'Placed' | 'Processing' | 'Confirmed' | 'Dispatched' | 'Delivery'
+type StatusNameType = 'Placed' | 'Processing' | 'Confirmed' | 'Dispatched' | 'Delivery' | string
 
 type TimelineStatusProps = {
   icon: React.ReactNode | React.ReactElement
   statusName: StatusNameType
   statusDate: string
-  deliveryByDate?: string
+  deliveryByDate?: string | null
   isCurrent?: boolean
   statusDesc?: string
   isLast?: boolean

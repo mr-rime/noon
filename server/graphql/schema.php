@@ -275,6 +275,42 @@ $QueryType = new ObjectType([
             'resolve' => fn($root, $args, $context) => getActiveBannersByPlacement($context['db'], $args)
         ],
 
+        'getUserOrders' => [
+            'type' => $OrdersListResponseType,
+            'args' => [
+                'limit' => Type::int(),
+                'offset' => Type::int()
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => getUserOrders($context['db'], $args))
+        ],
+
+        'getOrderDetails' => [
+            'type' => $OrderResponseType,
+            'args' => [
+                'order_id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => getOrderDetails($context['db'], $args))
+        ],
+
+        'getOrderTracking' => [
+            'type' => $TrackingResponseType,
+            'args' => [
+                'order_id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => getOrderTracking($context['db'], $args))
+        ],
+
+        'getAllOrders' => [
+            'type' => $AdminOrdersListResponseType,
+            'args' => [
+                'limit' => Type::int(),
+                'offset' => Type::int(),
+                'status' => Type::string(),
+                'payment_status' => Type::string()
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => getAllOrders($context['db'], $args))
+        ],
+
     ],
 
 ]);
@@ -360,6 +396,37 @@ $MutationType = new ObjectType([
                 'items' => Type::listOf($OrderItemInputType),
             ],
             'resolve' => requireAuth(fn($root, $args, $context) => createOrder($context['db'], $args))
+        ],
+
+        'createCheckoutSession' => [
+            'type' => $CheckoutSessionResponseType,
+            'args' => [
+                'success_url' => Type::string(),
+                'cancel_url' => Type::string()
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => createCheckoutSession($context['db'], $args))
+        ],
+
+        'updateOrderStatus' => [
+            'type' => $UpdateOrderStatusResponseType,
+            'args' => [
+                'order_id' => Type::nonNull(Type::string()),
+                'status' => Type::string(),
+                'payment_status' => Type::string()
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => updateOrderStatus($context['db'], $args))
+        ],
+
+        'updateTrackingDetails' => [
+            'type' => $UpdateTrackingResponseType,
+            'args' => [
+                'order_id' => Type::nonNull(Type::string()),
+                'shipping_provider' => Type::string(),
+                'tracking_number' => Type::string(),
+                'status' => Type::string(),
+                'estimated_delivery_date' => Type::string()
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => updateTrackingDetails($context['db'], $args))
         ],
 
         'uploadImage' => [

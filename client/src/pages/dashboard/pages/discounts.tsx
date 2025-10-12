@@ -102,7 +102,7 @@ export function DiscountsPage() {
     }
 
     const filteredDiscounts = discounts.filter((discount: any) => {
-        // Apply status filter
+
         if (filters.status?.length > 0) {
             const status = getStatus(discount)
             if (!filters.status.includes(status.label.toLowerCase())) {
@@ -110,12 +110,12 @@ export function DiscountsPage() {
             }
         }
 
-        // Apply type filter
+
         if (filters.type?.length > 0 && !filters.type.includes(discount.type)) {
             return false
         }
 
-        // Apply time range filter
+
         if (filters.timeRange?.length > 0) {
             const now = new Date()
             const discountDate = new Date(discount.starts_at)
