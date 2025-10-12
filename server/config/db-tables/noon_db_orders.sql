@@ -27,7 +27,7 @@ CREATE TABLE `orders` (
   `user_id` int NOT NULL,
   `total_amount` decimal(10,2) NOT NULL,
   `currency` varchar(4) NOT NULL,
-  `status` enum('pending','processing','shipped','delivered','cancelled') DEFAULT 'pending',
+  `status` enum('placed','processing','confirmed','dispatched','delivered','cancelled') DEFAULT 'placed',
   `shipping_address` text,
   `payment_method` varchar(50) DEFAULT NULL,
   `payment_status` enum('unpaid','paid','refunded') DEFAULT 'unpaid',

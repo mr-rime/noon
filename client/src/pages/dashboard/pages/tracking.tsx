@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client'
 import { GET_ALL_ORDERS, UPDATE_TRACKING_DETAILS } from '@/graphql/orders'
 import { toast } from 'sonner'
-import { Search, Package, Truck, RefreshCw, Loader2 } from 'lucide-react'
+import { Search, Package, Truck, RefreshCw, Loader2, Download } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -94,12 +94,14 @@ export function AdminTrackingPage() {
 
     const getStatusVariant = (status: string) => {
         switch (status) {
-            case 'pending':
+            case 'placed':
                 return 'warning'
             case 'processing':
                 return 'info'
-            case 'shipped':
+            case 'confirmed':
                 return 'secondary'
+            case 'dispatched':
+                return 'default'
             case 'delivered':
                 return 'success'
             case 'cancelled':
@@ -157,15 +159,70 @@ export function AdminTrackingPage() {
         }
     }
 
+    const exportToCSV = () => {
+        const csvHeaders = [
+            'Order ID',
+            'Status',
+            'Payment Status',
+            'Total Amount',
+            'Currency',
+            'Payment Method',
+            'Tracking Number',
+            'Shipping Provider',
+            'Estimated Delivery',
+            'Items Count',
+            'Created At',
+            'Updated At'
+        ]
+
+        const csvData = orders.map((order: any) => [
+            order.id,
+            order.status,
+            order.payment_status,
+            order.total_amount,
+            order.currency,
+            order.payment_method,
+            order.tracking?.tracking_number || '',
+            order.tracking?.shipping_provider || '',
+            order.tracking?.estimated_delivery_date || '',
+            order.items?.length || 0,
+            new Date(order.created_at).toLocaleDateString(),
+            new Date(order.updated_at).toLocaleDateString()
+        ])
+
+        const csvContent = [
+            csvHeaders.join(','),
+            ...csvData.map((row: any[]) => row.map((cell: any) => `"${cell}"`).join(','))
+        ].join('\n')
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+        const link = document.createElement('a')
+        const url = URL.createObjectURL(blob)
+        link.setAttribute('href', url)
+        link.setAttribute('download', `orders_export_${new Date().toISOString().split('T')[0]}.csv`)
+        link.style.visibility = 'hidden'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+
+        toast.success('Orders exported successfully')
+    }
+
     return (
         <div className="p-6 space-y-6">
             {/* Header */}
             <div className="flex justify-between items-center">
                 <CardTitle className="text-2xl">Tracking Management</CardTitle>
-                <Button onClick={() => refetch()} variant="outline">
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Refresh
-                </Button>
+                <div className="flex gap-2">
+                    <Button onClick={exportToCSV} variant="outline">
+                        <Download className="w-4 h-4 mr-2" />
+                        Export CSV
+                    </Button>
+                    <Button onClick={() => refetch()} variant="outline">
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Refresh
+                    </Button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -195,10 +252,15 @@ export function AdminTrackingPage() {
                                         }`}
                                 >
                                     <div className="flex justify-between items-start">
-                                        <div>
+                                        <div className="flex-1">
                                             <h3 className="font-medium">Order #{order.id}</h3>
                                             <p className="text-sm text-muted-foreground">{order.items?.length || 0} item(s)</p>
                                             <p className="text-sm text-muted-foreground">{formatDate(order.created_at)}</p>
+                                            {order.tracking?.tracking_number && (
+                                                <p className="text-xs text-blue-600 font-mono mt-1">
+                                                    Tracking: {order.tracking.tracking_number}
+                                                </p>
+                                            )}
                                         </div>
                                         <div className="text-right">
                                             <Badge variant={getStatusVariant(order.status)}>
@@ -274,10 +336,12 @@ export function AdminTrackingPage() {
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
+                                                <SelectItem value="placed">Placed</SelectItem>
                                                 <SelectItem value="processing">Processing</SelectItem>
                                                 <SelectItem value="confirmed">Confirmed</SelectItem>
                                                 <SelectItem value="dispatched">Dispatched</SelectItem>
                                                 <SelectItem value="delivered">Delivered</SelectItem>
+                                                <SelectItem value="cancelled">Cancelled</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>

@@ -64,12 +64,14 @@ export function Orders() {
 
   const getStatusDisplay = (status: string) => {
     switch (status) {
-      case 'pending':
-        return { text: 'Pending', color: 'text-yellow-600' }
+      case 'placed':
+        return { text: 'Placed', color: 'text-yellow-600' }
       case 'processing':
         return { text: 'Processing', color: 'text-blue-600' }
-      case 'shipped':
-        return { text: 'Shipped', color: 'text-purple-600' }
+      case 'confirmed':
+        return { text: 'Confirmed', color: 'text-purple-600' }
+      case 'dispatched':
+        return { text: 'Dispatched', color: 'text-indigo-600' }
       case 'delivered':
         return { text: 'Delivered', color: 'text-green-600' }
       case 'cancelled':
@@ -90,6 +92,8 @@ export function Orders() {
       minute: '2-digit'
     })
   }
+
+
 
   return (
     <section className="h-screen w-full">
@@ -175,8 +179,15 @@ export function Orders() {
 
                   <div className="z-[2] flex min-h-[115px] flex-col items-center justify-between">
                     <div />
-                    <div className="text-[#9ba0b1] text-[12px]">
-                      <span>Order ID</span> <strong>{order.id}</strong>
+                    <div className="text-[#9ba0b1] text-[12px] text-center">
+                      <div>
+                        <span>Order ID</span> <strong>{order.id}</strong>
+                      </div>
+                      {order.tracking?.tracking_number && (
+                        <div className="mt-1">
+                          <span>Tracking</span> <strong className="font-mono">{order.tracking.tracking_number}</strong>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

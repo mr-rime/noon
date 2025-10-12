@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery } from '@apollo/client'
 import { GET_ALL_ORDERS } from '@/graphql/orders'
 import { toast } from 'sonner'
-import { Search, RefreshCw, Eye, MoreHorizontal } from 'lucide-react'
+import { Search, RefreshCw, Eye, MoreHorizontal, Download } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -10,11 +10,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Badge } from '../components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/dropdown'
+import { AdminOrderDetailsModal } from '../components/admin-order-details-modal'
 
 export function AdminOrdersPage() {
     const [searchTerm, setSearchTerm] = useState('')
     const [statusFilter, setStatusFilter] = useState('all')
     const [paymentStatusFilter, setPaymentStatusFilter] = useState('all')
+    const [selectedOrder, setSelectedOrder] = useState<any>(null)
+    const [isModalOpen, setIsModalOpen] = useState(false)
 
     const { data, loading, error, refetch } = useQuery(GET_ALL_ORDERS, {
         variables: {
@@ -77,12 +80,14 @@ export function AdminOrdersPage() {
 
     const getStatusVariant = (status: string) => {
         switch (status) {
-            case 'pending':
+            case 'placed':
                 return 'warning'
             case 'processing':
                 return 'info'
-            case 'shipped':
+            case 'confirmed':
                 return 'secondary'
+            case 'dispatched':
+                return 'default'
             case 'delivered':
                 return 'success'
             case 'cancelled':
@@ -116,15 +121,112 @@ export function AdminOrdersPage() {
         })
     }
 
+    const exportToCSV = () => {
+        const csvHeaders = [
+            'Order ID',
+            'Customer ID',
+            'Status',
+            'Payment Status',
+            'Total Amount',
+            'Currency',
+            'Payment Method',
+            'Shipping Address',
+            'Tracking Number',
+            'Shipping Provider',
+            'Estimated Delivery',
+            'Items Count',
+            'Created At',
+            'Updated At'
+        ]
+
+        const csvData = orders.map((order: any) => [
+            order.id,
+            order.user_id,
+            order.status,
+            order.payment_status,
+            order.total_amount,
+            order.currency,
+            order.payment_method,
+            (() => {
+                try {
+                    const addressData = typeof order.shipping_address === 'string'
+                        ? JSON.parse(order.shipping_address)
+                        : order.shipping_address;
+
+                    const addressLines = [];
+                    if (addressData.name) addressLines.push(addressData.name);
+                    if (addressData.line1) addressLines.push(addressData.line1);
+                    if (addressData.line2) addressLines.push(addressData.line2);
+
+                    const cityStateZip = [];
+                    if (addressData.city) cityStateZip.push(addressData.city);
+                    if (addressData.state) cityStateZip.push(addressData.state);
+                    if (addressData.postal_code) cityStateZip.push(addressData.postal_code);
+
+                    if (cityStateZip.length > 0) {
+                        addressLines.push(cityStateZip.join(', '));
+                    }
+
+                    if (addressData.country) {
+                        addressLines.push(addressData.country);
+                    }
+
+                    return addressLines.join(' | ');
+                } catch {
+                    return order.shipping_address || '';
+                }
+            })(),
+            order.tracking?.tracking_number || '',
+            order.tracking?.shipping_provider || '',
+            order.tracking?.estimated_delivery_date || '',
+            order.items?.length || 0,
+            new Date(order.created_at).toLocaleDateString(),
+            new Date(order.updated_at).toLocaleDateString()
+        ])
+
+        const csvContent = [
+            csvHeaders.join(','),
+            ...csvData.map((row: any[]) => row.map((cell: any) => `"${cell}"`).join(','))
+        ].join('\n')
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+        const link = document.createElement('a')
+        const url = URL.createObjectURL(blob)
+        link.setAttribute('href', url)
+        link.setAttribute('download', `orders_management_export_${new Date().toISOString().split('T')[0]}.csv`)
+        link.style.visibility = 'hidden'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+
+        toast.success('Orders exported successfully')
+    }
+
+    const handleViewDetails = (order: any) => {
+        setSelectedOrder(order)
+        setIsModalOpen(true)
+    }
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false)
+        setSelectedOrder(null)
+    }
+
     return (
         <div className="p-6 space-y-6">
             {/* Header */}
             <div className="flex justify-between items-center">
                 <CardTitle className="text-2xl">Orders Management</CardTitle>
-                <Button onClick={() => refetch()} variant="outline">
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Refresh
-                </Button>
+                <div className="flex gap-2">
+                    <Button onClick={exportToCSV} variant="outline">
+                        <Download className="w-4 h-4 mr-2" />
+                        Export CSV
+                    </Button>
+                    <Button onClick={() => refetch()} variant="outline">
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Refresh
+                    </Button>
+                </div>
             </div>
 
             {/* Filters */}
@@ -148,9 +250,10 @@ export function AdminOrdersPage() {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All Statuses</SelectItem>
-                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="placed">Placed</SelectItem>
                                 <SelectItem value="processing">Processing</SelectItem>
-                                <SelectItem value="shipped">Shipped</SelectItem>
+                                <SelectItem value="confirmed">Confirmed</SelectItem>
+                                <SelectItem value="dispatched">Dispatched</SelectItem>
                                 <SelectItem value="delivered">Delivered</SelectItem>
                                 <SelectItem value="cancelled">Cancelled</SelectItem>
                             </SelectContent>
@@ -187,6 +290,7 @@ export function AdminOrdersPage() {
                                 <TableHead>Total</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead>Payment</TableHead>
+                                <TableHead>Tracking</TableHead>
                                 <TableHead>Date</TableHead>
                                 <TableHead>Actions</TableHead>
                             </TableRow>
@@ -225,6 +329,17 @@ export function AdminOrdersPage() {
                                             {order.payment_status}
                                         </Badge>
                                     </TableCell>
+                                    <TableCell>
+                                        {order.tracking?.tracking_number ? (
+                                            <div className="text-sm font-mono text-blue-600">
+                                                {order.tracking.tracking_number}
+                                            </div>
+                                        ) : (
+                                            <div className="text-sm text-muted-foreground">
+                                                No tracking
+                                            </div>
+                                        )}
+                                    </TableCell>
                                     <TableCell className="text-muted-foreground">
                                         {formatDate(order.created_at)}
                                     </TableCell>
@@ -237,9 +352,7 @@ export function AdminOrdersPage() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem
-                                                    onClick={() => {
-                                                        window.open(`/orders/track/order/${order.id}`, '_blank')
-                                                    }}
+                                                    onClick={() => handleViewDetails(order)}
                                                 >
                                                     <Eye className="w-4 h-4 mr-2" />
                                                     View Details
@@ -259,6 +372,13 @@ export function AdminOrdersPage() {
                     )}
                 </CardContent>
             </Card>
+
+            {/* Order Details Modal */}
+            <AdminOrderDetailsModal
+                order={selectedOrder}
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+            />
         </div>
     )
 }

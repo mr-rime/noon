@@ -58,7 +58,7 @@ class Order
         $currency = $data['currency'];
         $shippingAddress = $data['shipping_address'];
         $paymentMethod = $data['payment_method'];
-        $status = 'pending';
+        $status = 'placed';
         $paymentStatus = 'paid';
 
         $this->db->begin_transaction();
@@ -152,7 +152,7 @@ class Order
         $currency = $data['currency'];
         $shippingAddress = $data['shipping_address'];
         $paymentMethod = $data['payment_method'];
-        $status = 'pending';
+        $status = 'placed';
         $paymentStatus = 'unpaid';
 
 
@@ -266,9 +266,10 @@ class Order
     public function update(int $id, array $data): bool
     {
         $validator = v::key('status', v::stringType()->oneOf(
-            v::equals('pending'),
+            v::equals('placed'),
             v::equals('processing'),
-            v::equals('shipped'),
+            v::equals('confirmed'),
+            v::equals('dispatched'),
             v::equals('delivered'),
             v::equals('cancelled')
         ))
