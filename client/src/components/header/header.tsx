@@ -81,12 +81,6 @@ export function Header() {
           </>
         )}
         <Link
-          to={'/categories'}
-          className="relative mr-3 h-fit w-fit cursor-pointer text-[#404553] transition-colors hover:text-[#8C8832]"
-        >
-          {header_icons.categoriesIcon}
-        </Link>
-        <Link
           to={'/cart'}
           preload="render"
           className="relative mx-1 text-[#404553] transition-colors hover:text-[#8C8832]">

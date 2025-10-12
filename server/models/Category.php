@@ -7,7 +7,7 @@ require_once __DIR__ . '/../utils/generateHash.php';
 class Category
 {
     private mysqli $db;
-    private int $maxLevel = 4; // Maximum nesting level (0-4 = 5 levels total)
+    private int $maxLevel = 4;
 
     public function __construct(mysqli $db)
     {
@@ -97,20 +97,20 @@ class Category
 
     public function findByNestedPath(string $path, bool $includeChildren = false): ?array
     {
-        // Split the path into individual slugs
+
         $slugs = explode('/', trim($path, '/'));
 
         if (empty($slugs) || empty($slugs[0])) {
             return null;
         }
 
-        // Find the root category
+
         $currentCategory = $this->findBySlug($slugs[0], true);
         if (!$currentCategory) {
             return null;
         }
 
-        // If this is a single slug, return it
+
         if (count($slugs) === 1) {
             if ($includeChildren) {
                 $currentCategory['children'] = $this->findByParentId($currentCategory['category_id']);
@@ -118,13 +118,13 @@ class Category
             return $currentCategory;
         }
 
-        // Navigate through the nested path
+
         $currentId = $currentCategory['category_id'];
 
         for ($i = 1; $i < count($slugs); $i++) {
             $slug = $slugs[$i];
 
-            // Find the child category with this slug
+
             $query = 'SELECT * FROM categories_nested WHERE parent_id = ? AND slug = ? AND is_active = 1 LIMIT 1';
             $stmt = $this->db->prepare($query);
 
@@ -146,7 +146,7 @@ class Category
             $currentId = $childCategory['category_id'];
         }
 
-        // Add children if requested
+
         if ($includeChildren) {
             $currentCategory['children'] = $this->findByParentId($currentCategory['category_id']);
         }
@@ -204,7 +204,7 @@ class Category
 
     public function create(array $data): ?array
     {
-        // Normalize data types
+
         if (isset($data['is_active'])) {
             if ($data['is_active'] === null) {
                 $data['is_active'] = true;
@@ -213,15 +213,15 @@ class Category
             }
         }
 
-        // Ensure boolean values are properly typed
+
         if (isset($data['parent_id']) && $data['parent_id'] === '') {
             $data['parent_id'] = null;
         }
 
-        // Validate slug format (alphanumeric, hyphens, underscores only)
+
         $slugValidator = v::stringType()->notEmpty()->length(1, 120)->regex('/^[a-z0-9-_]+$/');
 
-        // Ensure all optional fields have default values
+
         $data = array_merge([
             'parent_id' => null,
             'description' => null,
@@ -248,20 +248,20 @@ class Category
             return null;
         }
 
-        // Check if slug already exists at the same parent level
+
         $existingCategory = $this->findBySlug($data['slug']);
         if ($existingCategory) {
             $existingParentId = $existingCategory['parent_id'];
             $newParentId = $data['parent_id'] ?? null;
 
-            // If both are null (root level) or both have the same parent, slug conflict
+
             if ($existingParentId === $newParentId) {
                 error_log("Slug already exists at the same level: " . $data['slug']);
                 return null;
             }
         }
 
-        // Calculate level based on parent
+
         $level = 0;
         $parent = null;
         if (!empty($data['parent_id']) && $data['parent_id'] !== null) {
@@ -272,7 +272,7 @@ class Category
             }
             $level = $parent['level'] + 1;
 
-            // Check max level
+
             if ($level > $this->maxLevel) {
                 error_log("Maximum nesting level exceeded");
                 return null;
@@ -299,7 +299,7 @@ class Category
         if ($stmt->execute()) {
             $newId = $this->db->insert_id;
 
-            // Update path
+
             if ($parent) {
                 $path = $parent['path'] . $newId . '/';
             } else {
@@ -326,7 +326,7 @@ class Category
 
         $allowedFields = ['name', 'slug', 'description', 'display_order', 'image_url', 'icon_url', 'is_active'];
 
-        // Don't allow parent_id changes through update (use moveCategory instead)
+
         foreach ($allowedFields as $field) {
             if (array_key_exists($field, $data)) {
                 $fields[] = "$field = ?";
@@ -366,15 +366,15 @@ class Category
 
     public function delete(int $id): bool
     {
-        // Get all descendants first
+
         $descendants = $this->getAllDescendantIds($id);
 
-        // Start transaction to ensure atomicity
+
         $this->db->begin_transaction();
 
         try {
-            // Delete all descendants first (from deepest to shallowest)
-            // Sort by level descending to delete children before parents
+
+
             $query = "SELECT category_id, level FROM categories_nested WHERE category_id IN (" .
                 implode(',', array_fill(0, count($descendants), '?')) . ") ORDER BY level DESC";
 
@@ -394,7 +394,7 @@ class Category
                     $categoriesToDelete[] = $row['category_id'];
                 }
 
-                // Delete each category
+
                 foreach ($categoriesToDelete as $categoryId) {
                     $deleteQuery = 'DELETE FROM categories_nested WHERE category_id = ?';
                     $deleteStmt = $this->db->prepare($deleteQuery);
@@ -410,7 +410,7 @@ class Category
                 }
             }
 
-            // Delete the main category
+
             $deleteQuery = 'DELETE FROM categories_nested WHERE category_id = ?';
             $deleteStmt = $this->db->prepare($deleteQuery);
 
@@ -507,15 +507,15 @@ class Category
 
     public function getAllDescendantIds(int $categoryId): array
     {
-        // Get the category itself first
+
         $category = $this->findById($categoryId);
         if (!$category) {
             return [];
         }
 
-        $ids = [$categoryId]; // Include the category itself
+        $ids = [$categoryId];
 
-        // Get all descendants using the path
+
         $query = "SELECT category_id FROM categories_nested WHERE path LIKE ? AND is_active = 1";
         $stmt = $this->db->prepare($query);
 
@@ -544,7 +544,7 @@ class Category
             return false;
         }
 
-        // Check if new parent exists (if not null)
+
         $newLevel = 0;
         $newPath = '/' . $categoryId . '/';
 
@@ -555,7 +555,7 @@ class Category
                 return false;
             }
 
-            // Prevent moving to a descendant
+
             $descendants = $this->getDescendants($categoryId);
             foreach ($descendants as $desc) {
                 if ($desc['category_id'] == $newParentId) {
@@ -567,18 +567,18 @@ class Category
             $newLevel = $newParent['level'] + 1;
             $newPath = $newParent['path'] . $categoryId . '/';
 
-            // Check max level
+
             if ($newLevel > $this->maxLevel) {
                 error_log("Maximum nesting level would be exceeded");
                 return false;
             }
         }
 
-        // Update the category and all its descendants
+
         $this->db->begin_transaction();
 
         try {
-            // Update the category itself
+
             $updateQuery = 'UPDATE categories_nested SET parent_id = ?, level = ?, path = ? WHERE category_id = ?';
             $stmt = $this->db->prepare($updateQuery);
             $stmt->bind_param('iisi', $newParentId, $newLevel, $newPath, $categoryId);
@@ -587,7 +587,7 @@ class Category
                 throw new Exception("Failed to update category");
             }
 
-            // Update all descendants
+
             $this->updateDescendantPaths($categoryId, $newPath, $newLevel);
 
             $this->db->commit();
@@ -614,7 +614,7 @@ class Category
             $stmt->bind_param('isi', $childLevel, $childPath, $childId);
             $stmt->execute();
 
-            // Recursively update descendants
+
             $this->updateDescendantPaths($childId, $childPath, $childLevel);
         }
     }

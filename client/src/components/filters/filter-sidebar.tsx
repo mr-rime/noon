@@ -43,12 +43,12 @@ export default function FilterSidebar({
     condition: []
   })
 
-  // Parse filters from URL params on mount
+
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search)
     const urlCategories = searchParams.get('categories')?.split(',').map(Number).filter(Boolean) || []
 
-    // If currentCategoryId is provided and not in URL categories, include it
+
     const categories = currentCategoryId && !urlCategories.includes(currentCategoryId)
       ? [...urlCategories, currentCategoryId]
       : urlCategories
@@ -68,12 +68,12 @@ export default function FilterSidebar({
     setFilters(newFilters)
   }, [location.search, currentCategoryId])
 
-  // Update URL params when filters change
+
   const updateFilters = (newFilters: Partial<FilterState>) => {
     const updated = { ...filters, ...newFilters }
     setFilters(updated)
 
-    // Update URL params
+
     const params = new URLSearchParams(location.search)
 
     if (updated.categories.length > 0) {
@@ -107,7 +107,7 @@ export default function FilterSidebar({
       params.set('condition', updated.condition.join(','))
     }
 
-    // Navigate with updated search params
+
     window.history.replaceState(null, '', `${location.pathname}?${params.toString()}`)
     onFiltersChange?.(updated)
   }
@@ -141,7 +141,7 @@ export default function FilterSidebar({
     updateFilters({ minRating: rating })
   }
 
-  // Sample sellers data (would come from API in real app)
+
   const sellers = [
     { id: 1, name: 'Cover Line', productCount: 45 },
     { id: 2, name: 'Beauty store', productCount: 32 },

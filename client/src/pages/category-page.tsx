@@ -80,10 +80,10 @@ export default function CategoryPage() {
   const [page, setPage] = useState(1)
   const limit = 20
 
-  // Determine if this is a nested path or single slug
+
   const isNestedPath = categoryPath.includes('/')
 
-  // Get category info using appropriate query
+
   const queryToUse = isNestedPath ? GET_CATEGORY_BY_NESTED_PATH : GET_CATEGORY_BY_SLUG
   const variables = isNestedPath ? { path: categoryPath } : { slug: categoryPath }
 
@@ -98,7 +98,7 @@ export default function CategoryPage() {
   const category = categoryData?.getCategoryByNestedPath?.category ||
     categoryData?.getCategoryBySlug?.category
 
-  // Get filtered products
+
   const { data: productsData, loading: productsLoading } = useQuery(GET_FILTERED_PRODUCTS, {
     skip: !category,
     variables: {

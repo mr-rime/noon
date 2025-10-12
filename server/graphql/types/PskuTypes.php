@@ -5,11 +5,11 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 
 
-// Forward declaration for recursive type
+
 $CategoryType = null;
 $SubcategoryType = null;
 
-// Define SubcategoryType for backward compatibility
+
 $SubcategoryType = new ObjectType([
     'name' => 'Subcategory',
     'fields' => [
@@ -26,7 +26,7 @@ $SubcategoryType = new ObjectType([
 
 $CategoryType = new ObjectType([
     'name' => 'Category',
-    'fields' => function() use (&$CategoryType, $SubcategoryType) {
+    'fields' => function () use (&$CategoryType, $SubcategoryType) {
         return [
             'category_id' => Type::int(),
             'parent_id' => Type::int(),
@@ -42,7 +42,7 @@ $CategoryType = new ObjectType([
             'created_at' => Type::string(),
             'updated_at' => Type::string(),
             'children' => Type::listOf($CategoryType),
-            'subcategories' => Type::listOf($SubcategoryType), // Backward compatibility
+            'subcategories' => Type::listOf($SubcategoryType),
             'product_count' => Type::int()
         ];
     }

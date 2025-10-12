@@ -6,16 +6,16 @@ require_once __DIR__ . '/../../models/Brand.php';
 require_once __DIR__ . '/../../models/ProductGroup.php';
 require_once __DIR__ . '/../../models/Product.php';
 
-// Helper function to recursively map children to subcategories for backward compatibility
+
 function mapChildrenToSubcategories(&$category)
 {
     if (isset($category['children']) && is_array($category['children'])) {
-        // First, recursively process all children
+
         foreach ($category['children'] as &$child) {
             mapChildrenToSubcategories($child);
         }
 
-        // Then map to subcategories structure
+
         $category['subcategories'] = array_map(function ($child) {
             return [
                 'subcategory_id' => $child['category_id'],
@@ -47,7 +47,7 @@ function getCategories(mysqli $db, ?int $parentId = null, bool $includeChildren 
             $categories = $categoryModel->findByParentId($parentId);
         }
 
-        // Add product count and backward compatibility for each category
+
         foreach ($categories as &$category) {
             $countQuery = "SELECT COUNT(*) as count FROM products WHERE category_id = ?";
             $stmt = $db->prepare($countQuery);
@@ -57,7 +57,7 @@ function getCategories(mysqli $db, ?int $parentId = null, bool $includeChildren 
             $count = $result->fetch_assoc();
             $category['product_count'] = $count['count'] ?? 0;
 
-            // Map children to subcategories for backward compatibility
+
             mapChildrenToSubcategories($category);
         }
 
@@ -91,7 +91,7 @@ function getCategory(mysqli $db, int $id, bool $includeChildren = false): array
             ];
         }
 
-        // Map children to subcategories for backward compatibility
+
         mapChildrenToSubcategories($category);
 
         return [
@@ -234,7 +234,7 @@ function getCategoryBySlug(mysqli $db, string $slug, bool $includeChildren = tru
             ];
         }
 
-        // Add product count
+
         $countQuery = "SELECT COUNT(*) as count FROM products WHERE category_id = ?";
         $stmt = $db->prepare($countQuery);
         $stmt->bind_param('i', $category['category_id']);
@@ -243,7 +243,7 @@ function getCategoryBySlug(mysqli $db, string $slug, bool $includeChildren = tru
         $count = $result->fetch_assoc();
         $category['product_count'] = $count['count'] ?? 0;
 
-        // Map children to subcategories for backward compatibility
+
         mapChildrenToSubcategories($category);
 
         return [
@@ -276,7 +276,7 @@ function getCategoryByNestedPath(mysqli $db, string $path, bool $includeChildren
             ];
         }
 
-        // Add product count
+
         $countQuery = "SELECT COUNT(*) as count FROM products WHERE category_id = ?";
         $stmt = $db->prepare($countQuery);
         $stmt->bind_param('i', $category['category_id']);
@@ -285,7 +285,7 @@ function getCategoryByNestedPath(mysqli $db, string $path, bool $includeChildren
         $count = $result->fetch_assoc();
         $category['product_count'] = $count['count'] ?? 0;
 
-        // Map children to subcategories for backward compatibility
+
         mapChildrenToSubcategories($category);
 
         return [
@@ -336,23 +336,23 @@ function getSubcategories(mysqli $db, ?int $categoryId = null, string $search = 
         $categoryModel = new Category($db);
 
         if ($categoryId) {
-            // Get subcategories (children) of the specified category
+
             $subcategories = $categoryModel->findByParentId($categoryId);
         } elseif (!empty($search)) {
-            // Search all categories that have a parent (are subcategories)
+
             $allCategories = $categoryModel->search($search);
             $subcategories = array_filter($allCategories, function ($category) {
                 return $category['parent_id'] !== null;
             });
         } else {
-            // Get all categories that have a parent (are subcategories)
+
             $allCategories = $categoryModel->findAll();
             $subcategories = array_filter($allCategories, function ($category) {
                 return $category['parent_id'] !== null;
             });
         }
 
-        // Map nested categories to subcategory format for backward compatibility
+
         $mappedSubcategories = array_map(function ($category) {
             return [
                 'subcategory_id' => $category['category_id'],
@@ -386,9 +386,9 @@ function createSubcategory(mysqli $db, array $input): array
     $categoryModel = new Category($db);
 
     try {
-        // Map subcategory input to nested category structure
+
         $categoryData = [
-            'parent_id' => $input['category_id'], // Use category_id as parent_id
+            'parent_id' => $input['category_id'],
             'name' => $input['name'],
             'slug' => $input['slug'],
             'description' => $input['description'] ?? null,
@@ -408,7 +408,7 @@ function createSubcategory(mysqli $db, array $input): array
             ];
         }
 
-        // Map the nested category response back to subcategory format for backward compatibility
+
         $subcategory = [
             'subcategory_id' => $category['category_id'],
             'category_id' => $category['parent_id'],
@@ -440,7 +440,7 @@ function updateSubcategory(mysqli $db, int $id, array $input): array
     $categoryModel = new Category($db);
 
     try {
-        // Map subcategory input to nested category structure
+
         $categoryData = [];
 
         if (isset($input['name'])) {
@@ -466,7 +466,7 @@ function updateSubcategory(mysqli $db, int $id, array $input): array
             ];
         }
 
-        // Map the nested category response back to subcategory format for backward compatibility
+
         $subcategory = [
             'subcategory_id' => $category['category_id'],
             'category_id' => $category['parent_id'],

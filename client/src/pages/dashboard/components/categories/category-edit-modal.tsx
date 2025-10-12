@@ -37,7 +37,7 @@ export function CategoryEditModal({ category, parentCategory, isCreating, onClos
                 parent_id: category.parent_id || null
             })
         } else if (parentCategory && isCreating) {
-            // When creating a subcategory, set the parent_id
+
             setFormData(prev => ({
                 ...prev,
                 parent_id: parentCategory.category_id

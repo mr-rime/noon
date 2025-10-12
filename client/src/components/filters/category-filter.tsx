@@ -77,7 +77,7 @@ function CategoryTreeItem({
   const hasChildren = category.children !== undefined
   const isSelected = selectedCategories.includes(category.category_id)
 
-  // Auto-expand if this category contains the current category
+
   useEffect(() => {
     if (currentCategoryId && hasChildren) {
       const containsCurrentCategory = (cat: Category): boolean => {
@@ -167,7 +167,7 @@ export default function CategoryFilter({
 }: CategoryFilterProps) {
   const [isOpen, setIsOpen] = useState(true)
 
-  // Always get root categories to show full tree
+
   const { data, loading } = useQuery(GET_CATEGORY_TREE, {
     variables: { parentId: null }
   })

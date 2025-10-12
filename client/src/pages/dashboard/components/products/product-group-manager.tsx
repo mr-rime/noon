@@ -6,7 +6,7 @@ import { Badge } from '../ui/badge'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
 import { ChevronDown, ChevronUp, Trash2, Package, X, Edit, Grid, Search, ArrowLeft, Loader2 } from 'lucide-react'
-import { GET_PRODUCT_GROUPS, CREATE_PRODUCT_GROUP, UPDATE_PRODUCT_GROUP, ADD_PRODUCT_TO_GROUP, CREATE_PSKU_PRODUCT, REMOVE_PRODUCT_FROM_GROUP } from '@/graphql/psku'
+import { GET_PRODUCT_GROUPS, CREATE_PRODUCT_GROUP, UPDATE_PRODUCT_GROUP, ADD_PRODUCT_TO_GROUP, CREATE_PSKU_PRODUCT, REMOVE_PRODUCT_FROM_GROUP, DELETE_PRODUCT_GROUP } from '@/graphql/psku'
 import { GET_PRODUCTS, UPDATE_PRODUCT } from '@/graphql/product'
 import type { ProductType, ProductGroup } from '@/types'
 import { Link } from '@tanstack/react-router'
@@ -39,8 +39,10 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
     const [isCreatingPsku, setIsCreatingPsku] = useState(false)
     const [isSavingGroup, setIsSavingGroup] = useState(false)
     const [isDeletingProduct, setIsDeletingProduct] = useState(false)
+    const [showDeleteGroupConfirm, setShowDeleteGroupConfirm] = useState(false)
+    const [isDeletingGroup, setIsDeletingGroup] = useState(false)
 
-    // Queries
+
     const { data: groupsData, refetch: refetchGroups } = useQuery(GET_PRODUCT_GROUPS, {
         variables: { category_id: product.category_id },
         skip: !product.category_id
@@ -51,16 +53,16 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
         skip: !showAddExisting
     })
 
-    // Filter products to exclude those already in the current group
+
     const availableProducts = productsData?.getProducts?.products?.filter((prod: any) => {
-        // Exclude current product
+
         if (prod.id === product.id) return false
 
-        // Exclude products already in the group
+
         const isInGroup = groupProducts.some((gp: any) => gp.id === prod.id)
         if (isInGroup) return false
 
-        // Show all products (with or without PSKUs) - PSKUs can be assigned later
+
         return true
     }) || []
 
@@ -68,7 +70,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
 
     useEffect(() => {
         if (currentGroup) {
-            // Parse attributes if they're stored as JSON string
+
             let attributes = []
             try {
                 attributes = typeof currentGroup.attributes === 'string'
@@ -81,18 +83,18 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
         }
     }, [currentGroup])
 
-    // Initialize editable attributes when modal opens
+
     useEffect(() => {
         if (showGroupModal && currentGroup) {
             const attrs: Record<string, Record<string, string>> = {}
 
-            // Current product
+
             attrs[product.id] = {}
             product.productAttributes?.forEach(attr => {
                 attrs[product.id][attr.attribute_name] = attr.attribute_value
             })
 
-            // Group products
+
             groupProducts.forEach(gp => {
                 attrs[gp.id] = {}
                 gp.productAttributes?.forEach((attr: any) => {
@@ -105,9 +107,9 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
     }, [showGroupModal, currentGroup, product, groupProducts])
 
     useEffect(() => {
-        // Load group products
+
         if (product.groupProducts && product.groupProducts.length > 0) {
-            // Convert to full product objects if needed
+
             setGroupProducts(product.groupProducts.map((p: any) =>
                 typeof p === 'string' ? { id: p } : p
             ))
@@ -116,12 +118,13 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
 
     const [createGroup] = useMutation(CREATE_PRODUCT_GROUP)
     const [updateGroup] = useMutation(UPDATE_PRODUCT_GROUP)
+    const [deleteGroup] = useMutation(DELETE_PRODUCT_GROUP)
     const [addProductToGroup] = useMutation(ADD_PRODUCT_TO_GROUP)
     const [createPskuProduct] = useMutation(CREATE_PSKU_PRODUCT)
     const [updateProduct] = useMutation(UPDATE_PRODUCT)
     const [removeProductFromGroup] = useMutation(REMOVE_PRODUCT_FROM_GROUP)
 
-    // PSKU validation
+
     const validatePsku = async (psku: string) => {
         if (!psku.trim()) {
             setPskuValidationMessage('')
@@ -131,7 +134,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
         setIsValidatingPsku(true)
 
         try {
-            // Use the same GraphQL endpoint as Apollo Client
+
             const isDashboard = window.location.hostname === 'dashboard.localhost'
             const graphqlUrl = isDashboard
                 ? 'http://dashboard.localhost:8000/graphql'
@@ -155,7 +158,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
             const data = await response.json()
             console.log('PSKU validation response for:', psku.trim(), data)
 
-            // Check for GraphQL errors
+
             if (data.errors) {
                 console.error('GraphQL errors:', data.errors)
                 setPskuValidationMessage('Error validating PSKU: ' + data.errors[0]?.message)
@@ -201,7 +204,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
 
     const handleCloseModal = () => {
         setShowGroupModal(false)
-        // Reset form if creating new group
+
         if (!currentGroup) {
             setNewGroupName('')
             setNewGroupDescription('')
@@ -213,7 +216,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
     const handleSaveGroup = async () => {
         setIsSavingGroup(true)
 
-        // Create new group
+
         if (!currentGroup) {
             if (!newGroupName.trim()) {
                 toast.error('Group name is required')
@@ -222,13 +225,15 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
             }
 
             try {
+
+                toast.loading('Creating group...', { id: 'create-group' })
+
                 const { data } = await createGroup({
                     variables: {
                         input: {
                             name: newGroupName.trim(),
                             description: newGroupDescription.trim() || null,
                             category_id: product.category_id,
-                            subcategory_id: product.subcategory_id,
                             brand_id: product.brand_id,
                             attributes: groupAxes
                         }
@@ -238,7 +243,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 if (data?.createProductGroup?.success) {
                     const newGroupId = data.createProductGroup.group.group_id
 
-                    // Add current product to the new group
+
                     await addProductToGroup({
                         variables: {
                             product_id: product.id,
@@ -246,7 +251,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                         }
                     })
 
-                    toast.success('Group created successfully!')
+                    toast.success('Group created successfully!', { id: 'create-group' })
                     setShowGroupModal(false)
                     setNewGroupName('')
                     setNewGroupDescription('')
@@ -254,20 +259,20 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                     refetchGroups()
                     onGroupUpdate?.()
                 } else {
-                    toast.error(data?.createProductGroup?.message || 'Failed to create group')
+                    toast.error(data?.createProductGroup?.message || 'Failed to create group', { id: 'create-group' })
                 }
             } catch (error) {
                 console.error('Error creating group:', error)
-                toast.error('An error occurred while creating the group')
+                toast.error('An error occurred while creating the group', { id: 'create-group' })
             } finally {
                 setIsSavingGroup(false)
             }
             return
         }
 
-        // Update existing group (axes and product attributes)
+
         try {
-            // Update group axes
+
             const { data } = await updateGroup({
                 variables: {
                     groupId: currentGroup.group_id,
@@ -280,11 +285,11 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 return
             }
 
-            // Update product attributes for all products
+
             const productIds = [product.id, ...groupProducts.map(p => p.id)]
             const updatePromises = productIds.map(async (productId) => {
                 const attributes = editableAttributes[productId] || {}
-                // Only include attributes that match current axes
+
                 const productAttributes = Object.entries(attributes)
                     .filter(([name]) => groupAxes.includes(name))
                     .map(([name, value]) => ({
@@ -339,7 +344,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
         }
 
         try {
-            // Add each selected product to the group
+
             const addPromises = selectedProducts.map(productId =>
                 addProductToGroup({
                     variables: {
@@ -362,7 +367,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
     }
 
     const handleGeneratePSKU = () => {
-        // Generate a random PSKU
+
         const timestamp = Date.now().toString(36)
         const random = Math.random().toString(36).substring(2, 15)
         setNewPsku(`PSKU_${timestamp}${random}`.toUpperCase())
@@ -378,7 +383,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
 
         setIsDeletingProduct(true)
 
-        // Optimistically remove from UI
+
         const productToRemove = productToDelete
         setGroupProducts(prev => prev.filter(p => p.id !== productToRemove.id))
 
@@ -391,7 +396,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 toast.success(`Product removed from group successfully!`)
                 onGroupUpdate?.()
             } else {
-                // Restore product on failure
+
                 setGroupProducts(prev => {
                     const existingProduct = groupProducts.find(p => p.id === productToRemove.id)
                     return existingProduct ? [...prev, existingProduct] : prev
@@ -399,7 +404,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 toast.error(data?.updateProduct?.message || 'Failed to remove product from group')
             }
         } catch (error) {
-            // Restore product on error
+
             setGroupProducts(prev => {
                 const existingProduct = groupProducts.find(p => p.id === productToRemove.id)
                 return existingProduct ? [...prev, existingProduct] : prev
@@ -410,6 +415,78 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
             setIsDeletingProduct(false)
             setShowDeleteConfirm(false)
             setProductToDelete(null)
+        }
+    }
+
+    const handleDeleteGroup = () => {
+        if (!currentGroup) return
+        setShowDeleteGroupConfirm(true)
+    }
+
+    const confirmDeleteGroup = async () => {
+        if (!currentGroup) return
+
+        setIsDeletingGroup(true)
+
+        try {
+
+            toast.loading('Deleting group...', { id: 'delete-group' })
+
+
+            setShowGroupModal(false)
+
+            const { data } = await deleteGroup({
+                variables: { groupId: currentGroup.group_id },
+                optimisticResponse: {
+                    deleteProductGroup: {
+                        __typename: 'ProductGroupResponse',
+                        success: true,
+                        message: 'Deleting group...'
+                    }
+                },
+                update: (cache, { data }) => {
+                    if (data?.deleteProductGroup?.success) {
+
+                        const existingGroups = cache.readQuery({
+                            query: GET_PRODUCT_GROUPS,
+                            variables: { category_id: product.category_id }
+                        }) as any
+
+                        if (existingGroups?.getProductGroups) {
+                            cache.writeQuery({
+                                query: GET_PRODUCT_GROUPS,
+                                variables: { category_id: product.category_id },
+                                data: {
+                                    getProductGroups: {
+                                        ...existingGroups.getProductGroups,
+                                        groups: existingGroups.getProductGroups.groups.filter(
+                                            (group: any) => group.group_id !== currentGroup.group_id
+                                        )
+                                    }
+                                }
+                            })
+                        }
+                    }
+                }
+            })
+
+            if (data?.deleteProductGroup?.success) {
+                toast.success('Product group deleted successfully!', { id: 'delete-group' })
+                onGroupUpdate?.()
+            } else {
+
+                setShowGroupModal(true)
+                toast.error(data?.deleteProductGroup?.message || 'Failed to delete product group', { id: 'delete-group' })
+            }
+        } catch (error) {
+            console.error('Error deleting product group:', error)
+            toast.error('An error occurred while deleting the product group', { id: 'delete-group' })
+
+            setShowGroupModal(true)
+
+        } finally {
+            setIsDeletingGroup(false)
+            setShowDeleteGroupConfirm(false)
         }
     }
 
@@ -424,7 +501,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
             return
         }
 
-        // Validate PSKU before creating
+
         const isValid = await validatePsku(newPsku.trim())
         if (!isValid) {
             toast.error('PSKU already exists. Please choose a different one.')
@@ -433,7 +510,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
 
         setIsCreatingPsku(true)
 
-        // Create optimistic product for immediate UI feedback
+
         const optimisticProduct = {
             id: `temp-${Date.now()}`,
             name: `Product ${newPsku}`,
@@ -441,10 +518,10 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
             price: product.price,
             currency: product.currency,
             group_id: currentGroup.group_id,
-            is_temp: true // Mark as temporary
+            is_temp: true
         }
 
-        // Add to UI immediately
+
         setGroupProducts(prev => [...prev, optimisticProduct])
 
         try {
@@ -483,25 +560,25 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                     setNewPsku('')
                     setPskuValidationMessage('')
 
-                    // Replace optimistic product with real data
+
                     setGroupProducts(prev =>
                         prev.map(p => p.id === optimisticProduct.id ? realProduct : p)
                     )
 
                     onGroupUpdate?.()
                 } else {
-                    // Remove optimistic product on failure
+
                     setGroupProducts(prev => prev.filter(p => p.id !== optimisticProduct.id))
                     console.error('Product creation succeeded but product data is null:', data)
                     toast.error('Product was created but failed to retrieve data. Please refresh the page.')
                 }
             } else {
-                // Remove optimistic product on failure
+
                 setGroupProducts(prev => prev.filter(p => p.id !== optimisticProduct.id))
                 toast.error(data?.createProduct?.message || 'Failed to create Partner SKU')
             }
         } catch (error) {
-            // Remove optimistic product on error
+
             setGroupProducts(prev => prev.filter(p => p.id !== optimisticProduct.id))
             console.error('Error creating Partner SKU:', error)
             toast.error('An error occurred while creating the Partner SKU')
@@ -714,7 +791,12 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                         <div className="border-b px-6 py-4 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <h2 className="text-lg font-semibold">{currentGroup?.name}</h2>
-                                <Button variant="ghost" size="sm">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={handleDeleteGroup}
+                                    title="Delete group"
+                                >
                                     <Trash2 className="h-4 w-4 text-red-600" />
                                 </Button>
                                 <Button variant="ghost" size="sm">
@@ -1084,7 +1166,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                     value={newPsku}
                                     onChange={(e) => {
                                         setNewPsku(e.target.value)
-                                        // Debounce validation
+
                                         setTimeout(() => validatePsku(e.target.value), 500)
                                     }}
                                     placeholder="Enter or generate PSKU"
@@ -1166,6 +1248,49 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                 >
                                     {isDeletingProduct && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                                     Remove Product
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Group Confirmation Modal */}
+            {showDeleteGroupConfirm && currentGroup && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+                        <div className="p-6">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                                    <Trash2 className="h-6 w-6 text-red-600" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900">Delete Product Group</h3>
+                                    <p className="text-sm text-gray-500">This action cannot be undone</p>
+                                </div>
+                            </div>
+
+                            <p className="text-gray-700 mb-6">
+                                Are you sure you want to delete the product group <strong>"{currentGroup.name}"</strong>? This will remove all products from the group.
+                            </p>
+
+                            <div className="flex gap-3 justify-end">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        setShowDeleteGroupConfirm(false)
+                                    }}
+                                    disabled={isDeletingGroup}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    variant="destructive"
+                                    onClick={confirmDeleteGroup}
+                                    disabled={isDeletingGroup}
+                                >
+                                    {isDeletingGroup && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                                    Delete Group
                                 </Button>
                             </div>
                         </div>

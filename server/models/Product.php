@@ -86,7 +86,7 @@ class Product
 
     private function generateSlug(string $name): string
     {
-        // Simple slug generation - you can make this more sophisticated
+
         return strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name), '-'));
     }
 
@@ -127,16 +127,16 @@ class Product
         $params = [];
         $types = '';
 
-        // Search condition
+
         if (!empty(trim($search))) {
             $conditions[] = "(name LIKE CONCAT('%', ?, '%') OR product_overview LIKE CONCAT('%', ?, '%') OR psku LIKE CONCAT('%', ?, '%'))";
             $params = array_merge($params, [$search, $search, $search]);
             $types .= 'sss';
         }
 
-        // Category filter - include products from subcategories
+
         if ($categoryId !== null) {
-            // Get all descendant category IDs (including the category itself)
+
             $categoryModel = new Category($this->db);
             $descendantIds = $categoryModel->getAllDescendantIds($categoryId);
 
@@ -146,14 +146,14 @@ class Product
                 $params = array_merge($params, $descendantIds);
                 $types .= str_repeat('i', count($descendantIds));
             } else {
-                // Fallback to original behavior if no descendants found
+
                 $conditions[] = "category_id = ?";
                 $params[] = $categoryId;
                 $types .= 'i';
             }
         }
 
-        // Brand filter
+
         if (!empty($brands)) {
             $placeholders = implode(',', array_fill(0, count($brands), '?'));
             $conditions[] = "brand_id IN ($placeholders)";
@@ -161,7 +161,7 @@ class Product
             $types .= str_repeat('i', count($brands));
         }
 
-        // Price range filter
+
         if ($minPrice !== null) {
             $conditions[] = "price >= ?";
             $params[] = $minPrice;
@@ -173,12 +173,12 @@ class Product
             $types .= 'd';
         }
 
-        // Rating filter (placeholder for now since we don't have rating data)
-        // if ($minRating !== null) {
-        //     $conditions[] = "rating >= ?";
-        //     $params[] = $minRating;
-        //     $types .= 'd';
-        // }
+
+
+
+
+
+
 
         $where = empty($conditions) ? '' : 'WHERE ' . implode(' AND ', $conditions);
 
@@ -293,8 +293,8 @@ class Product
                 'brand' => [
                     'name' => $row['brand_name']
                 ],
-                'rating' => 4.5, // Placeholder - you can implement actual rating logic
-                'review_count' => 0, // Placeholder - you can implement actual review count logic
+                'rating' => 4.5,
+                'review_count' => 0,
                 'created_at' => $row['created_at'],
                 'updated_at' => $row['updated_at'],
                 'is_in_wishlist' => (bool) ($row['is_in_wishlist'] ?? 0),
@@ -792,7 +792,7 @@ class Product
             error_log("Product created with ID: $hash but findById returned null");
             error_log("Query might be failing. Check database state for product ID: $hash");
 
-            // Try to fetch the product directly to debug
+
             $debugQuery = "SELECT * FROM products WHERE id = ?";
             $debugStmt = $this->db->prepare($debugQuery);
             if ($debugStmt) {

@@ -55,7 +55,7 @@ export default function CategoryTree({
         const hasChildren = category.children && category.children.length > 0
         const isExpanded = expandedCategories.has(category.category_id)
         const categoryPath = buildCategoryPath(category, parentPath)
-        const indentLevel = depth * 16 // 16px per level
+        const indentLevel = depth * 16
 
         return (
             <div key={category.category_id} className="category-tree-item">
@@ -128,7 +128,7 @@ export default function CategoryTree({
     )
 }
 
-// Alternative Grid Layout Component for Subcategories
+
 interface CategoryGridProps {
     categories: Category[]
     currentPath: string

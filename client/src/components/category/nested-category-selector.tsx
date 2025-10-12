@@ -13,7 +13,7 @@ interface Category {
     path: string
     is_active: boolean
     children?: Category[]
-    subcategories?: Subcategory[] // For backward compatibility
+    subcategories?: Subcategory[]
 }
 
 interface Subcategory {
@@ -90,7 +90,7 @@ function CategoryItem({
                 )}
 
                 {!hasChildren && (
-                    <div className="w-4 h-4" /> // Spacer for alignment
+                    <div className="w-4 h-4" />
                 )}
 
                 <div className="flex items-center gap-2 flex-1">
@@ -168,12 +168,12 @@ export function NestedCategorySelector({
 }: NestedCategorySelectorProps) {
     const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set())
 
-    // Expand root categories by default when categories change
+
     useEffect(() => {
         if (categories.length > 0) {
             const rootCategoryIds = categories.map(cat => cat.category_id)
             setExpandedCategories(new Set(rootCategoryIds))
-            // Debug: Log the categories structure
+
             console.log('Categories loaded:', categories)
         }
     }, [categories])
@@ -191,12 +191,12 @@ export function NestedCategorySelector({
     const getCategoryPath = (selectedCategory: Category): string => {
         if (!selectedCategory) return ""
 
-        // Build path from root to selected category
+
         const pathParts: string[] = []
         const current = selectedCategory
 
-        // For now, we'll build a simple path
-        // In a full implementation, you'd traverse up the tree
+
+
         pathParts.push(current.name)
 
         return pathParts.join(" → ")

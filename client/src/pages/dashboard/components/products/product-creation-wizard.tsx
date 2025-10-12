@@ -41,7 +41,7 @@ interface Category {
     path: string
     is_active: boolean
     children?: Category[]
-    subcategories?: Subcategory[] // For backward compatibility
+    subcategories?: Subcategory[]
 }
 
 interface Subcategory {

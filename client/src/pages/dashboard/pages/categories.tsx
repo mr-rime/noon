@@ -111,7 +111,7 @@ export default function Categories() {
 
     const categories = data?.getCategories?.categories || []
 
-    // Calculate total count including nested categories
+
     const getTotalCategoryCount = (categories: Category[]): number => {
         let count = categories.length
         categories.forEach(category => {

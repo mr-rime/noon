@@ -69,7 +69,7 @@ export default function DashboardCategoryTree({
     const renderCategory = (category: Category, depth: number = 0): React.ReactElement => {
         const hasChildren = (category.children && category.children.length > 0) || (category.subcategories && category.subcategories.length > 0)
         const isExpanded = expandedCategories.has(category.category_id)
-        const indentLevel = depth * 20 // 20px per level
+        const indentLevel = depth * 20
 
         return (
             <div key={category.category_id} className="category-tree-item">

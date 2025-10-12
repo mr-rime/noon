@@ -5,7 +5,7 @@ import CategoryCarousel from '../components/category/category-carousel'
 import CategoryTree, { CategoryGrid } from '../components/category/category-tree'
 import { GET_CATEGORIES } from '../graphql/category'
 
-// Category interface is defined in the category-tree component
+
 
 export default function CategoriesOverview() {
     const [searchTerm, setSearchTerm] = useState('')
@@ -75,8 +75,8 @@ export default function CategoriesOverview() {
                                 <button
                                     onClick={() => setViewMode('grid')}
                                     className={`flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors ${viewMode === 'grid'
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-white text-gray-700 hover:bg-gray-50'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-white text-gray-700 hover:bg-gray-50'
                                         }`}
                                 >
                                     <Grid3X3 className="h-4 w-4" />
@@ -85,8 +85,8 @@ export default function CategoriesOverview() {
                                 <button
                                     onClick={() => setViewMode('tree')}
                                     className={`flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors ${viewMode === 'tree'
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-white text-gray-700 hover:bg-gray-50'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-white text-gray-700 hover:bg-gray-50'
                                         }`}
                                 >
                                     <List className="h-4 w-4" />
