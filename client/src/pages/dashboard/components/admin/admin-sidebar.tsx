@@ -4,7 +4,6 @@ import {
     Package,
     Megaphone,
     ShoppingCart,
-    BarChart3,
     Settings,
     ChevronDown,
     ChevronRight,
@@ -54,11 +53,11 @@ const navigation = [
     //     url: "/customers",
     //     icon: Users,
     // },
-    {
-        title: "Reports & Analytics",
-        url: "/analytics",
-        icon: BarChart3,
-    },
+    // {
+    //     title: "Reports & Analytics",
+    //     url: "/analytics",
+    //     icon: BarChart3,
+    // },
     {
         title: "Settings",
         url: "/settings",
