@@ -215,11 +215,6 @@ function updateProduct(mysqli $db, array $args): array
 }
 
 
-/**
- * Generate Cartesian product of option groups into list of option combinations.
- * Each option group: ['name' => string, 'values' => string[]]
- * Returns array of combinations, each combination is an array of ['name' => ..., 'value' => ...]
- */
 function generateOptionCombinations(array $optionGroups): array
 {
     $result = [[]];

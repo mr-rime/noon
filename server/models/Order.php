@@ -315,6 +315,91 @@ class Order
         }
     }
 
+    public function updateByStringId(string $id, array $data): bool
+    {
+
+        $validator = v::create();
+
+        if (isset($data['status'])) {
+            $validator = $validator->key('status', v::stringType()->oneOf(
+                v::equals('placed'),
+                v::equals('processing'),
+                v::equals('confirmed'),
+                v::equals('dispatched'),
+                v::equals('delivered'),
+                v::equals('cancelled')
+            ));
+        }
+
+        if (isset($data['payment_status'])) {
+            $validator = $validator->key('payment_status', v::stringType()->oneOf(
+                v::equals('unpaid'),
+                v::equals('paid'),
+                v::equals('refunded')
+            ));
+        }
+
+        try {
+            if (isset($data['status']) || isset($data['payment_status'])) {
+                $validator->assert($data);
+            }
+        } catch (ValidationException $e) {
+            error_log("Validation failed: " . $e->getMessage());
+            return false;
+        }
+
+        $this->db->begin_transaction();
+
+        try {
+
+            $fields = [];
+            $values = [];
+            $types = '';
+
+            if (isset($data['status'])) {
+                $fields[] = 'status = ?';
+                $values[] = $data['status'];
+                $types .= 's';
+            }
+
+            if (isset($data['payment_status'])) {
+                $fields[] = 'payment_status = ?';
+                $values[] = $data['payment_status'];
+                $types .= 's';
+            }
+
+            if (empty($fields)) {
+                $this->db->rollback();
+                return false;
+            }
+
+            $fields[] = 'updated_at = CURRENT_TIMESTAMP';
+            $values[] = $id;
+            $types .= 's';
+
+            $query = 'UPDATE orders SET ' . implode(', ', $fields) . ' WHERE id = ?';
+            $stmt = $this->db->prepare($query);
+
+            if (!$stmt) {
+                error_log("Prepare failed: " . $this->db->error);
+                $this->db->rollback();
+                return false;
+            }
+
+            $stmt->bind_param($types, ...$values);
+            $stmt->execute();
+            $stmt->close();
+
+            $this->db->commit();
+            return true;
+
+        } catch (Exception $e) {
+            $this->db->rollback();
+            error_log("Order update failed: " . $e->getMessage());
+            return false;
+        }
+    }
+
     public function delete(int $id): bool
     {
         $query = 'DELETE FROM orders WHERE id = ?';
@@ -330,9 +415,6 @@ class Order
         return $stmt->execute();
     }
 
-    /**
-     * Get orders by user ID
-     */
     public function getByUserId(int $userId, int $limit = 10, int $offset = 0): array
     {
         $query = "
@@ -391,9 +473,6 @@ class Order
         return $orders;
     }
 
-    /**
-     * Get order with items by order ID
-     */
     public function getOrderWithItems(string $orderId): ?array
     {
 
@@ -441,9 +520,6 @@ class Order
         return $order;
     }
 
-    /**
-     * Update order status
-     */
     public function updateStatus(string $orderId, string $status, ?string $paymentStatus = null): bool
     {
         $query = 'UPDATE orders SET status = ?, updated_at = CURRENT_TIMESTAMP';
@@ -473,9 +549,6 @@ class Order
         return $result;
     }
 
-    /**
-     * Get order by ID (string version)
-     */
     public function findByIdString(string $id): ?array
     {
         $query = 'SELECT * FROM orders WHERE id = ? LIMIT 1';

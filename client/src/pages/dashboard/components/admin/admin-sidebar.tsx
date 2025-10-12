@@ -46,7 +46,6 @@ const navigation = [
         icon: ShoppingCart,
         items: [
             { title: "All Orders", url: "/d/orders" },
-            { title: "Delivery Management", url: "/delivery" },
             { title: "Tracking", url: "/d/tracking" },
             { title: "Returns", url: "/returns" },
         ],

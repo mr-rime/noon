@@ -118,7 +118,7 @@ function getUserOrders(mysqli $db, array $args)
         $orderModel = new Order($db);
         $orders = $orderModel->getByUserId($userId, $limit, $offset);
 
-        // Add tracking information to each order
+
         $trackingModel = new TrackingDetails($db);
         foreach ($orders as &$order) {
             $tracking = $trackingModel->getByOrderId($order['id']);
@@ -346,7 +346,7 @@ function getAllOrders(mysqli $db, array $args)
             }
             unset($order['items_json']);
 
-            // Add tracking information to each order
+
             $trackingModel = new TrackingDetails($db);
             $tracking = $trackingModel->getByOrderId($order['id']);
             $order['tracking'] = $tracking;
@@ -426,25 +426,32 @@ function updateTrackingDetails(mysqli $db, array $args)
         }
 
         $trackingModel = new TrackingDetails($db);
+        $orderModel = new Order($db);
 
 
         $existingTracking = $trackingModel->getByOrderId($orderId);
 
-        if ($existingTracking) {
 
+        if ($status) {
+            $orderModel->updateByStringId($orderId, ['status' => $status]);
+        } else if ($existingTracking && $existingTracking['status']) {
+
+            $orderModel->updateByStringId($orderId, ['status' => $existingTracking['status']]);
+        }
+
+        if ($existingTracking) {
             $updateData = [];
-            if ($shippingProvider)
+            if ($shippingProvider !== null)
                 $updateData['shipping_provider'] = $shippingProvider;
-            if ($trackingNumber)
+            if ($trackingNumber !== null)
                 $updateData['tracking_number'] = $trackingNumber;
-            if ($status)
+            if ($status !== null)
                 $updateData['status'] = $status;
-            if ($estimatedDeliveryDate)
+            if ($estimatedDeliveryDate !== null)
                 $updateData['estimated_delivery_date'] = $estimatedDeliveryDate;
 
             $result = $trackingModel->update($existingTracking['id'], $updateData);
         } else {
-
             $createData = [
                 'order_id' => $orderId,
                 'shipping_provider' => $shippingProvider ?: 'Standard Shipping',
@@ -457,6 +464,13 @@ function updateTrackingDetails(mysqli $db, array $args)
         }
 
         if ($result) {
+
+            $finalTracking = $trackingModel->getByOrderId($orderId);
+            json_encode($finalTracking);
+            if ($finalTracking && $finalTracking['status']) {
+                $orderModel->updateByStringId($orderId, ['status' => $finalTracking['status']]);
+            }
+
             return [
                 'success' => true,
                 'message' => 'Tracking details updated successfully'

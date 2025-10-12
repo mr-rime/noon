@@ -23,9 +23,6 @@ class StripeService
         $this->stripe = new \Stripe\StripeClient($this->stripeSecretKey);
     }
 
-    /**
-     * Create a Stripe checkout session
-     */
     public function createCheckoutSession(array $orderData): array
     {
         try {
@@ -106,9 +103,6 @@ class StripeService
         }
     }
 
-    /**
-     * Retrieve a checkout session by ID
-     */
     public function getCheckoutSession(string $sessionId): array
     {
         try {
@@ -135,9 +129,6 @@ class StripeService
         }
     }
 
-    /**
-     * Handle Stripe webhook events
-     */
     public function handleWebhook(string $payload, string $signature): array
     {
         try {

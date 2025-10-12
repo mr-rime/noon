@@ -135,6 +135,16 @@ export const GET_ALL_ORDERS = gql`
                     currency
                     created_at
                 }
+                tracking {
+                    id
+                    order_id
+                    shipping_provider
+                    tracking_number
+                    status
+                    estimated_delivery_date
+                    created_at
+                    updated_at
+                }
             }
         }
     }

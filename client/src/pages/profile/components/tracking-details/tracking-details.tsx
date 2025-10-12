@@ -15,7 +15,6 @@ export function TrackingDetails() {
     variables: {
       order_id: orderId
     },
-    skip: !orderId
   })
 
   if (loading) {
@@ -93,7 +92,32 @@ export function TrackingDetails() {
 
       <section className="flex w-full items-start space-x-5">
         <section className="w-full">
-          <OrderTimeline order={order} tracking={order.tracking} />
+          {order.status === 'cancelled' ? (
+            <div className="mt-5 h-fit w-full bg-white p-[16px] rounded-lg border">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                    <line x1="15" y1="9" x2="9" y2="15" strokeWidth="2" />
+                    <line x1="9" y1="9" x2="15" y2="15" strokeWidth="2" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Cancelled on {new Date(order.updated_at).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                  })}</h3>
+                  {order.cancellation_reason && (
+                    <p className="text-sm text-gray-600">Reason: {order.cancellation_reason}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <OrderTimeline order={order} tracking={order.tracking} />
+          )}
           <ItemSummary order={order} />
         </section>
         <OrderInvoice order={order} />

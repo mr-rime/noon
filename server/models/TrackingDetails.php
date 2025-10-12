@@ -11,9 +11,6 @@ class TrackingDetails
         $this->db = $db;
     }
 
-    /**
-     * Create tracking details for an order
-     */
     public function create(array $data): ?array
     {
         $orderId = $data['order_id'];
@@ -52,9 +49,6 @@ class TrackingDetails
         ];
     }
 
-    /**
-     * Get tracking details by order ID
-     */
     public function getByOrderId(string $orderId): ?array
     {
         $query = "SELECT * FROM tracking_details WHERE order_id = ? ORDER BY created_at DESC LIMIT 1";
@@ -74,9 +68,6 @@ class TrackingDetails
         return $tracking ?: null;
     }
 
-    /**
-     * Get all tracking details for an order
-     */
     public function getAllByOrderId(string $orderId): array
     {
         $query = "SELECT * FROM tracking_details WHERE order_id = ? ORDER BY created_at ASC";
@@ -96,9 +87,6 @@ class TrackingDetails
         return $trackings;
     }
 
-    /**
-     * Update tracking details
-     */
     public function update(string $id, array $data): bool
     {
         $fields = [];
@@ -152,9 +140,6 @@ class TrackingDetails
         return $result;
     }
 
-    /**
-     * Get tracking timeline for an order
-     */
     public function getTrackingTimeline(string $orderId): array
     {
         $tracking = $this->getByOrderId($orderId);
@@ -200,9 +185,6 @@ class TrackingDetails
         return $timeline;
     }
 
-    /**
-     * Generate a unique tracking number
-     */
     private function generateTrackingNumber(): string
     {
 
@@ -211,9 +193,6 @@ class TrackingDetails
         return $prefix . $suffix;
     }
 
-    /**
-     * Find tracking details by tracking number
-     */
     public function findByTrackingNumber(string $trackingNumber): ?array
     {
         $query = "SELECT * FROM tracking_details WHERE tracking_number = ?";

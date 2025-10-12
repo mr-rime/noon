@@ -5,6 +5,7 @@ import { useQuery } from '@apollo/client'
 import { GET_USER_ORDERS } from '@/graphql/orders'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { Link } from '@tanstack/react-router'
 
 export function Orders() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -137,51 +138,49 @@ export function Orders() {
             const statusDisplay = getStatusDisplay(order.status)
 
             return (
-              <div
-                key={order.id}
-                className="flex w-full cursor-pointer items-center justify-between overflow-hidden rounded-[8px] border border-[#dadce3] bg-white px-8 py-10 transition-colors hover:border-[#9ba0b1]"
-                onClick={() => {
-
-                  window.location.href = `/orders/track/order/${order.id}`
-                }}
-              >
-                <div className="z-[2]">
-                  <div className="flex items-center space-x-1">
-                    <span className={`font-bold text-[16px] ${statusDisplay.color}`}>
-                      {statusDisplay.text}
-                    </span>
-                    <div>
-                      <span>on {formatDate(order.created_at)}</span>
+              <Link to='/orders/track/order/$orderId' params={{ orderId: order.id }}>
+                <div
+                  key={order.id}
+                  className="flex w-full cursor-pointer items-center justify-between overflow-hidden rounded-[8px] border border-[#dadce3] bg-white px-8 py-10 transition-colors hover:border-[#9ba0b1]"
+                >
+                  <div className="z-[2]">
+                    <div className="flex items-center space-x-1">
+                      <span className={`font-bold text-[16px] ${statusDisplay.color}`}>
+                        {statusDisplay.text}
+                      </span>
+                      <div>
+                        <span>on {formatDate(order.created_at)}</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-5">
-                    {firstItem?.product_image && (
-                      <img
-                        src={firstItem.product_image}
-                        alt="product"
-                        className="h-[89px] w-[64px] object-cover rounded"
-                      />
-                    )}
-                    <div className="max-w-[270px]">
-                      <p className="line-clamp-3 text-left text-[12px]">
-                        {firstItem?.product_name || 'Product name not available'}
-                      </p>
-                      {order.items && order.items.length > 1 && (
-                        <p className="text-[10px] text-gray-500 mt-1">
-                          +{order.items.length - 1} more item{order.items.length > 2 ? 's' : ''}
-                        </p>
+                    <div className="flex items-center space-x-5">
+                      {firstItem?.product_image && (
+                        <img
+                          src={firstItem.product_image}
+                          alt="product"
+                          className="h-[89px] w-[64px] object-cover rounded"
+                        />
                       )}
+                      <div className="max-w-[270px]">
+                        <p className="line-clamp-3 text-left text-[12px]">
+                          {firstItem?.product_name || 'Product name not available'}
+                        </p>
+                        {order.items && order.items.length > 1 && (
+                          <p className="text-[10px] text-gray-500 mt-1">
+                            +{order.items.length - 1} more item{order.items.length > 2 ? 's' : ''}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="z-[2] flex min-h-[115px] flex-col items-center justify-between">
+                    <div />
+                    <div className="text-[#9ba0b1] text-[12px]">
+                      <span>Order ID</span> <strong>{order.id}</strong>
                     </div>
                   </div>
                 </div>
-
-                <div className="z-[2] flex min-h-[115px] flex-col items-center justify-between">
-                  <div />
-                  <div className="text-[#9ba0b1] text-[12px]">
-                    <span>Order ID</span> <strong>{order.id}</strong>
-                  </div>
-                </div>
-              </div>
+              </Link>
             )
           })
         ) : (

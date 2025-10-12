@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client'
 import { GET_ALL_ORDERS, UPDATE_TRACKING_DETAILS } from '@/graphql/orders'
 import { toast } from 'sonner'
-import { Search, Package, Truck, RefreshCw } from 'lucide-react'
+import { Search, Package, Truck, RefreshCw, Loader2 } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -12,8 +12,9 @@ import { Badge } from '../components/ui/badge'
 export function AdminTrackingPage() {
     const [searchTerm, setSearchTerm] = useState('')
     const [selectedOrder, setSelectedOrder] = useState<any>(null)
+    const [isUpdating, setIsUpdating] = useState(false)
     const [trackingForm, setTrackingForm] = useState({
-        shipping_provider: '',
+        shipping_provider: 'Standard Shipping',
         tracking_number: '',
         status: 'processing',
         estimated_delivery_date: ''
@@ -28,6 +29,7 @@ export function AdminTrackingPage() {
 
     const [updateTracking] = useMutation(UPDATE_TRACKING_DETAILS, {
         onCompleted: (data) => {
+            setIsUpdating(false)
             if (data.updateTrackingDetails.success) {
                 toast.success('Tracking details updated successfully')
                 refetch()
@@ -37,6 +39,7 @@ export function AdminTrackingPage() {
             }
         },
         onError: (error) => {
+            setIsUpdating(false)
             toast.error('Failed to update tracking details')
             console.error(error)
         }
@@ -118,8 +121,9 @@ export function AdminTrackingPage() {
     }
 
     const handleUpdateTracking = () => {
-        if (!selectedOrder) return
+        if (!selectedOrder || isUpdating) return
 
+        setIsUpdating(true)
         updateTracking({
             variables: {
                 order_id: selectedOrder.id,
@@ -131,19 +135,24 @@ export function AdminTrackingPage() {
     const handleSelectOrder = (order: any) => {
         setSelectedOrder(order)
 
+
+        const defaultDeliveryDate = new Date()
+        defaultDeliveryDate.setDate(defaultDeliveryDate.getDate() + 7)
+        const formattedDefaultDate = defaultDeliveryDate.toISOString().split('T')[0]
+
         if (order.tracking) {
             setTrackingForm({
-                shipping_provider: order.tracking.shipping_provider || '',
-                tracking_number: order.tracking.tracking_number || '',
-                status: order.tracking.status || 'processing',
-                estimated_delivery_date: order.tracking.estimated_delivery_date || ''
+                shipping_provider: order.tracking.shipping_provider || 'Standard Shipping',
+                tracking_number: order.tracking.tracking_number || `TRK${order.id.slice(-8).toUpperCase()}`,
+                status: order.tracking.status || order.status || 'processing',
+                estimated_delivery_date: order.tracking.estimated_delivery_date || formattedDefaultDate
             })
         } else {
             setTrackingForm({
-                shipping_provider: '',
-                tracking_number: '',
-                status: 'processing',
-                estimated_delivery_date: ''
+                shipping_provider: 'Standard Shipping',
+                tracking_number: `TRK${order.id.slice(-8).toUpperCase()}`,
+                status: order.status || 'processing',
+                estimated_delivery_date: formattedDefaultDate
             })
         }
     }
@@ -214,7 +223,16 @@ export function AdminTrackingPage() {
                 <Card>
                     <CardContent className="pt-6">
                         {selectedOrder ? (
-                            <div>
+                            <div className="relative">
+                                {isUpdating && (
+                                    <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-lg">
+                                        <div className="flex items-center space-x-2 text-primary">
+                                            <Loader2 className="w-6 h-6 animate-spin" />
+                                            <span className="text-lg font-medium">Updating tracking details...</span>
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div className="flex items-center space-x-2 mb-6">
                                     <Package className="text-primary" size={20} />
                                     <h2 className="text-lg font-semibold">Update Tracking - Order #{selectedOrder.id}</h2>
@@ -230,6 +248,7 @@ export function AdminTrackingPage() {
                                             value={trackingForm.shipping_provider}
                                             onChange={(e) => setTrackingForm(prev => ({ ...prev, shipping_provider: e.target.value }))}
                                             placeholder="e.g., DHL, FedEx, Standard Shipping"
+                                            disabled={isUpdating}
                                         />
                                     </div>
 
@@ -242,6 +261,7 @@ export function AdminTrackingPage() {
                                             value={trackingForm.tracking_number}
                                             onChange={(e) => setTrackingForm(prev => ({ ...prev, tracking_number: e.target.value }))}
                                             placeholder="Enter tracking number"
+                                            disabled={isUpdating}
                                         />
                                     </div>
 
@@ -249,7 +269,7 @@ export function AdminTrackingPage() {
                                         <label className="block text-sm font-medium mb-2">
                                             Status
                                         </label>
-                                        <Select value={trackingForm.status} onValueChange={(value) => setTrackingForm(prev => ({ ...prev, status: value }))}>
+                                        <Select value={trackingForm.status} onValueChange={(value) => setTrackingForm(prev => ({ ...prev, status: value }))} disabled={isUpdating}>
                                             <SelectTrigger>
                                                 <SelectValue />
                                             </SelectTrigger>
@@ -270,19 +290,29 @@ export function AdminTrackingPage() {
                                             type="date"
                                             value={trackingForm.estimated_delivery_date}
                                             onChange={(e) => setTrackingForm(prev => ({ ...prev, estimated_delivery_date: e.target.value }))}
+                                            disabled={isUpdating}
                                         />
                                     </div>
 
                                     <div className="flex space-x-3 pt-4">
                                         <Button
                                             onClick={handleUpdateTracking}
+                                            disabled={isUpdating}
                                             className="flex-1"
                                         >
-                                            Update Tracking
+                                            {isUpdating ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                    Updating...
+                                                </>
+                                            ) : (
+                                                'Update Tracking'
+                                            )}
                                         </Button>
                                         <Button
                                             onClick={() => setSelectedOrder(null)}
                                             variant="outline"
+                                            disabled={isUpdating}
                                         >
                                             Cancel
                                         </Button>
