@@ -79,19 +79,17 @@ export default function DashboardCategoryTree({
                     style={{ paddingLeft: `${16 + indentLevel}px` }}
                 >
                     {/* Expand/Collapse Button */}
-                    {hasChildren && (
-                        <button
-                            onClick={() => toggleExpansion(category.category_id)}
-                            className="mr-3 p-1 hover:bg-gray-200 rounded transition-colors"
-                            aria-label={isExpanded ? 'Collapse category' : 'Expand category'}
-                        >
-                            {isExpanded ? (
-                                <ChevronDown className="h-4 w-4 text-gray-500" />
-                            ) : (
-                                <ChevronRight className="h-4 w-4 text-gray-500" />
-                            )}
-                        </button>
-                    )}
+                    <button
+                        onClick={() => toggleExpansion(category.category_id)}
+                        className="mr-3 p-1 hover:bg-gray-200 rounded transition-colors"
+                        aria-label={isExpanded ? 'Collapse category' : 'Expand category'}
+                    >
+                        {isExpanded ? (
+                            <ChevronDown className="h-4 w-4 text-gray-500" />
+                        ) : (
+                            <ChevronRight className="h-4 w-4 text-gray-500" />
+                        )}
+                    </button>
 
                     {/* Category Info */}
                     <div className="flex-1 flex items-center justify-between">

@@ -332,21 +332,44 @@ function moveCategory(mysqli $db, int $categoryId, ?int $newParentId = null): ar
 
 function getSubcategories(mysqli $db, ?int $categoryId = null, string $search = ''): array
 {
-    $subcategoryModel = new Subcategory($db);
-
     try {
+        $categoryModel = new Category($db);
+
         if ($categoryId) {
-            $subcategories = $subcategoryModel->findByCategoryId($categoryId);
+            // Get subcategories (children) of the specified category
+            $subcategories = $categoryModel->findByParentId($categoryId);
         } elseif (!empty($search)) {
-            $subcategories = $subcategoryModel->search($search);
+            // Search all categories that have a parent (are subcategories)
+            $allCategories = $categoryModel->search($search);
+            $subcategories = array_filter($allCategories, function ($category) {
+                return $category['parent_id'] !== null;
+            });
         } else {
-            $subcategories = $subcategoryModel->findAll();
+            // Get all categories that have a parent (are subcategories)
+            $allCategories = $categoryModel->findAll();
+            $subcategories = array_filter($allCategories, function ($category) {
+                return $category['parent_id'] !== null;
+            });
         }
+
+        // Map nested categories to subcategory format for backward compatibility
+        $mappedSubcategories = array_map(function ($category) {
+            return [
+                'subcategory_id' => $category['category_id'],
+                'category_id' => $category['parent_id'],
+                'name' => $category['name'],
+                'slug' => $category['slug'],
+                'description' => $category['description'],
+                'is_active' => $category['is_active'],
+                'created_at' => $category['created_at'],
+                'updated_at' => $category['updated_at']
+            ];
+        }, $subcategories);
 
         return [
             'success' => true,
             'message' => 'Subcategories retrieved successfully',
-            'subcategories' => $subcategories
+            'subcategories' => $mappedSubcategories
         ];
     } catch (Exception $e) {
         error_log("Error getting subcategories: " . $e->getMessage());
@@ -360,18 +383,42 @@ function getSubcategories(mysqli $db, ?int $categoryId = null, string $search = 
 
 function createSubcategory(mysqli $db, array $input): array
 {
-    $subcategoryModel = new Subcategory($db);
+    $categoryModel = new Category($db);
 
     try {
-        $subcategory = $subcategoryModel->create($input);
+        // Map subcategory input to nested category structure
+        $categoryData = [
+            'parent_id' => $input['category_id'], // Use category_id as parent_id
+            'name' => $input['name'],
+            'slug' => $input['slug'],
+            'description' => $input['description'] ?? null,
+            'display_order' => 0,
+            'image_url' => null,
+            'icon_url' => null,
+            'is_active' => $input['is_active'] ?? true
+        ];
 
-        if (!$subcategory) {
+        $category = $categoryModel->create($categoryData);
+
+        if (!$category) {
             return [
                 'success' => false,
                 'message' => 'Failed to create subcategory',
                 'subcategory' => null
             ];
         }
+
+        // Map the nested category response back to subcategory format for backward compatibility
+        $subcategory = [
+            'subcategory_id' => $category['category_id'],
+            'category_id' => $category['parent_id'],
+            'name' => $category['name'],
+            'slug' => $category['slug'],
+            'description' => $category['description'],
+            'is_active' => $category['is_active'],
+            'created_at' => $category['created_at'],
+            'updated_at' => $category['updated_at']
+        ];
 
         return [
             'success' => true,
@@ -390,18 +437,46 @@ function createSubcategory(mysqli $db, array $input): array
 
 function updateSubcategory(mysqli $db, int $id, array $input): array
 {
-    $subcategoryModel = new Subcategory($db);
+    $categoryModel = new Category($db);
 
     try {
-        $subcategory = $subcategoryModel->update($id, $input);
+        // Map subcategory input to nested category structure
+        $categoryData = [];
 
-        if (!$subcategory) {
+        if (isset($input['name'])) {
+            $categoryData['name'] = $input['name'];
+        }
+        if (isset($input['slug'])) {
+            $categoryData['slug'] = $input['slug'];
+        }
+        if (isset($input['description'])) {
+            $categoryData['description'] = $input['description'];
+        }
+        if (isset($input['is_active'])) {
+            $categoryData['is_active'] = $input['is_active'];
+        }
+
+        $category = $categoryModel->update($id, $categoryData);
+
+        if (!$category) {
             return [
                 'success' => false,
                 'message' => 'Failed to update subcategory',
                 'subcategory' => null
             ];
         }
+
+        // Map the nested category response back to subcategory format for backward compatibility
+        $subcategory = [
+            'subcategory_id' => $category['category_id'],
+            'category_id' => $category['parent_id'],
+            'name' => $category['name'],
+            'slug' => $category['slug'],
+            'description' => $category['description'],
+            'is_active' => $category['is_active'],
+            'created_at' => $category['created_at'],
+            'updated_at' => $category['updated_at']
+        ];
 
         return [
             'success' => true,
@@ -420,10 +495,10 @@ function updateSubcategory(mysqli $db, int $id, array $input): array
 
 function deleteSubcategory(mysqli $db, int $id): array
 {
-    $subcategoryModel = new Subcategory($db);
+    $categoryModel = new Category($db);
 
     try {
-        $deleted = $subcategoryModel->delete($id);
+        $deleted = $categoryModel->delete($id);
 
         if (!$deleted) {
             return [

@@ -161,11 +161,6 @@ export default function Categories() {
     }
 
     const handleDeleteCategory = (category: Category) => {
-        if (category.subcategories && category.subcategories.length > 0) {
-            toast.error('Cannot delete category with subcategories. Please delete all subcategories first.')
-            return
-        }
-
         setDeleteModal({
             isOpen: true,
             type: 'category',
@@ -342,14 +337,12 @@ export default function Categories() {
                                             <>
                                                 <TableRow key={`cat-${category.category_id}`} className="hover:bg-muted/30">
                                                     <TableCell>
-                                                        {totalSubcategoryCount > 0 && (
-                                                            <button
-                                                                onClick={() => toggleCategoryExpansion(category.category_id)}
-                                                                className="p-1 hover:bg-muted rounded"
-                                                            >
-                                                                {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                                                            </button>
-                                                        )}
+                                                        <button
+                                                            onClick={() => toggleCategoryExpansion(category.category_id)}
+                                                            className="p-1 hover:bg-muted rounded"
+                                                        >
+                                                            {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                                                        </button>
                                                     </TableCell>
                                                     <TableCell>
                                                         <div className="flex items-center gap-2">
@@ -533,12 +526,21 @@ export default function Categories() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                             {categories.map((category: Category) => {
                                 const subcategoryCount = category.subcategories?.length || 0
+                                const childrenCount = category.children?.length || 0
+                                const totalSubcategoryCount = subcategoryCount + childrenCount
+                                const isExpanded = expandedCategories.has(category.category_id)
 
                                 return (
                                     <Card key={category.category_id} className="relative overflow-hidden hover:shadow-lg transition-shadow">
                                         <CardHeader className="pb-3">
                                             <div className="flex items-start justify-between">
                                                 <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => toggleCategoryExpansion(category.category_id)}
+                                                        className="p-1 hover:bg-muted rounded"
+                                                    >
+                                                        {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                                                    </button>
                                                     <Folder className="h-5 w-5 text-primary" />
                                                     <CardTitle className="text-base">{category.name}</CardTitle>
                                                 </div>
@@ -575,26 +577,34 @@ export default function Categories() {
                                             </p>
                                             <div className="flex items-center gap-2 flex-wrap">
                                                 <Badge variant="outline">
-                                                    {subcategoryCount} subcategories
+                                                    {totalSubcategoryCount} subcategories
                                                 </Badge>
                                                 <Badge variant={getStatusVariant(category.is_active)}>
                                                     {getStatusText(category.is_active)}
                                                 </Badge>
                                             </div>
-                                            {subcategoryCount > 0 && (
+                                            {isExpanded && totalSubcategoryCount > 0 && (
                                                 <div className="mt-4 pt-4 border-t">
                                                     <p className="text-xs font-medium text-muted-foreground mb-2">Subcategories:</p>
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {category.subcategories?.slice(0, 3).map((sub: Subcategory) => (
-                                                            <Badge key={sub.subcategory_id} variant="secondary" className="text-xs">
-                                                                {sub.name}
-                                                            </Badge>
+                                                    <div className="space-y-2">
+                                                        {/* Render children (nested categories) */}
+                                                        {category.children?.map((child: Category) => (
+                                                            <div key={`child-${child.category_id}`} className="flex items-center gap-2 text-sm">
+                                                                <span className="text-muted-foreground">└</span>
+                                                                <Folder className="h-3 w-3 text-primary" />
+                                                                <span>{child.name}</span>
+                                                                <Badge variant="outline" className="text-xs ml-auto">
+                                                                    {child.children?.length || 0} sub
+                                                                </Badge>
+                                                            </div>
                                                         ))}
-                                                        {subcategoryCount > 3 && (
-                                                            <Badge variant="outline" className="text-xs">
-                                                                +{subcategoryCount - 3} more
-                                                            </Badge>
-                                                        )}
+                                                        {/* Render subcategories (backward compatibility) */}
+                                                        {category.subcategories?.map((subcategory: Subcategory) => (
+                                                            <div key={`sub-${subcategory.subcategory_id}`} className="flex items-center gap-2 text-sm">
+                                                                <span className="text-muted-foreground">└</span>
+                                                                <span>{subcategory.name}</span>
+                                                            </div>
+                                                        ))}
                                                     </div>
                                                 </div>
                                             )}
@@ -647,12 +657,36 @@ export default function Categories() {
                 onClose={handleCloseDeleteModal}
                 onConfirm={handleConfirmDelete}
                 title={`Delete ${deleteModal.type === 'category' ? 'Category' : 'Subcategory'}`}
-                description={`Are you sure you want to delete this ${deleteModal.type}? This action cannot be undone.`}
+                description={deleteModal.type === 'category' && deleteModal.item
+                    ? (() => {
+                        const category = deleteModal.item as Category;
+                        const subcategoryCount = category.subcategories?.length || 0;
+                        const childrenCount = category.children?.length || 0;
+                        const totalSubcategoryCount = subcategoryCount + childrenCount;
+
+                        if (totalSubcategoryCount > 0) {
+                            return `Are you sure you want to delete "${category.name}" and all its ${totalSubcategoryCount} subcategories? This action cannot be undone.`;
+                        } else {
+                            return `Are you sure you want to delete "${category.name}"? This action cannot be undone.`;
+                        }
+                    })()
+                    : `Are you sure you want to delete this ${deleteModal.type}? This action cannot be undone.`
+                }
                 itemName={deleteModal.item?.name}
                 isLoading={deletingCategory || deletingSubcategory}
                 warningMessage={
-                    deleteModal.type === 'category' && deleteModal.item && (deleteModal.item as Category).subcategories && (deleteModal.item as Category).subcategories!.length > 0
-                        ? 'This category contains subcategories. Please delete all subcategories first.'
+                    deleteModal.type === 'category' && deleteModal.item
+                        ? (() => {
+                            const category = deleteModal.item as Category;
+                            const subcategoryCount = category.subcategories?.length || 0;
+                            const childrenCount = category.children?.length || 0;
+                            const totalSubcategoryCount = subcategoryCount + childrenCount;
+
+                            if (totalSubcategoryCount > 0) {
+                                return `⚠️ This will permanently delete the category and all ${totalSubcategoryCount} subcategories. Products assigned to these categories may be affected.`;
+                            }
+                            return undefined;
+                        })()
                         : undefined
                 }
             />

@@ -343,7 +343,7 @@ export function ImageSlider({
       <div
         className={cn(
           'relative select-none ',
-          isMobile ? 'h-fit w-full rounded-[12px]' : `w-full overflow-hidden h-[${height}px]`,
+          isMobile ? 'h-fit w-full rounded-[12px]' : `w-full rounded-[12px] overflow-hidden h-[${height}px]`,
         )}
         onMouseEnter={() => (isDragging.current = false)}
         onMouseLeave={handleMouseLeave}

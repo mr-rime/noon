@@ -20,7 +20,6 @@ class Product
     private ProductImage $imageModel;
     private ProductGroup $groupModel;
     private Category $categoryModel;
-    private Subcategory $subcategoryModel;
     private Brand $brandModel;
 
     public function __construct(mysqli $db)
@@ -31,7 +30,6 @@ class Product
         $this->imageModel = new ProductImage($db);
         $this->groupModel = new ProductGroup($db);
         $this->categoryModel = new Category($db);
-        $this->subcategoryModel = new Subcategory($db);
         $this->brandModel = new Brand($db);
     }
 

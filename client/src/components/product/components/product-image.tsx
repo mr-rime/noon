@@ -16,7 +16,7 @@ export function ProductImage({
   isWishlistProduct: boolean
 }) {
   return (
-    <div className="relative min-h-[200px] w-full rounded-[12px] bg-[#F6F6F7]" aria-label="Product image section">
+    <div className="relative min-h-[289px] w-full rounded-[12px] bg-[#F6F6F7]" aria-label="Product image section">
       {!isWishlistProduct && (
         <div className="absolute top-2.5 right-2.5 z-10">
           <ProductWishlistButton

@@ -321,7 +321,7 @@ export const CREATE_SUBCATEGORY = gql`
     createSubcategory(input: $input) {
       success
       message
-      category {
+      subcategory {
         subcategory_id
         category_id
         name

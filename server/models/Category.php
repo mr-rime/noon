@@ -264,8 +264,8 @@ class Category
         // Calculate level based on parent
         $level = 0;
         $parent = null;
-        if (!empty($data['parent_id'])) {
-            $parent = $this->findById($data['parent_id']);
+        if (!empty($data['parent_id']) && $data['parent_id'] !== null) {
+            $parent = $this->findById((int) $data['parent_id']);
             if (!$parent) {
                 error_log("Parent category not found");
                 return null;
@@ -366,23 +366,71 @@ class Category
 
     public function delete(int $id): bool
     {
-        // Check if category has children
-        $children = $this->findByParentId($id);
-        if (!empty($children)) {
-            error_log("Cannot delete category with children");
+        // Get all descendants first
+        $descendants = $this->getAllDescendantIds($id);
+
+        // Start transaction to ensure atomicity
+        $this->db->begin_transaction();
+
+        try {
+            // Delete all descendants first (from deepest to shallowest)
+            // Sort by level descending to delete children before parents
+            $query = "SELECT category_id, level FROM categories_nested WHERE category_id IN (" .
+                implode(',', array_fill(0, count($descendants), '?')) . ") ORDER BY level DESC";
+
+            if (count($descendants) > 0) {
+                $stmt = $this->db->prepare($query);
+                if (!$stmt) {
+                    throw new Exception("Prepare failed: " . $this->db->error);
+                }
+
+                $types = str_repeat('i', count($descendants));
+                $stmt->bind_param($types, ...$descendants);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                $categoriesToDelete = [];
+                while ($row = $result->fetch_assoc()) {
+                    $categoriesToDelete[] = $row['category_id'];
+                }
+
+                // Delete each category
+                foreach ($categoriesToDelete as $categoryId) {
+                    $deleteQuery = 'DELETE FROM categories_nested WHERE category_id = ?';
+                    $deleteStmt = $this->db->prepare($deleteQuery);
+
+                    if (!$deleteStmt) {
+                        throw new Exception("Prepare failed: " . $this->db->error);
+                    }
+
+                    $deleteStmt->bind_param('i', $categoryId);
+                    if (!$deleteStmt->execute()) {
+                        throw new Exception("Delete failed: " . $deleteStmt->error);
+                    }
+                }
+            }
+
+            // Delete the main category
+            $deleteQuery = 'DELETE FROM categories_nested WHERE category_id = ?';
+            $deleteStmt = $this->db->prepare($deleteQuery);
+
+            if (!$deleteStmt) {
+                throw new Exception("Prepare failed: " . $this->db->error);
+            }
+
+            $deleteStmt->bind_param('i', $id);
+            if (!$deleteStmt->execute()) {
+                throw new Exception("Delete failed: " . $deleteStmt->error);
+            }
+
+            $this->db->commit();
+            return true;
+
+        } catch (Exception $e) {
+            $this->db->rollback();
+            error_log("Cascading delete failed: " . $e->getMessage());
             return false;
         }
-
-        $query = 'DELETE FROM categories_nested WHERE category_id = ?';
-        $stmt = $this->db->prepare($query);
-
-        if (!$stmt) {
-            error_log("Prepare failed: " . $this->db->error);
-            return false;
-        }
-
-        $stmt->bind_param('i', $id);
-        return $stmt->execute();
     }
 
     public function getCategoryTree(?int $parentId = null, int $maxDepth = 5): array
