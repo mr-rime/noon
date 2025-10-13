@@ -52,3 +52,11 @@ coverage/
 # Build artifacts
 /build/
 /dist/
+
+<<<<<<< HEAD
+server/.env
+=======
+.env 
+.env.*.php 
+/.env
+>>>>>>> 4255722 (chore: update .gitignore and add example environment file)

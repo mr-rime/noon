@@ -5,11 +5,16 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 
 
+
+$CategoryType = null;
+$SubcategoryType = null;
+
+
 $SubcategoryType = new ObjectType([
     'name' => 'Subcategory',
     'fields' => [
-        'subcategory_id' => Type::int(),
-        'category_id' => Type::int(),
+        'subcategory_id' => Type::string(),
+        'category_id' => Type::string(),
         'name' => Type::string(),
         'slug' => Type::string(),
         'description' => Type::string(),
@@ -19,18 +24,38 @@ $SubcategoryType = new ObjectType([
     ]
 ]);
 
-
 $CategoryType = new ObjectType([
     'name' => 'Category',
+    'fields' => function () use (&$CategoryType, $SubcategoryType) {
+        return [
+            'category_id' => Type::string(),
+            'parent_id' => Type::string(),
+            'name' => Type::string(),
+            'slug' => Type::string(),
+            'description' => Type::string(),
+            'level' => Type::int(),
+            'path' => Type::string(),
+            'display_order' => Type::int(),
+            'image_url' => Type::string(),
+            'icon_url' => Type::string(),
+            'is_active' => Type::boolean(),
+            'created_at' => Type::string(),
+            'updated_at' => Type::string(),
+            'children' => Type::listOf($CategoryType),
+            'subcategories' => Type::listOf($SubcategoryType),
+            'product_count' => Type::int(),
+            'hasChildren' => Type::boolean()
+        ];
+    }
+]);
+
+$CategoryBreadcrumbType = new ObjectType([
+    'name' => 'CategoryBreadcrumb',
     'fields' => [
-        'category_id' => Type::int(),
+        'id' => Type::string(),
         'name' => Type::string(),
         'slug' => Type::string(),
-        'description' => Type::string(),
-        'is_active' => Type::boolean(),
-        'created_at' => Type::string(),
-        'updated_at' => Type::string(),
-        'subcategories' => Type::listOf($SubcategoryType)
+        'level' => Type::int()
     ]
 ]);
 
@@ -54,8 +79,8 @@ $ProductGroupType = new ObjectType([
         'group_id' => Type::string(),
         'name' => Type::string(),
         'description' => Type::string(),
-        'category_id' => Type::int(),
-        'subcategory_id' => Type::int(),
+        'category_id' => Type::string(),
+        'subcategory_id' => Type::string(),
         'brand_id' => Type::int(),
         'attributes' => Type::string(),
         'created_at' => Type::string(),
@@ -93,9 +118,13 @@ $GroupAttributeType = new ObjectType([
 $CategoryInputType = new InputObjectType([
     'name' => 'CategoryInput',
     'fields' => [
+        'parent_id' => Type::string(),
         'name' => Type::nonNull(Type::string()),
         'slug' => Type::nonNull(Type::string()),
         'description' => Type::string(),
+        'display_order' => Type::int(),
+        'image_url' => Type::string(),
+        'icon_url' => Type::string(),
         'is_active' => Type::boolean()
     ]
 ]);
@@ -103,7 +132,7 @@ $CategoryInputType = new InputObjectType([
 $SubcategoryInputType = new InputObjectType([
     'name' => 'SubcategoryInput',
     'fields' => [
-        'category_id' => Type::nonNull(Type::int()),
+        'category_id' => Type::nonNull(Type::string()),
         'name' => Type::nonNull(Type::string()),
         'slug' => Type::nonNull(Type::string()),
         'description' => Type::string(),
@@ -127,8 +156,8 @@ $ProductGroupInputType = new InputObjectType([
     'fields' => [
         'name' => Type::nonNull(Type::string()),
         'description' => Type::string(),
-        'category_id' => Type::int(),
-        'subcategory_id' => Type::int(),
+        'category_id' => Type::string(),
+        'subcategory_id' => Type::string(),
         'brand_id' => Type::int(),
         'attributes' => Type::listOf(Type::string())
     ]

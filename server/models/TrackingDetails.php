@@ -1,7 +1,6 @@
 <?php
 
-use Respect\Validation\Validator as v;
-use Respect\Validation\Exceptions\ValidationException;
+require_once __DIR__ . '/../utils/generateHash.php';
 
 class TrackingDetails
 {
@@ -12,171 +11,204 @@ class TrackingDetails
         $this->db = $db;
     }
 
-    public function findAll(): array
-    {
-        $query = 'SELECT * FROM tracking_details';
-        $result = $this->db->query($query);
-
-        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
-    }
-
-    public function findById(int $id): ?array
-    {
-        $query = 'SELECT * FROM tracking_details WHERE id = ? LIMIT 1';
-        $stmt = $this->db->prepare($query);
-
-        if (!$stmt) {
-            error_log("Prepare failed: " . $this->db->error);
-            return null;
-        }
-
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        return $result->fetch_assoc() ?: null;
-    }
-
     public function create(array $data): ?array
     {
-        $validator = v::key('order_id', v::intVal()->positive())
-            ->key('shipping_provider', v::stringType()->notEmpty()->length(null, 100))
-            ->key('tracking_number', v::stringType()->notEmpty()->length(null, 100))
-            ->key('status', v::optional(v::stringType()->length(null, 100)))
-            ->key('estimated_delivery_date', v::optional(v::date('Y-m-d')));
+        $orderId = $data['order_id'];
+        $shippingProvider = $data['shipping_provider'];
+        $trackingNumber = $data['tracking_number'] ?? $this->generateTrackingNumber();
+        $status = $data['status'] ?? 'processing';
+        $estimatedDeliveryDate = $data['estimated_delivery_date'] ?? null;
 
-        try {
-            $validator->assert($data);
-        } catch (ValidationException $e) {
-            error_log("Validation failed: " . $e->getMessage());
+        $query = "INSERT INTO tracking_details (id, order_id, shipping_provider, tracking_number, status, estimated_delivery_date) 
+                  VALUES (?, ?, ?, ?, ?, ?)";
+
+        $stmt = $this->db->prepare($query);
+        if (!$stmt) {
+            error_log("Tracking details prepare failed: " . $this->db->error);
             return null;
         }
 
-        $orderId = $data['order_id'];
-        $shippingProvider = $data['shipping_provider'];
-        $trackingNumber = $data['tracking_number'];
-        $status = $data['status'] ?? null;
-        $estimatedDeliveryDate = $data['estimated_delivery_date'] ?? null;
+        $id = generateHash();
+        $stmt->bind_param("ssssss", $id, $orderId, $shippingProvider, $trackingNumber, $status, $estimatedDeliveryDate);
 
-        $query = "INSERT INTO tracking_details (order_id, shipping_provider, tracking_number, status, estimated_delivery_date)
-                  VALUES (?, ?, ?, ?, ?)";
+        if (!$stmt->execute()) {
+            error_log("Tracking details insert failed: " . $stmt->error);
+            $stmt->close();
+            return null;
+        }
 
+        $stmt->close();
+
+        return [
+            'id' => $id,
+            'order_id' => $orderId,
+            'shipping_provider' => $shippingProvider,
+            'tracking_number' => $trackingNumber,
+            'status' => $status,
+            'estimated_delivery_date' => $estimatedDeliveryDate,
+        ];
+    }
+
+    public function getByOrderId(string $orderId): ?array
+    {
+        $query = "SELECT * FROM tracking_details WHERE order_id = ? ORDER BY created_at DESC LIMIT 1";
         $stmt = $this->db->prepare($query);
 
         if (!$stmt) {
-            error_log("Prepare failed: " . $this->db->error);
+            error_log("Tracking details select prepare failed: " . $this->db->error);
             return null;
         }
 
-        $stmt->bind_param(
-            'issss',
-            $orderId,
-            $shippingProvider,
-            $trackingNumber,
-            $status,
-            $estimatedDeliveryDate
-        );
-
-        if (!$stmt->execute()) {
-            error_log("Insert failed: " . $stmt->error);
-            return null;
-        }
-
-        $insertedId = $stmt->insert_id;
+        $stmt->bind_param("s", $orderId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $tracking = $result->fetch_assoc();
         $stmt->close();
 
-        return $this->findById($insertedId);
+        return $tracking ?: null;
     }
 
-    public function update(int $id, array $data): bool
+    public function getAllByOrderId(string $orderId): array
     {
-        $validator = v::key('shipping_provider', v::optional(v::stringType()->length(null, 100)))
-            ->key('tracking_number', v::optional(v::stringType()->length(null, 100)))
-            ->key('status', v::optional(v::stringType()->length(null, 100)))
-            ->key('estimated_delivery_date', v::optional(v::date('Y-m-d')));
+        $query = "SELECT * FROM tracking_details WHERE order_id = ? ORDER BY created_at ASC";
+        $stmt = $this->db->prepare($query);
 
-        try {
-            $validator->assert($data);
-        } catch (ValidationException $e) {
-            error_log("Validation failed: " . $e->getMessage());
-            return false;
+        if (!$stmt) {
+            error_log("Tracking details select all prepare failed: " . $this->db->error);
+            return [];
         }
 
+        $stmt->bind_param("s", $orderId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $trackings = $result->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+
+        return $trackings;
+    }
+
+    public function update(string $id, array $data): bool
+    {
         $fields = [];
-        $types = '';
         $values = [];
+        $types = '';
+
+        if (isset($data['status'])) {
+            $fields[] = 'status = ?';
+            $values[] = $data['status'];
+            $types .= 's';
+        }
+
+        if (isset($data['estimated_delivery_date'])) {
+            $fields[] = 'estimated_delivery_date = ?';
+            $values[] = $data['estimated_delivery_date'];
+            $types .= 's';
+        }
 
         if (isset($data['shipping_provider'])) {
             $fields[] = 'shipping_provider = ?';
-            $types .= 's';
             $values[] = $data['shipping_provider'];
+            $types .= 's';
         }
+
         if (isset($data['tracking_number'])) {
             $fields[] = 'tracking_number = ?';
-            $types .= 's';
             $values[] = $data['tracking_number'];
-        }
-        if (isset($data['status'])) {
-            $fields[] = 'status = ?';
             $types .= 's';
-            $values[] = $data['status'];
-        }
-        if (isset($data['estimated_delivery_date'])) {
-            $fields[] = 'estimated_delivery_date = ?';
-            $types .= 's';
-            $values[] = $data['estimated_delivery_date'];
         }
 
         if (empty($fields)) {
             return false;
         }
 
-        $query = "UPDATE tracking_details SET " . implode(', ', $fields) . ", updated_at = CURRENT_TIMESTAMP WHERE id = ?";
-        $types .= 'i';
+        $fields[] = 'updated_at = CURRENT_TIMESTAMP';
         $values[] = $id;
+        $types .= 's';
 
+        $query = "UPDATE tracking_details SET " . implode(', ', $fields) . " WHERE id = ?";
         $stmt = $this->db->prepare($query);
 
         if (!$stmt) {
-            error_log("Prepare failed: " . $this->db->error);
+            error_log("Tracking details update prepare failed: " . $this->db->error);
             return false;
         }
 
         $stmt->bind_param($types, ...$values);
+        $result = $stmt->execute();
+        $stmt->close();
 
-        return $stmt->execute();
+        return $result;
     }
 
-    public function delete(int $id): bool
+    public function getTrackingTimeline(string $orderId): array
     {
-        $query = 'DELETE FROM tracking_details WHERE id = ?';
-        $stmt = $this->db->prepare($query);
-
-        if (!$stmt) {
-            error_log("Prepare failed: " . $this->db->error);
-            return false;
-        }
-
-        $stmt->bind_param('i', $id);
-
-        return $stmt->execute();
-    }
-
-    public function findByOrderId(int $orderId): array
-    {
-        $query = 'SELECT * FROM tracking_details WHERE order_id = ?';
-        $stmt = $this->db->prepare($query);
-
-        if (!$stmt) {
-            error_log("Prepare failed: " . $this->db->error);
+        $tracking = $this->getByOrderId($orderId);
+        if (!$tracking) {
             return [];
         }
 
-        $stmt->bind_param('i', $orderId);
+
+        $timeline = [
+            [
+                'status' => 'placed',
+                'description' => 'Order placed',
+                'completed' => true,
+                'date' => $tracking['created_at'],
+            ],
+            [
+                'status' => 'processing',
+                'description' => 'Order is being processed',
+                'completed' => in_array($tracking['status'], ['processing', 'confirmed', 'dispatched', 'delivered']),
+                'date' => $tracking['status'] === 'processing' ? $tracking['created_at'] : null,
+            ],
+            [
+                'status' => 'confirmed',
+                'description' => 'Order confirmed',
+                'completed' => in_array($tracking['status'], ['confirmed', 'dispatched', 'delivered']),
+                'date' => $tracking['status'] === 'confirmed' ? $tracking['created_at'] : null,
+            ],
+            [
+                'status' => 'dispatched',
+                'description' => 'Order dispatched',
+                'completed' => in_array($tracking['status'], ['dispatched', 'delivered']),
+                'date' => $tracking['status'] === 'dispatched' ? $tracking['created_at'] : null,
+            ],
+            [
+                'status' => 'delivered',
+                'description' => 'Order delivered',
+                'completed' => $tracking['status'] === 'delivered',
+                'date' => $tracking['status'] === 'delivered' ? $tracking['created_at'] : null,
+                'estimated_delivery_date' => $tracking['estimated_delivery_date'],
+            ],
+        ];
+
+        return $timeline;
+    }
+
+    private function generateTrackingNumber(): string
+    {
+
+        $prefix = 'NEGH';
+        $suffix = strtoupper(substr(uniqid(), -8));
+        return $prefix . $suffix;
+    }
+
+    public function findByTrackingNumber(string $trackingNumber): ?array
+    {
+        $query = "SELECT * FROM tracking_details WHERE tracking_number = ?";
+        $stmt = $this->db->prepare($query);
+
+        if (!$stmt) {
+            error_log("Tracking details find by number prepare failed: " . $this->db->error);
+            return null;
+        }
+
+        $stmt->bind_param("s", $trackingNumber);
         $stmt->execute();
-
         $result = $stmt->get_result();
+        $tracking = $result->fetch_assoc();
+        $stmt->close();
 
-        return $result->fetch_all(MYSQLI_ASSOC);
+        return $tracking ?: null;
     }
 }

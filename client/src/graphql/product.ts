@@ -6,8 +6,8 @@ export const CREATE_PRODUCT = gql`
             $price: Float!
             $currency: String!
             $product_overview: String
-            $category_id: Int
-            $subcategory_id: Int
+            $category_id: String
+            $subcategory_id: String
             $brand_id: Int
             $group_id: String
             $stock: Int

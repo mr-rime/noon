@@ -3,9 +3,6 @@ import { useMemo } from 'react'
 import { GET_ACTIVE_BANNERS_BY_PLACEMENT, GET_ALL_ACTIVE_BANNERS } from '../graphql/banner-display'
 import { type Banner } from '../types/banner'
 
-/**
- * Hook to get active banners for a specific placement
- */
 export function useBannersByPlacement(placement: string) {
   const { data, loading, error } = useQuery(GET_ACTIVE_BANNERS_BY_PLACEMENT, {
     variables: { placement },
@@ -21,9 +18,6 @@ export function useBannersByPlacement(placement: string) {
   }
 }
 
-/**
- * Hook to get all active banners grouped by placement
- */
 export function useAllActiveBanners() {
   const { data, loading, error } = useQuery(GET_ALL_ACTIVE_BANNERS, {
     errorPolicy: 'ignore',
@@ -32,7 +26,7 @@ export function useAllActiveBanners() {
 
   const bannersByPlacement = useMemo(() => {
     if (!data?.getBanners?.banners) return {}
-    
+
     const banners = data.getBanners.banners as Banner[]
     return banners.reduce((acc, banner) => {
       if (!acc[banner.placement]) {
@@ -52,12 +46,9 @@ export function useAllActiveBanners() {
   }
 }
 
-/**
- * Hook to check if banners should be shown for a placement
- */
 export function useShouldShowBanners(placement: string) {
   const { hasBanners, loading } = useBannersByPlacement(placement)
-  
+
   return {
     shouldShow: hasBanners && !loading,
     loading

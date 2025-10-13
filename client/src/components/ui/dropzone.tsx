@@ -1,13 +1,7 @@
 import type React from 'react'
 import { useCallback, useState } from 'react'
 import { cn } from '@/utils/cn'
-
-type DropzoneProps = {
-  onFilesDrop?: (files: File[]) => void
-  multiple?: boolean
-  accept?: string
-  className?: string
-}
+import type { DropzoneProps } from '@/types/ui'
 
 export const Dropzone: React.FC<DropzoneProps> = ({ onFilesDrop, multiple = true, accept, className }) => {
   const [isDragging, setIsDragging] = useState(false)

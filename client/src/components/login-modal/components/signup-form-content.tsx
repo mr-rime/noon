@@ -13,18 +13,14 @@ import { animateElement } from '../../../utils/animateElement'
 import { cn } from '../../../utils/cn'
 import { Input } from '../../ui/input'
 import { SignupFormSchema, type SignupFormSchemaType } from '../schema/schema'
+import type { SignupFormContentProps } from '@/types/auth'
 
 export function SignupFormContent({
   isLogin,
   isPending,
   inputRef,
   onClose,
-}: {
-  isLogin: boolean
-  isPending: boolean
-  inputRef: React.RefObject<HTMLInputElement | null>
-  onClose: () => void
-}) {
+}: SignupFormContentProps) {
   const { register, handleSubmit, watch } = useForm<SignupFormSchemaType>({
     resolver: zodResolver(SignupFormSchema),
   })

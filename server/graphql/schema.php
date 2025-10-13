@@ -61,7 +61,13 @@ $QueryType = new ObjectType([
             'args' => [
                 'limit' => Type::int(),
                 'offset' => Type::int(),
-                'search' => Type::string()
+                'search' => Type::string(),
+                'categoryId' => Type::string(),
+                'categories' => Type::listOf(Type::string()),
+                'brands' => Type::listOf(Type::int()),
+                'minPrice' => Type::float(),
+                'maxPrice' => Type::float(),
+                'minRating' => Type::float()
             ],
             'resolve' => fn($root, $args, $context) => getAllProducts($context['db'], $args)
         ],
@@ -88,6 +94,17 @@ $QueryType = new ObjectType([
                 'id' => Type::nonNull(Type::id())
             ],
             'resolve' => fn($root, $args, $context) => getDiscount($context['db'], $args['id'])
+        ],
+
+        'getDiscounts' => [
+            'type' => $DiscountsResponseType,
+            'args' => [
+                'limit' => Type::int(),
+                'offset' => Type::int(),
+                'search' => Type::string(),
+                'productId' => Type::string()
+            ],
+            'resolve' => fn($root, $args, $context) => getAllDiscounts($context['db'], $args)
         ],
         'getHome' => [
             'type' => $HomeResponseType,
@@ -131,17 +148,79 @@ $QueryType = new ObjectType([
 
         'getCategories' => [
             'type' => $CategoriesResponseType,
-            'args' => ['search' => Type::string()],
-            'resolve' => fn($root, $args, $context) => getCategories($context['db'], $args['search'] ?? '')
+            'args' => [
+                'search' => Type::string(),
+                'parentId' => Type::string(),
+                'includeChildren' => Type::boolean()
+            ],
+            'resolve' => fn($root, $args, $context) => getCategories(
+                $context['db'],
+                $args['parentId'] ?? null,
+                $args['includeChildren'] ?? true,
+                $args['search'] ?? ''
+            )
         ],
         'getCategory' => [
             'type' => $CategoryResponseType,
-            'args' => ['id' => Type::nonNull(Type::int())],
-            'resolve' => fn($root, $args, $context) => getCategory($context['db'], $args['id'])
+            'args' => [
+                'id' => Type::nonNull(Type::string()),
+                'includeChildren' => Type::boolean()
+            ],
+            'resolve' => fn($root, $args, $context) => getCategory(
+                $context['db'],
+                $args['id'],
+                $args['includeChildren'] ?? false
+            )
+        ],
+        'getCategoryBreadcrumb' => [
+            'type' => new ObjectType([
+                'name' => 'CategoryBreadcrumbResponse',
+                'fields' => [
+                    'success' => Type::boolean(),
+                    'message' => Type::string(),
+                    'breadcrumb' => Type::listOf($CategoryBreadcrumbType)
+                ]
+            ]),
+            'args' => [
+                'categoryId' => Type::nonNull(Type::string())
+            ],
+            'resolve' => fn($root, $args, $context) => getCategoryBreadcrumb(
+                $context['db'],
+                $args['categoryId']
+            )
+        ],
+        'getCategoryBySlug' => [
+            'type' => $CategoryResponseType,
+            'args' => [
+                'slug' => Type::nonNull(Type::string()),
+                'includeChildren' => Type::boolean()
+            ],
+            'resolve' => fn($root, $args, $context) => getCategoryBySlug(
+                $context['db'],
+                $args['slug'],
+                $args['includeChildren'] ?? true
+            )
+        ],
+        'getCategoryByNestedPath' => [
+            'type' => $CategoryResponseType,
+            'args' => [
+                'path' => Type::nonNull(Type::string()),
+                'includeChildren' => Type::boolean()
+            ],
+            'resolve' => fn($root, $args, $context) => getCategoryByNestedPath(
+                $context['db'],
+                $args['path'],
+                $args['includeChildren'] ?? true
+            )
+        ],
+        'getHierarchicalCategories' => [
+            'type' => $CategoriesResponseType,
+            'args' => [],
+            'resolve' => fn($root, $args, $context) => getHierarchicalCategories($context['db'])
         ],
         'getSubcategories' => [
             'type' => $SubcategoriesResponseType,
-            'args' => ['category_id' => Type::int(), 'search' => Type::string()],
+            'args' => ['category_id' => Type::string(), 'search' => Type::string()],
             'resolve' => fn($root, $args, $context) => getSubcategories($context['db'], $args['category_id'] ?? null, $args['search'] ?? '')
         ],
         'getBrands' => [
@@ -151,7 +230,7 @@ $QueryType = new ObjectType([
         ],
         'getProductGroups' => [
             'type' => $ProductGroupsResponseType,
-            'args' => ['category_id' => Type::int()],
+            'args' => ['category_id' => Type::string()],
             'resolve' => fn($root, $args, $context) => getProductGroups($context['db'], $args['category_id'] ?? null)
         ],
         'getProductByPsku' => [
@@ -200,7 +279,44 @@ $QueryType = new ObjectType([
                 'placement' => Type::nonNull(Type::string())
             ],
             'resolve' => fn($root, $args, $context) => getActiveBannersByPlacement($context['db'], $args)
-        ]
+        ],
+
+        'getUserOrders' => [
+            'type' => $OrdersListResponseType,
+            'args' => [
+                'limit' => Type::int(),
+                'offset' => Type::int()
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => getUserOrders($context['db'], $args))
+        ],
+
+        'getOrderDetails' => [
+            'type' => $OrderResponseType,
+            'args' => [
+                'order_id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => getOrderDetails($context['db'], $args))
+        ],
+
+        'getOrderTracking' => [
+            'type' => $TrackingResponseType,
+            'args' => [
+                'order_id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => getOrderTracking($context['db'], $args))
+        ],
+
+        'getAllOrders' => [
+            'type' => $AdminOrdersListResponseType,
+            'args' => [
+                'limit' => Type::int(),
+                'offset' => Type::int(),
+                'status' => Type::string(),
+                'payment_status' => Type::string()
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => getAllOrders($context['db'], $args))
+        ],
+
     ],
 
 ]);
@@ -261,8 +377,8 @@ $MutationType = new ObjectType([
                 'price' => Type::nonNull(Type::float()),
                 'currency' => Type::nonNull(Type::string()),
                 'psku' => Type::string(),
-                'category_id' => Type::int(),
-                'subcategory_id' => Type::int(),
+                'category_id' => Type::string(),
+                'subcategory_id' => Type::string(),
                 'brand_id' => Type::int(),
                 'group_id' => Type::string(),
                 'stock' => Type::int(),
@@ -288,6 +404,37 @@ $MutationType = new ObjectType([
             'resolve' => requireAuth(fn($root, $args, $context) => createOrder($context['db'], $args))
         ],
 
+        'createCheckoutSession' => [
+            'type' => $CheckoutSessionResponseType,
+            'args' => [
+                'success_url' => Type::string(),
+                'cancel_url' => Type::string()
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => createCheckoutSession($context['db'], $args))
+        ],
+
+        'updateOrderStatus' => [
+            'type' => $UpdateOrderStatusResponseType,
+            'args' => [
+                'order_id' => Type::nonNull(Type::string()),
+                'status' => Type::string(),
+                'payment_status' => Type::string()
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => updateOrderStatus($context['db'], $args))
+        ],
+
+        'updateTrackingDetails' => [
+            'type' => $UpdateTrackingResponseType,
+            'args' => [
+                'order_id' => Type::nonNull(Type::string()),
+                'shipping_provider' => Type::string(),
+                'tracking_number' => Type::string(),
+                'status' => Type::string(),
+                'estimated_delivery_date' => Type::string()
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => updateTrackingDetails($context['db'], $args))
+        ],
+
         'uploadImage' => [
             'type' => $UploadResponseType,
             'args' => [
@@ -298,13 +445,26 @@ $MutationType = new ObjectType([
         'createDiscount' => [
             'type' => $DiscountResponseType,
             'args' => [
-                'product_id' => Type::nonNull(Type::string()),
-                'type' => Type::nonNull(Type::string()),
-                'value' => Type::nonNull(Type::float()),
-                'starts_at' => Type::nonNull(Type::string()),
-                'ends_at' => Type::nonNull(Type::string())
+                'input' => Type::nonNull($DiscountInputType)
             ],
-            'resolve' => requireStoreAuth(fn($root, $args, $context) => createDiscount($context['db'], $args))
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => createDiscount($context['db'], $args['input']))
+        ],
+
+        'updateDiscount' => [
+            'type' => $DiscountResponseType,
+            'args' => [
+                'id' => Type::nonNull(Type::string()),
+                'input' => Type::nonNull($DiscountUpdateInputType)
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => updateDiscount($context['db'], array_merge(['id' => $args['id']], $args['input'])))
+        ],
+
+        'deleteDiscount' => [
+            'type' => $DeleteDiscountResponseType,
+            'args' => [
+                'id' => Type::nonNull(Type::string())
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteDiscount($context['db'], $args))
         ],
         'updateProduct' => [
             'type' => $ProductResponseType,
@@ -314,8 +474,8 @@ $MutationType = new ObjectType([
                 'price' => Type::float(),
                 'currency' => Type::string(),
                 'psku' => Type::string(),
-                'category_id' => Type::int(),
-                'subcategory_id' => Type::int(),
+                'category_id' => Type::string(),
+                'subcategory_id' => Type::string(),
                 'brand_id' => Type::int(),
                 'group_id' => Type::string(),
                 'stock' => Type::int(),
@@ -379,14 +539,14 @@ $MutationType = new ObjectType([
         'updateCategory' => [
             'type' => $CategoryResponseType,
             'args' => [
-                'id' => Type::nonNull(Type::int()),
+                'id' => Type::nonNull(Type::string()),
                 'input' => Type::nonNull($CategoryInputType)
             ],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => updateCategory($context['db'], $args['id'], $args['input']))
         ],
         'deleteCategory' => [
             'type' => $CategoryResponseType,
-            'args' => ['id' => Type::nonNull(Type::int())],
+            'args' => ['id' => Type::nonNull(Type::string())],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteCategory($context['db'], $args['id']))
         ],
         'createSubcategory' => [
@@ -397,14 +557,14 @@ $MutationType = new ObjectType([
         'updateSubcategory' => [
             'type' => $SubcategoryResponseType,
             'args' => [
-                'id' => Type::nonNull(Type::int()),
+                'id' => Type::nonNull(Type::string()),
                 'input' => Type::nonNull($SubcategoryInputType)
             ],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => updateSubcategory($context['db'], $args['id'], $args['input']))
         ],
         'deleteSubcategory' => [
             'type' => $SubcategoryResponseType,
-            'args' => ['id' => Type::nonNull(Type::int())],
+            'args' => ['id' => Type::nonNull(Type::string())],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteSubcategory($context['db'], $args['id']))
         ],
         'createBrand' => [

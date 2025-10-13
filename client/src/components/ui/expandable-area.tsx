@@ -1,11 +1,7 @@
 import type React from 'react'
 import { useRef, useState } from 'react'
 import { animateElement } from '@/utils/animateElement'
-
-interface ExpandableAreaProps {
-  children: React.ReactNode
-  initiallyExpanded?: boolean
-}
+import type { ExpandableAreaProps } from '@/types/ui'
 
 const ExpandableArea: React.FC<ExpandableAreaProps> = ({ children, initiallyExpanded = false }) => {
   const [isExpanded, setIsExpanded] = useState(initiallyExpanded)

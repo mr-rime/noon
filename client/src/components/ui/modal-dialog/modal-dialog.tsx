@@ -1,20 +1,9 @@
 import { X } from 'lucide-react'
-import { type ReactNode, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { animateElement } from '../../../utils/animateElement'
 import { cn } from '@/utils/cn'
-
-type ModalDialogProps = {
-  onClose: () => void
-  header?: ReactNode
-  content?: ReactNode
-  footer?: ReactNode
-  className?: string
-  headerClassName?: string
-  contentClassName?: string
-  footerClassName?: string
-  closeButtonClassName?: string
-}
+import type { ModalDialogProps } from '@/types/ui'
 
 export function ModalDialog({
   onClose,

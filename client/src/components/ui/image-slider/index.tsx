@@ -23,6 +23,7 @@ interface ImageSliderProps {
   dotsTheme?: DotsThemeType
   disableDragDesktop?: boolean
   disableDragMobile?: boolean
+  rounded?: boolean
 }
 
 export function ImageSlider({
@@ -39,6 +40,7 @@ export function ImageSlider({
   disableDragDesktop = false,
   disableDragMobile = false,
   dotsTheme = 'theme1',
+  rounded
 }: ImageSliderProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number | null>(null)
@@ -343,7 +345,7 @@ export function ImageSlider({
       <div
         className={cn(
           'relative select-none ',
-          isMobile ? 'h-fit w-full rounded-[12px]' : `w-full overflow-hidden h-[${height}px]`,
+          isMobile ? 'h-fit w-full rounded-[10px]' : `w-full ${rounded ? 'rounded-[10px]' : ''} overflow-hidden h-[${height}px]`,
         )}
         onMouseEnter={() => (isDragging.current = false)}
         onMouseLeave={handleMouseLeave}

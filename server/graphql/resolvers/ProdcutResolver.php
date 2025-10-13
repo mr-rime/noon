@@ -12,6 +12,12 @@ function getAllProducts(mysqli $db, array $data): array
         $limit = $data['limit'] ?? 10;
         $offset = $data['offset'] ?? 0;
         $search = $data['search'] ?? '';
+        $categoryId = $data['categoryId'] ?? null;
+        $categories = $data['categories'] ?? null;
+        $brands = $data['brands'] ?? null;
+        $minPrice = $data['minPrice'] ?? null;
+        $maxPrice = $data['maxPrice'] ?? null;
+        $minRating = $data['minRating'] ?? null;
 
 
         $publicOnly = false;
@@ -23,21 +29,23 @@ function getAllProducts(mysqli $db, array $data): array
             $publicOnly = true;
         }
 
-        $products = $model->findAll($userId, $limit, $offset, $search, $publicOnly);
-        $total = $model->getTotalCount($search, $publicOnly);
+        $products = $model->findAll($userId, $limit, $offset, $search, $publicOnly, $categoryId, $categories, $brands, $minPrice, $maxPrice, $minRating);
+        $total = $model->getTotalCount($search, $publicOnly, $categoryId, $categories, $brands, $minPrice, $maxPrice, $minRating);
 
         return [
             'success' => true,
             'message' => 'Products retrieved.',
             'products' => $products,
-            'total' => $total
+            'total' => $total,
+            'totalCount' => $total
         ];
     } catch (Exception $e) {
         return [
             'success' => false,
             'message' => 'Error: ' . $e->getMessage(),
             'products' => [],
-            'total' => 0
+            'total' => 0,
+            'totalCount' => 0
         ];
     }
 }
@@ -208,11 +216,6 @@ function updateProduct(mysqli $db, array $args): array
 }
 
 
-/**
- * Generate Cartesian product of option groups into list of option combinations.
- * Each option group: ['name' => string, 'values' => string[]]
- * Returns array of combinations, each combination is an array of ['name' => ..., 'value' => ...]
- */
 function generateOptionCombinations(array $optionGroups): array
 {
     $result = [[]];

@@ -48,7 +48,7 @@ export function Product({
     <article
       onMouseEnter={handlePrefetch}
       className={cn(
-        'h-[467px] w-full max-w-[230px] select-none overflow-x-hidden rounded-[12px] border border-[#DDDDDD] bg-white p-2',
+        'h-[467px] min-w-[230px] w-full max-w-[230px] select-none overflow-x-hidden rounded-[12px] border border-[#DDDDDD] bg-white p-2',
         isWishlistProduct && 'h-fit',
       )}>
       <Link

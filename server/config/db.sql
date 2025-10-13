@@ -99,7 +99,7 @@ CREATE TABLE orders (
     user_id INT NOT NULL,
     total_amount DECIMAL(10 , 2 ) NOT NULL,
     currency VARCHAR(4) NOT NULL,
-    status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
+    status ENUM('placed', 'processing', 'confirmed', 'dispatched', 'delivered', 'cancelled') DEFAULT 'placed',
     shipping_address TEXT,
     payment_method VARCHAR(50),
     payment_status ENUM('unpaid', 'paid', 'refunded') DEFAULT 'unpaid',

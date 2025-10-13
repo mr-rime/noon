@@ -2,20 +2,7 @@ import { ChevronDown } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { animateElement } from '../../utils/animateElement'
 import { cn } from '../../utils/cn'
-
-interface SelectOption {
-  value: string
-  label: string
-}
-
-type SelectProps = {
-  options: SelectOption[]
-  defaultValue?: string
-  onChange?: (value: string) => void
-  className?: string
-  children?: React.ReactNode
-  labelContent?: string
-}
+import type { SelectProps } from '@/types/ui'
 
 export function Select({ options, defaultValue, onChange, className, labelContent }: SelectProps) {
   const isValidDefault = defaultValue && options.some((opt) => opt.value === defaultValue)

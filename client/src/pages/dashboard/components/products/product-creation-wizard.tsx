@@ -16,15 +16,14 @@ import { Button } from "../ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
-import { Badge } from "../ui/badge"
 import { Separator } from "../ui/separator"
 import { toast } from "sonner"
 import {
-    GET_CATEGORIES,
-    GET_SUBCATEGORIES,
     GET_BRANDS,
     CREATE_PSKU_PRODUCT
 } from "@/graphql/psku"
+import { GET_CATEGORIES } from "@/graphql/category"
+import { NestedCategorySelector } from "@/components/category"
 
 interface ProductCreationWizardProps {
     onClose: () => void
@@ -34,9 +33,14 @@ type Step = 1 | 2 | 3
 
 interface Category {
     category_id: number
+    parent_id?: number
     name: string
     slug: string
     description?: string
+    level: number
+    path: string
+    is_active: boolean
+    children?: Category[]
     subcategories?: Subcategory[]
 }
 
@@ -46,6 +50,7 @@ interface Subcategory {
     name: string
     slug: string
     description?: string
+    is_active: boolean
 }
 
 interface Brand {
@@ -61,7 +66,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
     const [currentStep, setCurrentStep] = useState<Step>(1)
 
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
-    const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null)
     const [categorySearch, setCategorySearch] = useState("")
 
     const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null)
@@ -73,14 +77,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
 
     const { data: categoriesData, loading: categoriesLoading } = useQuery(GET_CATEGORIES, {
         variables: { search: categorySearch }
-    })
-
-    useQuery(GET_SUBCATEGORIES, {
-        variables: {
-            category_id: selectedCategory?.category_id,
-            search: categorySearch
-        },
-        skip: !selectedCategory
     })
 
     const { data: brandsData, loading: brandsLoading } = useQuery(GET_BRANDS, {
@@ -123,12 +119,11 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
             }
 
             const variables: any = {
-                name: `Product in ${selectedCategory.name}${selectedSubcategory ? ` - ${selectedSubcategory.name}` : ''}`,
+                name: `Product in ${selectedCategory.name}`,
                 price: 0.01,
                 currency: "USD",
                 psku: autoGeneratePsku ? undefined : psku.trim(),
                 category_id: selectedCategory.category_id,
-                subcategory_id: selectedSubcategory?.subcategory_id,
                 stock: 0,
                 is_returnable: true,
                 is_public: false,
@@ -147,7 +142,7 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
             if (data?.createProduct?.success) {
                 toast.success("Product created successfully!")
                 const productId = data.createProduct.product.id
-                navigate({ to: `/d/products/${productId}` })
+                navigate({ to: `/d/products/$productId`, params: { productId } })
             } else {
                 toast.error(data?.createProduct?.message || "Failed to create product")
             }
@@ -239,57 +234,11 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
                                     Loading categories...
                                 </div>
                             ) : (
-                                <div className="space-y-4">
-                                    {categories.map((category: Category) => (
-                                        <div key={category.category_id} className="border rounded-lg p-4">
-                                            <div className="flex items-center justify-between">
-                                                <div
-                                                    className={`cursor-pointer flex-1 ${selectedCategory?.category_id === category.category_id ? 'text-primary font-medium' : ''}`}
-                                                    onClick={() => {
-                                                        setSelectedCategory(category)
-                                                        setSelectedSubcategory(null)
-                                                    }}
-                                                >
-                                                    <h3 className="text-lg font-semibold">{category.name}</h3>
-                                                    {category.description && (
-                                                        <p className="text-sm text-muted-foreground">{category.description}</p>
-                                                    )}
-                                                </div>
-                                                {selectedCategory?.category_id === category.category_id && (
-                                                    <Check className="h-5 w-5 text-primary" />
-                                                )}
-                                            </div>
-
-                                            {category.subcategories && category.subcategories.length > 0 && (
-                                                <div className="mt-3 ml-4 space-y-2">
-                                                    <p className="text-sm font-medium text-muted-foreground">Subcategories:</p>
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {category.subcategories.map((subcategory: Subcategory) => (
-                                                            <Badge
-                                                                key={subcategory.subcategory_id}
-                                                                variant={selectedSubcategory?.subcategory_id === subcategory.subcategory_id ? "default" : "outline"}
-                                                                className="cursor-pointer"
-                                                                onClick={() => setSelectedSubcategory(subcategory)}
-                                                            >
-                                                                {subcategory.name}
-                                                            </Badge>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {selectedCategory && (
-                                <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
-                                    <h4 className="font-medium text-primary">Selected Category:</h4>
-                                    <p className="text-sm">
-                                        {selectedCategory.name}
-                                        {selectedSubcategory && ` → ${selectedSubcategory.name}`}
-                                    </p>
-                                </div>
+                                <NestedCategorySelector
+                                    categories={categories}
+                                    selectedCategory={selectedCategory}
+                                    onCategorySelect={setSelectedCategory}
+                                />
                             )}
                         </div>
                     )}
@@ -409,7 +358,6 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
                                 <h4 className="font-medium mb-2">Product Summary:</h4>
                                 <div className="space-y-1 text-sm">
                                     <p><strong>Category:</strong> {selectedCategory?.name}</p>
-                                    {selectedSubcategory && <p><strong>Subcategory:</strong> {selectedSubcategory.name}</p>}
                                     <p><strong>Brand:</strong> {useGenericBrand ? 'Generic' : selectedBrand?.name}</p>
                                     <p><strong>PSKU:</strong> {autoGeneratePsku ? 'Auto-generated' : psku || 'Not specified'}</p>
                                 </div>

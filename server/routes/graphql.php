@@ -44,6 +44,8 @@ try {
     $output = $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE);
 } catch (Throwable $e) {
     http_response_code(500);
+    error_log("GraphQL Error: " . $e->getMessage());
+    error_log("GraphQL Stack Trace: " . $e->getTraceAsString());
     $output = ['error' => FormattedError::createFromException($e)];
 }
 
