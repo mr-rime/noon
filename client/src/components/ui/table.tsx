@@ -1,22 +1,5 @@
-import type React from 'react'
 import { useState } from 'react'
-
-type Column<T> = {
-  key: keyof T
-  header: string
-  render?: (row: T) => React.ReactNode
-  sortable?: boolean
-}
-
-type TableProps<T> = {
-  data: T[]
-  columns: Column<T>[]
-  pageSize?: number
-  currentPage?: number
-  totalItems?: number
-  onPageChange?: (page: number) => void
-  onRowClick?: (row: T) => void
-}
+import type { TableProps } from '@/types/ui'
 
 export function Table<T extends object>({
   data,

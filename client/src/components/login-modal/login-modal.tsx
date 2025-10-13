@@ -2,8 +2,9 @@ import { useMemo, useRef } from 'react'
 import { InfiniteScrollingImage } from '../ui/infinite-scrolling-image'
 import { ModalDialog } from '../ui/modal-dialog/modal-dialog'
 import { FormSwitch } from './components/form-switch'
+import type { LoginModalProps } from '@/types/auth'
 
-export function LoginModal({ onClose }: { onClose: () => void }) {
+export function LoginModal({ onClose }: LoginModalProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
 

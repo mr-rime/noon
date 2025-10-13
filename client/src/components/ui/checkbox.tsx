@@ -1,18 +1,7 @@
 import type React from 'react'
 import { cn } from '../../utils/cn'
 import { Check } from 'lucide-react'
-
-type CheckboxProps = {
-  label?: string
-  name?: string
-  checked: boolean
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
-  onCheckedChange?: (checked: boolean | undefined) => void
-  description?: string
-  className?: string
-  disabled?: boolean
-  id?: string
-}
+import type { CheckboxProps } from '@/types/ui'
 
 export function Checkbox({
   label,

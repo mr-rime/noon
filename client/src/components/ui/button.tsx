@@ -1,9 +1,5 @@
 import { cn } from '../../utils/cn'
-
-type ButtonProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'className'> & {
-  className?: string
-  children?: React.ReactNode | React.ReactElement
-}
+import type { ButtonProps } from '@/types/ui'
 
 export function Button({ children, className, ...rest }: ButtonProps) {
   return (

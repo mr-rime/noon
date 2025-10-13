@@ -16,18 +16,14 @@ import useUserHashStore from '@/store/user-hash/user-hash'
 import { GET_WISHLISTS } from '@/graphql/wishlist'
 import { GET_CART_ITEMS } from '@/graphql/cart'
 import { BouncingLoading } from '@/components/ui/bouncing-loading'
+import type { LoginFormContentProps } from '@/types/auth'
 
 export function LoginFormContent({
   isLogin,
   isPending,
   inputRef,
   onClose,
-}: {
-  isLogin: boolean
-  isPending: boolean
-  inputRef: React.RefObject<HTMLInputElement | null>
-  onClose: () => void
-}) {
+}: LoginFormContentProps) {
   const setHash = useUserHashStore((state) => state.setHash)
   const { register, handleSubmit, watch } = useForm<LoginFormSchemaType>({
     resolver: zodResolver(LoginFormSchema),
