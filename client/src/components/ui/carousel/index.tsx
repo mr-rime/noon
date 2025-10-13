@@ -89,7 +89,7 @@ export function Carousel({
       }
     }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [itemsPerView, gap, children.length, fixedItemWidth, autoPlay, autoPlayInterval, isDragging])
 
   const getMaxTranslate = useCallback(() => {

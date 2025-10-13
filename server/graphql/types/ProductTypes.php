@@ -48,8 +48,8 @@ $ProductInputType = new InputObjectType([
         'price' => Type::nonNull(Type::float()),
         'currency' => Type::nonNull(Type::string()),
         'psku' => Type::string(),
-        'category_id' => Type::int(),
-        'subcategory_id' => Type::int(),
+        'category_id' => Type::string(),
+        'subcategory_id' => Type::string(),
         'brand_id' => Type::int(),
         'group_id' => Type::string(),
         'stock' => Type::int(),
@@ -70,6 +70,7 @@ $ProductType = new ObjectType([
             'id' => Type::nonNull(Type::string()),
             'psku' => Type::string(),
             'name' => Type::nonNull(Type::string()),
+            'slug' => Type::string(),
             'price' => Type::nonNull(Type::float()),
             'final_price' => Type::nonNull(Type::float()),
             'currency' => Type::string(),
@@ -79,14 +80,22 @@ $ProductType = new ObjectType([
             'product_overview' => Type::string(),
             'user_id' => Type::int(),
             'store_id' => Type::int(),
-            'category_id' => Type::int(),
-            'subcategory_id' => Type::int(),
+            'category_id' => Type::string(),
+            'subcategory_id' => Type::string(),
             'brand_id' => Type::int(),
             'group_id' => Type::string(),
             'category_name' => Type::string(),
             'subcategory_name' => Type::string(),
             'brand_name' => Type::string(),
             'group_name' => Type::string(),
+            'brand' => new ObjectType([
+                'name' => 'ProductBrand',
+                'fields' => [
+                    'name' => Type::string(),
+                ]
+            ]),
+            'rating' => Type::float(),
+            'review_count' => Type::int(),
             'discount' => $DiscountType,
             'discount_percentage' => Type::float(),
             'is_in_wishlist' => Type::boolean(),
@@ -118,6 +127,7 @@ $ProductsResponseType = new ObjectType([
         'message' => Type::string(),
         'products' => Type::listOf($ProductType),
         'total' => Type::int(),
+        'totalCount' => Type::int(),
     ]
 ]);
 

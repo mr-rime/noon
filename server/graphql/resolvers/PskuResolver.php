@@ -7,15 +7,58 @@ require_once __DIR__ . '/../../models/ProductGroup.php';
 require_once __DIR__ . '/../../models/Product.php';
 
 
-function getCategories(mysqli $db, string $search = ''): array
+function mapChildrenToSubcategories(&$category)
+{
+    if (isset($category['children']) && is_array($category['children'])) {
+
+        foreach ($category['children'] as &$child) {
+            mapChildrenToSubcategories($child);
+        }
+
+
+        $category['subcategories'] = array_map(function ($child) {
+            return [
+                'subcategory_id' => $child['category_id'],
+                'category_id' => $child['parent_id'],
+                'name' => $child['name'],
+                'slug' => $child['slug'],
+                'description' => $child['description'] ?? null,
+                'is_active' => $child['is_active'] ?? true,
+                'created_at' => $child['created_at'] ?? null,
+                'updated_at' => $child['updated_at'] ?? null,
+                'subcategories' => $child['subcategories'] ?? []
+            ];
+        }, $category['children']);
+    } else {
+        $category['subcategories'] = [];
+    }
+}
+
+function getCategories(mysqli $db, ?string $parentId = null, bool $includeChildren = true, string $search = ''): array
 {
     $categoryModel = new Category($db);
 
     try {
-        if (empty($search)) {
-            $categories = $categoryModel->getWithSubcategories();
-        } else {
+        if (!empty($search)) {
             $categories = $categoryModel->search($search);
+        } else if ($includeChildren) {
+            $categories = $categoryModel->getCategoryTree($parentId);
+        } else {
+            $categories = $categoryModel->findByParentId($parentId);
+        }
+
+
+        foreach ($categories as &$category) {
+            $countQuery = "SELECT COUNT(*) as count FROM products WHERE category_id = ?";
+            $stmt = $db->prepare($countQuery);
+            $stmt->bind_param('s', $category['category_id']);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $count = $result->fetch_assoc();
+            $category['product_count'] = $count['count'] ?? 0;
+
+
+            mapChildrenToSubcategories($category);
         }
 
         return [
@@ -33,12 +76,59 @@ function getCategories(mysqli $db, string $search = ''): array
     }
 }
 
-function getCategory(mysqli $db, int $id): array
+function getHierarchicalCategories(mysqli $db): array
 {
     $categoryModel = new Category($db);
 
     try {
-        $category = $categoryModel->findById($id);
+        // Get full category tree
+        $categories = $categoryModel->getCategoryTree(null, 5);
+        
+        // Process categories to add hasChildren flag and product counts
+        function processCategories(&$categories, $db) {
+            foreach ($categories as &$category) {
+                // Get product count for this category
+                $countQuery = "SELECT COUNT(*) as count FROM products WHERE category_id = ?";
+                $stmt = $db->prepare($countQuery);
+                $stmt->bind_param('s', $category['category_id']);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $count = $result->fetch_assoc();
+                $category['product_count'] = $count['count'] ?? 0;
+                
+                // Add hasChildren flag
+                $category['hasChildren'] = isset($category['children']) && count($category['children']) > 0;
+                
+                // Recursively process children
+                if ($category['hasChildren']) {
+                    processCategories($category['children'], $db);
+                }
+            }
+        }
+        
+        processCategories($categories, $db);
+
+        return [
+            'success' => true,
+            'message' => 'Hierarchical categories retrieved successfully',
+            'categories' => $categories
+        ];
+    } catch (Exception $e) {
+        error_log("Error getting hierarchical categories: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Failed to retrieve hierarchical categories',
+            'categories' => []
+        ];
+    }
+}
+
+function getCategory(mysqli $db, string $id, bool $includeChildren = false): array
+{
+    $categoryModel = new Category($db);
+
+    try {
+        $category = $categoryModel->findById($id, $includeChildren);
 
         if (!$category) {
             return [
@@ -47,6 +137,9 @@ function getCategory(mysqli $db, int $id): array
                 'category' => null
             ];
         }
+
+
+        mapChildrenToSubcategories($category);
 
         return [
             'success' => true,
@@ -93,7 +186,7 @@ function createCategory(mysqli $db, array $input): array
     }
 }
 
-function updateCategory(mysqli $db, int $id, array $input): array
+function updateCategory(mysqli $db, string $id, array $input): array
 {
     $categoryModel = new Category($db);
 
@@ -123,7 +216,7 @@ function updateCategory(mysqli $db, int $id, array $input): array
     }
 }
 
-function deleteCategory(mysqli $db, int $id): array
+function deleteCategory(mysqli $db, string $id): array
 {
     $categoryModel = new Category($db);
 
@@ -151,23 +244,179 @@ function deleteCategory(mysqli $db, int $id): array
 }
 
 
-function getSubcategories(mysqli $db, ?int $categoryId = null, string $search = ''): array
+function getCategoryBreadcrumb(mysqli $db, string $categoryId): array
 {
-    $subcategoryModel = new Subcategory($db);
+    $categoryModel = new Category($db);
 
     try {
-        if ($categoryId) {
-            $subcategories = $subcategoryModel->findByCategoryId($categoryId);
-        } elseif (!empty($search)) {
-            $subcategories = $subcategoryModel->search($search);
-        } else {
-            $subcategories = $subcategoryModel->findAll();
+        $breadcrumb = $categoryModel->getBreadcrumb($categoryId);
+
+        return [
+            'success' => true,
+            'message' => 'Breadcrumb retrieved successfully',
+            'breadcrumb' => $breadcrumb
+        ];
+    } catch (Exception $e) {
+        error_log("Error getting breadcrumb: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Failed to retrieve breadcrumb',
+            'breadcrumb' => []
+        ];
+    }
+}
+
+function getCategoryBySlug(mysqli $db, string $slug, bool $includeChildren = true): array
+{
+    $categoryModel = new Category($db);
+
+    try {
+        $category = $categoryModel->findBySlug($slug, $includeChildren);
+
+        if (!$category) {
+            return [
+                'success' => false,
+                'message' => 'Category not found',
+                'category' => null
+            ];
+        }
+
+
+        $countQuery = "SELECT COUNT(*) as count FROM products WHERE category_id = ?";
+        $stmt = $db->prepare($countQuery);
+        $stmt->bind_param('i', $category['category_id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $count = $result->fetch_assoc();
+        $category['product_count'] = $count['count'] ?? 0;
+
+
+        mapChildrenToSubcategories($category);
+
+        return [
+            'success' => true,
+            'message' => 'Category retrieved successfully',
+            'category' => $category
+        ];
+    } catch (Exception $e) {
+        error_log("Error getting category by slug: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Failed to retrieve category',
+            'category' => null
+        ];
+    }
+}
+
+function getCategoryByNestedPath(mysqli $db, string $path, bool $includeChildren = true): array
+{
+    $categoryModel = new Category($db);
+
+    try {
+        $category = $categoryModel->findByNestedPath($path, $includeChildren);
+
+        if (!$category) {
+            return [
+                'success' => false,
+                'message' => 'Category not found',
+                'category' => null
+            ];
+        }
+
+
+        $countQuery = "SELECT COUNT(*) as count FROM products WHERE category_id = ?";
+        $stmt = $db->prepare($countQuery);
+        $stmt->bind_param('i', $category['category_id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $count = $result->fetch_assoc();
+        $category['product_count'] = $count['count'] ?? 0;
+
+
+        mapChildrenToSubcategories($category);
+
+        return [
+            'success' => true,
+            'message' => 'Category retrieved successfully',
+            'category' => $category
+        ];
+    } catch (Exception $e) {
+        error_log("Error getting category by nested path: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Failed to retrieve category',
+            'category' => null
+        ];
+    }
+}
+
+function moveCategory(mysqli $db, string $categoryId, ?string $newParentId = null): array
+{
+    $categoryModel = new Category($db);
+
+    try {
+        $moved = $categoryModel->moveCategory($categoryId, $newParentId);
+
+        if (!$moved) {
+            return [
+                'success' => false,
+                'message' => 'Failed to move category'
+            ];
         }
 
         return [
             'success' => true,
+            'message' => 'Category moved successfully'
+        ];
+    } catch (Exception $e) {
+        error_log("Error moving category: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Failed to move category: ' . $e->getMessage()
+        ];
+    }
+}
+
+function getSubcategories(mysqli $db, ?string $categoryId = null, string $search = ''): array
+{
+    try {
+        $categoryModel = new Category($db);
+
+        if ($categoryId) {
+
+            $subcategories = $categoryModel->findByParentId($categoryId);
+        } elseif (!empty($search)) {
+
+            $allCategories = $categoryModel->search($search);
+            $subcategories = array_filter($allCategories, function ($category) {
+                return $category['parent_id'] !== null;
+            });
+        } else {
+
+            $allCategories = $categoryModel->findAll();
+            $subcategories = array_filter($allCategories, function ($category) {
+                return $category['parent_id'] !== null;
+            });
+        }
+
+
+        $mappedSubcategories = array_map(function ($category) {
+            return [
+                'subcategory_id' => $category['category_id'],
+                'category_id' => $category['parent_id'],
+                'name' => $category['name'],
+                'slug' => $category['slug'],
+                'description' => $category['description'],
+                'is_active' => $category['is_active'],
+                'created_at' => $category['created_at'],
+                'updated_at' => $category['updated_at']
+            ];
+        }, $subcategories);
+
+        return [
+            'success' => true,
             'message' => 'Subcategories retrieved successfully',
-            'subcategories' => $subcategories
+            'subcategories' => $mappedSubcategories
         ];
     } catch (Exception $e) {
         error_log("Error getting subcategories: " . $e->getMessage());
@@ -181,18 +430,42 @@ function getSubcategories(mysqli $db, ?int $categoryId = null, string $search = 
 
 function createSubcategory(mysqli $db, array $input): array
 {
-    $subcategoryModel = new Subcategory($db);
+    $categoryModel = new Category($db);
 
     try {
-        $subcategory = $subcategoryModel->create($input);
 
-        if (!$subcategory) {
+        $categoryData = [
+            'parent_id' => $input['category_id'],
+            'name' => $input['name'],
+            'slug' => $input['slug'],
+            'description' => $input['description'] ?? null,
+            'display_order' => 0,
+            'image_url' => null,
+            'icon_url' => null,
+            'is_active' => $input['is_active'] ?? true
+        ];
+
+        $category = $categoryModel->create($categoryData);
+
+        if (!$category) {
             return [
                 'success' => false,
                 'message' => 'Failed to create subcategory',
                 'subcategory' => null
             ];
         }
+
+
+        $subcategory = [
+            'subcategory_id' => $category['category_id'],
+            'category_id' => $category['parent_id'],
+            'name' => $category['name'],
+            'slug' => $category['slug'],
+            'description' => $category['description'],
+            'is_active' => $category['is_active'],
+            'created_at' => $category['created_at'],
+            'updated_at' => $category['updated_at']
+        ];
 
         return [
             'success' => true,
@@ -209,20 +482,48 @@ function createSubcategory(mysqli $db, array $input): array
     }
 }
 
-function updateSubcategory(mysqli $db, int $id, array $input): array
+function updateSubcategory(mysqli $db, string $id, array $input): array
 {
-    $subcategoryModel = new Subcategory($db);
+    $categoryModel = new Category($db);
 
     try {
-        $subcategory = $subcategoryModel->update($id, $input);
 
-        if (!$subcategory) {
+        $categoryData = [];
+
+        if (isset($input['name'])) {
+            $categoryData['name'] = $input['name'];
+        }
+        if (isset($input['slug'])) {
+            $categoryData['slug'] = $input['slug'];
+        }
+        if (isset($input['description'])) {
+            $categoryData['description'] = $input['description'];
+        }
+        if (isset($input['is_active'])) {
+            $categoryData['is_active'] = $input['is_active'];
+        }
+
+        $category = $categoryModel->update($id, $categoryData);
+
+        if (!$category) {
             return [
                 'success' => false,
                 'message' => 'Failed to update subcategory',
                 'subcategory' => null
             ];
         }
+
+
+        $subcategory = [
+            'subcategory_id' => $category['category_id'],
+            'category_id' => $category['parent_id'],
+            'name' => $category['name'],
+            'slug' => $category['slug'],
+            'description' => $category['description'],
+            'is_active' => $category['is_active'],
+            'created_at' => $category['created_at'],
+            'updated_at' => $category['updated_at']
+        ];
 
         return [
             'success' => true,
@@ -239,12 +540,12 @@ function updateSubcategory(mysqli $db, int $id, array $input): array
     }
 }
 
-function deleteSubcategory(mysqli $db, int $id): array
+function deleteSubcategory(mysqli $db, string $id): array
 {
-    $subcategoryModel = new Subcategory($db);
+    $categoryModel = new Category($db);
 
     try {
-        $deleted = $subcategoryModel->delete($id);
+        $deleted = $categoryModel->delete($id);
 
         if (!$deleted) {
             return [
@@ -393,7 +694,7 @@ function deleteBrand(mysqli $db, int $id): array
 }
 
 
-function getProductGroups(mysqli $db, ?int $categoryId = null): array
+function getProductGroups(mysqli $db, ?string $categoryId = null): array
 {
     $groupModel = new ProductGroup($db);
 

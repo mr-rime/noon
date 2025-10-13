@@ -1,6 +1,7 @@
 import {
   AddressesIcon,
   CartIcon,
+  CategoriesIcon,
   DashboardIcon,
   HeartIcon,
   HomeIcon,
@@ -20,4 +21,5 @@ export const header_icons = {
   returnsIcon: <ReturnsIcon />,
   profileIcon: <ProfileIcon />,
   dashboardIcon: <DashboardIcon />,
+  categoriesIcon: <CategoriesIcon />,
 }

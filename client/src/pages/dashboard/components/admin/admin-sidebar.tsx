@@ -4,8 +4,6 @@ import {
     Package,
     Megaphone,
     ShoppingCart,
-    Users,
-    BarChart3,
     Settings,
     ChevronDown,
     ChevronRight,
@@ -37,7 +35,7 @@ const navigation = [
         items: [
             { title: "Advertisement Banners", url: "/d/banners" },
             { title: "Coupons", url: "/coupons" },
-            { title: "Discounts", url: "/discounts" },
+            { title: "Discounts", url: "/d/discounts" },
             { title: "Product Offers", url: "/offers" },
         ],
     },
@@ -45,22 +43,21 @@ const navigation = [
         title: "Orders",
         icon: ShoppingCart,
         items: [
-            { title: "All Orders", url: "/orders" },
-            { title: "Delivery Management", url: "/delivery" },
-            { title: "Tracking", url: "/tracking" },
+            { title: "All Orders", url: "/d/orders" },
+            { title: "Tracking", url: "/d/tracking" },
             { title: "Returns", url: "/returns" },
         ],
     },
-    {
-        title: "Customers",
-        url: "/customers",
-        icon: Users,
-    },
-    {
-        title: "Reports & Analytics",
-        url: "/analytics",
-        icon: BarChart3,
-    },
+    // {
+    //     title: "Customers",
+    //     url: "/customers",
+    //     icon: Users,
+    // },
+    // {
+    //     title: "Reports & Analytics",
+    //     url: "/analytics",
+    //     icon: BarChart3,
+    // },
     {
         title: "Settings",
         url: "/settings",

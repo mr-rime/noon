@@ -1,19 +1,5 @@
 import { cn } from '../../utils/cn'
-
-type ButtonDirectionType = 'left' | 'right'
-type IconDirectionType = 'left' | 'right'
-type InputRef = React.Ref<HTMLInputElement>
-
-type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'className' | 'buttonContent'> & {
-  className?: string
-  button?: boolean | { content: React.ReactNode }
-  buttonDirection?: ButtonDirectionType
-  input?: { className?: string }
-  iconDirection?: IconDirectionType
-  icon?: React.ReactElement | React.ReactNode
-  labelContent?: string
-  ref?: InputRef
-}
+import type { InputProps } from '@/types/ui'
 export function Input({
   className,
   input,

@@ -2,18 +2,7 @@ import { Link, useLocation } from '@tanstack/react-router'
 import { ChevronRight } from 'lucide-react'
 import type React from 'react'
 import { useMemo } from 'react'
-
-type BreadcrumbItem = {
-  label: string
-  href?: string
-}
-
-type BreadcrumbProps = {
-  items?: BreadcrumbItem[]
-  onClick?: () => void
-  separator?: React.ReactNode
-  className?: string
-}
+import type { BreadcrumbProps } from '@/types/ui'
 
 export const Breadcrumb: React.FC<BreadcrumbProps> = ({
   items,

@@ -39,6 +39,11 @@ if ($uri === '/graphql') {
     exit;
 }
 
+if ($uri === '/webhooks/stripe-webhook') {
+    require_once __DIR__ . '/../webhooks/stripe-webhook.php';
+    exit;
+}
+
 
 http_response_code(404);
 echo json_encode([

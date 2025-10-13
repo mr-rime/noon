@@ -68,6 +68,9 @@ export function ProductPskuPage() {
 
     const groupProducts = (product as any).groupProducts || []
     const hasGroupVariants = groupProducts.length > 1
+    const productImages = product.images ? [...product.images].sort(
+        (a, b) => Number(b.is_primary ?? false) - Number(a.is_primary ?? false)
+    ) : []
 
 
     const productAttributes = (product as any).productAttributes || []
@@ -98,11 +101,7 @@ export function ProductPskuPage() {
                         <AddToWishlistButton />
                     </div>
                 </div>
-
-
-                <ProductPageImage images={product.images?.map((image) => image.image_url) || ['']} />
-
-
+                <ProductPageImage images={productImages.map((image) => image.image_url) || ['']} />
                 <div
                     className="flex w-full flex-col items-start justify-center lg:w-[calc(500/1200*100%)]"
                     aria-labelledby="product-info-section">

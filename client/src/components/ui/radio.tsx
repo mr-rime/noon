@@ -1,16 +1,5 @@
-import type React from 'react'
 import { cn } from '../../utils/cn'
-
-type RadioProps = {
-  label: string
-  name: string
-  value: string
-  checked: boolean
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-  description?: string
-  className?: string
-  disabled?: boolean
-}
+import type { RadioProps } from '@/types/ui'
 
 export function Radio({ label, name, value, checked, onChange, description, className, disabled = false }: RadioProps) {
   return (

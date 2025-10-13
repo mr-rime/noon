@@ -30,7 +30,7 @@ const expiringOffers = [
 
 const upcomingDeliveries = [
     { order: "#ORD-1234", customer: "John Doe", date: "June 14", status: "confirmed" },
-    { order: "#ORD-1235", customer: "Jane Smith", date: "June 15", status: "pending" },
+    { order: "#ORD-1235", customer: "Jane Smith", date: "June 15", status: "placed" },
     { order: "#ORD-1236", customer: "Bob Wilson", date: "June 16", status: "confirmed" },
 ]
 

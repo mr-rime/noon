@@ -20,7 +20,6 @@ class Product
     private ProductImage $imageModel;
     private ProductGroup $groupModel;
     private Category $categoryModel;
-    private Subcategory $subcategoryModel;
     private Brand $brandModel;
 
     public function __construct(mysqli $db)
@@ -31,7 +30,6 @@ class Product
         $this->imageModel = new ProductImage($db);
         $this->groupModel = new ProductGroup($db);
         $this->categoryModel = new Category($db);
-        $this->subcategoryModel = new Subcategory($db);
         $this->brandModel = new Brand($db);
     }
 
@@ -86,6 +84,12 @@ class Product
         $product['discount_percentage'] = $this->getDiscountPercentage($price, $discount);
     }
 
+    private function generateSlug(string $name): string
+    {
+
+        return strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name), '-'));
+    }
+
     /* -------------------- QUERY HELPERS -------------------- */
 
     private function fetchAssocAll(mysqli_stmt $stmt): array
@@ -117,11 +121,109 @@ class Product
         return [$where, $order, $params, $types];
     }
 
+    private function buildWhereWithFilters(string $search, ?string $categoryId, ?array $categories, ?array $brands, ?float $minPrice, ?float $maxPrice, ?float $minRating): array
+    {
+        $conditions = [];
+        $params = [];
+        $types = '';
+
+
+        if (!empty(trim($search))) {
+            $conditions[] = "(name LIKE CONCAT('%', ?, '%') OR product_overview LIKE CONCAT('%', ?, '%') OR psku LIKE CONCAT('%', ?, '%'))";
+            $params = array_merge($params, [$search, $search, $search]);
+            $types .= 'sss';
+        }
+
+
+        // Handle category filtering - prioritize multiple categories over single categoryId
+        if (!empty($categories) && is_array($categories)) {
+            // Multiple categories selected
+            $categoryModel = new Category($this->db);
+            $allCategoryIds = [];
+
+            foreach ($categories as $catId) {
+                $descendantIds = $categoryModel->getAllDescendantIds($catId);
+                $allCategoryIds = array_merge($allCategoryIds, $descendantIds);
+            }
+
+            $allCategoryIds = array_unique($allCategoryIds);
+
+            if (!empty($allCategoryIds)) {
+                $placeholders = implode(',', array_fill(0, count($allCategoryIds), '?'));
+                $conditions[] = "category_id IN ($placeholders)";
+                $params = array_merge($params, $allCategoryIds);
+                $types .= str_repeat('s', count($allCategoryIds));
+            }
+        } elseif ($categoryId !== null) {
+            // Single category ID (fallback for backward compatibility)
+            $categoryModel = new Category($this->db);
+            $descendantIds = $categoryModel->getAllDescendantIds($categoryId);
+
+            if (!empty($descendantIds)) {
+                $placeholders = implode(',', array_fill(0, count($descendantIds), '?'));
+                $conditions[] = "category_id IN ($placeholders)";
+                $params = array_merge($params, $descendantIds);
+                $types .= str_repeat('s', count($descendantIds));
+            } else {
+                $conditions[] = "category_id = ?";
+                $params[] = $categoryId;
+                $types .= 's';
+            }
+        }
+
+
+        if (!empty($brands)) {
+            $placeholders = implode(',', array_fill(0, count($brands), '?'));
+            $conditions[] = "brand_id IN ($placeholders)";
+            $params = array_merge($params, $brands);
+            $types .= str_repeat('i', count($brands));
+        }
+
+
+        if ($minPrice !== null) {
+            $conditions[] = "price >= ?";
+            $params[] = $minPrice;
+            $types .= 'd';
+        }
+        if ($maxPrice !== null) {
+            $conditions[] = "price <= ?";
+            $params[] = $maxPrice;
+            $types .= 'd';
+        }
+
+
+
+
+
+
+
+
+        $where = empty($conditions) ? '' : 'WHERE ' . implode(' AND ', $conditions);
+
+        $order = !empty(trim($search)) ? "
+            ORDER BY CASE
+                WHEN psku = ? THEN 1
+                WHEN name = ? THEN 2
+                WHEN psku LIKE CONCAT(?, '%') THEN 3
+                WHEN name LIKE CONCAT(?, '%') THEN 4
+                WHEN name LIKE CONCAT('%', ?, '%') THEN 5
+                WHEN product_overview LIKE CONCAT('%', ?, '%') THEN 6
+                ELSE 7
+            END, id" : 'ORDER BY id';
+
+        if (!empty(trim($search))) {
+            $params = array_merge($params, array_fill(0, 6, $search));
+            $types .= 'ssssss';
+        }
+
+        return [$where, $order, $params, $types];
+    }
+
     /* -------------------- PUBLIC METHODS -------------------- */
 
-    public function findAll(?int $userId, int $limit = 10, int $offset = 0, string $search = '', bool $publicOnly = false): array
+    public function findAll(?int $userId, int $limit = 10, int $offset = 0, string $search = '', bool $publicOnly = false, ?string $categoryId = null, ?array $categories = null, ?array $brands = null, ?float $minPrice = null, ?float $maxPrice = null, ?float $minRating = null): array
     {
-        [$where, $order, $params, $types] = $this->buildWhereSearch($search);
+        [$where, $order, $params, $types] = $this->buildWhereWithFilters($search, $categoryId, $categories, $brands, $minPrice, $maxPrice, $minRating);
 
 
         if ($publicOnly) {
@@ -167,7 +269,7 @@ class Product
            0 as dummy
     FROM products p
     LEFT JOIN product_images pi ON p.id = pi.product_id
-    LEFT JOIN categories c ON p.category_id = c.category_id
+    LEFT JOIN categories_nested c ON p.category_id = c.category_id
     LEFT JOIN subcategories s ON p.subcategory_id = s.subcategory_id
     LEFT JOIN brands b ON p.brand_id = b.brand_id
     LEFT JOIN product_groups pg ON p.group_id = pg.group_id
@@ -191,6 +293,7 @@ class Product
                 'id' => $pid,
                 'psku' => $row['psku'],
                 'name' => $row['name'],
+                'slug' => $this->generateSlug($row['name']),
                 'price' => $row['price'],
                 'currency' => $row['currency'],
                 'stock' => $row['stock'],
@@ -199,13 +302,17 @@ class Product
                 'is_public' => $row['is_public'] ?? 0,
                 'final_price' => $row['final_price'],
                 'category_id' => $row['category_id'],
-                'subcategory_id' => $row['subcategory_id'],
                 'brand_id' => $row['brand_id'],
                 'group_id' => $row['group_id'],
                 'category_name' => $row['category_name'],
                 'subcategory_name' => $row['subcategory_name'],
                 'brand_name' => $row['brand_name'],
                 'group_name' => $row['group_name'],
+                'brand' => [
+                    'name' => $row['brand_name']
+                ],
+                'rating' => 4.5,
+                'review_count' => 0,
                 'created_at' => $row['created_at'],
                 'updated_at' => $row['updated_at'],
                 'is_in_wishlist' => (bool) ($row['is_in_wishlist'] ?? 0),
@@ -241,9 +348,9 @@ class Product
         return array_values($products);
     }
 
-    public function getTotalCount(string $search = '', bool $publicOnly = false): int
+    public function getTotalCount(string $search = '', bool $publicOnly = false, ?string $categoryId = null, ?array $categories = null, ?array $brands = null, ?float $minPrice = null, ?float $maxPrice = null, ?float $minRating = null): int
     {
-        [$where, $order, $params, $types] = $this->buildWhereSearch($search);
+        [$where, $order, $params, $types] = $this->buildWhereWithFilters($search, $categoryId, $categories, $brands, $minPrice, $maxPrice, $minRating);
 
 
         if ($publicOnly) {
@@ -265,7 +372,7 @@ class Product
         return (int) ($result[0]['total'] ?? 0);
     }
 
-    public function findRelatedProducts(string $productId, ?int $categoryId, ?int $brandId, int $limit = 8): array
+    public function findRelatedProducts(string $productId, ?string $categoryId, ?int $brandId, int $limit = 8): array
     {
 
         $currentProduct = $this->findById($productId);
@@ -285,7 +392,7 @@ class Product
         if ($categoryId) {
             $query .= " AND p.category_id = ?";
             $params[] = $categoryId;
-            $types .= 'i';
+            $types .= 's';
         }
 
         $query .= " ORDER BY 
@@ -298,7 +405,7 @@ class Product
 
         $params[] = $categoryId;
         $params[] = $limit;
-        $types .= 'ii';
+        $types .= 'si';
 
         $stmt = $this->db->prepare($query);
         if (!$stmt) {
@@ -318,7 +425,6 @@ class Product
         foreach ($products as $pid => &$product) {
 
             $product['psku'] = null;
-            $product['subcategory_id'] = null;
             $product['brand_id'] = null;
             $product['group_id'] = null;
             $product['subcategory_name'] = null;
@@ -411,7 +517,6 @@ class Product
             'user_id' => $base['user_id'],
             'store_id' => $base['store_id'],
             'category_id' => $base['category_id'],
-            'subcategory_id' => $base['subcategory_id'],
             'brand_id' => $base['brand_id'],
             'group_id' => $base['group_id'],
             'name' => $base['name'],
@@ -584,8 +689,8 @@ class Product
             return null;
         }
 
-        if (empty($data['currency']) || !is_string($data['currency'])) {
-            error_log("Validation failed: currency is required and must be a string");
+        if (empty($data['currency']) || !is_string($data['currency']) || $data['currency'] === '0') {
+            error_log("Validation failed: currency is required and must be a valid string (got: " . json_encode($data['currency']) . ")");
             return null;
         }
 
@@ -595,8 +700,8 @@ class Product
             'price' => (float) $data['price'],
             'currency' => trim($data['currency']),
             'psku' => isset($data['psku']) && $data['psku'] !== null ? trim($data['psku']) : null,
-            'category_id' => isset($data['category_id']) && $data['category_id'] !== null ? (int) $data['category_id'] : null,
-            'subcategory_id' => isset($data['subcategory_id']) && $data['subcategory_id'] !== null ? (int) $data['subcategory_id'] : null,
+            'category_id' => isset($data['category_id']) && $data['category_id'] !== null ? $data['category_id'] : null,
+            'subcategory_id' => isset($data['subcategory_id']) && $data['subcategory_id'] !== null ? $data['subcategory_id'] : null,
             'brand_id' => isset($data['brand_id']) && $data['brand_id'] !== null ? (int) $data['brand_id'] : null,
             'group_id' => isset($data['group_id']) && $data['group_id'] !== null ? trim($data['group_id']) : null,
             'stock' => isset($data['stock']) && $data['stock'] !== null ? (int) $data['stock'] : 0,
@@ -634,7 +739,7 @@ class Product
 
 
         if ($storeId !== null) {
-            $userId = null;
+            $userId = 0; // Use 0 instead of null for store products
         } elseif (isset($_SESSION['user']['id'])) {
             $userId = $_SESSION['user']['id'];
             $storeId = null;
@@ -648,7 +753,7 @@ class Product
         $isPublic = (int) $cleanData['is_public'];
 
         $stmt->bind_param(
-            'sssiiiissdiisiid',
+            'ssiisssdsisiiiid',
             $hash,
             $psku,
             $userId,
@@ -669,6 +774,7 @@ class Product
 
         if (!$stmt->execute()) {
             error_log("Execute failed: " . $stmt->error);
+            error_log("Product data being inserted: " . json_encode($cleanData));
             return null;
         }
 
@@ -703,6 +809,21 @@ class Product
         if (!$createdProduct) {
             error_log("Product created with ID: $hash but findById returned null");
             error_log("Query might be failing. Check database state for product ID: $hash");
+
+
+            $debugQuery = "SELECT * FROM products WHERE id = ?";
+            $debugStmt = $this->db->prepare($debugQuery);
+            if ($debugStmt) {
+                $debugStmt->bind_param('s', $hash);
+                $debugStmt->execute();
+                $debugResult = $debugStmt->get_result();
+                $debugProduct = $debugResult->fetch_assoc();
+                if ($debugProduct) {
+                    error_log("Direct query found product: " . json_encode($debugProduct));
+                } else {
+                    error_log("Direct query also returned no product for ID: $hash");
+                }
+            }
         }
 
         return $createdProduct;
@@ -715,8 +836,8 @@ class Product
             ->key('currency', v::stringType()->notEmpty()->length(3, 4), false)
             ->key('product_overview', v::optional(v::stringType()), false)
             ->key('psku', v::optional(v::stringType()->length(1, 100)), false)
-            ->key('category_id', v::optional(v::intVal()->positive()), false)
-            ->key('subcategory_id', v::optional(v::intVal()->positive()), false)
+            ->key('category_id', v::optional(v::stringType()), false)
+            ->key('subcategory_id', v::optional(v::stringType()), false)
             ->key('brand_id', v::optional(v::intVal()->positive()), false)
             ->key('group_id', v::optional(v::stringType()), false)
             ->key('stock', v::optional(v::intVal()->min(0)), false)
@@ -749,7 +870,7 @@ class Product
                 continue;
 
 
-            if (in_array($key, ['category_id', 'subcategory_id', 'brand_id', 'group_id']) && $value === '') {
+            if (in_array($key, ['category_id', 'brand_id', 'group_id']) && $value === '') {
                 $value = null;
             }
 
@@ -894,11 +1015,7 @@ class Product
             }
 
 
-            $stmt = $this->db->prepare('DELETE FROM product_variants WHERE product_id = ?');
-            if ($stmt) {
-                $stmt->bind_param('s', $id);
-                $stmt->execute();
-            }
+            // Note: product_variants table doesn't exist, skipping this deletion
 
 
             $stmt = $this->db->prepare('DELETE FROM products WHERE id = ?');

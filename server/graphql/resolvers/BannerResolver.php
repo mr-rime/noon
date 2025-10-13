@@ -2,23 +2,20 @@
 
 require_once __DIR__ . '/../../models/Banner.php';
 
-/**
- * Get all banners
- */
 function getBanners(mysqli $db, $args)
 {
     try {
         $bannerModel = new App\Models\Banner($db);
-        
+
         $placement = $args['placement'] ?? null;
         $isActive = $args['isActive'] ?? null;
         $limit = $args['limit'] ?? 20;
         $offset = $args['offset'] ?? 0;
         $search = $args['search'] ?? '';
-        
+
         $banners = $bannerModel->findAll($placement, $isActive, $limit, $offset, $search);
         $total = $bannerModel->getTotalCount($placement, $isActive, $search);
-        
+
         return [
             'banners' => $banners,
             'total' => $total
@@ -32,9 +29,6 @@ function getBanners(mysqli $db, $args)
     }
 }
 
-/**
- * Get a single banner by ID
- */
 function getBanner(mysqli $db, $args)
 {
     try {
@@ -46,9 +40,6 @@ function getBanner(mysqli $db, $args)
     }
 }
 
-/**
- * Get active banners by placement
- */
 function getActiveBannersByPlacement(mysqli $db, $args)
 {
     try {
@@ -60,14 +51,11 @@ function getActiveBannersByPlacement(mysqli $db, $args)
     }
 }
 
-/**
- * Create a new banner
- */
 function createBanner(mysqli $db, $args)
 {
     try {
         $bannerModel = new App\Models\Banner($db);
-        
+
         $banner = $bannerModel->create(
             $args['name'],
             $args['placement'],
@@ -78,7 +66,7 @@ function createBanner(mysqli $db, $args)
             $args['endDate'],
             $args['isActive'] ?? true
         );
-        
+
         if ($banner) {
             return [
                 'success' => true,
@@ -86,7 +74,7 @@ function createBanner(mysqli $db, $args)
                 'banner' => $banner
             ];
         }
-        
+
         return [
             'success' => false,
             'message' => 'Failed to create banner',
@@ -102,14 +90,11 @@ function createBanner(mysqli $db, $args)
     }
 }
 
-/**
- * Update an existing banner
- */
 function updateBanner(mysqli $db, $args)
 {
     try {
         $bannerModel = new App\Models\Banner($db);
-        
+
         $banner = $bannerModel->update(
             $args['id'],
             $args['name'],
@@ -121,7 +106,7 @@ function updateBanner(mysqli $db, $args)
             $args['endDate'],
             $args['isActive'] ?? true
         );
-        
+
         if ($banner) {
             return [
                 'success' => true,
@@ -129,7 +114,7 @@ function updateBanner(mysqli $db, $args)
                 'banner' => $banner
             ];
         }
-        
+
         return [
             'success' => false,
             'message' => 'Failed to update banner',
@@ -145,15 +130,12 @@ function updateBanner(mysqli $db, $args)
     }
 }
 
-/**
- * Delete a banner
- */
 function deleteBanner(mysqli $db, $args)
 {
     try {
         $bannerModel = new App\Models\Banner($db);
         $success = $bannerModel->delete($args['id']);
-        
+
         return [
             'success' => $success,
             'message' => $success ? 'Banner deleted successfully' : 'Failed to delete banner'
@@ -167,15 +149,12 @@ function deleteBanner(mysqli $db, $args)
     }
 }
 
-/**
- * Toggle banner active status
- */
 function toggleBannerStatus(mysqli $db, $args)
 {
     try {
         $bannerModel = new App\Models\Banner($db);
         $banner = $bannerModel->toggleActive($args['id']);
-        
+
         if ($banner) {
             return [
                 'success' => true,
@@ -183,7 +162,7 @@ function toggleBannerStatus(mysqli $db, $args)
                 'banner' => $banner
             ];
         }
-        
+
         return [
             'success' => false,
             'message' => 'Failed to update banner status',

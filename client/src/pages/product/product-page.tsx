@@ -17,6 +17,7 @@ import { Button } from '../../components/ui/button'
 import { AddToWishlistButton } from './components/add-to-wishlist-button'
 import { ProductPageLoadingSkeleton } from './components/product-page-loading-skeleton'
 import { cn } from '@/utils/cn'
+import Breadcrumb from '../../components/category/breadcrumb'
 
 export function ProductPage() {
   const { productId } = useParams({
@@ -40,12 +41,6 @@ export function ProductPage() {
   useEffect(() => {
     if (currentProduct) {
       setSelectedProduct(currentProduct)
-      console.log('🔍 DEBUGGING PRODUCT DATA:')
-      console.log('Current Product:', currentProduct)
-      console.log('Group Products:', currentProduct.groupProducts)
-      console.log('Product Attributes:', currentProduct.productAttributes)
-      console.log('Group ID:', currentProduct.group_id)
-      console.log('Product ID:', currentProduct.id)
     }
   }, [currentProduct])
 
@@ -61,6 +56,7 @@ export function ProductPage() {
 
 
     const publicProducts = currentProduct.groupProducts.filter(product => product.is_public)
+   
 
 
     const currentProductInGroup = currentProduct.groupProducts.find(p => p.id === currentProduct.id)
@@ -71,6 +67,11 @@ export function ProductPage() {
     return publicProducts
   }, [currentProduct])
 
+  const productImages = selectedProduct?.images
+  ? [...selectedProduct.images].sort(
+    (a, b) => Number(b.is_primary ?? false) - Number(a.is_primary ?? false)
+  )
+  : []
 
   const attributeOptions = useMemo(() => {
     const options: Record<string, Set<string>> = {}
@@ -107,7 +108,6 @@ export function ProductPage() {
         } else if (productName.includes('green')) {
           options['Color'].add('Green')
         } else {
-
           const colors = ['Black', 'White', 'Cosmic Orange', 'Deep Blue', 'Red', 'Green']
           const colorIndex = allGroupProducts.findIndex(p => p.id === product.id)
           if (colorIndex >= 0 && colorIndex < colors.length) {
@@ -116,13 +116,6 @@ export function ProductPage() {
         }
       })
     }
-
-    console.log('🔍 DEBUGGING ATTRIBUTES:')
-    console.log('All Group Products:', allGroupProducts)
-    console.log('Attribute Options:', options)
-    console.log('Attribute Options Keys:', Object.keys(options))
-    console.log('Number of attribute types:', Object.keys(options).length)
-
 
     allGroupProducts.forEach((product, index) => {
       console.log(`Product ${index + 1} (${product.id}):`, product.productAttributes)
@@ -211,6 +204,11 @@ export function ProductPage() {
 
   return (
     <main aria-label="Product Page" className="!scroll-smooth mb-32 overflow-x-hidden bg-white">
+      {/* Breadcrumb Navigation */}
+      {currentProduct?.category_id && (
+        <Breadcrumb categoryId={currentProduct.category_id} className="border-b border-gray-200" />
+      )}
+      
       <section
         aria-labelledby="product-main-section"
         className="site-container relative flex w-full flex-col items-start justify-start space-y-10 px-5 pt-10 lg:flex-row lg:space-x-10 lg:space-y-0 ">
@@ -236,7 +234,7 @@ export function ProductPage() {
         </div>
         <ProductPageImage
           key={selectedProduct?.id}
-          images={selectedProduct?.images.map((image) => image.image_url) || ['']}
+          images={productImages.map((image) => image.image_url) || ['']}
         />
 
         <div

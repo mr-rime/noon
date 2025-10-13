@@ -6,7 +6,7 @@ import { Badge } from '../ui/badge'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
 import { ChevronDown, ChevronUp, Trash2, Package, X, Edit, Grid, Search, ArrowLeft, Loader2 } from 'lucide-react'
-import { GET_PRODUCT_GROUPS, CREATE_PRODUCT_GROUP, UPDATE_PRODUCT_GROUP, ADD_PRODUCT_TO_GROUP, CREATE_PSKU_PRODUCT, REMOVE_PRODUCT_FROM_GROUP } from '@/graphql/psku'
+import { GET_PRODUCT_GROUPS, CREATE_PRODUCT_GROUP, UPDATE_PRODUCT_GROUP, ADD_PRODUCT_TO_GROUP, CREATE_PSKU_PRODUCT, REMOVE_PRODUCT_FROM_GROUP, DELETE_PRODUCT_GROUP } from '@/graphql/psku'
 import { GET_PRODUCTS, UPDATE_PRODUCT } from '@/graphql/product'
 import type { ProductType, ProductGroup } from '@/types'
 import { Link } from '@tanstack/react-router'
@@ -39,6 +39,9 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
     const [isCreatingPsku, setIsCreatingPsku] = useState(false)
     const [isSavingGroup, setIsSavingGroup] = useState(false)
     const [isDeletingProduct, setIsDeletingProduct] = useState(false)
+    const [showDeleteGroupConfirm, setShowDeleteGroupConfirm] = useState(false)
+    const [isDeletingGroup, setIsDeletingGroup] = useState(false)
+
 
     const { data: groupsData, refetch: refetchGroups } = useQuery(GET_PRODUCT_GROUPS, {
         variables: { category_id: product.category_id },
@@ -50,11 +53,15 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
         skip: !showAddExisting
     })
 
+
     const availableProducts = productsData?.getProducts?.products?.filter((prod: any) => {
+
         if (prod.id === product.id) return false
+
 
         const isInGroup = groupProducts.some((gp: any) => gp.id === prod.id)
         if (isInGroup) return false
+
 
         return true
     }) || []
@@ -63,6 +70,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
 
     useEffect(() => {
         if (currentGroup) {
+
             let attributes = []
             try {
                 attributes = typeof currentGroup.attributes === 'string'
@@ -110,6 +118,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
 
     const [createGroup] = useMutation(CREATE_PRODUCT_GROUP)
     const [updateGroup] = useMutation(UPDATE_PRODUCT_GROUP)
+    const [deleteGroup] = useMutation(DELETE_PRODUCT_GROUP)
     const [addProductToGroup] = useMutation(ADD_PRODUCT_TO_GROUP)
     const [createPskuProduct] = useMutation(CREATE_PSKU_PRODUCT)
     const [updateProduct] = useMutation(UPDATE_PRODUCT)
@@ -216,13 +225,15 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
             }
 
             try {
+
+                toast.loading('Creating group...', { id: 'create-group' })
+
                 const { data } = await createGroup({
                     variables: {
                         input: {
                             name: newGroupName.trim(),
                             description: newGroupDescription.trim() || null,
                             category_id: product.category_id,
-                            subcategory_id: product.subcategory_id,
                             brand_id: product.brand_id,
                             attributes: groupAxes
                         }
@@ -240,7 +251,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                         }
                     })
 
-                    toast.success('Group created successfully!')
+                    toast.success('Group created successfully!', { id: 'create-group' })
                     setShowGroupModal(false)
                     setNewGroupName('')
                     setNewGroupDescription('')
@@ -248,11 +259,11 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                     refetchGroups()
                     onGroupUpdate?.()
                 } else {
-                    toast.error(data?.createProductGroup?.message || 'Failed to create group')
+                    toast.error(data?.createProductGroup?.message || 'Failed to create group', { id: 'create-group' })
                 }
             } catch (error) {
                 console.error('Error creating group:', error)
-                toast.error('An error occurred while creating the group')
+                toast.error('An error occurred while creating the group', { id: 'create-group' })
             } finally {
                 setIsSavingGroup(false)
             }
@@ -407,6 +418,78 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
         }
     }
 
+    const handleDeleteGroup = () => {
+        if (!currentGroup) return
+        setShowDeleteGroupConfirm(true)
+    }
+
+    const confirmDeleteGroup = async () => {
+        if (!currentGroup) return
+
+        setIsDeletingGroup(true)
+
+        try {
+
+            toast.loading('Deleting group...', { id: 'delete-group' })
+
+
+            setShowGroupModal(false)
+
+            const { data } = await deleteGroup({
+                variables: { groupId: currentGroup.group_id },
+                optimisticResponse: {
+                    deleteProductGroup: {
+                        __typename: 'ProductGroupResponse',
+                        success: true,
+                        message: 'Deleting group...'
+                    }
+                },
+                update: (cache, { data }) => {
+                    if (data?.deleteProductGroup?.success) {
+
+                        const existingGroups = cache.readQuery({
+                            query: GET_PRODUCT_GROUPS,
+                            variables: { category_id: product.category_id }
+                        }) as any
+
+                        if (existingGroups?.getProductGroups) {
+                            cache.writeQuery({
+                                query: GET_PRODUCT_GROUPS,
+                                variables: { category_id: product.category_id },
+                                data: {
+                                    getProductGroups: {
+                                        ...existingGroups.getProductGroups,
+                                        groups: existingGroups.getProductGroups.groups.filter(
+                                            (group: any) => group.group_id !== currentGroup.group_id
+                                        )
+                                    }
+                                }
+                            })
+                        }
+                    }
+                }
+            })
+
+            if (data?.deleteProductGroup?.success) {
+                toast.success('Product group deleted successfully!', { id: 'delete-group' })
+                onGroupUpdate?.()
+            } else {
+
+                setShowGroupModal(true)
+                toast.error(data?.deleteProductGroup?.message || 'Failed to delete product group', { id: 'delete-group' })
+            }
+        } catch (error) {
+            console.error('Error deleting product group:', error)
+            toast.error('An error occurred while deleting the product group', { id: 'delete-group' })
+
+            setShowGroupModal(true)
+
+        } finally {
+            setIsDeletingGroup(false)
+            setShowDeleteGroupConfirm(false)
+        }
+    }
+
     const handleCreateNewPsku = async () => {
         if (!newPsku.trim()) {
             toast.error('PSKU is required')
@@ -442,39 +525,53 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
         setGroupProducts(prev => [...prev, optimisticProduct])
 
         try {
+            const productData = {
+                name: `Product ${newPsku}`,
+                psku: newPsku.trim(),
+                price: product.price,
+                currency: (product.currency && product.currency !== '0') ? product.currency : 'USD',
+                category_id: product.category_id,
+                subcategory_id: product.subcategory_id,
+                brand_id: product.brand_id,
+                group_id: currentGroup.group_id,
+                stock: 0,
+                is_returnable: product.is_returnable,
+                is_public: product.is_public || false,
+                product_overview: '',
+                images: [],
+                productSpecifications: [],
+                productAttributes: []
+            }
+
+            console.log('Creating product with data:', productData)
+
             const { data } = await createPskuProduct({
-                variables: {
-                    name: `Product ${newPsku}`,
-                    psku: newPsku.trim(),
-                    price: product.price,
-                    currency: product.currency,
-                    category_id: product.category_id,
-                    subcategory_id: product.subcategory_id,
-                    brand_id: product.brand_id,
-                    group_id: currentGroup.group_id,
-                    stock: 0,
-                    is_returnable: product.is_returnable,
-                    is_public: product.is_public || false,
-                    product_overview: '',
-                    images: [],
-                    productSpecifications: [],
-                    productAttributes: []
-                }
+                variables: productData
             })
 
+            console.log('Create product response:', data)
+
             if (data?.createProduct?.success) {
-                toast.success('New Partner SKU created successfully!')
-                setShowCreateNew(false)
-                setNewPsku('')
-                setPskuValidationMessage('')
-
-
                 const realProduct = data.createProduct.product
-                setGroupProducts(prev =>
-                    prev.map(p => p.id === optimisticProduct.id ? realProduct : p)
-                )
 
-                onGroupUpdate?.()
+                if (realProduct) {
+                    toast.success('New Partner SKU created successfully!')
+                    setShowCreateNew(false)
+                    setNewPsku('')
+                    setPskuValidationMessage('')
+
+
+                    setGroupProducts(prev =>
+                        prev.map(p => p.id === optimisticProduct.id ? realProduct : p)
+                    )
+
+                    onGroupUpdate?.()
+                } else {
+
+                    setGroupProducts(prev => prev.filter(p => p.id !== optimisticProduct.id))
+                    console.error('Product creation succeeded but product data is null:', data)
+                    toast.error('Product was created but failed to retrieve data. Please refresh the page.')
+                }
             } else {
 
                 setGroupProducts(prev => prev.filter(p => p.id !== optimisticProduct.id))
@@ -492,7 +589,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
 
     return (
         <>
-
+            {/* Main Product Group Section */}
             <div className="border rounded-lg bg-gray-50 w-fit min-w-80">
                 <div
                     className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors"
@@ -524,7 +621,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                             </div>
                         ) : (
                             <>
-
+                                {/* Group Products */}
                                 {groupProducts.map((groupProduct: any, index: number) => {
                                     const isCurrentProduct = groupProduct.id === product.id
                                     return (
@@ -584,7 +681,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                 </div>
                                             </div>
 
-
+                                            {/* Product Attributes */}
                                             <div className="mt-3 space-y-2 text-sm">
                                                 {groupAxes.map(axis => {
                                                     const attr = groupProduct.productAttributes?.find((a: any) => a.attribute_name === axis)
@@ -600,7 +697,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                     )
                                 })}
 
-
+                                {/* Current Product (if not in group products list) */}
                                 {!groupProducts.some((gp: any) => gp.id === product.id) && (
                                     <div className="bg-blue-50 border-blue-200 ring-2 ring-blue-100 rounded-lg p-4">
                                         <div className="flex items-start gap-3">
@@ -635,7 +732,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                             </div>
                                         </div>
 
-
+                                        {/* Product Attributes */}
                                         <div className="mt-3 space-y-2 text-sm">
                                             {groupAxes.map(axis => {
                                                 const attr = product.productAttributes?.find((a: any) => a.attribute_name === axis)
@@ -650,7 +747,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                     </div>
                                 )}
 
-
+                                {/* Add Partner SKU Section */}
                                 <div className="border-t pt-4">
                                     <button
                                         className="flex items-center justify-between w-full text-blue-600 hover:text-blue-700 font-medium text-sm"
@@ -686,15 +783,20 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 )}
             </div>
 
-
+            {/* Group Modal */}
             {showGroupModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-
+                        {/* Modal Header */}
                         <div className="border-b px-6 py-4 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <h2 className="text-lg font-semibold">{currentGroup?.name}</h2>
-                                <Button variant="ghost" size="sm">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={handleDeleteGroup}
+                                    title="Delete group"
+                                >
                                     <Trash2 className="h-4 w-4 text-red-600" />
                                 </Button>
                                 <Button variant="ghost" size="sm">
@@ -706,7 +808,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                             </Button>
                         </div>
 
-
+                        {/* Modal Content */}
                         <div className="flex-1 overflow-y-auto p-6 space-y-6">
                             {!currentGroup ? (
                                 /* Create New Group Form */
@@ -736,7 +838,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                 placeholder="Enter axis name"
                                                 value={newAxisName}
                                                 onChange={(e) => setNewAxisName(e.target.value)}
-                                                onKeyPress={(e) => e.key === 'Enter' && handleAddAxis()}
+                                                onKeyDown={(e) => e.key === 'Enter' && handleAddAxis()}
                                             />
                                             <Button variant="outline" onClick={handleAddAxis}>
                                                 + Add
@@ -761,13 +863,13 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                 </div>
                             ) : (
                                 <>
-
+                                    {/* SKU Group ID */}
                                     <div>
                                         <Label className="text-sm text-gray-600">SKU Group:</Label>
                                         <div className="font-mono text-sm mt-1">{currentGroup.group_id}</div>
                                     </div>
 
-
+                                    {/* Axes Section */}
                                     <div>
                                         <div className="flex items-center gap-2 mb-3">
                                             <Label>Axes:</Label>
@@ -798,9 +900,9 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                         </div>
                                     </div>
 
-
+                                    {/* Products List */}
                                     <div className="space-y-4">
-
+                                        {/* Group Products */}
                                         {groupProducts.map((groupProduct: any, index: number) => {
                                             const isCurrentProduct = groupProduct.id === product.id
                                             return (
@@ -858,7 +960,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                         </div>
                                                     </div>
 
-
+                                                    {/* Editable Attributes */}
                                                     <div className="space-y-3">
                                                         {groupAxes.map((axis) => {
                                                             const value = editableAttributes[groupProduct.id]?.[axis] || ''
@@ -878,7 +980,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                             )
                                         })}
 
-
+                                        {/* Current Product (if not in group products list) */}
                                         {!groupProducts.some((gp: any) => gp.id === product.id) && (
                                             <div className="bg-blue-50 border-blue-200 ring-2 ring-blue-100 rounded-lg p-4">
                                                 <div className="flex items-start gap-3 mb-4">
@@ -913,7 +1015,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                     </div>
                                                 </div>
 
-
+                                                {/* Editable Attributes for Current Product */}
                                                 <div className="space-y-3">
                                                     {groupAxes.map((axis) => {
                                                         const value = editableAttributes[product.id]?.[axis] || ''
@@ -936,7 +1038,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                             )}
                         </div>
 
-
+                        {/* Modal Footer */}
                         <div className="border-t px-6 py-4 flex justify-end gap-3">
                             <Button variant="outline" onClick={handleCloseModal}>
                                 Cancel
@@ -950,7 +1052,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 </div>
             )}
 
-
+            {/* Add Existing Partner SKU Modal */}
             {showAddExisting && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
@@ -1042,7 +1144,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 </div>
             )}
 
-
+            {/* Create New Partner SKU Modal */}
             {showCreateNew && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-lg w-full">
@@ -1109,7 +1211,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 </div>
             )}
 
-
+            {/* Delete Confirmation Modal */}
             {showDeleteConfirm && productToDelete && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
@@ -1146,6 +1248,49 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                 >
                                     {isDeletingProduct && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                                     Remove Product
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Group Confirmation Modal */}
+            {showDeleteGroupConfirm && currentGroup && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+                        <div className="p-6">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                                    <Trash2 className="h-6 w-6 text-red-600" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900">Delete Product Group</h3>
+                                    <p className="text-sm text-gray-500">This action cannot be undone</p>
+                                </div>
+                            </div>
+
+                            <p className="text-gray-700 mb-6">
+                                Are you sure you want to delete the product group <strong>"{currentGroup.name}"</strong>? This will remove all products from the group.
+                            </p>
+
+                            <div className="flex gap-3 justify-end">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        setShowDeleteGroupConfirm(false)
+                                    }}
+                                    disabled={isDeletingGroup}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    variant="destructive"
+                                    onClick={confirmDeleteGroup}
+                                    disabled={isDeletingGroup}
+                                >
+                                    {isDeletingGroup && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                                    Delete Group
                                 </Button>
                             </div>
                         </div>

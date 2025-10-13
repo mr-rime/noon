@@ -17,9 +17,6 @@ class ProductVariant
         $this->optionModel = new ProductOption($db);
     }
 
-    /**
-     * Create variant with automatic SKU generation
-     */
     public function create(string $productId, array $optionCombination, ?float $price = null, ?int $stock = null, ?string $imageUrl = null): ?array
     {
 
@@ -28,9 +25,6 @@ class ProductVariant
         return $this->createWithSku($productId, $sku, $optionCombination, $price, $stock, $imageUrl);
     }
 
-    /**
-     * Create variant with specific SKU
-     */
     public function createWithSku(string $productId, string $sku, array $optionCombination, ?float $price = null, ?int $stock = null, ?string $imageUrl = null): ?array
     {
         $stmt = $this->db->prepare('
@@ -57,9 +51,6 @@ class ProductVariant
         return $this->findById($stmt->insert_id);
     }
 
-    /**
-     * Generate variants automatically from product options
-     */
     public function generateVariantsFromOptions(string $productId): array
     {
 
@@ -92,9 +83,6 @@ class ProductVariant
         return $variants;
     }
 
-    /**
-     * Get base product ID (handles linked product inheritance)
-     */
     private function getBaseProductId(string $productId): string
     {
 
@@ -118,9 +106,6 @@ class ProductVariant
         return $productId;
     }
 
-    /**
-     * Generate all possible combinations from option groups
-     */
     private function generateOptionCombinations(array $optionGroups): array
     {
         if (empty($optionGroups)) {
@@ -157,9 +142,6 @@ class ProductVariant
         return $rows;
     }
 
-    /**
-     * Get all variants for a product including linked product variants
-     */
     public function getAllVariantsForProduct(string $productId): array
     {
 
@@ -179,9 +161,6 @@ class ProductVariant
         return $allVariants;
     }
 
-    /**
-     * Get all product IDs that link to a base product
-     */
     private function getLinkedProductIds(string $baseProductId): array
     {
         $stmt = $this->db->prepare('

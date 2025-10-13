@@ -303,3 +303,47 @@ export const DashboardIcon = () => (
     </defs>
   </svg>
 )
+
+export const CategoriesIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none">
+    <path
+      d="M3 6C3 4.89543 3.89543 4 5 4H19C20.1046 4 21 4.89543 21 6V8C21 9.10457 20.1046 10 19 10H5C3.89543 10 3 9.10457 3 8V6Z"
+      stroke="#404553"
+      strokeWidth="1.5"
+    />
+    <path
+      d="M3 16C3 14.8954 3.89543 14 5 14H19C20.1046 14 21 14.8954 21 16V18C21 19.1046 20.1046 20 19 20H5C3.89543 20 3 19.1046 3 18V16Z"
+      stroke="#404553"
+      strokeWidth="1.5"
+    />
+    <path
+      d="M7 7H7.01"
+      stroke="#404553"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+    />
+    <path
+      d="M7 17H7.01"
+      stroke="#404553"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+    />
+    <path
+      d="M11 7H17"
+      stroke="#404553"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+    />
+    <path
+      d="M11 17H17"
+      stroke="#404553"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+    />
+  </svg>
+)

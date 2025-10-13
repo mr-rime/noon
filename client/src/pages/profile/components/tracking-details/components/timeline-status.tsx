@@ -1,16 +1,17 @@
-import { cn } from '../../../../../utils/cn'
+import { cn } from "@/utils/cn"
 
-type StatusNameType = 'Placed' | 'Processing' | 'Confirmed' | 'Dispatched' | 'Delivery'
+type StatusNameType = 'Placed' | 'Processing' | 'Confirmed' | 'Dispatched' | 'Delivery' | 'Cancelled' | string
 
 type TimelineStatusProps = {
   icon: React.ReactNode | React.ReactElement
   statusName: StatusNameType
   statusDate: string
-  deliveryByDate?: string
+  deliveryByDate?: string | null
   isCurrent?: boolean
   statusDesc?: string
   isLast?: boolean
   isCompleted?: boolean
+  showMessage?: boolean
 }
 
 export function TimelineStatus({
@@ -22,6 +23,7 @@ export function TimelineStatus({
   statusDesc,
   isLast = false,
   isCompleted = false,
+  showMessage = true,
 }: TimelineStatusProps) {
   return (
     <div className={cn('relative grid grid-cols-[auto_1fr] gap-[12px]', isCurrent ? 'h-auto' : 'h-[48px]')}>
@@ -40,7 +42,7 @@ export function TimelineStatus({
           </span>
           <span className="text-[#7e859b] text-[12px]">on {statusDate}</span>
         </div>
-        {isCurrent && (
+        {isCurrent && showMessage && (
           <div className="mb-5">
             <span className="font-[500] text-[19px]">on time</span>
             <p className="w-full text-[14px]">{statusDesc}</p>

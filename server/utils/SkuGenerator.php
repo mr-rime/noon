@@ -2,10 +2,6 @@
 
 class SkuGenerator
 {
-    /**
-     * Generate SKU using pattern: [PRODUCT_ID]-[SHORT_OPTION_VALUES]-[RANDOM_4]
-     * Example: IP16PRO-BLK-256G-A7F3
-     */
     public static function generateSku(string $productId, array $optionCombination): string
     {
 
@@ -29,9 +25,6 @@ class SkuGenerator
         return implode('-', $parts);
     }
 
-    /**
-     * Shorten option values to 3-4 characters
-     */
     private static function shortenOptionValue(string $value): string
     {
         $value = strtoupper(trim($value));
@@ -81,9 +74,6 @@ class SkuGenerator
         return substr($cleaned, 0, 4);
     }
 
-    /**
-     * Generate random 4-character alphanumeric suffix
-     */
     private static function generateRandomSuffix(): string
     {
         $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -94,27 +84,18 @@ class SkuGenerator
         return $result;
     }
 
-    /**
-     * Validate SKU format
-     */
     public static function isValidSku(string $sku): bool
     {
 
         return preg_match('/^[A-Z0-9\-]{8,30}$/', $sku) === 1;
     }
 
-    /**
-     * Extract product ID from SKU (first part before first hyphen)
-     */
     public static function extractProductIdFromSku(string $sku): string
     {
         $parts = explode('-', $sku);
         return $parts[0] ?? '';
     }
 
-    /**
-     * Check if SKU already exists in database
-     */
     public static function isSkuUnique(mysqli $db, string $sku): bool
     {
         $stmt = $db->prepare('SELECT COUNT(*) as count FROM product_variants WHERE sku = ?');
@@ -129,9 +110,6 @@ class SkuGenerator
         return ($result['count'] ?? 1) === 0;
     }
 
-    /**
-     * Generate unique SKU (retry if collision)
-     */
     public static function generateUniqueSku(mysqli $db, string $productId, array $optionCombination, int $maxRetries = 10): string
     {
         for ($i = 0; $i < $maxRetries; $i++) {

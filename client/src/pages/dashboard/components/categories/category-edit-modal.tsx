@@ -11,17 +11,19 @@ import { Switch } from '../ui/switch'
 
 interface CategoryEditModalProps {
     category?: any
+    parentCategory?: any
     isCreating?: boolean
     onClose: () => void
     onSave: () => void
 }
 
-export function CategoryEditModal({ category, isCreating, onClose, onSave }: CategoryEditModalProps) {
+export function CategoryEditModal({ category, parentCategory, isCreating, onClose, onSave }: CategoryEditModalProps) {
     const [formData, setFormData] = useState({
         name: '',
         slug: '',
         description: '',
-        is_active: true
+        is_active: true,
+        parent_id: null as number | null
     })
     const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -31,10 +33,17 @@ export function CategoryEditModal({ category, isCreating, onClose, onSave }: Cat
                 name: category.name || '',
                 slug: category.slug || '',
                 description: category.description || '',
-                is_active: category.is_active !== false
+                is_active: category.is_active !== false,
+                parent_id: category.parent_id || null
             })
+        } else if (parentCategory && isCreating) {
+
+            setFormData(prev => ({
+                ...prev,
+                parent_id: parentCategory.category_id
+            }))
         }
-    }, [category])
+    }, [category, parentCategory, isCreating])
 
     const [createCategory, { loading: creating }] = useMutation(CREATE_CATEGORY, {
         onCompleted: (data) => {
@@ -113,7 +122,8 @@ export function CategoryEditModal({ category, isCreating, onClose, onSave }: Cat
             name: formData.name.trim(),
             slug: formData.slug.trim(),
             description: formData.description.trim() || null,
-            is_active: formData.is_active
+            is_active: formData.is_active,
+            parent_id: formData.parent_id
         }
 
         if (isCreating) {
@@ -129,7 +139,10 @@ export function CategoryEditModal({ category, isCreating, onClose, onSave }: Cat
 
                 <div className="border-b px-6 py-4 flex items-center justify-between">
                     <h2 className="text-lg font-semibold">
-                        {isCreating ? 'Create Category' : 'Edit Category'}
+                        {isCreating
+                            ? (parentCategory ? `Create Subcategory under "${parentCategory.name}"` : 'Create Category')
+                            : 'Edit Category'
+                        }
                     </h2>
                     <Button
                         variant="ghost"

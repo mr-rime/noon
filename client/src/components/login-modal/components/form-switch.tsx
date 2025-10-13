@@ -3,16 +3,14 @@ import { animateElement } from '../../../utils/animateElement'
 import { cn } from '../../../utils/cn'
 import { LoginFormContent } from './login-form-content'
 import { SignupFormContent } from './signup-form-content'
+import type { FormSwitchProps, FormDirection } from '@/types/auth'
 
 export function FormSwitch({
   inputRef,
   onClose,
-}: {
-  inputRef: React.RefObject<HTMLInputElement | null>
-  onClose: () => void
-}) {
+}: FormSwitchProps) {
   const [isLogin, setIsLogin] = useState(true)
-  const [direction, setDirection] = useState<'left' | 'right'>('right')
+  const [direction, setDirection] = useState<FormDirection>('right')
   const formRef = useRef<HTMLDivElement>(null)
   const activeTabRef = useRef<HTMLButtonElement>(null)
   const [isPending, startTransition] = useTransition()
