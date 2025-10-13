@@ -838,7 +838,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                 placeholder="Enter axis name"
                                                 value={newAxisName}
                                                 onChange={(e) => setNewAxisName(e.target.value)}
-                                                onKeyPress={(e) => e.key === 'Enter' && handleAddAxis()}
+                                                onKeyDown={(e) => e.key === 'Enter' && handleAddAxis()}
                                             />
                                             <Button variant="outline" onClick={handleAddAxis}>
                                                 + Add

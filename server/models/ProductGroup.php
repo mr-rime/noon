@@ -55,7 +55,7 @@ class ProductGroup
         return $result->fetch_assoc() ?: null;
     }
 
-    public function findByCategoryId(int $categoryId): array
+    public function findByCategoryId(string $categoryId): array
     {
         $query = 'SELECT * FROM product_groups WHERE category_id = ? ORDER BY name';
         $stmt = $this->db->prepare($query);
@@ -65,7 +65,7 @@ class ProductGroup
             return [];
         }
 
-        $stmt->bind_param('i', $categoryId);
+        $stmt->bind_param('s', $categoryId);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -76,7 +76,7 @@ class ProductGroup
     {
         $validator = v::key('name', v::stringType()->notEmpty()->length(1, 200))
             ->key('description', v::optional(v::stringType()))
-            ->key('category_id', v::optional(v::intVal()->positive()))
+            ->key('category_id', v::optional(v::stringType()))
             ->key('subcategory_id', v::optional(v::intVal()->positive()))
             ->key('brand_id', v::optional(v::intVal()->positive()))
             ->key('attributes', v::optional(v::arrayType()));
@@ -103,7 +103,7 @@ class ProductGroup
         $brandId = $data['brand_id'] ?? null;
         $attributes = isset($data['attributes']) ? json_encode($data['attributes']) : null;
 
-        $stmt->bind_param('sssiiss', $groupId, $data['name'], $description, $categoryId, $subcategoryId, $brandId, $attributes);
+        $stmt->bind_param('ssssiss', $groupId, $data['name'], $description, $categoryId, $subcategoryId, $brandId, $attributes);
 
         if ($stmt->execute()) {
             return $this->findById($groupId);
@@ -125,7 +125,10 @@ class ProductGroup
             if (array_key_exists($field, $data)) {
                 $fields[] = "$field = ?";
 
-                if (in_array($field, ['category_id', 'subcategory_id', 'brand_id'])) {
+                if (in_array($field, ['category_id', 'subcategory_id'])) {
+                    $types .= 's';
+                    $values[] = $data[$field];
+                } elseif ($field === 'brand_id') {
                     $types .= 'i';
                     $values[] = $data[$field];
                 } elseif ($field === 'attributes') {

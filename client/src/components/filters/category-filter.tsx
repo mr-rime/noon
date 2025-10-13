@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react'
 import { ChevronDown, ChevronRight, X } from 'lucide-react'
 import { useQuery } from '@apollo/client'
 import { gql } from '@apollo/client'
+import { getCategoryChildren } from '@/utils/category'
 
 const GET_CATEGORY_TREE = gql`
-  query GetCategoryTree($parentId: Int) {
+  query GetCategoryTree($parentId: String) {
     getCategories(parentId: $parentId, includeChildren: true) {
       success
       categories {
@@ -35,6 +36,14 @@ const GET_CATEGORY_TREE = gql`
               slug
               level
               product_count
+              children {
+                category_id
+                parent_id
+                name
+                slug
+                level
+                product_count
+            }
             }
           }
         }
@@ -44,8 +53,8 @@ const GET_CATEGORY_TREE = gql`
 `
 
 interface Category {
-  category_id: number
-  parent_id?: number
+  category_id: string
+  parent_id?: string
   name: string
   slug: string
   level: number
@@ -54,9 +63,9 @@ interface Category {
 }
 
 interface CategoryFilterProps {
-  currentCategoryId?: number
-  selectedCategories: number[]
-  onCategoryToggle: (categoryId: number) => void
+  currentCategoryId?: string
+  selectedCategories: string[]
+  onCategoryToggle: (categoryId: string) => void
   onClear: () => void
 }
 
@@ -68,9 +77,9 @@ function CategoryTreeItem({
   level = 0
 }: {
   category: Category
-  selectedCategories: number[]
-  onCategoryToggle: (categoryId: number) => void
-  currentCategoryId?: number
+  selectedCategories: string[]
+  onCategoryToggle: (categoryId: string) => void
+  currentCategoryId?: string
   level?: number
 }) {
   const [expanded, setExpanded] = useState(false)
@@ -97,7 +106,6 @@ function CategoryTreeItem({
   return (
     <div className={`${level > 0 ? 'ml-4' : ''}`}>
       <div className="flex items-center py-1">
-        {/* Expand/Collapse Button */}
         {hasChildren && (
           <button
             onClick={() => setExpanded(!expanded)}
@@ -111,7 +119,6 @@ function CategoryTreeItem({
           </button>
         )}
 
-        {/* Checkbox */}
         <input
           type="checkbox"
           id={`category-${category.category_id}`}
@@ -120,7 +127,6 @@ function CategoryTreeItem({
           className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
         />
 
-        {/* Label */}
         <label
           htmlFor={`category-${category.category_id}`}
           className="flex-1 text-sm cursor-pointer hover:text-blue-600"
@@ -134,7 +140,6 @@ function CategoryTreeItem({
         </label>
       </div>
 
-      {/* Children */}
       {expanded && hasChildren && (
         <div className="mt-1">
           {category.children && category.children.length > 0 ? (
@@ -167,17 +172,15 @@ export default function CategoryFilter({
 }: CategoryFilterProps) {
   const [isOpen, setIsOpen] = useState(true)
 
-
   const { data, loading } = useQuery(GET_CATEGORY_TREE, {
     variables: { parentId: null }
   })
 
-  const categories = data?.getCategories?.categories || []
+  const categories = getCategoryChildren(data, String(currentCategoryId))
   const hasSelection = selectedCategories.length > 0
 
   return (
     <div className="border-b border-gray-200 pb-4">
-      {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -201,7 +204,6 @@ export default function CategoryFilter({
         )}
       </div>
 
-      {/* Category Tree */}
       {isOpen && (
         <div className="max-h-64 overflow-y-auto">
           {loading ? (

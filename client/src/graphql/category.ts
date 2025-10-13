@@ -77,6 +77,21 @@ export const GET_CATEGORY_BY_NESTED_PATH = gql`
           name
           slug
           product_count
+          level
+          children {
+            category_id
+            name
+            slug
+            product_count
+            level
+            children {
+              category_id
+              name
+              slug
+              product_count
+              level
+            }
+          }
         }
       }
     }
@@ -84,7 +99,7 @@ export const GET_CATEGORY_BY_NESTED_PATH = gql`
 `
 
 export const GET_CATEGORY = gql`
-  query GetCategory($id: Int!) {
+  query GetCategory($id: String!) {
     getCategory(id: $id) {
       success
       message
@@ -109,7 +124,7 @@ export const GET_CATEGORY = gql`
 `
 
 export const GET_SUBCATEGORIES = gql`
-  query GetSubcategories($category_id: Int, $search: String) {
+  query GetSubcategories($category_id: String, $search: String) {
     getSubcategories(category_id: $category_id, search: $search) {
       success
       message
@@ -144,7 +159,7 @@ export const CREATE_CATEGORY = gql`
 `
 
 export const UPDATE_CATEGORY = gql`
-  mutation UpdateCategory($id: Int!, $input: CategoryInput!) {
+  mutation UpdateCategory($id: String!, $input: CategoryInput!) {
     updateCategory(id: $id, input: $input) {
       success
       message
@@ -160,7 +175,7 @@ export const UPDATE_CATEGORY = gql`
 `
 
 export const DELETE_CATEGORY = gql`
-  mutation DeleteCategory($id: Int!) {
+  mutation DeleteCategory($id: String!) {
     deleteCategory(id: $id) {
       success
       message
@@ -186,7 +201,7 @@ export const CREATE_SUBCATEGORY = gql`
 `
 
 export const UPDATE_SUBCATEGORY = gql`
-  mutation UpdateSubcategory($id: Int!, $input: SubcategoryInput!) {
+  mutation UpdateSubcategory($id: String!, $input: SubcategoryInput!) {
     updateSubcategory(id: $id, input: $input) {
       success
       message
@@ -203,7 +218,7 @@ export const UPDATE_SUBCATEGORY = gql`
 `
 
 export const DELETE_SUBCATEGORY = gql`
-  mutation DeleteSubcategory($id: Int!) {
+  mutation DeleteSubcategory($id: String!) {
     deleteSubcategory(id: $id) {
       success
       message

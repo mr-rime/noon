@@ -65,19 +65,26 @@ export type GroupAttribute = {
 }
 
 export type Category = {
-  category_id: number
+  category_id: string
+  parent_id?: string
   name: string
   slug: string
   description?: string
+  level?: number
+  path?: string
+  display_order?: number
+  image_url?: string
+  icon_url?: string
   is_active: boolean
   created_at?: string
   updated_at?: string
+  children?: Category[]
   subcategories?: Subcategory[]
 }
 
 export type Subcategory = {
-  subcategory_id: number
-  category_id: number
+  subcategory_id: string
+  category_id: string
   name: string
   slug: string
   description?: string
@@ -101,8 +108,8 @@ export type ProductGroup = {
   group_id: string
   name: string
   description?: string
-  category_id?: number
-  subcategory_id?: number
+  category_id?: string
+  subcategory_id?: string
   brand_id?: number
   attributes?: string
   created_at?: string
@@ -124,8 +131,8 @@ export type ProductType = {
   product_overview?: string
   user_id?: number
   store_id?: number
-  category_id?: number
-  subcategory_id?: number
+  category_id?: string
+  subcategory_id?: string
   brand_id?: number
   group_id?: string
   category_name?: string

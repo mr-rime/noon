@@ -25,6 +25,21 @@ const GET_CATEGORY_BY_SLUG = gql`
           name
           slug
           product_count
+          level
+          children {
+            category_id
+            name
+            slug
+            product_count
+            level
+            children {
+              category_id
+              name
+              slug
+              product_count
+              level
+            }
+          }
         }
       }
     }
@@ -33,7 +48,7 @@ const GET_CATEGORY_BY_SLUG = gql`
 
 const GET_FILTERED_PRODUCTS = gql`
   query GetFilteredProducts(
-    $categoryId: Int
+    $categoryId: String
     $brands: [Int]
     $minPrice: Float
     $maxPrice: Float
@@ -73,10 +88,24 @@ const GET_FILTERED_PRODUCTS = gql`
   }
 `
 
+interface FilterState {
+  category?: string | null
+  categories?: string[]
+  brands?: number[]
+  sellers?: number[]
+  minPrice?: number
+  maxPrice?: number
+  minRating?: number
+  priceDrop?: boolean
+  newArrivals?: boolean
+  fulfilment?: string[]
+  condition?: string[]
+}
+
 export default function CategoryPage() {
   const params = useParams({ from: '/(main)/_homeLayout/category/$' })
   const categoryPath = (params as any)._splat || ''
-  const [filters, setFilters] = useState({})
+  const [filters, setFilters] = useState<FilterState>({})
   const [page, setPage] = useState(1)
   const limit = 20
 
@@ -95,14 +124,18 @@ export default function CategoryPage() {
     }
   )
 
+
   const category = categoryData?.getCategoryByNestedPath?.category ||
     categoryData?.getCategoryBySlug?.category
+
 
 
   const { data: productsData, loading: productsLoading } = useQuery(GET_FILTERED_PRODUCTS, {
     skip: !category,
     variables: {
-      categoryId: category?.category_id,
+      categoryId: filters.categories && filters.categories.length > 0 ? null : category?.category_id,
+
+      categories: filters.categories && filters.categories.length > 0 ? filters.categories : undefined,
       ...filters,
       limit,
       offset: (page - 1) * limit
@@ -138,7 +171,7 @@ export default function CategoryPage() {
       <Breadcrumb categoryId={category.category_id} />
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className=" px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex gap-6">
           {/* Sidebar */}
           <FilterSidebar

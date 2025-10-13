@@ -19,7 +19,7 @@ const defaultProduct: ProductType = {
   is_returnable: false,
   currency: 'USD',
   product_overview: '',
-  category_id: 0,
+  category_id: '',
   images: [],
   productOptions: [],
   productSpecifications: [],

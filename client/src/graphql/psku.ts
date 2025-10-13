@@ -23,7 +23,7 @@ export const GET_CATEGORIES = gql`
 `
 
 export const GET_SUBCATEGORIES = gql`
-  query GetSubcategories($category_id: Int, $search: String) {
+  query GetSubcategories($category_id: String, $search: String) {
     getSubcategories(category_id: $category_id, search: $search) {
       success
       message
@@ -57,7 +57,7 @@ export const GET_BRANDS = gql`
 `
 
 export const GET_PRODUCT_GROUPS = gql`
-  query GetProductGroups($category_id: Int) {
+  query GetProductGroups($category_id: String) {
     getProductGroups(category_id: $category_id) {
       success
       message
@@ -82,8 +82,8 @@ export const CREATE_PSKU_PRODUCT = gql`
     $price: Float!
     $currency: String!
     $psku: String
-    $category_id: Int
-    $subcategory_id: Int
+    $category_id: String
+    $subcategory_id: String
     $brand_id: Int
     $group_id: String
     $stock: Int

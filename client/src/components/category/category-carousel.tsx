@@ -67,10 +67,9 @@ export default function CategoryCarousel() {
   const categories = data.getCategories.categories || []
 
   return (
-    <div className="bg-white border-b border-gray-200">
+    <div className="bg-[#fcfbf4] border-b border-[#e2e5f1] relative top-0 ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative">
-          {/* Left Arrow */}
           {showLeftArrow && (
             <button
               onClick={() => scroll('left')}
@@ -81,11 +80,10 @@ export default function CategoryCarousel() {
             </button>
           )}
 
-          {/* Category Items Container */}
           <div
             ref={scrollContainerRef}
             onScroll={handleScroll}
-            className="flex gap-6 overflow-x-auto scrollbar-hide py-4"
+            className="flex gap-6 overflow-x-auto scrollbar-hide py-2"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {categories.map((category: Category) => (
@@ -95,18 +93,7 @@ export default function CategoryCarousel() {
                 params={{ _splat: category.slug }}
                 className="flex flex-col items-center min-w-[80px] group"
               >
-                <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-yellow-50 transition-colors">
-                  {category.icon_url ? (
-                    <img
-                      src={category.icon_url}
-                      alt={category.name}
-                      className="w-10 h-10 object-contain"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 bg-gray-300 rounded" />
-                  )}
-                </div>
-                <span className="mt-2 text-xs text-center text-gray-700 group-hover:text-gray-900">
+                <span className="mt-2 text-[16px] font-bold text-center text-black hover:underline group-hover:text-gray-900">
                   {category.name}
                 </span>
                 {category.product_count > 0 && (
@@ -118,7 +105,6 @@ export default function CategoryCarousel() {
             ))}
           </div>
 
-          {/* Right Arrow */}
           {showRightArrow && (
             <button
               onClick={() => scroll('right')}

@@ -24,19 +24,19 @@ class Category
 
     public function findRootCategories(): array
     {
-        $query = 'SELECT * FROM categories_nested WHERE parent_id IS NULL AND is_active = 1 ORDER BY display_order, name';
+        $query = 'SELECT * FROM categories_nested WHERE parent_id IS NULL AND is_active = 1 ORDER BY category_id ASC';
         $result = $this->db->query($query);
 
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
 
-    public function findByParentId(?int $parentId = null): array
+    public function findByParentId(?string $parentId = null): array
     {
         if ($parentId === null) {
             return $this->findRootCategories();
         }
 
-        $query = 'SELECT * FROM categories_nested WHERE parent_id = ? AND is_active = 1 ORDER BY display_order, name';
+        $query = 'SELECT * FROM categories_nested WHERE parent_id = ? AND is_active = 1 ORDER BY category_id ASC';
         $stmt = $this->db->prepare($query);
 
         if (!$stmt) {
@@ -44,14 +44,14 @@ class Category
             return [];
         }
 
-        $stmt->bind_param('i', $parentId);
+        $stmt->bind_param('s', $parentId);
         $stmt->execute();
         $result = $stmt->get_result();
 
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function findById(int $id, bool $includeChildren = false): ?array
+    public function findById(string $id, bool $includeChildren = false): ?array
     {
         $query = 'SELECT * FROM categories_nested WHERE category_id = ? LIMIT 1';
         $stmt = $this->db->prepare($query);
@@ -61,7 +61,7 @@ class Category
             return null;
         }
 
-        $stmt->bind_param('i', $id);
+        $stmt->bind_param('s', $id);
         $stmt->execute();
         $result = $stmt->get_result();
         $category = $result->fetch_assoc();
@@ -97,7 +97,6 @@ class Category
 
     public function findByNestedPath(string $path, bool $includeChildren = false): ?array
     {
-
         $slugs = explode('/', trim($path, '/'));
 
         if (empty($slugs) || empty($slugs[0])) {
@@ -133,7 +132,7 @@ class Category
                 return null;
             }
 
-            $stmt->bind_param('is', $currentId, $slug);
+            $stmt->bind_param('ss', $currentId, $slug);
             $stmt->execute();
             $result = $stmt->get_result();
             $childCategory = $result->fetch_assoc();
@@ -154,7 +153,7 @@ class Category
         return $currentCategory;
     }
 
-    public function findByName(string $name, ?int $parentId = null): ?array
+    public function findByName(string $name, ?string $parentId = null): ?array
     {
         if ($parentId === null) {
             $query = 'SELECT * FROM categories_nested WHERE name = ? AND parent_id IS NULL LIMIT 1';
@@ -175,7 +174,7 @@ class Category
                 return null;
             }
 
-            $stmt->bind_param('si', $name, $parentId);
+            $stmt->bind_param('ss', $name, $parentId);
         }
 
         $stmt->execute();
@@ -233,7 +232,7 @@ class Category
 
         $validator = v::key('name', v::stringType()->notEmpty()->length(1, 100))
             ->key('slug', $slugValidator)
-            ->key('parent_id', v::nullable(v::intType()))
+            ->key('parent_id', v::nullable(v::stringType()))
             ->key('description', v::nullable(v::stringType()))
             ->key('display_order', v::intType())
             ->key('image_url', v::nullable(v::stringType()))
@@ -265,7 +264,7 @@ class Category
         $level = 0;
         $parent = null;
         if (!empty($data['parent_id']) && $data['parent_id'] !== null) {
-            $parent = $this->findById((int) $data['parent_id']);
+            $parent = $this->findById($data['parent_id']);
             if (!$parent) {
                 error_log("Parent category not found");
                 return null;
@@ -279,7 +278,8 @@ class Category
             }
         }
 
-        $query = 'INSERT INTO categories_nested (parent_id, name, slug, description, level, display_order, image_url, icon_url, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        $categoryId = generateHash();
+        $query = 'INSERT INTO categories_nested (category_id, parent_id, name, slug, description, level, display_order, image_url, icon_url, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
         $stmt = $this->db->prepare($query);
 
         if (!$stmt) {
@@ -294,10 +294,10 @@ class Category
         $imageUrl = $data['image_url'] ?? null;
         $iconUrl = $data['icon_url'] ?? null;
 
-        $stmt->bind_param('issssissi', $parentId, $data['name'], $data['slug'], $description, $level, $displayOrder, $imageUrl, $iconUrl, $isActive);
+        $stmt->bind_param('sssssiissi', $categoryId, $parentId, $data['name'], $data['slug'], $description, $level, $displayOrder, $imageUrl, $iconUrl, $isActive);
 
         if ($stmt->execute()) {
-            $newId = $this->db->insert_id;
+            $newId = $categoryId;
 
 
             if ($parent) {
@@ -308,7 +308,7 @@ class Category
 
             $updatePath = 'UPDATE categories_nested SET path = ? WHERE category_id = ?';
             $updateStmt = $this->db->prepare($updatePath);
-            $updateStmt->bind_param('si', $path, $newId);
+            $updateStmt->bind_param('ss', $path, $newId);
             $updateStmt->execute();
 
             return $this->findById($newId);
@@ -318,7 +318,7 @@ class Category
         }
     }
 
-    public function update(int $id, array $data)
+    public function update(string $id, array $data)
     {
         $fields = [];
         $types = '';
@@ -352,7 +352,7 @@ class Category
             return false;
         }
 
-        $types .= 'i';
+        $types .= 's';
         $values[] = $id;
 
         $stmt->bind_param($types, ...$values);
@@ -364,7 +364,7 @@ class Category
         return false;
     }
 
-    public function delete(int $id): bool
+    public function delete(string $id): bool
     {
 
         $descendants = $this->getAllDescendantIds($id);
@@ -384,7 +384,7 @@ class Category
                     throw new Exception("Prepare failed: " . $this->db->error);
                 }
 
-                $types = str_repeat('i', count($descendants));
+                $types = str_repeat('s', count($descendants));
                 $stmt->bind_param($types, ...$descendants);
                 $stmt->execute();
                 $result = $stmt->get_result();
@@ -403,7 +403,7 @@ class Category
                         throw new Exception("Prepare failed: " . $this->db->error);
                     }
 
-                    $deleteStmt->bind_param('i', $categoryId);
+                    $deleteStmt->bind_param('s', $categoryId);
                     if (!$deleteStmt->execute()) {
                         throw new Exception("Delete failed: " . $deleteStmt->error);
                     }
@@ -418,7 +418,7 @@ class Category
                 throw new Exception("Prepare failed: " . $this->db->error);
             }
 
-            $deleteStmt->bind_param('i', $id);
+            $deleteStmt->bind_param('s', $id);
             if (!$deleteStmt->execute()) {
                 throw new Exception("Delete failed: " . $deleteStmt->error);
             }
@@ -433,7 +433,7 @@ class Category
         }
     }
 
-    public function getCategoryTree(?int $parentId = null, int $maxDepth = 5): array
+    public function getCategoryTree(?string $parentId = null, int $maxDepth = 5): array
     {
         $categories = $this->findByParentId($parentId);
 
@@ -446,7 +446,7 @@ class Category
         return $categories;
     }
 
-    public function getBreadcrumb(int $categoryId): array
+    public function getBreadcrumb(string $categoryId): array
     {
         $breadcrumb = [];
         $current = $this->findById($categoryId);
@@ -469,7 +469,7 @@ class Category
         return $breadcrumb;
     }
 
-    public function getAncestors(int $categoryId): array
+    public function getAncestors(string $categoryId): array
     {
         $ancestors = [];
         $current = $this->findById($categoryId);
@@ -487,7 +487,7 @@ class Category
         return $ancestors;
     }
 
-    public function getDescendants(int $categoryId): array
+    public function getDescendants(string $categoryId): array
     {
         $query = "SELECT * FROM categories_nested WHERE path LIKE ? AND is_active = 1 ORDER BY level, display_order, name";
         $stmt = $this->db->prepare($query);
@@ -505,7 +505,7 @@ class Category
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function getAllDescendantIds(int $categoryId): array
+    public function getAllDescendantIds(string $categoryId): array
     {
 
         $category = $this->findById($categoryId);
@@ -530,13 +530,13 @@ class Category
         $result = $stmt->get_result();
 
         while ($row = $result->fetch_assoc()) {
-            $ids[] = (int) $row['category_id'];
+            $ids[] = $row['category_id'];
         }
 
         return $ids;
     }
 
-    public function moveCategory(int $categoryId, ?int $newParentId = null): bool
+    public function moveCategory(string $categoryId, ?string $newParentId = null): bool
     {
         $category = $this->findById($categoryId);
         if (!$category) {
@@ -581,7 +581,7 @@ class Category
 
             $updateQuery = 'UPDATE categories_nested SET parent_id = ?, level = ?, path = ? WHERE category_id = ?';
             $stmt = $this->db->prepare($updateQuery);
-            $stmt->bind_param('iisi', $newParentId, $newLevel, $newPath, $categoryId);
+            $stmt->bind_param('siss', $newParentId, $newLevel, $newPath, $categoryId);
 
             if (!$stmt->execute()) {
                 throw new Exception("Failed to update category");
@@ -600,7 +600,7 @@ class Category
         }
     }
 
-    private function updateDescendantPaths(int $categoryId, string $newBasePath, int $baseLevel): void
+    private function updateDescendantPaths(string $categoryId, string $newBasePath, int $baseLevel): void
     {
         $children = $this->findByParentId($categoryId);
 
@@ -611,7 +611,7 @@ class Category
 
             $query = 'UPDATE categories_nested SET level = ?, path = ? WHERE category_id = ?';
             $stmt = $this->db->prepare($query);
-            $stmt->bind_param('isi', $childLevel, $childPath, $childId);
+            $stmt->bind_param('iss', $childLevel, $childPath, $childId);
             $stmt->execute();
 
 

@@ -3,18 +3,42 @@ import { cn } from '../../utils/cn'
 import { Check } from 'lucide-react'
 
 type CheckboxProps = {
-  label: string
-  name: string
+  label?: string
+  name?: string
   checked: boolean
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+  onCheckedChange?: (checked: boolean | undefined) => void
   description?: string
   className?: string
   disabled?: boolean
+  id?: string
 }
 
-export function Checkbox({ label, name, checked, onChange, description, className, disabled = false }: CheckboxProps) {
+export function Checkbox({
+  label,
+  name,
+  checked,
+  onChange,
+  onCheckedChange,
+  description,
+  className,
+  disabled = false,
+  id
+}: CheckboxProps) {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (onChange) {
+      onChange(event)
+    }
+    if (onCheckedChange) {
+      onCheckedChange(event.target.checked)
+    }
+  }
+
+  const checkboxId = id || `checkbox-${name || Math.random().toString(36).substr(2, 9)}`
+
   return (
     <label
+      htmlFor={checkboxId}
       className={cn('flex items-center gap-3', className, {
         'cursor-pointer': !disabled,
         'cursor-not-allowed opacity-50': disabled,
@@ -22,9 +46,10 @@ export function Checkbox({ label, name, checked, onChange, description, classNam
       <div className="relative h-5 w-5">
         <input
           type="checkbox"
+          id={checkboxId}
           name={name}
           checked={checked}
-          onChange={onChange}
+          onChange={handleChange}
           disabled={disabled}
           className="peer sr-only"
         />
@@ -37,13 +62,15 @@ export function Checkbox({ label, name, checked, onChange, description, classNam
               'peer-focus:ring-2 peer-focus:ring-blue-200': !disabled,
             },
           )}>
-          <Check color="white" />
+          {checked && <Check color="white" size={12} />}
         </div>
       </div>
-      <div className="flex flex-col">
-        <span className="font-medium text-gray-900 text-sm">{label}</span>
-        {description && <span className="text-gray-500 text-xs">{description}</span>}
-      </div>
+      {(label || description) && (
+        <div className="flex flex-col">
+          {label && <span className="font-medium text-gray-900 text-sm">{label}</span>}
+          {description && <span className="text-gray-500 text-xs">{description}</span>}
+        </div>
+      )}
     </label>
   )
 }

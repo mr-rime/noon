@@ -4,7 +4,7 @@ import { useQuery } from '@apollo/client'
 import { gql } from '@apollo/client'
 
 const GET_CATEGORY_BREADCRUMB = gql`
-  query GetCategoryBreadcrumb($categoryId: Int!) {
+  query GetCategoryBreadcrumb($categoryId: String!) {
     getCategoryBreadcrumb(categoryId: $categoryId) {
       success
       breadcrumb {
@@ -25,7 +25,7 @@ interface BreadcrumbItem {
 }
 
 interface BreadcrumbProps {
-  categoryId?: number
+  categoryId?: string
   items?: BreadcrumbItem[]
   className?: string
 }
@@ -44,7 +44,6 @@ export default function Breadcrumb({ categoryId, items, className = '' }: Breadc
     <nav aria-label="Breadcrumb" className={`bg-white py-3 ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <ol className="flex items-center space-x-2 text-sm">
-          {/* Home Link */}
           <li>
             <Link
               to="/"
@@ -55,12 +54,10 @@ export default function Breadcrumb({ categoryId, items, className = '' }: Breadc
             </Link>
           </li>
 
-          {/* Separator */}
           <li>
             <ChevronRight className="h-4 w-4 text-gray-400" />
           </li>
 
-          {/* Category Links */}
           {breadcrumbItems.map((item: BreadcrumbItem, index: number) => {
             const isLast = index === breadcrumbItems.length - 1
             const categoryPath = breadcrumbItems
@@ -75,9 +72,10 @@ export default function Breadcrumb({ categoryId, items, className = '' }: Breadc
                 )}
 
                 {isLast ? (
-                  <span className="text-gray-900 font-medium">
+                  <Link to="/category/$"
+                    params={{ _splat: categoryPath }} className="text-gray-900 font-medium">
                     {item.name}
-                  </span>
+                  </Link>
                 ) : (
                   <Link
                     to="/category/$"

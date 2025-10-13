@@ -13,6 +13,7 @@ function getAllProducts(mysqli $db, array $data): array
         $offset = $data['offset'] ?? 0;
         $search = $data['search'] ?? '';
         $categoryId = $data['categoryId'] ?? null;
+        $categories = $data['categories'] ?? null;
         $brands = $data['brands'] ?? null;
         $minPrice = $data['minPrice'] ?? null;
         $maxPrice = $data['maxPrice'] ?? null;
@@ -28,8 +29,8 @@ function getAllProducts(mysqli $db, array $data): array
             $publicOnly = true;
         }
 
-        $products = $model->findAll($userId, $limit, $offset, $search, $publicOnly, $categoryId, $brands, $minPrice, $maxPrice, $minRating);
-        $total = $model->getTotalCount($search, $publicOnly, $categoryId, $brands, $minPrice, $maxPrice, $minRating);
+        $products = $model->findAll($userId, $limit, $offset, $search, $publicOnly, $categoryId, $categories, $brands, $minPrice, $maxPrice, $minRating);
+        $total = $model->getTotalCount($search, $publicOnly, $categoryId, $categories, $brands, $minPrice, $maxPrice, $minRating);
 
         return [
             'success' => true,

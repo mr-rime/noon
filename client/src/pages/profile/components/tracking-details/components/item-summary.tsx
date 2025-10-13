@@ -30,7 +30,7 @@ export function ItemSummary({ order }: ItemSummaryProps) {
       <div className="mt-5 space-y-4">
         {order.items.map((item: any, index: number) => (
           <div key={item.id || index} className="flex items-start space-x-4">
-            <Link to="/$title/$productId" params={{ productId: item.product_id, title: '' }}>
+            <Link to="/$title/$productId" params={{ productId: item.product_id, title: item.product_name?.replace(/\s+/g, '-') || '' }}>
               <div className="max-w-[150px]">
                 <Image
                   src={item.product_image || "/media/imgs/product-img1.avif"}

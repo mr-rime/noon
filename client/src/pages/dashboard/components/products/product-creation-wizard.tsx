@@ -142,7 +142,7 @@ export function ProductCreationWizard({ onClose }: ProductCreationWizardProps) {
             if (data?.createProduct?.success) {
                 toast.success("Product created successfully!")
                 const productId = data.createProduct.product.id
-                navigate({ to: `/d/products/${productId}` })
+                navigate({ to: `/d/products/$productId`, params: { productId } })
             } else {
                 toast.error(data?.createProduct?.message || "Failed to create product")
             }

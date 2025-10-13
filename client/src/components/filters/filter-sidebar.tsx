@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useLocation } from '@tanstack/react-router'
-import CategoryFilter from './category-filter'
+import HierarchicalCategoryFilter from './hierarchical-category-filter'
 import PriceFilter from './price-filter'
 import BrandFilter from './brand-filter'
 import RatingFilter from './rating-filter'
 import SellerFilter from './seller-filter'
 
 interface FilterState {
-  categories: number[]
+  categories: string[]
   brands: number[]
   sellers: number[]
   minPrice?: number
@@ -20,7 +20,7 @@ interface FilterState {
 }
 
 interface FilterSidebarProps {
-  currentCategoryId?: number
+  currentCategoryId?: string
   onFiltersChange?: (filters: FilterState) => void
 }
 
@@ -46,7 +46,7 @@ export default function FilterSidebar({
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search)
-    const urlCategories = searchParams.get('categories')?.split(',').map(Number).filter(Boolean) || []
+    const urlCategories = searchParams.get('categories')?.split(',').filter(Boolean) || []
 
 
     const categories = currentCategoryId && !urlCategories.includes(currentCategoryId)
@@ -112,7 +112,7 @@ export default function FilterSidebar({
     onFiltersChange?.(updated)
   }
 
-  const handleCategoryToggle = (categoryId: number) => {
+  const handleCategoryToggle = (categoryId: string) => {
     const newCategories = filters.categories.includes(categoryId)
       ? filters.categories.filter(id => id !== categoryId)
       : [...filters.categories, categoryId]
@@ -154,7 +154,7 @@ export default function FilterSidebar({
   ]
 
   return (
-    <div className="w-64 flex-shrink-0">
+    <div className="w-[350px] flex-shrink-0">
       <div className="bg-white rounded-lg shadow-sm">
         <div className="p-4">
           <h2 className="text-lg font-semibold mb-4">Filters</h2>
@@ -196,11 +196,10 @@ export default function FilterSidebar({
             </div>
 
             {/* Category Filter */}
-            <CategoryFilter
-              currentCategoryId={currentCategoryId}
+            <HierarchicalCategoryFilter
               selectedCategories={filters.categories}
               onCategoryToggle={handleCategoryToggle}
-              onClear={() => updateFilters({ categories: [] })}
+              onClearAll={() => updateFilters({ categories: [] })}
             />
 
             {/* Brand Filter */}

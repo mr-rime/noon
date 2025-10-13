@@ -62,7 +62,8 @@ $QueryType = new ObjectType([
                 'limit' => Type::int(),
                 'offset' => Type::int(),
                 'search' => Type::string(),
-                'categoryId' => Type::int(),
+                'categoryId' => Type::string(),
+                'categories' => Type::listOf(Type::string()),
                 'brands' => Type::listOf(Type::int()),
                 'minPrice' => Type::float(),
                 'maxPrice' => Type::float(),
@@ -149,7 +150,7 @@ $QueryType = new ObjectType([
             'type' => $CategoriesResponseType,
             'args' => [
                 'search' => Type::string(),
-                'parentId' => Type::int(),
+                'parentId' => Type::string(),
                 'includeChildren' => Type::boolean()
             ],
             'resolve' => fn($root, $args, $context) => getCategories(
@@ -162,7 +163,7 @@ $QueryType = new ObjectType([
         'getCategory' => [
             'type' => $CategoryResponseType,
             'args' => [
-                'id' => Type::nonNull(Type::int()),
+                'id' => Type::nonNull(Type::string()),
                 'includeChildren' => Type::boolean()
             ],
             'resolve' => fn($root, $args, $context) => getCategory(
@@ -181,7 +182,7 @@ $QueryType = new ObjectType([
                 ]
             ]),
             'args' => [
-                'categoryId' => Type::nonNull(Type::int())
+                'categoryId' => Type::nonNull(Type::string())
             ],
             'resolve' => fn($root, $args, $context) => getCategoryBreadcrumb(
                 $context['db'],
@@ -212,9 +213,14 @@ $QueryType = new ObjectType([
                 $args['includeChildren'] ?? true
             )
         ],
+        'getHierarchicalCategories' => [
+            'type' => $CategoriesResponseType,
+            'args' => [],
+            'resolve' => fn($root, $args, $context) => getHierarchicalCategories($context['db'])
+        ],
         'getSubcategories' => [
             'type' => $SubcategoriesResponseType,
-            'args' => ['category_id' => Type::int(), 'search' => Type::string()],
+            'args' => ['category_id' => Type::string(), 'search' => Type::string()],
             'resolve' => fn($root, $args, $context) => getSubcategories($context['db'], $args['category_id'] ?? null, $args['search'] ?? '')
         ],
         'getBrands' => [
@@ -224,7 +230,7 @@ $QueryType = new ObjectType([
         ],
         'getProductGroups' => [
             'type' => $ProductGroupsResponseType,
-            'args' => ['category_id' => Type::int()],
+            'args' => ['category_id' => Type::string()],
             'resolve' => fn($root, $args, $context) => getProductGroups($context['db'], $args['category_id'] ?? null)
         ],
         'getProductByPsku' => [
@@ -371,8 +377,8 @@ $MutationType = new ObjectType([
                 'price' => Type::nonNull(Type::float()),
                 'currency' => Type::nonNull(Type::string()),
                 'psku' => Type::string(),
-                'category_id' => Type::int(),
-                'subcategory_id' => Type::int(),
+                'category_id' => Type::string(),
+                'subcategory_id' => Type::string(),
                 'brand_id' => Type::int(),
                 'group_id' => Type::string(),
                 'stock' => Type::int(),
@@ -468,8 +474,8 @@ $MutationType = new ObjectType([
                 'price' => Type::float(),
                 'currency' => Type::string(),
                 'psku' => Type::string(),
-                'category_id' => Type::int(),
-                'subcategory_id' => Type::int(),
+                'category_id' => Type::string(),
+                'subcategory_id' => Type::string(),
                 'brand_id' => Type::int(),
                 'group_id' => Type::string(),
                 'stock' => Type::int(),
@@ -533,14 +539,14 @@ $MutationType = new ObjectType([
         'updateCategory' => [
             'type' => $CategoryResponseType,
             'args' => [
-                'id' => Type::nonNull(Type::int()),
+                'id' => Type::nonNull(Type::string()),
                 'input' => Type::nonNull($CategoryInputType)
             ],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => updateCategory($context['db'], $args['id'], $args['input']))
         ],
         'deleteCategory' => [
             'type' => $CategoryResponseType,
-            'args' => ['id' => Type::nonNull(Type::int())],
+            'args' => ['id' => Type::nonNull(Type::string())],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteCategory($context['db'], $args['id']))
         ],
         'createSubcategory' => [
@@ -551,14 +557,14 @@ $MutationType = new ObjectType([
         'updateSubcategory' => [
             'type' => $SubcategoryResponseType,
             'args' => [
-                'id' => Type::nonNull(Type::int()),
+                'id' => Type::nonNull(Type::string()),
                 'input' => Type::nonNull($SubcategoryInputType)
             ],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => updateSubcategory($context['db'], $args['id'], $args['input']))
         ],
         'deleteSubcategory' => [
             'type' => $SubcategoryResponseType,
-            'args' => ['id' => Type::nonNull(Type::int())],
+            'args' => ['id' => Type::nonNull(Type::string())],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteSubcategory($context['db'], $args['id']))
         ],
         'createBrand' => [

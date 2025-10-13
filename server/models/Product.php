@@ -121,7 +121,7 @@ class Product
         return [$where, $order, $params, $types];
     }
 
-    private function buildWhereWithFilters(string $search, ?int $categoryId, ?array $brands, ?float $minPrice, ?float $maxPrice, ?float $minRating): array
+    private function buildWhereWithFilters(string $search, ?string $categoryId, ?array $categories, ?array $brands, ?float $minPrice, ?float $maxPrice, ?float $minRating): array
     {
         $conditions = [];
         $params = [];
@@ -135,8 +135,27 @@ class Product
         }
 
 
-        if ($categoryId !== null) {
+        // Handle category filtering - prioritize multiple categories over single categoryId
+        if (!empty($categories) && is_array($categories)) {
+            // Multiple categories selected
+            $categoryModel = new Category($this->db);
+            $allCategoryIds = [];
 
+            foreach ($categories as $catId) {
+                $descendantIds = $categoryModel->getAllDescendantIds($catId);
+                $allCategoryIds = array_merge($allCategoryIds, $descendantIds);
+            }
+
+            $allCategoryIds = array_unique($allCategoryIds);
+
+            if (!empty($allCategoryIds)) {
+                $placeholders = implode(',', array_fill(0, count($allCategoryIds), '?'));
+                $conditions[] = "category_id IN ($placeholders)";
+                $params = array_merge($params, $allCategoryIds);
+                $types .= str_repeat('s', count($allCategoryIds));
+            }
+        } elseif ($categoryId !== null) {
+            // Single category ID (fallback for backward compatibility)
             $categoryModel = new Category($this->db);
             $descendantIds = $categoryModel->getAllDescendantIds($categoryId);
 
@@ -144,12 +163,11 @@ class Product
                 $placeholders = implode(',', array_fill(0, count($descendantIds), '?'));
                 $conditions[] = "category_id IN ($placeholders)";
                 $params = array_merge($params, $descendantIds);
-                $types .= str_repeat('i', count($descendantIds));
+                $types .= str_repeat('s', count($descendantIds));
             } else {
-
                 $conditions[] = "category_id = ?";
                 $params[] = $categoryId;
-                $types .= 'i';
+                $types .= 's';
             }
         }
 
@@ -203,9 +221,9 @@ class Product
 
     /* -------------------- PUBLIC METHODS -------------------- */
 
-    public function findAll(?int $userId, int $limit = 10, int $offset = 0, string $search = '', bool $publicOnly = false, ?int $categoryId = null, ?array $brands = null, ?float $minPrice = null, ?float $maxPrice = null, ?float $minRating = null): array
+    public function findAll(?int $userId, int $limit = 10, int $offset = 0, string $search = '', bool $publicOnly = false, ?string $categoryId = null, ?array $categories = null, ?array $brands = null, ?float $minPrice = null, ?float $maxPrice = null, ?float $minRating = null): array
     {
-        [$where, $order, $params, $types] = $this->buildWhereWithFilters($search, $categoryId, $brands, $minPrice, $maxPrice, $minRating);
+        [$where, $order, $params, $types] = $this->buildWhereWithFilters($search, $categoryId, $categories, $brands, $minPrice, $maxPrice, $minRating);
 
 
         if ($publicOnly) {
@@ -330,9 +348,9 @@ class Product
         return array_values($products);
     }
 
-    public function getTotalCount(string $search = '', bool $publicOnly = false, ?int $categoryId = null, ?array $brands = null, ?float $minPrice = null, ?float $maxPrice = null, ?float $minRating = null): int
+    public function getTotalCount(string $search = '', bool $publicOnly = false, ?string $categoryId = null, ?array $categories = null, ?array $brands = null, ?float $minPrice = null, ?float $maxPrice = null, ?float $minRating = null): int
     {
-        [$where, $order, $params, $types] = $this->buildWhereWithFilters($search, $categoryId, $brands, $minPrice, $maxPrice, $minRating);
+        [$where, $order, $params, $types] = $this->buildWhereWithFilters($search, $categoryId, $categories, $brands, $minPrice, $maxPrice, $minRating);
 
 
         if ($publicOnly) {
@@ -354,7 +372,7 @@ class Product
         return (int) ($result[0]['total'] ?? 0);
     }
 
-    public function findRelatedProducts(string $productId, ?int $categoryId, ?int $brandId, int $limit = 8): array
+    public function findRelatedProducts(string $productId, ?string $categoryId, ?int $brandId, int $limit = 8): array
     {
 
         $currentProduct = $this->findById($productId);
@@ -374,7 +392,7 @@ class Product
         if ($categoryId) {
             $query .= " AND p.category_id = ?";
             $params[] = $categoryId;
-            $types .= 'i';
+            $types .= 's';
         }
 
         $query .= " ORDER BY 
@@ -387,7 +405,7 @@ class Product
 
         $params[] = $categoryId;
         $params[] = $limit;
-        $types .= 'ii';
+        $types .= 'si';
 
         $stmt = $this->db->prepare($query);
         if (!$stmt) {
@@ -682,8 +700,8 @@ class Product
             'price' => (float) $data['price'],
             'currency' => trim($data['currency']),
             'psku' => isset($data['psku']) && $data['psku'] !== null ? trim($data['psku']) : null,
-            'category_id' => isset($data['category_id']) && $data['category_id'] !== null ? (int) $data['category_id'] : null,
-            'subcategory_id' => isset($data['subcategory_id']) && $data['subcategory_id'] !== null ? (int) $data['subcategory_id'] : null,
+            'category_id' => isset($data['category_id']) && $data['category_id'] !== null ? $data['category_id'] : null,
+            'subcategory_id' => isset($data['subcategory_id']) && $data['subcategory_id'] !== null ? $data['subcategory_id'] : null,
             'brand_id' => isset($data['brand_id']) && $data['brand_id'] !== null ? (int) $data['brand_id'] : null,
             'group_id' => isset($data['group_id']) && $data['group_id'] !== null ? trim($data['group_id']) : null,
             'stock' => isset($data['stock']) && $data['stock'] !== null ? (int) $data['stock'] : 0,
@@ -721,7 +739,7 @@ class Product
 
 
         if ($storeId !== null) {
-            $userId = null;
+            $userId = 0; // Use 0 instead of null for store products
         } elseif (isset($_SESSION['user']['id'])) {
             $userId = $_SESSION['user']['id'];
             $storeId = null;
@@ -735,7 +753,7 @@ class Product
         $isPublic = (int) $cleanData['is_public'];
 
         $stmt->bind_param(
-            'sssiiiissdiisiid',
+            'ssiisssdsisiiiid',
             $hash,
             $psku,
             $userId,
@@ -818,7 +836,8 @@ class Product
             ->key('currency', v::stringType()->notEmpty()->length(3, 4), false)
             ->key('product_overview', v::optional(v::stringType()), false)
             ->key('psku', v::optional(v::stringType()->length(1, 100)), false)
-            ->key('category_id', v::optional(v::intVal()->positive()), false)
+            ->key('category_id', v::optional(v::stringType()), false)
+            ->key('subcategory_id', v::optional(v::stringType()), false)
             ->key('brand_id', v::optional(v::intVal()->positive()), false)
             ->key('group_id', v::optional(v::stringType()), false)
             ->key('stock', v::optional(v::intVal()->min(0)), false)
