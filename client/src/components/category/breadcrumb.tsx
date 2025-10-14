@@ -1,21 +1,8 @@
 import { ChevronRight, Home } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@apollo/client'
-import { gql } from '@apollo/client'
+import { GET_CATEGORY_BREADCRUMB } from '@/graphql/category'
 
-const GET_CATEGORY_BREADCRUMB = gql`
-  query GetCategoryBreadcrumb($categoryId: String!) {
-    getCategoryBreadcrumb(categoryId: $categoryId) {
-      success
-      breadcrumb {
-        id
-        name
-        slug
-        level
-      }
-    }
-  }
-`
 
 interface BreadcrumbItem {
   id: number

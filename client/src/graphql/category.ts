@@ -142,6 +142,81 @@ export const GET_SUBCATEGORIES = gql`
   }
 `
 
+export const GET_HIERARCHICAL_CATEGORIES = gql`
+  query GetHierarchicalCategories {
+    getHierarchicalCategories {
+      success
+      categories {
+        category_id
+        parent_id
+        name
+        slug
+        level
+        product_count
+        hasChildren
+        children {
+          category_id
+          parent_id
+          name
+          slug
+          level
+          product_count
+          hasChildren
+          children {
+            category_id
+            parent_id
+            name
+            slug
+            level
+            product_count
+            hasChildren
+            children {
+              category_id
+              parent_id
+              name
+              slug
+              level
+              product_count
+              hasChildren
+              children {
+                category_id
+                parent_id
+                name
+                slug
+                level
+                product_count
+                hasChildren
+                children {
+                    category_id
+                    parent_id
+                    name
+                    slug
+                    level
+                    product_count
+                    hasChildren
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_CATEGORY_BREADCRUMB = gql`
+  query GetCategoryBreadcrumb($categoryId: String!) {
+    getCategoryBreadcrumb(categoryId: $categoryId) {
+      success
+      breadcrumb {
+        id
+        name
+        slug
+        level
+      }
+    }
+  }
+`
 export const CREATE_CATEGORY = gql`
   mutation CreateCategory($input: CategoryInput!) {
     createCategory(input: $input) {

@@ -56,7 +56,7 @@ export function ProductPage() {
 
 
     const publicProducts = currentProduct.groupProducts.filter(product => product.is_public)
-   
+
 
 
     const currentProductInGroup = currentProduct.groupProducts.find(p => p.id === currentProduct.id)
@@ -68,10 +68,10 @@ export function ProductPage() {
   }, [currentProduct])
 
   const productImages = selectedProduct?.images
-  ? [...selectedProduct.images].sort(
-    (a, b) => Number(b.is_primary ?? false) - Number(a.is_primary ?? false)
-  )
-  : []
+    ? [...selectedProduct.images].sort(
+      (a, b) => Number(b.is_primary ?? false) - Number(a.is_primary ?? false)
+    )
+    : []
 
   const attributeOptions = useMemo(() => {
     const options: Record<string, Set<string>> = {}
@@ -204,11 +204,10 @@ export function ProductPage() {
 
   return (
     <main aria-label="Product Page" className="!scroll-smooth mb-32 overflow-x-hidden bg-white">
-      {/* Breadcrumb Navigation */}
       {currentProduct?.category_id && (
         <Breadcrumb categoryId={currentProduct.category_id} className="border-b border-gray-200" />
       )}
-      
+
       <section
         aria-labelledby="product-main-section"
         className="site-container relative flex w-full flex-col items-start justify-start space-y-10 px-5 pt-10 lg:flex-row lg:space-x-10 lg:space-y-0 ">
