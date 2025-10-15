@@ -1,0 +1,67 @@
+# Composer dependencies (will be installed in container)
+vendor/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Logs
+logs/
+*.log
+
+# Cache files
+cache/
+*.cache
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Uploads (will be mounted as volume)
+public/uploads/
+
+# Test files
+test/
+tests/
+phpunit.xml
+.phpunit.result.cache
+
+# Documentation
+README.md
+*.md
+
+# Backup files
+*.bak
+*.backup
+
+# PHP specific
+composer.phar
+phpunit.phar
+
+# Development tools
+.php_cs
+.php_cs.cache
+.php-cs-fixer.cache

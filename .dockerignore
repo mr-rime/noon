@@ -1,0 +1,56 @@
+# Git
+.git
+.gitignore
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Environment files
+.env*
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Documentation
+README.md
+CONTRIBUTING.md
+SECURITY.md
+LICENSE
+*.md
+
+# Node modules (handled by individual service dockerignore files)
+node_modules/
+
+# Build artifacts
+dist/
+build/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Backup files
+*.bak
+*.backup
+
+# SSL certificates
+ssl/
