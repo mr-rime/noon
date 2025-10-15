@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
-import { useLocation } from '@tanstack/react-router'
+import { useLocation, useNavigate } from '@tanstack/react-router'
 import HierarchicalCategoryFilter from './hierarchical-category-filter'
 import PriceFilter from './price-filter'
 import BrandFilter from './brand-filter'
 import RatingFilter from './rating-filter'
 import SellerFilter from './seller-filter'
+import { GET_CATEGORY_BREADCRUMB } from '@/graphql/category'
+import { useLazyQuery } from '@apollo/client'
 
 interface FilterState {
-  categories: string[]
   brands: number[]
   sellers: number[]
   minPrice?: number
@@ -24,14 +25,19 @@ interface FilterSidebarProps {
   onFiltersChange?: (filters: FilterState) => void
 }
 
+
+
 export default function FilterSidebar({
   currentCategoryId,
   onFiltersChange
 }: FilterSidebarProps) {
+
+  const [getBreadcrumb] = useLazyQuery(GET_CATEGORY_BREADCRUMB)
+
+
   const location = useLocation()
 
   const [filters, setFilters] = useState<FilterState>({
-    categories: [],
     brands: [],
     sellers: [],
     minPrice: undefined,
@@ -43,18 +49,13 @@ export default function FilterSidebar({
     condition: []
   })
 
+  const navigate = useNavigate()
+
+
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search)
-    const urlCategories = searchParams.get('categories')?.split(',').filter(Boolean) || []
-
-
-    const categories = currentCategoryId && !urlCategories.includes(currentCategoryId)
-      ? [...urlCategories, currentCategoryId]
-      : urlCategories
-
     const newFilters: FilterState = {
-      categories,
       brands: searchParams.get('brands')?.split(',').map(Number).filter(Boolean) || [],
       sellers: searchParams.get('sellers')?.split(',').map(Number).filter(Boolean) || [],
       minPrice: searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : undefined,
@@ -76,9 +77,6 @@ export default function FilterSidebar({
 
     const params = new URLSearchParams(location.search)
 
-    if (updated.categories.length > 0) {
-      params.set('categories', updated.categories.join(','))
-    }
     if (updated.brands.length > 0) {
       params.set('brands', updated.brands.join(','))
     }
@@ -112,12 +110,30 @@ export default function FilterSidebar({
     onFiltersChange?.(updated)
   }
 
-  const handleCategoryToggle = (categoryId: string) => {
-    const newCategories = filters.categories.includes(categoryId)
-      ? filters.categories.filter(id => id !== categoryId)
-      : [...filters.categories, categoryId]
-    updateFilters({ categories: newCategories })
+  const handleCategoryToggle = async (categoryId: string) => {
+    try {
+      const { data } = await getBreadcrumb({ variables: { categoryId } })
+      const breadcrumb = data?.getCategoryBreadcrumb?.breadcrumb || []
+      const fullPath = breadcrumb.map((b: any) => b.slug).join('/')
+
+
+      const currentPath = location.pathname.replace(/^\/category\/?/, '')
+
+      if (currentPath === fullPath) {
+        const upOne = fullPath.split('/').slice(0, -1).join('/')
+        if (upOne) {
+          navigate({ to: `/category/$`, params: { _splat: upOne } })
+        } else {
+          navigate({ to: '/category/$' })
+        }
+      } else {
+        navigate({ to: `/category/$`, params: { _splat: fullPath } })
+      }
+    } catch (err) {
+      console.error('Failed to fetch breadcrumb:', err)
+    }
   }
+
 
   const handleBrandToggle = (brandId: number) => {
     const newBrands = filters.brands.includes(brandId)
@@ -160,7 +176,6 @@ export default function FilterSidebar({
           <h2 className="text-lg font-semibold mb-4">Filters</h2>
 
           <div className="space-y-4">
-            {/* Fulfillment Filter */}
             <div className="border-b border-gray-200 pb-4">
               <h3 className="text-sm font-medium text-gray-900 mb-3">Fulfillment</h3>
               <div className="space-y-2">
@@ -195,21 +210,18 @@ export default function FilterSidebar({
               </div>
             </div>
 
-            {/* Category Filter */}
             <HierarchicalCategoryFilter
-              selectedCategories={filters.categories}
+              selectedCategories={[]}
               onCategoryToggle={handleCategoryToggle}
-              onClearAll={() => updateFilters({ categories: [] })}
             />
 
-            {/* Brand Filter */}
+
             <BrandFilter
               selectedBrands={filters.brands}
               onBrandToggle={handleBrandToggle}
               onClear={() => updateFilters({ brands: [] })}
             />
 
-            {/* Price Filter */}
             <PriceFilter
               min={filters.minPrice}
               max={filters.maxPrice}
@@ -217,7 +229,6 @@ export default function FilterSidebar({
               onClear={() => updateFilters({ minPrice: undefined, maxPrice: undefined })}
             />
 
-            {/* Price Drop */}
             <div className="border-b border-gray-200 pb-4">
               <h3 className="text-sm font-medium text-gray-900 mb-3">Price Drop</h3>
               <label className="flex items-center">
@@ -231,14 +242,12 @@ export default function FilterSidebar({
               </label>
             </div>
 
-            {/* Rating Filter */}
             <RatingFilter
               minRating={filters.minRating}
               onRatingSelect={handleRatingSelect}
               onClear={() => updateFilters({ minRating: undefined })}
             />
 
-            {/* New Arrivals */}
             <div className="border-b border-gray-200 pb-4">
               <h3 className="text-sm font-medium text-gray-900 mb-3">New Arrivals</h3>
               <label className="flex items-center">
@@ -252,7 +261,6 @@ export default function FilterSidebar({
               </label>
             </div>
 
-            {/* Item Condition */}
             <div className="border-b border-gray-200 pb-4">
               <h3 className="text-sm font-medium text-gray-900 mb-3">Item Condition</h3>
               <div className="space-y-2">
@@ -287,7 +295,6 @@ export default function FilterSidebar({
               </div>
             </div>
 
-            {/* Seller Filter */}
             <SellerFilter
               sellers={sellers}
               selectedSellers={filters.sellers}
