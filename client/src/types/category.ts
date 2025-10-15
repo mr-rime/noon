@@ -1,4 +1,3 @@
-// Category types
 export interface Category {
     category_id: string
     parent_id?: string
@@ -10,11 +9,9 @@ export interface Category {
     children?: Category[]
 }
 
-// Hierarchical Category Filter types
 export interface HierarchicalCategoryFilterProps {
     selectedCategories: string[]
-    onCategoryToggle: (categoryId: string, isAllCategory: boolean) => void
-    onClearAll: () => void
+    onCategoryToggle: (categoryId: string) => void
 }
 
 export interface CategoryItemProps {
@@ -22,7 +19,7 @@ export interface CategoryItemProps {
     level: number
     selectedCategories: string[]
     expandedCategories: string[]
-    onCategoryToggle: (categoryId: string, isAllCategory: boolean) => void
+    onCategoryToggle: (categoryId: string) => void
     onExpand: (categoryId: string) => void
 }
 

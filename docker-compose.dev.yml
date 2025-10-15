@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: noon-mysql-dev
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_NAME:-noon_db}
+      MYSQL_USER: ${DB_USER:-noon_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-noon_password}
+    ports:
+      - "3307:3306"  
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+      - ./server/config/db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - noon-dev-network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    container_name: noon-server-dev
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+      - "9003:9003" 
+    environment:
+      - DB_HOST=mysql
+      - DB_NAME=${DB_NAME:-noon_db}
+      - DB_USER=${DB_USER:-noon_user}
+      - DB_PASSWORD=${DB_PASSWORD:-noon_password}
+      - XDEBUG_MODE=debug
+      - XDEBUG_CONFIG=client_host=host.docker.internal
+    volumes:
+      - ./server:/var/www/html
+      - ./server/public/uploads:/var/www/html/public/uploads
+    depends_on:
+      - mysql
+    networks:
+      - noon-dev-network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    container_name: noon-client-dev
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+      - API_URL=http://localhost:8081
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+      - /app/dist
+    depends_on:
+      - server
+    networks:
+      - noon-dev-network
+
+volumes:
+  mysql_dev_data:
+    driver: local
+
+networks:
+  noon-dev-network:
+    driver: bridge

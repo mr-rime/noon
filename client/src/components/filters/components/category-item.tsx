@@ -1,6 +1,7 @@
 import { Plus, Minus } from 'lucide-react'
 import { Checkbox } from '../../ui/checkbox'
 import type { CategoryItemProps } from '@/types/category'
+import { useParams } from '@tanstack/react-router'
 
 export function CategoryItem({
     category,
@@ -12,8 +13,13 @@ export function CategoryItem({
 }: CategoryItemProps) {
     const isExpanded = expandedCategories.includes(category.category_id)
     const hasChildren = category.hasChildren || (category.children && category.children.length > 0)
-    const allCategoryId = `all_${category.category_id}`
-    const isAllSelected = selectedCategories.includes(allCategoryId)
+    // const allCategoryId = `all_${category.category_id}`
+    const params = useParams({ from: "/(main)/_homeLayout/category/$" })
+    const selectedCategory = params._splat?.split("/").at(-1)
+
+    console.log(selectedCategory)
+
+    console.log(category.slug)
 
     return (
         <div className={`${level > 0 ? 'ml-2' : ''}`}>
@@ -49,11 +55,10 @@ export function CategoryItem({
 
             {isExpanded && hasChildren && (
                 <div className="ml-5">
-                    <div className="flex items-center py-1">
+                    {/* <div className="flex items-center py-1">
                         <Checkbox
-                            id={allCategoryId}
-                            checked={isAllSelected}
-                            onChange={() => onCategoryToggle(allCategoryId, true)}
+                            checked={category.slug === selectedCategory}
+                            onChange={() => onCategoryToggle(category.category_id)}
                             className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
                         <label
@@ -62,18 +67,18 @@ export function CategoryItem({
                         >
                             All {category.name}
                         </label>
-                    </div>
+                    </div> */}
 
                     {category.children?.map(child => {
                         const isLeaf = !child.hasChildren && (!child.children || child.children.length === 0)
 
                         if (isLeaf) {
                             return (
-                                <div key={child.category_id} className="ml-5 flex items-center py-1">
+                                <div key={child.category_id} className="flex items-center py-1">
                                     <Checkbox
                                         id={`category-${child.category_id}`}
-                                        checked={selectedCategories.includes(child.category_id)}
-                                        onChange={() => onCategoryToggle(child.category_id, false)}
+                                        checked={category.slug === selectedCategory}
+                                        onChange={() => onCategoryToggle(child.category_id)}
                                         className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                     />
                                     <label

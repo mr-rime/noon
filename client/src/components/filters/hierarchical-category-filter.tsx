@@ -1,67 +1,15 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useQuery } from '@apollo/client'
-import { gql } from '@apollo/client'
 import type { Category, HierarchicalCategoryFilterProps } from '@/types/category'
 import { CategoryItem } from './components/category-item'
+import { GET_HIERARCHICAL_CATEGORIES } from '@/graphql/category'
 
-const GET_HIERARCHICAL_CATEGORIES = gql`
-  query GetHierarchicalCategories {
-    getHierarchicalCategories {
-      success
-      categories {
-        category_id
-        parent_id
-        name
-        slug
-        level
-        product_count
-        hasChildren
-        children {
-          category_id
-          parent_id
-          name
-          slug
-          level
-          product_count
-          hasChildren
-          children {
-            category_id
-            parent_id
-            name
-            slug
-            level
-            product_count
-            hasChildren
-            children {
-              category_id
-              parent_id
-              name
-              slug
-              level
-              product_count
-              hasChildren
-              children {
-                category_id
-                parent_id
-                name
-                slug
-                level
-                product_count
-                hasChildren
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`
+
 
 
 export default function HierarchicalCategoryFilter({
   selectedCategories,
   onCategoryToggle,
-  onClearAll
 }: HierarchicalCategoryFilterProps) {
   const [expandedCategories, setExpandedCategories] = useState<string[]>([])
 
@@ -69,30 +17,28 @@ export default function HierarchicalCategoryFilter({
   const categories = useMemo(() => data?.getHierarchicalCategories?.categories || [], [data])
   const hasSelection = selectedCategories.length > 0
 
-  // Auto-expand categories that have selected children
   useEffect(() => {
     if (selectedCategories.length > 0 && categories.length > 0) {
       const toExpand: string[] = []
 
-      // Function to check and expand parent categories
-      const checkAndExpand = (cats: Category[], parentIds: string[] = []) => {
-        cats.forEach(cat => {
-          const hasSelectedChild = cat.children?.some(child =>
-            selectedCategories.includes(child.category_id) ||
-            selectedCategories.includes(`all_${child.category_id}`)
-          )
+      // const checkAndExpand = (cats: Category[], parentIds: string[] = []) => {
+      //   cats.forEach(cat => {
+      //     const hasSelectedChild = cat.children?.some(child =>
+      //       selectedCategories.includes(child.category_id) ||
+      //       selectedCategories.includes(`all_${child.category_id}`)
+      //     )
 
-          if (hasSelectedChild || selectedCategories.includes(cat.category_id) || selectedCategories.includes(`all_${cat.category_id}`)) {
-            toExpand.push(...parentIds, cat.category_id)
-          }
+      //     if (hasSelectedChild || selectedCategories.includes(cat.category_id) || selectedCategories.includes(`all_${cat.category_id}`)) {
+      //       toExpand.push(...parentIds, cat.category_id)
+      //     }
 
-          if (cat.children) {
-            checkAndExpand(cat.children, [...parentIds, cat.category_id])
-          }
-        })
-      }
+      //     if (cat.children) {
+      //       checkAndExpand(cat.children, [...parentIds, cat.category_id])
+      //     }
+      //   })
+      // }
 
-      checkAndExpand(categories)
+      // checkAndExpand(categories)
       setExpandedCategories(prev => [...new Set([...prev, ...toExpand])])
     }
   }, [selectedCategories, categories])
@@ -111,7 +57,6 @@ export default function HierarchicalCategoryFilter({
         <h3 className="text-sm font-medium text-gray-900">Category</h3>
         {hasSelection && (
           <button
-            onClick={onClearAll}
             className="text-xs text-blue-600 hover:text-blue-800"
           >
             Clear
