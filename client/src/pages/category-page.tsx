@@ -6,7 +6,6 @@ import CategoryCarousel from '../components/category/category-carousel'
 import Breadcrumb from '../components/category/breadcrumb'
 import FilterSidebar from '../components/filters/filter-sidebar'
 import ProductCard from '../components/product-card'
-import CategoryTree, { CategoryGrid } from '../components/category/category-tree'
 import { Loader2 } from 'lucide-react'
 import { GET_CATEGORY_BY_NESTED_PATH } from '../graphql/category'
 
@@ -128,8 +127,6 @@ export default function CategoryPage() {
   const category = categoryData?.getCategoryByNestedPath?.category ||
     categoryData?.getCategoryBySlug?.category
 
-
-
   const { data: productsData, loading: productsLoading } = useQuery(GET_FILTERED_PRODUCTS, {
     skip: !category,
     variables: {
@@ -164,77 +161,18 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Category Carousel */}
       <CategoryCarousel />
 
-      {/* Breadcrumb */}
       <Breadcrumb categoryId={category.category_id} />
 
-      {/* Main Content */}
       <div className=" px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex gap-6">
-          {/* Sidebar */}
           <FilterSidebar
             currentCategoryId={category.category_id}
             onFiltersChange={setFilters}
           />
 
-          {/* Product Grid */}
           <div className="flex-1">
-            {/* Header */}
-            <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-              <h1 className="text-2xl font-semibold text-gray-900">
-                {category.name}
-              </h1>
-              {category.description && (
-                <p className="mt-2 text-gray-600">{category.description}</p>
-              )}
-              <div className="mt-2 text-sm text-gray-500">
-                {totalCount} Products
-                {category.children && category.children.length > 0 && (
-                  <span className="ml-2 text-xs text-blue-600">
-                    (including products from subcategories)
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Subcategories - Using Recursive Component */}
-            {category.children && category.children.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-                <h3 className="text-sm font-medium text-gray-900 mb-3">Browse by Subcategory</h3>
-
-                {/* Use CategoryGrid for immediate children */}
-                <CategoryGrid
-                  categories={category.children}
-                  currentPath={categoryPath}
-                  isNestedPath={isNestedPath}
-                  basePath={isNestedPath ? categoryPath : category.slug}
-                  columns={4}
-                  className="mb-4"
-                />
-
-                {/* Show recursive tree for deeper nesting if there are nested children */}
-                {category.children.some((child: any) => child.children && child.children.length > 0) && (
-                  <>
-                    <div className="border-t border-gray-200 pt-4 mt-4">
-                      <h4 className="text-sm font-medium text-gray-700 mb-3">All Categories</h4>
-                      <CategoryTree
-                        categories={category.children}
-                        currentPath={categoryPath}
-                        isNestedPath={isNestedPath}
-                        basePath={isNestedPath ? categoryPath : category.slug}
-                        maxDepth={3}
-                        showExpandCollapse={true}
-                        className="bg-gray-50 rounded-lg p-3"
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* Products */}
             {productsLoading ? (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -251,7 +189,6 @@ export default function CategoryPage() {
                   ))}
                 </div>
 
-                {/* Pagination */}
                 {totalPages > 1 && (
                   <div className="mt-6 flex justify-center">
                     <div className="flex gap-2">
