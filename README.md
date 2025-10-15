@@ -1,6 +1,6 @@
 # Noon Clone — E-Commerce Platform
 
-A modern, full-stack e-commerce platform built with **React**, **TypeScript**, and **GraphQL**, powered by a **PHP backend** and a custom **Vite SSR** setup.
+A modern, full-stack e-commerce platform built with **React**, **TypeScript**, and **GraphQL**, powered by a **PHP backend** and a custom **Vite SSR** setup.  
 
 ---
 
