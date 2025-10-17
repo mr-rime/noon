@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
-    container_name: noon-mysql
+    container_name: noon-mysql-dev
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
@@ -11,72 +9,39 @@ services:
       MYSQL_USER: ${DB_USER:-noon_user}
       MYSQL_PASSWORD: ${DB_PASSWORD:-noon_password}
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_dev_data:/var/lib/mysql
       - ./server/config/db.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - noon-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
+      - noon-dev-network
+
   server:
     build:
       context: ./server
       dockerfile: Dockerfile
-    container_name: noon-server
+    container_name: noon-server-dev
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "8000:8000"
     environment:
       - DB_HOST=mysql
       - DB_NAME=${DB_NAME:-noon_db}
       - DB_USER=${DB_USER:-noon_user}
       - DB_PASSWORD=${DB_PASSWORD:-noon_password}
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - DB_PORT=3306
     volumes:
+      - ./server:/var/www/html
       - ./server/public/uploads:/var/www/html/public/uploads
-      - ./server/log:/var/www/html/log
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
     networks:
-      - noon-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/graphql"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  client:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    container_name: noon-client
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - API_URL=http://server:80
-    depends_on:
-      server:
-        condition: service_healthy
-    networks:
-      - noon-network
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - noon-dev-network
 
 volumes:
-  mysql_data:
+  mysql_dev_data:
     driver: local
 
 networks:
-  noon-network:
+  noon-dev-network:
     driver: bridge

@@ -5,20 +5,16 @@
     },
     "scripts": {
         "prepare": "husky",
-        "docker:build": "docker-compose build",
-        "docker:up": "docker-compose up -d",
-        "docker:down": "docker-compose down",
-        "docker:logs": "docker-compose logs -f",
-        "docker:dev": "docker-compose -f docker-compose.dev.yml up -d",
-        "docker:dev:down": "docker-compose -f docker-compose.dev.yml down",
-        "docker:dev:logs": "docker-compose -f docker-compose.dev.yml logs -f",
-        "docker:clean": "docker-compose down -v --rmi all",
-        "docker:restart": "docker-compose restart",
-        "docker:shell:client": "docker-compose exec client sh",
-        "docker:shell:server": "docker-compose exec server bash",
-        "docker:shell:mysql": "docker-compose exec mysql mysql -u noon_user -p noon_db",
-        "docker:logs:client": "docker-compose logs -f client",
-        "docker:logs:server": "docker-compose logs -f server",
-        "docker:logs:mysql": "docker-compose logs -f mysql"
-    }
+        "docker:build": "docker compose build",
+        "docker:up": "docker compose up -d",
+        "docker:down": "docker compose down",
+        "docker:logs": "docker compose logs -f",
+        "docker:clean": "docker compose down -v --rmi all",
+        "docker:restart": "docker compose restart",
+        "docker:shell:server": "docker compose exec server bash",
+        "docker:shell:mysql": "docker compose exec mysql mysql -u noon_user -p noon_db",
+        "docker:logs:server": "docker compose logs -f server",
+        "docker:logs:mysql": "docker compose logs -f mysql"
+    },
+    "packageManager": "pnpm@9.14.2+sha512.6e2baf77d06b9362294152c851c4f278ede37ab1eba3a55fda317a4a17b209f4dbb973fb250a77abc463a341fcb1f17f17cfa24091c4eb319cda0d9b84278387"
 }
