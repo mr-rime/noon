@@ -81,13 +81,11 @@ function getHierarchicalCategories(mysqli $db): array
     $categoryModel = new Category($db);
 
     try {
-        // Get full category tree
         $categories = $categoryModel->getCategoryTree(null, 5);
         
         // Process categories to add hasChildren flag and product counts
         function processCategories(&$categories, $db) {
             foreach ($categories as &$category) {
-                // Get product count for this category
                 $countQuery = "SELECT COUNT(*) as count FROM products WHERE category_id = ?";
                 $stmt = $db->prepare($countQuery);
                 $stmt->bind_param('s', $category['category_id']);
@@ -96,10 +94,8 @@ function getHierarchicalCategories(mysqli $db): array
                 $count = $result->fetch_assoc();
                 $category['product_count'] = $count['count'] ?? 0;
                 
-                // Add hasChildren flag
                 $category['hasChildren'] = isset($category['children']) && count($category['children']) > 0;
                 
-                // Recursively process children
                 if ($category['hasChildren']) {
                     processCategories($category['children'], $db);
                 }
