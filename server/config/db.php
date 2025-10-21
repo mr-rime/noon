@@ -16,7 +16,7 @@ class Database
         $this->username = getenv('DB_USER') ?: 'root';
         $this->password = getenv('DB_PASSWORD') ?: '51857';
         $this->db_name = getenv('DB_NAME') ?: 'noon_db';
-        $this->port = getenv('DB_PORT') ?: 3306;
+        $this->port = getenv('DB_PORT') ?: 3307;
     }
 
     public function getConnection(): mysqli
