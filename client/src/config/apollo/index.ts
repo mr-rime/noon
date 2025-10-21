@@ -7,7 +7,7 @@ const graphqlUri = isDashboard
   ? 'http://dashboard.localhost:8000/graphql'
   : 'http://localhost:8000/graphql'
 
-const client = new ApolloClient({
+export const client = new ApolloClient({
   ssrMode: typeof window === 'undefined',
   link: createUploadLink({
     uri: graphqlUri,
@@ -15,5 +15,3 @@ const client = new ApolloClient({
   }),
   cache: new InMemoryCache(),
 })
-
-export default client

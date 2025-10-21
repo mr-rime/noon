@@ -1,7 +1,7 @@
 import { ApolloProvider } from '@apollo/client'
 import { RouterProvider } from '@tanstack/react-router'
-import client from './config/apollo'
 import { router } from './router'
+import { client } from './config/apollo'
 
 declare module '@tanstack/react-router' {
   interface Register {
