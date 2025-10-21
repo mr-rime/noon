@@ -10,6 +10,7 @@ export const GET_PRODUCT_REVIEWS = gql`
         product_id
         user_id
         rating
+        title
         comment
         verified_purchase
         created_at
@@ -38,6 +39,7 @@ export const GET_USER_REVIEW = gql`
         product_id
         user_id
         rating
+        title
         comment
         verified_purchase
         created_at
@@ -56,6 +58,7 @@ export const CREATE_PRODUCT_REVIEW = gql`
   mutation CreateProductReview(
     $product_id: String!
     $rating: Int!
+    $title: String
     $comment: String
     $verified_purchase: Boolean!
     $order_id: String
@@ -63,6 +66,7 @@ export const CREATE_PRODUCT_REVIEW = gql`
     createProductReview(
       product_id: $product_id
       rating: $rating
+      title: $title
       comment: $comment
       verified_purchase: $verified_purchase
       order_id: $order_id
@@ -74,6 +78,7 @@ export const CREATE_PRODUCT_REVIEW = gql`
         product_id
         user_id
         rating
+        title
         comment
         verified_purchase
         created_at
@@ -92,11 +97,13 @@ export const UPDATE_PRODUCT_REVIEW = gql`
   mutation UpdateProductReview(
     $id: Int!
     $rating: Int!
+    $title: String
     $comment: String
   ) {
     updateProductReview(
       id: $id
       rating: $rating
+      title: $title
       comment: $comment
     ) {
       success
@@ -106,6 +113,7 @@ export const UPDATE_PRODUCT_REVIEW = gql`
         product_id
         user_id
         rating
+        title
         comment
         verified_purchase
         created_at

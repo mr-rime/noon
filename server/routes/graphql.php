@@ -41,7 +41,13 @@ if (strpos($request->headers->get('Content-Type'), 'multipart/form-data') !== fa
 }
 
 try {
-    $result = GraphQL::executeQuery($schema, $query, null, ['db' => $conn], $variables);
+
+    $context = ['db' => $conn];
+    if (isset($_SESSION['user']['id'])) {
+        $context['user_id'] = $_SESSION['user']['id'];
+    }
+
+    $result = GraphQL::executeQuery($schema, $query, null, $context, $variables);
     $output = $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE);
 } catch (Throwable $e) {
     http_response_code(500);

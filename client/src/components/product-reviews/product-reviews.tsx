@@ -16,7 +16,8 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
       limit: 10,
       offset: 0
     },
-    skip: !productId
+    skip: !productId,
+    fetchPolicy: 'cache-and-network'
   })
 
   if (loading) {
@@ -45,6 +46,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
 
   const reviewsData = data?.getProductReviews
   const hasReviews = reviewsData?.reviews?.length > 0
+
 
   return (
     <section id="product_reviews" className="site-container mt-10 min-h-[330px] overflow-x-hidden p-5">

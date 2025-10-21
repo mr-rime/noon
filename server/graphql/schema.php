@@ -315,7 +315,9 @@ $QueryType = new ObjectType([
                 'limit' => Type::int(),
                 'offset' => Type::int()
             ],
-            'resolve' => fn($root, $args, $context) => getProductReviews($context['db'], $args, $context)
+            'resolve' => function ($root, $args, $context) {
+                return getProductReviews($context['db'], array_merge($args, ['user_id' => $context['user_id'] ?? null]), $context);
+            }
         ],
 
         'getUserReview' => [
@@ -756,6 +758,7 @@ $MutationType = new ObjectType([
             'args' => [
                 'product_id' => Type::nonNull(Type::string()),
                 'rating' => Type::nonNull(Type::int()),
+                'title' => Type::string(),
                 'comment' => Type::string(),
                 'verified_purchase' => Type::boolean(),
                 'order_id' => Type::string()
@@ -768,6 +771,7 @@ $MutationType = new ObjectType([
             'args' => [
                 'id' => Type::nonNull(Type::int()),
                 'rating' => Type::int(),
+                'title' => Type::string(),
                 'comment' => Type::string()
             ],
             'resolve' => requireAuth(fn($root, $args, $context) => updateProductReview($context['db'], array_merge($args, ['user_id' => $context['user_id']])))

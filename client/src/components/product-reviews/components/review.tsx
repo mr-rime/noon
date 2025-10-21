@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { reviews_icons } from '../constants/icons'
 import { cn } from '@/utils/cn'
 import { Check, Star } from 'lucide-react'
@@ -10,6 +10,7 @@ interface ProductReviewProps {
   review: {
     id: number
     rating: number
+    title?: string
     comment: string
     created_at: string
     verified_purchase: boolean
@@ -23,9 +24,16 @@ interface ProductReviewProps {
 }
 
 export function ProductReview({ review }: ProductReviewProps) {
-  const [helpful, setHelpful] = useState(review.user_has_voted)
+  const [helpful, setHelpful] = useState(review.user_has_voted || false)
   const [showMore, setShowMore] = useState(false)
-  const [votesCount, setVotesCount] = useState(review.helpful_votes_count)
+  const [votesCount, setVotesCount] = useState(review.helpful_votes_count || 0)
+  const [isVoting, setIsVoting] = useState(false)
+
+
+  useEffect(() => {
+    setHelpful(review.user_has_voted || false)
+    setVotesCount(review.helpful_votes_count || 0)
+  }, [review.id, review.user_has_voted, review.helpful_votes_count])
 
   const [voteHelpful] = useMutation(VOTE_REVIEW_HELPFUL)
   const [removeVote] = useMutation(REMOVE_REVIEW_VOTE)
@@ -33,25 +41,47 @@ export function ProductReview({ review }: ProductReviewProps) {
   const shortedContent = showMore ? review.comment : review.comment.slice(0, 250)
 
   const handleHelpfulClick = async () => {
+    if (isVoting) return // Prevent multiple clicks
+
+    setIsVoting(true)
     try {
       if (helpful) {
-        await removeVote({
+
+        const result = await removeVote({
           variables: { reviewId: review.id }
         })
-        setHelpful(false)
-        setVotesCount(prev => prev - 1)
-        toast.success('Vote removed')
+
+        if (result.data?.removeReviewVote?.success) {
+          setHelpful(false)
+          setVotesCount(result.data.removeReviewVote.votesCount)
+        } else {
+          console.error('Failed to remove vote:', result.data?.removeReviewVote?.message)
+        }
       } else {
-        await voteHelpful({
+
+        const result = await voteHelpful({
           variables: { reviewId: review.id }
         })
-        setHelpful(true)
-        setVotesCount(prev => prev + 1)
-        toast.success('Thanks for voting!')
+
+        if (result.data?.voteReviewHelpful?.success) {
+          setHelpful(true)
+          setVotesCount(result.data.voteReviewHelpful.votesCount)
+        } else {
+          console.error('Failed to add vote:', result.data?.voteReviewHelpful?.message)
+
+
+          if (result.data?.voteReviewHelpful?.message?.includes('already voted')) {
+            console.log('Syncing state with backend - user has already voted')
+            setHelpful(true)
+            setVotesCount(result.data.voteReviewHelpful.votesCount)
+          }
+        }
       }
     } catch (error) {
       console.error('Error voting:', error)
       toast.error('Failed to vote. Please try again.')
+    } finally {
+      setIsVoting(false)
     }
   }
 
@@ -106,6 +136,12 @@ export function ProductReview({ review }: ProductReviewProps) {
         {renderStars(review.rating)}
       </div>
 
+      {review.title && (
+        <div className="mb-2">
+          <h4 className="font-semibold text-[16px] text-gray-900">{review.title}</h4>
+        </div>
+      )}
+
       {review.comment && (
         <div className="flex items-end pr-[45px]">
           <div className={cn('relative mt-1 w-full break-words text-[16px] leading-[1.5em]')}>
@@ -132,9 +168,13 @@ export function ProductReview({ review }: ProductReviewProps) {
       <div className="mt-3 flex items-center gap-[4px]">
         <button
           onClick={handleHelpfulClick}
+          disabled={isVoting}
           className={cn(
-            'flex cursor-pointer items-center gap-[4px] rounded-[4px] border px-[5px] py-[2px] ',
-            helpful ? 'border-[#3866df] text-[#3866df]' : 'border-[#7e859b] text-[#7e859b]',
+            'flex cursor-pointer items-center gap-[4px] rounded-[4px] border px-[5px] py-[2px] transition-colors',
+            helpful
+              ? 'border-[#3866df] bg-[#3866df] text-white'
+              : 'border-[#7e859b] text-[#7e859b] hover:border-[#3866df] hover:text-[#3866df]',
+            isVoting && 'opacity-50 cursor-not-allowed'
           )}>
           {reviews_icons.helpfulIcon}
 
@@ -142,8 +182,9 @@ export function ProductReview({ review }: ProductReviewProps) {
         </button>
 
         {helpful && (
-          <div className="ml-2 flex items-center gap-[3px]">
-            <Check color="#50B823" size={18} /> <span>Thanks for voting!</span>
+          <div className="ml-2 flex items-center gap-[3px] text-[#50B823]">
+            <Check color="#50B823" size={18} />
+            <span className="text-[14px]">Thanks for voting!</span>
           </div>
         )}
       </div>

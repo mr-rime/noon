@@ -19,9 +19,9 @@ export function Reviews({ reviews }: ReviewsProps) {
 
   return (
     <section className="w-full md:min-w-[456px] md:max-w-[68%]">
-      {reviews.map((review, index) => (
+      {reviews.map((review) => (
         <ProductReview
-          key={review.id || index}
+          key={`${review.id}-${review.user_has_voted}-${review.helpful_votes_count}`}
           review={review}
         />
       ))}

@@ -45,6 +45,7 @@ class Review
         $validator = v::key('product_id', v::stringType()->notEmpty())
             ->key('user_id', v::intType()->positive())
             ->key('rating', v::intType()->between(1, 5))
+            ->key('title', v::optional(v::stringType()))
             ->key('comment', v::optional(v::stringType()))
             ->key('verified_purchase', v::optional(v::boolType()));
 
@@ -55,7 +56,7 @@ class Review
             return null;
         }
 
-        $query = 'INSERT INTO reviews (product_id, user_id, rating, comment, verified_purchase) VALUES (?, ?, ?, ?, ?)';
+        $query = 'INSERT INTO reviews (product_id, user_id, rating, title, comment, verified_purchase) VALUES (?, ?, ?, ?, ?, ?)';
         $stmt = $this->db->prepare($query);
         if (!$stmt) {
             error_log("Prepare failed: " . $this->db->error);
@@ -63,11 +64,13 @@ class Review
         }
 
         $verified = $data['verified_purchase'] ?? false;
+        $title = $data['title'] ?? '';
         $stmt->bind_param(
-            'siisi',
+            'siissi',
             $data['product_id'],
             $data['user_id'],
             $data['rating'],
+            $title,
             $data['comment'],
             $verified
         );
@@ -82,7 +85,7 @@ class Review
 
     public function update(int $id, array $data): ?array
     {
-        $fields = ['rating', 'comment', 'verified_purchase'];
+        $fields = ['rating', 'title', 'comment', 'verified_purchase'];
         $set = [];
         $params = [];
         $types = '';

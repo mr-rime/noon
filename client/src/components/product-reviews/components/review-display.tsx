@@ -16,6 +16,7 @@ interface ReviewDisplayProps {
     review: {
         id: number
         rating: number
+        title?: string
         comment: string
         created_at: string
         user: {
@@ -86,9 +87,11 @@ export function ReviewDisplay({
 
 
                     <div className="mb-4">
-                        <p className="text-sm font-medium mb-1">
-                            مطابق للوصف
-                        </p>
+                        {review.title && (
+                            <p className="text-sm font-medium mb-1">
+                                {review.title}
+                            </p>
+                        )}
                         <p className="text-sm text-gray-700">
                             {review.comment}
                         </p>

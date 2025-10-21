@@ -12,8 +12,6 @@ function getProductReviews($db, $args, $context = [])
         $limit = $args['limit'] ?? 10;
         $offset = $args['offset'] ?? 0;
 
-
-
         $query = "
             SELECT r.*, u.first_name, u.last_name 
             FROM reviews r 
@@ -46,8 +44,8 @@ function getProductReviews($db, $args, $context = [])
 
 
             $userHasVoted = false;
-            if (isset($context['user_id'])) {
-                $userHasVoted = $voteModel->findByReviewAndUser($row['id'], $context['user_id']) !== null;
+            if (isset($args['user_id']) && $args['user_id']) {
+                $userHasVoted = $voteModel->findByReviewAndUser($row['id'], $args['user_id']) !== null;
             }
 
             $reviews[] = [
@@ -55,6 +53,7 @@ function getProductReviews($db, $args, $context = [])
                 'product_id' => $row['product_id'],
                 'user_id' => (int) $row['user_id'],
                 'rating' => (int) $row['rating'],
+                'title' => $row['title'] ?? '',
                 'comment' => $row['comment'],
                 'verified_purchase' => (bool) $row['verified_purchase'],
                 'created_at' => $row['created_at'],
@@ -111,7 +110,6 @@ function getUserReview($db, $args)
         $productId = $args['productId'];
         $orderId = $args['orderId'] ?? null;
 
-
         if (!isset($args['user_id'])) {
             return [
                 'success' => false,
@@ -127,13 +125,8 @@ function getUserReview($db, $args)
             FROM reviews r 
             LEFT JOIN users u ON r.user_id = u.id 
             WHERE r.product_id = ? AND r.user_id = ?
+            ORDER BY r.created_at DESC LIMIT 1
         ";
-
-        if ($orderId) {
-            $query .= " AND r.order_id = ?";
-        }
-
-        $query .= " ORDER BY r.created_at DESC LIMIT 1";
 
         $stmt = $db->prepare($query);
         if (!$stmt) {
@@ -144,11 +137,7 @@ function getUserReview($db, $args)
             ];
         }
 
-        if ($orderId) {
-            $stmt->bind_param('sis', $productId, $userId, $orderId);
-        } else {
-            $stmt->bind_param('si', $productId, $userId);
-        }
+        $stmt->bind_param('si', $productId, $userId);
 
         $stmt->execute();
         $result = $stmt->get_result();
@@ -177,6 +166,7 @@ function getUserReview($db, $args)
             'product_id' => $reviewData['product_id'],
             'user_id' => (int) $reviewData['user_id'],
             'rating' => (int) $reviewData['rating'],
+            'title' => $reviewData['title'] ?? '',
             'comment' => $reviewData['comment'],
             'verified_purchase' => (bool) $reviewData['verified_purchase'],
             'created_at' => $reviewData['created_at'],
@@ -242,6 +232,7 @@ function createProductReview($db, $args)
             'product_id' => $args['product_id'],
             'user_id' => $args['user_id'], // Should be set by auth middleware
             'rating' => $args['rating'],
+            'title' => $args['title'] ?? '',
             'comment' => $args['comment'] ?? '',
             'verified_purchase' => $args['verified_purchase'] ?? false
         ];
@@ -329,6 +320,9 @@ function updateProductReview($db, $args)
         $updateData = [];
         if (isset($args['rating'])) {
             $updateData['rating'] = $args['rating'];
+        }
+        if (isset($args['title'])) {
+            $updateData['title'] = $args['title'];
         }
         if (isset($args['comment'])) {
             $updateData['comment'] = $args['comment'];
@@ -453,11 +447,13 @@ function voteReviewHelpful($db, $args)
             ];
         }
 
+        $newVotesCount = $voteModel->getVotesCount($reviewId);
+
         return [
             'success' => true,
             'message' => 'Vote added successfully',
             'hasVoted' => true,
-            'votesCount' => $voteModel->getVotesCount($reviewId)
+            'votesCount' => $newVotesCount
         ];
 
     } catch (Exception $e) {
@@ -500,11 +496,13 @@ function removeReviewVote($db, $args)
             ];
         }
 
+        $newVotesCount = $voteModel->getVotesCount($reviewId);
+
         return [
             'success' => true,
             'message' => 'Vote removed successfully',
             'hasVoted' => false,
-            'votesCount' => $voteModel->getVotesCount($reviewId)
+            'votesCount' => $newVotesCount
         ];
 
     } catch (Exception $e) {

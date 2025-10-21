@@ -14,6 +14,7 @@ class ReviewTypes
                 'product_id' => Type::string(),
                 'user_id' => Type::int(),
                 'rating' => Type::int(),
+                'title' => Type::string(),
                 'comment' => Type::string(),
                 'verified_purchase' => Type::boolean(),
                 'created_at' => Type::string(),

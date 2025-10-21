@@ -5,9 +5,28 @@ import { useState } from 'react'
 import { ProductReviewForm, ReviewDisplay } from '@/components/product-reviews/components'
 import { GET_USER_REVIEW } from '@/graphql/review'
 import { useQuery } from '@apollo/client'
+import { ModalDialog } from '@/components/ui/modal-dialog/modal-dialog'
+
+interface OrderItem {
+  id: string
+  product_id: string
+  product_name: string
+  product_image?: string
+  quantity: number
+  price: number
+  currency: string
+}
+
+interface Order {
+  id: string
+  status: string
+  total_amount: number
+  currency: string
+  items: OrderItem[]
+}
 
 interface ItemSummaryProps {
-  order: any
+  order: Order
 }
 
 export function ItemSummary({ order }: ItemSummaryProps) {
@@ -20,10 +39,12 @@ export function ItemSummary({ order }: ItemSummaryProps) {
       productId: firstItem?.product_id,
       orderId: order?.id
     },
-    skip: !firstItem?.product_id || !order?.id
+    skip: !firstItem?.product_id || !order?.id,
+    fetchPolicy: 'cache-and-network'
   })
 
   const existingReview = reviewData?.getUserReview?.review
+
 
   if (!firstItem) {
     return (
@@ -77,20 +98,22 @@ export function ItemSummary({ order }: ItemSummaryProps) {
 
 
               <div className="mt-4">
-                {existingReview ? (
-                  <button
-                    onClick={() => setShowReviewForm(true)}
-                    className="rounded border border-blue-600 px-4 py-2 text-blue-600 hover:bg-blue-50"
-                  >
-                    Edit Review
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setShowReviewForm(true)}
-                    className="rounded border border-blue-600 px-4 py-2 text-blue-600 hover:bg-blue-50"
-                  >
-                    Review product
-                  </button>
+                {order?.status === 'delivered' && (
+                  existingReview ? (
+                    <button
+                      onClick={() => setShowReviewForm(true)}
+                      className="rounded border border-blue-600 px-4 py-2 text-blue-600 hover:bg-blue-50"
+                    >
+                      View/Edit Review
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setShowReviewForm(true)}
+                      className="rounded border border-blue-600 px-4 py-2 text-blue-600 hover:bg-blue-50"
+                    >
+                      Review product
+                    </button>
+                  )
                 )}
               </div>
             </div>
@@ -111,26 +134,40 @@ export function ItemSummary({ order }: ItemSummaryProps) {
       )}
 
 
-      {showReviewForm && firstItem && (
-        <ProductReviewForm
-          product={firstItem}
-          orderId={order.id}
-          existingReview={existingReview}
+      {showReviewForm && firstItem && order?.status === 'delivered' && (
+        <ModalDialog
           onClose={() => setShowReviewForm(false)}
-          onSuccess={() => {
-            setShowReviewForm(false)
-            refetchReview()
-          }}
-        />
-      )}
-
-
-      {existingReview && firstItem && !showReviewForm && (
-        <ReviewDisplay
-          product={firstItem}
-          review={existingReview}
-          orderId={order.id}
-          onReviewUpdate={refetchReview}
+          header={
+            <h3 className="p-6 pb-0 text-xl font-semibold">
+              {existingReview ? 'Your Review' : 'Review Product'}
+            </h3>
+          }
+          content={
+            <div className="p-6 overflow-y-auto h-[80vh]">
+              {existingReview ? (
+                <ReviewDisplay
+                  product={firstItem}
+                  review={existingReview}
+                  orderId={order.id}
+                  onReviewUpdate={refetchReview}
+                />
+              ) : (
+                <ProductReviewForm
+                  product={firstItem}
+                  orderId={order.id}
+                  existingReview={existingReview}
+                  onClose={() => setShowReviewForm(false)}
+                  onSuccess={async () => {
+                    setShowReviewForm(false)
+                    setTimeout(() => {
+                      refetchReview()
+                    }, 500)
+                  }}
+                />
+              )}
+            </div>
+          }
+          className="w-[600px] max-w-[90vw]"
         />
       )}
     </section>
