@@ -21,12 +21,12 @@ export default function SellerFilter({
   onClear
 }: SellerFilterProps) {
   const [isOpen, setIsOpen] = useState(true)
-  
+
   const hasSelection = selectedSellers.length > 0
-  
+
   return (
     <div className="border-b border-gray-200 pb-4">
-      {/* Header */}
+
       <div className="flex items-center justify-between mb-3">
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -34,12 +34,11 @@ export default function SellerFilter({
         >
           <span className="text-sm font-medium text-gray-900">Seller</span>
           <ChevronDown
-            className={`h-4 w-4 text-gray-500 transition-transform ${
-              isOpen ? 'transform rotate-180' : ''
-            }`}
+            className={`h-4 w-4 text-gray-500 transition-transform ${isOpen ? 'transform rotate-180' : ''
+              }`}
           />
         </button>
-        
+
         {hasSelection && (
           <button
             onClick={onClear}
@@ -50,8 +49,8 @@ export default function SellerFilter({
           </button>
         )}
       </div>
-      
-      {/* Content */}
+
+
       {isOpen && (
         <div className="max-h-48 overflow-y-auto space-y-1">
           {sellers.length === 0 ? (

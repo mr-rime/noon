@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/session.php';
 
 $db = new Database();
 $conn = $db->getConnection();

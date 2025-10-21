@@ -4,14 +4,26 @@ import { cn } from '../../utils/cn'
 type SwitchProps = {
   label?: string
   checked: boolean
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+  onCheckedChange?: (checked: boolean) => void
   description?: string
   className?: string
   disabled?: boolean
   name?: string
+  id?: string
 }
 
-export function Switch({ label, checked, onChange, description, className, disabled = false, name }: SwitchProps) {
+export function Switch({
+  label,
+  checked,
+  onChange,
+  onCheckedChange,
+  description,
+  className,
+  disabled = false,
+  name,
+  id
+}: SwitchProps) {
   return (
     <div className={cn('flex items-start gap-3', className)}>
       <div className="flex h-6 items-center">
@@ -23,8 +35,12 @@ export function Switch({ label, checked, onChange, description, className, disab
           <input
             type="checkbox"
             name={name}
+            id={id}
             checked={checked}
-            onChange={onChange}
+            onChange={(e) => {
+              onChange?.(e)
+              onCheckedChange?.(e.target.checked)
+            }}
             disabled={disabled}
             className="peer sr-only"
           />

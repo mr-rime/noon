@@ -589,7 +589,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
 
     return (
         <>
-            {/* Main Product Group Section */}
+
             <div className="border rounded-lg bg-gray-50 w-fit min-w-80">
                 <div
                     className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors"
@@ -621,7 +621,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                             </div>
                         ) : (
                             <>
-                                {/* Group Products */}
+
                                 {groupProducts.map((groupProduct: any, index: number) => {
                                     const isCurrentProduct = groupProduct.id === product.id
                                     return (
@@ -681,7 +681,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                 </div>
                                             </div>
 
-                                            {/* Product Attributes */}
+
                                             <div className="mt-3 space-y-2 text-sm">
                                                 {groupAxes.map(axis => {
                                                     const attr = groupProduct.productAttributes?.find((a: any) => a.attribute_name === axis)
@@ -697,7 +697,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                     )
                                 })}
 
-                                {/* Current Product (if not in group products list) */}
+
                                 {!groupProducts.some((gp: any) => gp.id === product.id) && (
                                     <div className="bg-blue-50 border-blue-200 ring-2 ring-blue-100 rounded-lg p-4">
                                         <div className="flex items-start gap-3">
@@ -732,7 +732,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                             </div>
                                         </div>
 
-                                        {/* Product Attributes */}
+
                                         <div className="mt-3 space-y-2 text-sm">
                                             {groupAxes.map(axis => {
                                                 const attr = product.productAttributes?.find((a: any) => a.attribute_name === axis)
@@ -747,7 +747,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                     </div>
                                 )}
 
-                                {/* Add Partner SKU Section */}
+
                                 <div className="border-t pt-4">
                                     <button
                                         className="flex items-center justify-between w-full text-blue-600 hover:text-blue-700 font-medium text-sm"
@@ -783,11 +783,11 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 )}
             </div>
 
-            {/* Group Modal */}
+
             {showGroupModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-                        {/* Modal Header */}
+
                         <div className="border-b px-6 py-4 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <h2 className="text-lg font-semibold">{currentGroup?.name}</h2>
@@ -808,7 +808,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                             </Button>
                         </div>
 
-                        {/* Modal Content */}
+
                         <div className="flex-1 overflow-y-auto p-6 space-y-6">
                             {!currentGroup ? (
                                 /* Create New Group Form */
@@ -863,13 +863,13 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                 </div>
                             ) : (
                                 <>
-                                    {/* SKU Group ID */}
+
                                     <div>
                                         <Label className="text-sm text-gray-600">SKU Group:</Label>
                                         <div className="font-mono text-sm mt-1">{currentGroup.group_id}</div>
                                     </div>
 
-                                    {/* Axes Section */}
+
                                     <div>
                                         <div className="flex items-center gap-2 mb-3">
                                             <Label>Axes:</Label>
@@ -900,9 +900,9 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                         </div>
                                     </div>
 
-                                    {/* Products List */}
+
                                     <div className="space-y-4">
-                                        {/* Group Products */}
+
                                         {groupProducts.map((groupProduct: any, index: number) => {
                                             const isCurrentProduct = groupProduct.id === product.id
                                             return (
@@ -960,7 +960,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                         </div>
                                                     </div>
 
-                                                    {/* Editable Attributes */}
+
                                                     <div className="space-y-3">
                                                         {groupAxes.map((axis) => {
                                                             const value = editableAttributes[groupProduct.id]?.[axis] || ''
@@ -980,7 +980,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                             )
                                         })}
 
-                                        {/* Current Product (if not in group products list) */}
+
                                         {!groupProducts.some((gp: any) => gp.id === product.id) && (
                                             <div className="bg-blue-50 border-blue-200 ring-2 ring-blue-100 rounded-lg p-4">
                                                 <div className="flex items-start gap-3 mb-4">
@@ -1015,7 +1015,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                                                     </div>
                                                 </div>
 
-                                                {/* Editable Attributes for Current Product */}
+
                                                 <div className="space-y-3">
                                                     {groupAxes.map((axis) => {
                                                         const value = editableAttributes[product.id]?.[axis] || ''
@@ -1038,7 +1038,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                             )}
                         </div>
 
-                        {/* Modal Footer */}
+
                         <div className="border-t px-6 py-4 flex justify-end gap-3">
                             <Button variant="outline" onClick={handleCloseModal}>
                                 Cancel
@@ -1052,7 +1052,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 </div>
             )}
 
-            {/* Add Existing Partner SKU Modal */}
+
             {showAddExisting && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
@@ -1144,7 +1144,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 </div>
             )}
 
-            {/* Create New Partner SKU Modal */}
+
             {showCreateNew && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-lg w-full">
@@ -1211,7 +1211,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 </div>
             )}
 
-            {/* Delete Confirmation Modal */}
+
             {showDeleteConfirm && productToDelete && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
@@ -1255,7 +1255,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 </div>
             )}
 
-            {/* Delete Group Confirmation Modal */}
+
             {showDeleteGroupConfirm && currentGroup && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-md w-full">

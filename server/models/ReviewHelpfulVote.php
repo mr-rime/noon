@@ -69,4 +69,19 @@ class ReviewHelpfulVote
         $stmt->bind_param('i', $id);
         return $stmt->execute();
     }
+
+    public function getVotesCount(int $reviewId): int
+    {
+        $query = 'SELECT COUNT(*) as count FROM review_helpful_votes WHERE review_id = ?';
+        $stmt = $this->db->prepare($query);
+        if (!$stmt) {
+            error_log("Prepare failed: " . $this->db->error);
+            return 0;
+        }
+        $stmt->bind_param('i', $reviewId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        return (int) ($row['count'] ?? 0);
+    }
 }

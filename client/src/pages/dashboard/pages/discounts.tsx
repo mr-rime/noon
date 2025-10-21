@@ -150,7 +150,7 @@ export function DiscountsPage() {
 
     return (
         <div className="space-y-6">
-            {/* Header */}
+
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Discounts</h1>
@@ -164,7 +164,7 @@ export function DiscountsPage() {
                 </Button>
             </div>
 
-            {/* Stats Cards */}
+
             <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -206,7 +206,7 @@ export function DiscountsPage() {
                 </Card>
             </div>
 
-            {/* Filters and Search */}
+
             <Card>
                 <CardHeader>
                     <div className="flex flex-col gap-4">
@@ -238,7 +238,7 @@ export function DiscountsPage() {
                 </CardHeader>
             </Card>
 
-            {/* Discounts Table */}
+
             <Card>
                 <CardHeader>
                     <CardTitle>All Discounts</CardTitle>
@@ -346,7 +346,7 @@ export function DiscountsPage() {
                 </CardContent>
             </Card>
 
-            {/* Pagination */}
+
             {totalPages > 1 && (
                 <div className="flex items-center justify-center space-x-2">
                     <Button
@@ -371,7 +371,7 @@ export function DiscountsPage() {
                 </div>
             )}
 
-            {/* Discount Form Modal */}
+
             <DiscountForm
                 isOpen={isFormOpen}
                 onClose={() => setIsFormOpen(false)}
@@ -379,7 +379,7 @@ export function DiscountsPage() {
                 onSuccess={() => refetch()}
             />
 
-            {/* Delete Confirmation Dialog */}
+
             <Dialog open={deleteDialog.isOpen} onOpenChange={(open) => setDeleteDialog({ isOpen: open, discount: null })}>
                 <DialogContent>
                     <DialogHeader>

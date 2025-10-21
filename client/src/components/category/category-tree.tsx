@@ -59,12 +59,12 @@ export default function CategoryTree({
 
         return (
             <div key={category.category_id} className="category-tree-item">
-                {/* Category Link */}
+
                 <div
                     className="flex items-center py-2 px-3 hover:bg-gray-50 rounded-lg transition-colors"
                     style={{ paddingLeft: `${12 + indentLevel}px` }}
                 >
-                    {/* Expand/Collapse Button */}
+
                     {showExpandCollapse && hasChildren && (
                         <button
                             onClick={() => toggleExpansion(category.category_id)}
@@ -79,7 +79,7 @@ export default function CategoryTree({
                         </button>
                     )}
 
-                    {/* Category Link */}
+
                     <Link
                         to="/category/$"
                         params={{ _splat: categoryPath }}
@@ -87,7 +87,7 @@ export default function CategoryTree({
                             }`}
                     >
                         <div className="flex items-center">
-                            {/* Category Icon/Indent for non-expandable items */}
+
                             {(!showExpandCollapse || !hasChildren) && depth > 0 && (
                                 <div className="w-6 h-4 flex items-center justify-center mr-2">
                                     <div className="w-2 h-2 bg-gray-300 rounded-full" />
@@ -100,7 +100,7 @@ export default function CategoryTree({
                             </span>
                         </div>
 
-                        {/* Product Count */}
+
                         {category.product_count !== undefined && category.product_count > 0 && (
                             <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                                 {category.product_count}
@@ -109,7 +109,7 @@ export default function CategoryTree({
                     </Link>
                 </div>
 
-                {/* Children (Recursive) */}
+
                 {hasChildren && isExpanded && depth < maxDepth - 1 && (
                     <div className="ml-2 border-l border-gray-200">
                         {category.children!.map((child) =>

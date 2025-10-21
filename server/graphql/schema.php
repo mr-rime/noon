@@ -18,6 +18,7 @@ require_once __DIR__ . '/types/HomeTypes.php';
 require_once __DIR__ . '/types/CartTypes.php';
 require_once __DIR__ . '/types/WishlistTypes.php';
 require_once __DIR__ . '/types/BannerTypes.php';
+require_once __DIR__ . '/types/ReviewTypes.php';
 require_once __DIR__ . '/resolvers/UserResolver.php';
 require_once __DIR__ . '/resolvers/PartnerResolver.php';
 require_once __DIR__ . '/resolvers/AuthResolver.php';
@@ -31,6 +32,7 @@ require_once __DIR__ . '/resolvers/WishlistResolver.php';
 require_once __DIR__ . '/resolvers/StoreResolver.php';
 require_once __DIR__ . '/resolvers/PskuResolver.php';
 require_once __DIR__ . '/resolvers/BannerResolver.php';
+require_once __DIR__ . '/resolvers/ReviewResolver.php';
 
 $QueryType = new ObjectType([
     'name' => 'query',
@@ -304,6 +306,25 @@ $QueryType = new ObjectType([
                 'order_id' => Type::nonNull(Type::string())
             ],
             'resolve' => requireAuth(fn($root, $args, $context) => getOrderTracking($context['db'], $args))
+        ],
+
+        'getProductReviews' => [
+            'type' => ReviewTypes::reviewsResponse(),
+            'args' => [
+                'productId' => Type::nonNull(Type::string()),
+                'limit' => Type::int(),
+                'offset' => Type::int()
+            ],
+            'resolve' => fn($root, $args, $context) => getProductReviews($context['db'], $args, $context)
+        ],
+
+        'getUserReview' => [
+            'type' => ReviewTypes::reviewResponse(),
+            'args' => [
+                'productId' => Type::nonNull(Type::string()),
+                'orderId' => Type::string()
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => getUserReview($context['db'], array_merge($args, ['user_id' => $context['user_id']])))
         ],
 
         'getAllOrders' => [
@@ -728,6 +749,52 @@ $MutationType = new ObjectType([
                 'id' => Type::nonNull(Type::string())
             ],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => toggleBannerStatus($context['db'], $args))
+        ],
+
+        'createProductReview' => [
+            'type' => ReviewTypes::reviewResponse(),
+            'args' => [
+                'product_id' => Type::nonNull(Type::string()),
+                'rating' => Type::nonNull(Type::int()),
+                'comment' => Type::string(),
+                'verified_purchase' => Type::boolean(),
+                'order_id' => Type::string()
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => createProductReview($context['db'], array_merge($args, ['user_id' => $context['user_id']])))
+        ],
+
+        'updateProductReview' => [
+            'type' => ReviewTypes::reviewResponse(),
+            'args' => [
+                'id' => Type::nonNull(Type::int()),
+                'rating' => Type::int(),
+                'comment' => Type::string()
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => updateProductReview($context['db'], array_merge($args, ['user_id' => $context['user_id']])))
+        ],
+
+        'deleteProductReview' => [
+            'type' => ReviewTypes::reviewResponse(),
+            'args' => [
+                'id' => Type::nonNull(Type::int())
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => deleteProductReview($context['db'], array_merge($args, ['user_id' => $context['user_id']])))
+        ],
+
+        'voteReviewHelpful' => [
+            'type' => ReviewTypes::reviewVoteResponse(),
+            'args' => [
+                'reviewId' => Type::nonNull(Type::int())
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => voteReviewHelpful($context['db'], array_merge($args, ['user_id' => $context['user_id']])))
+        ],
+
+        'removeReviewVote' => [
+            'type' => ReviewTypes::reviewVoteResponse(),
+            'args' => [
+                'reviewId' => Type::nonNull(Type::int())
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => removeReviewVote($context['db'], array_merge($args, ['user_id' => $context['user_id']])))
         ]
     ]
 ]);

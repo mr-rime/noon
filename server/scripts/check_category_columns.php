@@ -14,7 +14,7 @@ while ($row = $result->fetch_row()) {
     while ($col = $columns->fetch_assoc()) {
         echo $table . '.' . $col['Field'] . ' - ' . $col['Type'] . "\n";
 
-        // If it's still int, we need to fix it
+
         if (strpos($col['Type'], 'int') !== false) {
             echo "  ❌ NEEDS FIX: " . $table . "." . $col['Field'] . " is still " . $col['Type'] . "\n";
         }

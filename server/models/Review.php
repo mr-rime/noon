@@ -136,4 +136,22 @@ class Review
         $stmt->bind_param('i', $id);
         return $stmt->execute();
     }
+
+    public function findByProductAndUser(string $productId, ?int $userId): ?array
+    {
+        if ($userId === null) {
+            return null;
+        }
+
+        $query = 'SELECT * FROM reviews WHERE product_id = ? AND user_id = ? LIMIT 1';
+        $stmt = $this->db->prepare($query);
+        if (!$stmt) {
+            error_log("Prepare failed: " . $this->db->error);
+            return null;
+        }
+        $stmt->bind_param('si', $productId, $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc() ?: null;
+    }
 }

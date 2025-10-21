@@ -48,16 +48,16 @@ const navigation = [
             { title: "Returns", url: "/returns" },
         ],
     },
-    // {
-    //     title: "Customers",
-    //     url: "/customers",
-    //     icon: Users,
-    // },
-    // {
-    //     title: "Reports & Analytics",
-    //     url: "/analytics",
-    //     icon: BarChart3,
-    // },
+
+
+
+
+
+
+
+
+
+
     {
         title: "Settings",
         url: "/settings",

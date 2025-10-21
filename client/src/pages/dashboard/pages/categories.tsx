@@ -401,7 +401,7 @@ export default function Categories() {
 
                                                 {isExpanded && (
                                                     <>
-                                                        {/* Render children (nested categories) */}
+
                                                         {category.children?.map((child: Category) => (
                                                             <TableRow key={`child-${child.category_id}`} className="bg-muted/10">
                                                                 <TableCell></TableCell>
@@ -462,7 +462,7 @@ export default function Categories() {
                                                             </TableRow>
                                                         ))}
 
-                                                        {/* Render subcategories (backward compatibility) */}
+
                                                         {category.subcategories?.map((subcategory: Subcategory) => (
                                                             <TableRow key={`sub-${subcategory.subcategory_id}`} className="bg-muted/10">
                                                                 <TableCell></TableCell>
@@ -587,7 +587,7 @@ export default function Categories() {
                                                 <div className="mt-4 pt-4 border-t">
                                                     <p className="text-xs font-medium text-muted-foreground mb-2">Subcategories:</p>
                                                     <div className="space-y-2">
-                                                        {/* Render children (nested categories) */}
+
                                                         {category.children?.map((child: Category) => (
                                                             <div key={`child-${child.category_id}`} className="flex items-center gap-2 text-sm">
                                                                 <span className="text-muted-foreground">└</span>
@@ -598,7 +598,7 @@ export default function Categories() {
                                                                 </Badge>
                                                             </div>
                                                         ))}
-                                                        {/* Render subcategories (backward compatibility) */}
+
                                                         {category.subcategories?.map((subcategory: Subcategory) => (
                                                             <div key={`sub-${subcategory.subcategory_id}`} className="flex items-center gap-2 text-sm">
                                                                 <span className="text-muted-foreground">└</span>

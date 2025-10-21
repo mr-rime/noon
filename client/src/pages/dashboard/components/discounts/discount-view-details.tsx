@@ -75,7 +75,7 @@ export function DiscountViewDetails({ discount, onEdit, onDelete }: DiscountView
                     </DialogHeader>
 
                     <div className="space-y-6">
-                        {/* Product Information */}
+
                         <div className="space-y-3">
                             <h4 className="font-medium flex items-center gap-2">
                                 <Package className="h-4 w-4" />
@@ -99,7 +99,7 @@ export function DiscountViewDetails({ discount, onEdit, onDelete }: DiscountView
                             </div>
                         </div>
 
-                        {/* Discount Information */}
+
                         <div className="space-y-3">
                             <h4 className="font-medium flex items-center gap-2">
                                 <Percent className="h-4 w-4" />
@@ -137,7 +137,7 @@ export function DiscountViewDetails({ discount, onEdit, onDelete }: DiscountView
                             </div>
                         </div>
 
-                        {/* Date Information */}
+
                         <div className="space-y-3">
                             <h4 className="font-medium flex items-center gap-2">
                                 <Calendar className="h-4 w-4" />
@@ -165,7 +165,7 @@ export function DiscountViewDetails({ discount, onEdit, onDelete }: DiscountView
                             </div>
                         </div>
 
-                        {/* Duration */}
+
                         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                             <div className="flex items-center justify-between">
                                 <span className="text-sm font-medium text-blue-900">Duration:</span>
@@ -179,7 +179,7 @@ export function DiscountViewDetails({ discount, onEdit, onDelete }: DiscountView
                             </div>
                         </div>
 
-                        {/* Actions */}
+
                         <div className="flex items-center justify-end gap-3 pt-4 border-t">
                             <Button
                                 variant="outline"

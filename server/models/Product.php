@@ -135,9 +135,9 @@ class Product
         }
 
 
-        // Handle category filtering - prioritize multiple categories over single categoryId
+
         if (!empty($categories) && is_array($categories)) {
-            // Multiple categories selected
+
             $categoryModel = new Category($this->db);
             $allCategoryIds = [];
 
@@ -155,7 +155,7 @@ class Product
                 $types .= str_repeat('s', count($allCategoryIds));
             }
         } elseif ($categoryId !== null) {
-            // Single category ID (fallback for backward compatibility)
+
             $categoryModel = new Category($this->db);
             $descendantIds = $categoryModel->getAllDescendantIds($categoryId);
 
@@ -1015,7 +1015,7 @@ class Product
             }
 
 
-            // Note: product_variants table doesn't exist, skipping this deletion
+
 
 
             $stmt = $this->db->prepare('DELETE FROM products WHERE id = ?');

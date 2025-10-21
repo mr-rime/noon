@@ -35,17 +35,17 @@ export default function BrandFilter({
 }: BrandFilterProps) {
   const [isOpen, setIsOpen] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  
+
   const { data, loading } = useQuery(GET_BRANDS, {
     variables: { search: searchQuery }
   })
-  
+
   const brands = data?.getBrands?.brands || []
   const hasSelection = selectedBrands.length > 0
-  
+
   return (
     <div className="border-b border-gray-200 pb-4">
-      {/* Header */}
+
       <div className="flex items-center justify-between mb-3">
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -53,12 +53,11 @@ export default function BrandFilter({
         >
           <span className="text-sm font-medium text-gray-900">Brand</span>
           <ChevronDown
-            className={`h-4 w-4 text-gray-500 transition-transform ${
-              isOpen ? 'transform rotate-180' : ''
-            }`}
+            className={`h-4 w-4 text-gray-500 transition-transform ${isOpen ? 'transform rotate-180' : ''
+              }`}
           />
         </button>
-        
+
         {hasSelection && (
           <button
             onClick={onClear}
@@ -69,11 +68,11 @@ export default function BrandFilter({
           </button>
         )}
       </div>
-      
-      {/* Content */}
+
+
       {isOpen && (
         <div>
-          {/* Search Box */}
+
           <div className="relative mb-3">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
@@ -84,8 +83,8 @@ export default function BrandFilter({
               className="w-full pl-8 pr-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
-          
-          {/* Brand List */}
+
+
           <div className="max-h-48 overflow-y-auto space-y-1">
             {loading ? (
               <div className="text-sm text-gray-500">Loading...</div>

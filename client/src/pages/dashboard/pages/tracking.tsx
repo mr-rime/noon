@@ -210,7 +210,7 @@ export function AdminTrackingPage() {
 
     return (
         <div className="p-6 space-y-6">
-            {/* Header */}
+
             <div className="flex justify-between items-center">
                 <CardTitle className="text-2xl">Tracking Management</CardTitle>
                 <div className="flex gap-2">
@@ -226,7 +226,7 @@ export function AdminTrackingPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Orders List */}
+
                 <Card>
                     <CardHeader>
                         <CardTitle>Orders</CardTitle>
@@ -281,7 +281,7 @@ export function AdminTrackingPage() {
                     </CardContent>
                 </Card>
 
-                {/* Tracking Form */}
+
                 <Card>
                     <CardContent className="pt-6">
                         {selectedOrder ? (

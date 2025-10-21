@@ -26,24 +26,24 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const primaryImage = product.images?.find(img => img.is_primary)?.image_url || 
-                       product.images?.[0]?.image_url || 
-                       '/placeholder.jpg'
-  
-  const productSlug = product.slug || 
-                      product.name.toLowerCase()
-                        .replace(/[^a-z0-9]+/g, '-')
-                        .replace(/(^-|-$)/g, '')
-  
+  const primaryImage = product.images?.find(img => img.is_primary)?.image_url ||
+    product.images?.[0]?.image_url ||
+    '/placeholder.jpg'
+
+  const productSlug = product.slug ||
+    product.name.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
+
   const displayPrice = product.final_price || product.price
   const hasDiscount = product.discount_percentage && product.discount_percentage > 0
-  
+
   return (
     <Link
       to={`/$title/$productId`}
-      params={{ 
+      params={{
         title: productSlug,
-        productId: product.id 
+        productId: product.id
       }}
       className="group block bg-white rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all"
     >
@@ -54,19 +54,19 @@ export default function ProductCard({ product }: ProductCardProps) {
           className="w-full h-full object-contain group-hover:scale-105 transition-transform"
         />
       </div>
-      
+
       <div className="p-3">
-        {/* Brand */}
+
         {product.brand && (
           <p className="text-xs text-gray-500 mb-1">{product.brand.name}</p>
         )}
-        
-        {/* Product Name */}
+
+
         <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
           {product.name}
         </h3>
-        
-        {/* Rating */}
+
+
         {product.rating && product.rating > 0 && (
           <div className="flex items-center gap-1 mb-2">
             <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
@@ -80,8 +80,8 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
         )}
-        
-        {/* Price */}
+
+
         <div className="flex items-baseline gap-2">
           <span className="text-lg font-bold text-gray-900">
             {product.currency || 'AED'} {displayPrice.toFixed(2)}

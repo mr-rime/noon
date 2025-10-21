@@ -111,7 +111,7 @@ function CategoryItem({
 
             {hasChildren && isExpanded && (
                 <div>
-                    {/* Render children from nested structure recursively */}
+
                     {category.children?.map((child) => (
                         <CategoryItem
                             key={child.category_id}
@@ -125,7 +125,7 @@ function CategoryItem({
                         />
                     ))}
 
-                    {/* Render subcategories for backward compatibility */}
+
                     {category.subcategories?.map((subcategory) => (
                         <div
                             key={subcategory.subcategory_id}

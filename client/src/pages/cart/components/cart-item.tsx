@@ -92,9 +92,7 @@ export function CartItem({
           </div>
         </div>
         <div className="mt-3 flex h-[50px] flex-col items-end">
-          {/* <div className=" w-[70px] h-[70px] ">
-                        <img src="/media/svgs/marketplace-v2-en.svg" alt="marketplace-badge" className="w-full h-full" />
-                    </div> */}
+
           <div className="flex items-center space-x-2">
             <Truck color="#376FE0" size={20} />
             <span className="font-medium text-[12px]">Free Delivery</span>

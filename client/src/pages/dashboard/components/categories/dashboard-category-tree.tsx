@@ -73,12 +73,12 @@ export default function DashboardCategoryTree({
 
         return (
             <div key={category.category_id} className="category-tree-item">
-                {/* Category Row */}
+
                 <div
                     className="flex items-center py-3 px-4 hover:bg-gray-50 rounded-lg transition-colors border-b border-gray-100"
                     style={{ paddingLeft: `${16 + indentLevel}px` }}
                 >
-                    {/* Expand/Collapse Button */}
+
                     <button
                         onClick={() => toggleExpansion(category.category_id)}
                         className="mr-3 p-1 hover:bg-gray-200 rounded transition-colors"
@@ -91,10 +91,10 @@ export default function DashboardCategoryTree({
                         )}
                     </button>
 
-                    {/* Category Info */}
+
                     <div className="flex-1 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            {/* Category Icon/Indent for non-expandable items */}
+
                             {!hasChildren && depth > 0 && (
                                 <div className="w-8 h-4 flex items-center justify-center">
                                     <div className="w-2 h-2 bg-gray-300 rounded-full" />
@@ -120,7 +120,7 @@ export default function DashboardCategoryTree({
                             </div>
                         </div>
 
-                        {/* Actions */}
+
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -154,14 +154,14 @@ export default function DashboardCategoryTree({
                     </div>
                 </div>
 
-                {/* Children (Recursive) */}
+
                 {hasChildren && isExpanded && depth < maxDepth - 1 && (
                     <div className="ml-2">
-                        {/* Render nested categories */}
+
                         {category.children && category.children.map((child) =>
                             renderCategory(child, depth + 1)
                         )}
-                        {/* Render subcategories (backward compatibility) */}
+
                         {category.subcategories && category.subcategories.map((sub) => (
                             <div key={sub.subcategory_id} className="category-tree-item">
                                 <div
@@ -190,7 +190,7 @@ export default function DashboardCategoryTree({
                                             </div>
                                         </div>
 
-                                        {/* Subcategory Actions */}
+
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" size="icon" className="h-6 w-6">

@@ -80,7 +80,7 @@ ${order.items.map((item: any) => `- ${item.product_name} (Qty: ${item.quantity})
 
     return (
         <section className="h-screen w-full max-w-4xl mx-auto px-4 py-8">
-            {/* Header */}
+
             <div className="flex items-center justify-between mb-8">
                 <button
                     onClick={() => navigate({ to: '/orders' })}
@@ -107,9 +107,9 @@ ${order.items.map((item: any) => `- ${item.product_name} (Qty: ${item.quantity})
                 </div>
             </div>
 
-            {/* Invoice Content */}
+
             <div className="bg-white rounded-lg shadow-lg p-8">
-                {/* Invoice Header */}
+
                 <div className="flex justify-between items-start mb-8">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900">Invoice</h1>
@@ -122,7 +122,7 @@ ${order.items.map((item: any) => `- ${item.product_name} (Qty: ${item.quantity})
                     </div>
                 </div>
 
-                {/* Order Items */}
+
                 <div className="mb-8">
                     <h2 className="text-xl font-semibold mb-4">Order Items</h2>
                     <div className="overflow-x-auto">
@@ -154,7 +154,7 @@ ${order.items.map((item: any) => `- ${item.product_name} (Qty: ${item.quantity})
                     </div>
                 </div>
 
-                {/* Order Summary */}
+
                 <div className="flex justify-end mb-8">
                     <div className="w-64">
                         <div className="flex justify-between py-2">
@@ -172,7 +172,7 @@ ${order.items.map((item: any) => `- ${item.product_name} (Qty: ${item.quantity})
                     </div>
                 </div>
 
-                {/* Shipping Information */}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
                         <h3 className="text-lg font-semibold mb-4">Shipping Address</h3>
@@ -194,7 +194,7 @@ ${order.items.map((item: any) => `- ${item.product_name} (Qty: ${item.quantity})
                     </div>
                 </div>
 
-                {/* Tracking Information */}
+
                 {order.tracking && (
                     <div className="mt-8 pt-8 border-t">
                         <h3 className="text-lg font-semibold mb-4">Tracking Information</h3>

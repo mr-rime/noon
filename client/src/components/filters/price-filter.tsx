@@ -18,33 +18,33 @@ export default function PriceFilter({
   const [isOpen, setIsOpen] = useState(true)
   const [minPrice, setMinPrice] = useState(currentMin?.toString() || '')
   const [maxPrice, setMaxPrice] = useState(currentMax?.toString() || '')
-  
+
   const hasValue = currentMin !== undefined || currentMax !== undefined
-  
+
   const handleApply = () => {
     const min = minPrice ? parseInt(minPrice) : 0
     const max = maxPrice ? parseInt(maxPrice) : 999999
-    
+
     if (min <= max) {
       onApply(min, max)
     }
   }
-  
+
   const handleClear = () => {
     setMinPrice('')
     setMaxPrice('')
     onClear()
   }
-  
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleApply()
     }
   }
-  
+
   return (
     <div className="border-b border-gray-200 pb-4">
-      {/* Header */}
+
       <div className="flex items-center justify-between mb-3">
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -52,12 +52,11 @@ export default function PriceFilter({
         >
           <span className="text-sm font-medium text-gray-900">Price</span>
           <ChevronDown
-            className={`h-4 w-4 text-gray-500 transition-transform ${
-              isOpen ? 'transform rotate-180' : ''
-            }`}
+            className={`h-4 w-4 text-gray-500 transition-transform ${isOpen ? 'transform rotate-180' : ''
+              }`}
           />
         </button>
-        
+
         {hasValue && (
           <button
             onClick={handleClear}
@@ -68,8 +67,8 @@ export default function PriceFilter({
           </button>
         )}
       </div>
-      
-      {/* Content */}
+
+
       {isOpen && (
         <div className="space-y-3">
           <div className="flex items-center space-x-2">
@@ -91,7 +90,7 @@ export default function PriceFilter({
               className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
-          
+
           <button
             onClick={handleApply}
             className="w-full py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"

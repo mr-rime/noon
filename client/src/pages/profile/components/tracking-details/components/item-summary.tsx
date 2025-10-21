@@ -1,6 +1,10 @@
 import { Link } from '@tanstack/react-router'
 import { tarcking_icons } from '../constants/icons'
 import { Image } from '@unpic/react'
+import { useState } from 'react'
+import { ProductReviewForm, ReviewDisplay } from '@/components/product-reviews/components'
+import { GET_USER_REVIEW } from '@/graphql/review'
+import { useQuery } from '@apollo/client'
 
 interface ItemSummaryProps {
   order: any
@@ -8,6 +12,18 @@ interface ItemSummaryProps {
 
 export function ItemSummary({ order }: ItemSummaryProps) {
   const firstItem = order?.items?.[0]
+  const [showReviewForm, setShowReviewForm] = useState(false)
+
+
+  const { data: reviewData, refetch: refetchReview } = useQuery(GET_USER_REVIEW, {
+    variables: {
+      productId: firstItem?.product_id,
+      orderId: order?.id
+    },
+    skip: !firstItem?.product_id || !order?.id
+  })
+
+  const existingReview = reviewData?.getUserReview?.review
 
   if (!firstItem) {
     return (
@@ -58,6 +74,25 @@ export function ItemSummary({ order }: ItemSummaryProps) {
                 <span>{item.currency}</span>
                 <span>{(item.price * item.quantity).toFixed(2)}</span>
               </div>
+
+
+              <div className="mt-4">
+                {existingReview ? (
+                  <button
+                    onClick={() => setShowReviewForm(true)}
+                    className="rounded border border-blue-600 px-4 py-2 text-blue-600 hover:bg-blue-50"
+                  >
+                    Edit Review
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowReviewForm(true)}
+                    className="rounded border border-blue-600 px-4 py-2 text-blue-600 hover:bg-blue-50"
+                  >
+                    Review product
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         ))}
@@ -73,6 +108,30 @@ export function ItemSummary({ order }: ItemSummaryProps) {
             </div>
           </div>
         </div>
+      )}
+
+
+      {showReviewForm && firstItem && (
+        <ProductReviewForm
+          product={firstItem}
+          orderId={order.id}
+          existingReview={existingReview}
+          onClose={() => setShowReviewForm(false)}
+          onSuccess={() => {
+            setShowReviewForm(false)
+            refetchReview()
+          }}
+        />
+      )}
+
+
+      {existingReview && firstItem && !showReviewForm && (
+        <ReviewDisplay
+          product={firstItem}
+          review={existingReview}
+          orderId={order.id}
+          onReviewUpdate={refetchReview}
+        />
       )}
     </section>
   )
