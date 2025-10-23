@@ -17,6 +17,9 @@ function requireAuth($resolver)
             ];
         }
 
+
+        $context['user_id'] = $_SESSION['user']['id'];
+
         return $resolver($root, $args, $context);
     };
 }

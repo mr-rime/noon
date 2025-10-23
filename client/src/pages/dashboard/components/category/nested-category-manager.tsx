@@ -137,13 +137,13 @@ function CategoryForm({
     display_order: category?.display_order || 0,
     is_active: category?.is_active ?? true
   })
-  
+
   const [createCategory] = useMutation(CREATE_CATEGORY)
   const [updateCategory] = useMutation(UPDATE_CATEGORY)
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     try {
       if (category) {
         await updateCategory({
@@ -167,14 +167,14 @@ function CategoryForm({
       toast.error('Failed to save category')
     }
   }
-  
+
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '')
   }
-  
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
@@ -194,7 +194,7 @@ function CategoryForm({
           required
         />
       </div>
-      
+
       <div>
         <label className="block text-sm font-medium text-gray-700">Slug</label>
         <input
@@ -205,7 +205,7 @@ function CategoryForm({
           required
         />
       </div>
-      
+
       <div>
         <label className="block text-sm font-medium text-gray-700">Description</label>
         <textarea
@@ -215,7 +215,7 @@ function CategoryForm({
           rows={3}
         />
       </div>
-      
+
       <div>
         <label className="block text-sm font-medium text-gray-700">Display Order</label>
         <input
@@ -225,7 +225,7 @@ function CategoryForm({
           className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
         />
       </div>
-      
+
       <div className="flex items-center">
         <input
           type="checkbox"
@@ -238,7 +238,7 @@ function CategoryForm({
           Active
         </label>
       </div>
-      
+
       <div className="flex justify-end space-x-2">
         <button
           type="button"
@@ -272,21 +272,21 @@ function CategoryTreeItem({
   const [expanded, setExpanded] = useState(level < 2)
   const [showForm, setShowForm] = useState(false)
   const [editMode, setEditMode] = useState(false)
-  
+
   const [deleteCategory] = useMutation(DELETE_CATEGORY)
   const hasChildren = category.children && category.children.length > 0
   const canAddChild = level < maxLevel
-  
+
   const handleDelete = async () => {
     if (hasChildren) {
       toast.error('Cannot delete category with subcategories')
       return
     }
-    
+
     if (!confirm(`Are you sure you want to delete "${category.name}"?`)) {
       return
     }
-    
+
     try {
       await deleteCategory({
         variables: { id: category.category_id }
@@ -297,12 +297,12 @@ function CategoryTreeItem({
       toast.error('Failed to delete category')
     }
   }
-  
+
   return (
     <div className={`${level > 0 ? 'ml-6' : ''}`}>
       <div className="group flex items-center justify-between py-2 px-3 hover:bg-gray-50 rounded">
         <div className="flex items-center flex-1">
-          {/* Expand/Collapse Button */}
+
           <button
             onClick={() => setExpanded(!expanded)}
             className="mr-2 p-1 hover:bg-gray-200 rounded"
@@ -317,8 +317,8 @@ function CategoryTreeItem({
               <div className="w-6" />
             )}
           </button>
-          
-          {/* Category Info */}
+
+
           <div className="flex-1">
             <span className={`font-medium ${!category.is_active ? 'text-gray-400' : ''}`}>
               {category.name}
@@ -336,8 +336,8 @@ function CategoryTreeItem({
             )}
           </div>
         </div>
-        
-        {/* Actions */}
+
+
         <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
           {canAddChild && (
             <button
@@ -365,8 +365,8 @@ function CategoryTreeItem({
           </button>
         </div>
       </div>
-      
-      {/* Edit Form */}
+
+
       {editMode && (
         <div className="ml-8 p-4 bg-gray-50 rounded-lg mb-2">
           <CategoryForm
@@ -376,8 +376,8 @@ function CategoryTreeItem({
           />
         </div>
       )}
-      
-      {/* Add Child Form */}
+
+
       {showForm && (
         <div className="ml-8 p-4 bg-blue-50 rounded-lg mb-2">
           <h4 className="text-sm font-medium mb-3">Add subcategory to "{category.name}"</h4>
@@ -388,8 +388,8 @@ function CategoryTreeItem({
           />
         </div>
       )}
-      
-      {/* Children */}
+
+
       {expanded && hasChildren && (
         <div>
           {category.children!.map(child => (
@@ -409,11 +409,11 @@ function CategoryTreeItem({
 
 export default function NestedCategoryManager() {
   const [showRootForm, setShowRootForm] = useState(false)
-  
+
   const { data, loading, refetch } = useQuery(GET_CATEGORY_TREE)
-  
+
   const categories = data?.getCategories?.categories || []
-  
+
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="p-6 border-b border-gray-200">
@@ -428,9 +428,9 @@ export default function NestedCategoryManager() {
           </button>
         </div>
       </div>
-      
+
       <div className="p-6">
-        {/* Root Category Form */}
+
         {showRootForm && (
           <div className="mb-4 p-4 bg-blue-50 rounded-lg">
             <h4 className="text-sm font-medium mb-3">Add Root Category</h4>
@@ -443,8 +443,8 @@ export default function NestedCategoryManager() {
             />
           </div>
         )}
-        
-        {/* Category Tree */}
+
+
         {loading ? (
           <div className="text-center py-12 text-gray-500">Loading categories...</div>
         ) : categories.length === 0 ? (
@@ -462,7 +462,7 @@ export default function NestedCategoryManager() {
             ))}
           </div>
         )}
-        
+
         <div className="mt-6 p-4 bg-gray-50 rounded-lg">
           <h4 className="text-sm font-medium text-gray-700 mb-2">Category Levels</h4>
           <ul className="text-sm text-gray-600 space-y-1">

@@ -2,62 +2,124 @@
 
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\UnionType;
 
-$ReviewType = new ObjectType([
-    'name' => 'Review',
-    'fields' => [
-        'id' => Type::nonNull(Type::int()),
-        'product_id' => Type::nonNull(Type::int()),
-        'user_id' => Type::nonNull(Type::int()),
-        'rating' => Type::nonNull(Type::int()),
-        'comment' => Type::string(),
-        'verified_purchase' => Type::boolean(),
-        'created_at' => Type::string()
-    ]
-]);
+class ReviewTypes
+{
+    public static function review(): ObjectType
+    {
+        return new ObjectType([
+            'name' => 'Review',
+            'fields' => [
+                'id' => Type::int(),
+                'product_id' => Type::string(),
+                'user_id' => Type::int(),
+                'rating' => Type::int(),
+                'title' => Type::string(),
+                'comment' => Type::string(),
+                'verified_purchase' => Type::boolean(),
+                'created_at' => Type::string(),
+                'updated_at' => Type::string(),
+                'user' => [
+                    'type' => self::reviewUser(),
+                    'resolve' => function ($review, $args, $context) {
+                        if (isset($review['user'])) {
+                            return $review['user'];
+                        }
 
-$ReviewResponseType = new ObjectType([
-    'name' => 'ReviewResponse',
-    'fields' => [
-        'success' => Type::nonNull(Type::boolean()),
-        'message' => Type::string(),
-        'review' => $ReviewType,
-    ]
-]);
+                        $userModel = new User($context['db']);
+                        $user = $userModel->findById($review['user_id']);
+                        return $user ? [
+                            'id' => $user['id'],
+                            'first_name' => $user['first_name'],
+                            'last_name' => $user['last_name']
+                        ] : null;
+                    }
+                ],
+                'helpful_votes_count' => [
+                    'type' => Type::int(),
+                    'resolve' => function ($review, $args, $context) {
+                        $voteModel = new ReviewHelpfulVote($context['db']);
+                        return $voteModel->getVotesCount($review['id']);
+                    }
+                ],
+                'user_has_voted' => [
+                    'type' => Type::boolean(),
+                    'resolve' => function ($review, $args, $context) {
+                        if (!isset($context['user_id'])) {
+                            return false;
+                        }
+                        $voteModel = new ReviewHelpfulVote($context['db']);
+                        return $voteModel->findByReviewAndUser($review['id'], $context['user_id']) !== null;
+                    }
+                ]
+            ]
+        ]);
+    }
 
-$ReviewsResponseType = new ObjectType([
-    'name' => 'ReviewsResponse',
-    'fields' => [
-        'success' => Type::nonNull(Type::boolean()),
-        'message' => Type::string(),
-        'reviews' => Type::listOf($ReviewType),
-    ]
-]);
+    public static function reviewUser(): ObjectType
+    {
+        return new ObjectType([
+            'name' => 'ReviewUser',
+            'fields' => [
+                'id' => Type::int(),
+                'first_name' => Type::string(),
+                'last_name' => Type::string()
+            ]
+        ]);
+    }
 
-$HelpfulVoteType = new ObjectType([
-    'name' => 'HelpfulVote',
-    'fields' => [
-        'id' => Type::nonNull(Type::int()),
-        'review_id' => Type::nonNull(Type::int()),
-        'user_id' => Type::nonNull(Type::int())
-    ]
-]);
+    public static function reviewResponse(): ObjectType
+    {
+        return new ObjectType([
+            'name' => 'ReviewResponse',
+            'fields' => [
+                'success' => Type::boolean(),
+                'message' => Type::string(),
+                'review' => [
+                    'type' => self::review()
+                ]
+            ]
+        ]);
+    }
 
-$HelpfulVoteResponseType = new ObjectType([
-    'name' => 'HelpfulVoteResponse',
-    'fields' => [
-        'success' => Type::nonNull(Type::boolean()),
-        'message' => Type::string(),
-        'vote' => $HelpfulVoteType
-    ]
-]);
+    public static function reviewsResponse(): ObjectType
+    {
+        return new ObjectType([
+            'name' => 'ReviewsResponse',
+            'fields' => [
+                'success' => Type::boolean(),
+                'message' => Type::string(),
+                'reviews' => Type::listOf(self::review()),
+                'total' => Type::int(),
+                'average_rating' => Type::float()
+            ]
+        ]);
+    }
 
-$HelpfulVotesResponseType = new ObjectType([
-    'name' => 'HelpfulVotesResponse',
-    'fields' => [
-        'success' => Type::nonNull(Type::boolean()),
-        'message' => Type::string(),
-        'votes' => Type::listOf($HelpfulVoteType)
-    ]
-]);
+    public static function reviewVoteResponse(): ObjectType
+    {
+        return new ObjectType([
+            'name' => 'ReviewVoteResponse',
+            'fields' => [
+                'success' => Type::boolean(),
+                'message' => Type::string(),
+                'hasVoted' => Type::boolean(),
+                'votesCount' => Type::int()
+            ]
+        ]);
+    }
+
+    public static function reviewInput(): ObjectType
+    {
+        return new ObjectType([
+            'name' => 'ReviewInput',
+            'fields' => [
+                'product_id' => Type::nonNull(Type::string()),
+                'rating' => Type::nonNull(Type::int()),
+                'comment' => Type::string(),
+                'verified_purchase' => Type::boolean(),
+                'order_id' => Type::string()
+            ]
+        ]);
+    }
+}

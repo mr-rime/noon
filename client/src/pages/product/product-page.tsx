@@ -355,7 +355,7 @@ export function ProductPage() {
       </section>
 
       <Separator className="mt-20 mb-5 h-[9px] bg-[#F3F4F8]" />
-      <ProductReviews />
+      <ProductReviews productId={productId} />
     </main>
   )
 }

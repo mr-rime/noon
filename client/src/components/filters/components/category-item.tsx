@@ -13,7 +13,6 @@ export function CategoryItem({
 }: CategoryItemProps) {
     const isExpanded = expandedCategories.includes(category.category_id)
     const hasChildren = category.hasChildren || (category.children && category.children.length > 0)
-    // const allCategoryId = `all_${category.category_id}`
     const params = useParams({ from: "/(main)/_homeLayout/category/$" })
     const selectedCategory = params._splat?.split("/").at(-1)
 
@@ -55,19 +54,7 @@ export function CategoryItem({
 
             {isExpanded && hasChildren && (
                 <div className="ml-5">
-                    {/* <div className="flex items-center py-1">
-                        <Checkbox
-                            checked={category.slug === selectedCategory}
-                            onChange={() => onCategoryToggle(category.category_id)}
-                            className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <label
-                            htmlFor={allCategoryId}
-                            className="text-sm cursor-pointer hover:text-blue-600 select-none"
-                        >
-                            All {category.name}
-                        </label>
-                    </div> */}
+
 
                     {category.children?.map(child => {
                         const isLeaf = !child.hasChildren && (!child.children || child.children.length === 0)

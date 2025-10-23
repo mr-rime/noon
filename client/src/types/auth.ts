@@ -1,4 +1,4 @@
-// Login Modal types
+
 export interface LoginModalProps {
     onClose: () => void
 }
@@ -22,5 +22,5 @@ export interface SignupFormContentProps {
     onClose: () => void
 }
 
-// Form direction type
+
 export type FormDirection = 'left' | 'right'

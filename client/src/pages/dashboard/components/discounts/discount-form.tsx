@@ -178,7 +178,7 @@ export function DiscountForm({ isOpen, onClose, discount, onSuccess }: DiscountF
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Product Selection */}
+
                     <div className="space-y-2">
                         <Label htmlFor="product_search" className="flex items-center gap-2">
                             <Package className="h-4 w-4" />
@@ -225,7 +225,7 @@ export function DiscountForm({ isOpen, onClose, discount, onSuccess }: DiscountF
                                 )}
                             </div>
 
-                            {/* Product List */}
+
                             {showProductList && (
                                 <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
                                     {productsLoading ? (
@@ -268,7 +268,7 @@ export function DiscountForm({ isOpen, onClose, discount, onSuccess }: DiscountF
                         </div>
                     </div>
 
-                    {/* Product Info */}
+
                     {selectedProduct && (
                         <div className="p-4 bg-muted/50 rounded-lg space-y-2">
                             <h4 className="font-medium break-words">{selectedProduct.name}</h4>
@@ -279,7 +279,7 @@ export function DiscountForm({ isOpen, onClose, discount, onSuccess }: DiscountF
                         </div>
                     )}
 
-                    {/* Discount Type */}
+
                     <div className="space-y-2">
                         <Label htmlFor="type">Discount Type</Label>
                         <div className="grid grid-cols-2 gap-2">
@@ -314,7 +314,7 @@ export function DiscountForm({ isOpen, onClose, discount, onSuccess }: DiscountF
                         </div>
                     </div>
 
-                    {/* Discount Value */}
+
                     <div className="space-y-2">
                         <Label htmlFor="value">
                             Discount Value
@@ -333,7 +333,7 @@ export function DiscountForm({ isOpen, onClose, discount, onSuccess }: DiscountF
                         />
                     </div>
 
-                    {/* Discount Preview */}
+
                     {selectedProduct && formData.value && (
                         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
                             <h5 className="font-medium text-blue-900">Discount Preview</h5>
@@ -358,7 +358,7 @@ export function DiscountForm({ isOpen, onClose, discount, onSuccess }: DiscountF
                         </div>
                     )}
 
-                    {/* Date Range */}
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="starts_at" className="flex items-center gap-2">
@@ -390,7 +390,7 @@ export function DiscountForm({ isOpen, onClose, discount, onSuccess }: DiscountF
                         </div>
                     </div>
 
-                    {/* Actions */}
+
                     <div className="flex items-center justify-end gap-3 pt-4 border-t">
                         <Button
                             type="button"

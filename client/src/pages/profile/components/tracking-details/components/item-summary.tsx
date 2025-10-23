@@ -1,13 +1,50 @@
 import { Link } from '@tanstack/react-router'
 import { tarcking_icons } from '../constants/icons'
 import { Image } from '@unpic/react'
+import { useState } from 'react'
+import { ProductReviewForm, ReviewDisplay } from '@/components/product-reviews/components'
+import { GET_USER_REVIEW } from '@/graphql/review'
+import { useQuery } from '@apollo/client'
+import { ModalDialog } from '@/components/ui/modal-dialog/modal-dialog'
+
+interface OrderItem {
+  id: string
+  product_id: string
+  product_name: string
+  product_image?: string
+  quantity: number
+  price: number
+  currency: string
+}
+
+interface Order {
+  id: string
+  status: string
+  total_amount: number
+  currency: string
+  items: OrderItem[]
+}
 
 interface ItemSummaryProps {
-  order: any
+  order: Order
 }
 
 export function ItemSummary({ order }: ItemSummaryProps) {
   const firstItem = order?.items?.[0]
+  const [showReviewForm, setShowReviewForm] = useState(false)
+
+
+  const { data: reviewData, refetch: refetchReview } = useQuery(GET_USER_REVIEW, {
+    variables: {
+      productId: firstItem?.product_id,
+      orderId: order?.id
+    },
+    skip: !firstItem?.product_id || !order?.id,
+    fetchPolicy: 'cache-and-network'
+  })
+
+  const existingReview = reviewData?.getUserReview?.review
+
 
   if (!firstItem) {
     return (
@@ -58,6 +95,27 @@ export function ItemSummary({ order }: ItemSummaryProps) {
                 <span>{item.currency}</span>
                 <span>{(item.price * item.quantity).toFixed(2)}</span>
               </div>
+
+
+              <div className="mt-4">
+                {order?.status === 'delivered' && (
+                  existingReview ? (
+                    <button
+                      onClick={() => setShowReviewForm(true)}
+                      className="rounded border border-blue-600 px-4 py-2 text-blue-600 hover:bg-blue-50"
+                    >
+                      View/Edit Review
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setShowReviewForm(true)}
+                      className="rounded border border-blue-600 px-4 py-2 text-blue-600 hover:bg-blue-50"
+                    >
+                      Review product
+                    </button>
+                  )
+                )}
+              </div>
             </div>
           </div>
         ))}
@@ -73,6 +131,44 @@ export function ItemSummary({ order }: ItemSummaryProps) {
             </div>
           </div>
         </div>
+      )}
+
+
+      {showReviewForm && firstItem && order?.status === 'delivered' && (
+        <ModalDialog
+          onClose={() => setShowReviewForm(false)}
+          header={
+            <h3 className="p-6 pb-0 text-xl font-semibold">
+              {existingReview ? 'Your Review' : 'Review Product'}
+            </h3>
+          }
+          content={
+            <div className="p-6 overflow-y-auto h-[80vh]">
+              {existingReview ? (
+                <ReviewDisplay
+                  product={firstItem}
+                  review={existingReview}
+                  orderId={order.id}
+                  onReviewUpdate={refetchReview}
+                />
+              ) : (
+                <ProductReviewForm
+                  product={firstItem}
+                  orderId={order.id}
+                  existingReview={existingReview}
+                  onClose={() => setShowReviewForm(false)}
+                  onSuccess={async () => {
+                    setShowReviewForm(false)
+                    setTimeout(() => {
+                      refetchReview()
+                    }, 500)
+                  }}
+                />
+              )}
+            </div>
+          }
+          className="w-[600px] max-w-[90vw]"
+        />
       )}
     </section>
   )

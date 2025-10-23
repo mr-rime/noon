@@ -214,7 +214,7 @@ export function AdminOrdersPage() {
 
     return (
         <div className="p-6 space-y-6">
-            {/* Header */}
+
             <div className="flex justify-between items-center">
                 <CardTitle className="text-2xl">Orders Management</CardTitle>
                 <div className="flex gap-2">
@@ -229,7 +229,7 @@ export function AdminOrdersPage() {
                 </div>
             </div>
 
-            {/* Filters */}
+
             <Card>
                 <CardContent className="pt-6">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -278,7 +278,7 @@ export function AdminOrdersPage() {
                 </CardContent>
             </Card>
 
-            {/* Orders Table */}
+
             <Card>
                 <CardContent className="p-0">
                     <Table>
@@ -373,7 +373,7 @@ export function AdminOrdersPage() {
                 </CardContent>
             </Card>
 
-            {/* Order Details Modal */}
+
             <AdminOrderDetailsModal
                 order={selectedOrder}
                 isOpen={isModalOpen}

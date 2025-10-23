@@ -9,7 +9,7 @@ A modern, full-stack e-commerce platform built with **React**, **TypeScript**, a
 ### Frontend
 - React with TypeScript
 - Custom Vite SSR setup
-- GraphQL client
+- GraphQL client  (Apollo)
 - pnpm for dependency management
 
 ### Backend

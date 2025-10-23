@@ -80,14 +80,14 @@ export function AdminOrderDetailsModal({ order, isOpen, onClose }: AdminOrderDet
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="relative w-full max-w-7xl h-[90vh] bg-white rounded-lg shadow-xl overflow-hidden flex flex-col">
-                {/* Header */}
+
                 <div className="flex items-center justify-between p-6 border-b">
                     <div className="flex-1">
                         <h2 className="text-2xl font-bold">Order Details - Admin View</h2>
                         <p className="text-gray-600">Order #{orderDetails.id}</p>
                         <p className="text-sm text-gray-500">Customer ID: {orderDetails.user_id}</p>
 
-                        {/* Shipping Address - Prominently Displayed */}
+
                         {orderDetails.shipping_address && (
                             <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                                 <h3 className="font-semibold text-blue-900 mb-2 flex items-center">
@@ -100,12 +100,12 @@ export function AdminOrderDetailsModal({ order, isOpen, onClose }: AdminOrderDet
                                 <div className="text-sm text-blue-800">
                                     {(() => {
                                         try {
-                                            // Try to parse as JSON first
+
                                             const addressData = typeof orderDetails.shipping_address === 'string'
                                                 ? JSON.parse(orderDetails.shipping_address)
                                                 : orderDetails.shipping_address;
 
-                                            // Format the address nicely
+
                                             const addressLines = [];
 
                                             if (addressData.name) addressLines.push(addressData.name);
@@ -227,7 +227,7 @@ export function AdminOrderDetailsModal({ order, isOpen, onClose }: AdminOrderDet
                                                 </div>
                                             ));
                                         } catch {
-                                            // If parsing fails, display as plain text
+
                                             return <div className="whitespace-pre-line">{orderDetails.shipping_address}</div>;
                                         }
                                     })()}
@@ -245,11 +245,11 @@ export function AdminOrderDetailsModal({ order, isOpen, onClose }: AdminOrderDet
                     </Button>
                 </div>
 
-                {/* Content */}
+
                 <div className="flex-1 overflow-y-auto">
                     <div className="p-6">
                         <div className="flex gap-6">
-                            {/* Main Content */}
+
                             <div className="flex-1">
                                 {orderDetails.status === 'cancelled' ? (
                                     <div className="h-fit w-full bg-white p-[16px] rounded-lg border mb-6">
@@ -281,7 +281,7 @@ export function AdminOrderDetailsModal({ order, isOpen, onClose }: AdminOrderDet
                                 )}
                             </div>
 
-                            {/* Sidebar */}
+
                             <div className="w-80">
                                 <OrderInvoice order={orderDetails} />
                             </div>

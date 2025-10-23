@@ -1,89 +1,95 @@
 import { Star } from 'lucide-react'
 import { Progress } from '../../ui/progress'
 
-export function OverallRating() {
+interface OverallRatingProps {
+  averageRating: number
+  totalReviews: number
+  ratingDistribution: { 5: number; 4: number; 3: number; 2: number; 1: number }
+}
+
+export function OverallRating({ averageRating, totalReviews, ratingDistribution }: OverallRatingProps) {
+  const renderStars = (rating: number, size: number = 25) => {
+    const stars = []
+    for (let i = 1; i <= 5; i++) {
+      if (i <= rating) {
+        stars.push(<Star key={i} fill="#80AE04" color="#80AE04" size={size} />)
+      } else if (i - rating < 1) {
+
+        stars.push(<Star key={i} fill="#80AE04" color="#80AE04" size={size} />)
+      } else {
+        stars.push(<Star key={i} fill="none" color="#E5E7EB" size={size} />)
+      }
+    }
+    return stars
+  }
+
   return (
     <section className="min-w-[456px] max-w-[32%]">
       <div className="mb-2 font-bold text-[19px]">Overall Rating</div>
 
       <div className="font-bold text-[32px]">
-        <span>4.2</span>
+        <span>{averageRating.toFixed(1)}</span>
       </div>
       <div className="my-1 flex items-center gap-1">
-        <Star fill="#80AE04" color="#80AE04" size={25} />
-        <Star fill="#80AE04" color="#80AE04" size={25} />
-        <Star fill="#80AE04" color="#80AE04" size={25} />
-        <Star fill="#80AE04" color="#80AE04" size={25} />
-        <Star fill="#80AE04" color="#80AE04" size={25} />
+        {renderStars(averageRating)}
       </div>
       <div className="text-[#7e859b]">
-        <span>Based on 22 ratings</span>
+        <span>Based on {totalReviews} ratings</span>
       </div>
       <div className="mt-3 mb-5 w-full ">
-        <div className="flex w-full items-center space-x-1">
-          <div className="flex items-center">
-            <div className="mr-1 w-[8px] font-bold text-[14px]">
-              <span>5</span>
-            </div>
-            <Star fill="#008000" color="#008000" size={15} />
-          </div>
-          <Progress progressPercentage={200} />
-          <div className="ml-1 font-bold text-[14px]">
-            <span>77%</span>
-          </div>
-        </div>
+        {[5, 4, 3, 2, 1].map((rating) => {
+          const percentage = ratingDistribution[rating as keyof typeof ratingDistribution]
+          const getStarColor = (rating: number) => {
+            switch (rating) {
+              case 5:
+                return '#008000'
+              case 4:
+                return '#80AE04'
+              case 3:
+                return '#F2AA31'
+              case 2:
+                return '#F36C31'
+              case 1:
+                return '#F36C31'
+              default:
+                return '#E5E7EB'
+            }
+          }
+          const getProgressColor = (rating: number) => {
+            switch (rating) {
+              case 5:
+                return '#008000'
+              case 4:
+                return '#82ae04'
+              case 3:
+                return '#F3AC30'
+              case 2:
+                return '#F36C32'
+              case 1:
+                return '#F36C32'
+              default:
+                return '#E5E7EB'
+            }
+          }
 
-        <div className="mt-2 flex w-full items-center space-x-1">
-          <div className="flex items-center">
-            <div className="mr-1 w-[8px] font-bold text-[14px]">
-              <span>4</span>
+          return (
+            <div key={rating} className="mt-2 flex w-full items-center space-x-1">
+              <div className="flex items-center">
+                <div className="mr-1 w-[8px] font-bold text-[14px]">
+                  <span>{rating}</span>
+                </div>
+                <Star fill={getStarColor(rating)} color={getStarColor(rating)} size={15} />
+              </div>
+              <Progress
+                progressPercentage={percentage}
+                progressColor={getProgressColor(rating) as any}
+              />
+              <div className="ml-1 font-bold text-[14px]">
+                <span>{percentage}%</span>
+              </div>
             </div>
-            <Star fill="#80AE04" color="#80AE04" size={15} />
-          </div>
-          <Progress progressPercentage={30} progressColor="#82ae04" />
-          <div className="ml-1 font-bold text-[14px]">
-            <span>5%</span>
-          </div>
-        </div>
-
-        <div className="mt-2 flex w-full items-center space-x-1">
-          <div className="flex items-center">
-            <div className="mr-1 w-[8px] font-bold text-[14px]">
-              <span>3</span>
-            </div>
-            <Star fill="#F2AA31" color="#F2AA31" size={15} />
-          </div>
-          <Progress progressPercentage={30} progressColor="#F3AC30" />
-          <div className="ml-1 font-bold text-[14px]">
-            <span>5%</span>
-          </div>
-        </div>
-
-        <div className="mt-2 flex w-full items-center space-x-1">
-          <div className="flex items-center">
-            <div className="mr-1 w-[8px] font-bold text-[14px]">
-              <span>2</span>
-            </div>
-            <Star fill="#F36C31" color="#F36C31" size={15} />
-          </div>
-          <Progress progressPercentage={0} progressColor="#F36C32" />
-          <div className="ml-1 font-bold text-[14px]">
-            <span>0%</span>
-          </div>
-        </div>
-
-        <div className="mt-2 flex w-full items-center space-x-1">
-          <div className="flex items-center">
-            <div className="mr-1 w-[8px] font-bold text-[14px]">
-              <span>1</span>
-            </div>
-            <Star fill="#F36C31" color="#F36C31" size={15} />
-          </div>
-          <Progress progressPercentage={70} progressColor="#F36C32" />
-          <div className="ml-1 font-bold text-[14px]">
-            <span>14%</span>
-          </div>
-        </div>
+          )
+        })}
       </div>
     </section>
   )

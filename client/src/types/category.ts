@@ -23,7 +23,7 @@ export interface CategoryItemProps {
     onExpand: (categoryId: string) => void
 }
 
-// GraphQL response types
+
 export interface GetHierarchicalCategoriesResponse {
     getHierarchicalCategories: {
         success: boolean

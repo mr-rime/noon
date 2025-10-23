@@ -1,6 +1,6 @@
 import type React from 'react'
 
-// Table types
+
 export type Column<T> = {
     key: keyof T
     header: string
@@ -18,7 +18,7 @@ export type TableProps<T> = {
     onRowClick?: (row: T) => void
 }
 
-// Modal Dialog types
+
 export type ModalDialogProps = {
     onClose: () => void
     header?: React.ReactNode
@@ -31,13 +31,13 @@ export type ModalDialogProps = {
     closeButtonClassName?: string
 }
 
-// Button types
+
 export type ButtonProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'className'> & {
     className?: string
     children?: React.ReactNode | React.ReactElement
 }
 
-// Dropzone types
+
 export type DropzoneProps = {
     onFilesDrop?: (files: File[]) => void
     multiple?: boolean
@@ -45,7 +45,7 @@ export type DropzoneProps = {
     className?: string
 }
 
-// Checkbox types
+
 export type CheckboxProps = {
     label?: string
     name?: string
@@ -58,7 +58,7 @@ export type CheckboxProps = {
     id?: string
 }
 
-// Input types
+
 export type ButtonDirectionType = 'left' | 'right'
 export type IconDirectionType = 'left' | 'right'
 export type InputRef = React.Ref<HTMLInputElement>
@@ -74,7 +74,7 @@ export type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'clas
     ref?: InputRef
 }
 
-// Breadcrumb types
+
 export type BreadcrumbItem = {
     label: string
     href?: string
@@ -87,7 +87,7 @@ export type BreadcrumbProps = {
     className?: string
 }
 
-// Select types
+
 export interface SelectOption {
     value: string
     label: string
@@ -102,7 +102,7 @@ export type SelectProps = {
     labelContent?: string
 }
 
-// Image Slider types
+
 export type DotsThemeType = 'theme1' | 'theme2' | 'theme3'
 
 export interface ImageSliderProps {
@@ -123,7 +123,7 @@ export interface ImageSliderProps {
     rounded?: boolean
 }
 
-// Radio types
+
 export type RadioProps = {
     label: string
     name: string
@@ -135,7 +135,7 @@ export type RadioProps = {
     disabled?: boolean
 }
 
-// Expandable Area types
+
 export interface ExpandableAreaProps {
     children: React.ReactNode
     initiallyExpanded?: boolean
