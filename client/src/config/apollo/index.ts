@@ -4,7 +4,7 @@ import createUploadLink from 'apollo-upload-client/createUploadLink.mjs'
 const isDashboard = typeof window !== 'undefined' && window.location.hostname === 'dashboard.localhost'
 
 const graphqlUri = isDashboard
-  ? 'http://dashboard.localhost:8000/graphql'
+  ? 'https://noon-btwv.onrender.com/graphql'
   : 'http://localhost:8000/graphql'
 
 export const client = new ApolloClient({

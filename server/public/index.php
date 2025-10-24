@@ -4,7 +4,8 @@ declare(strict_types=1);
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $allowed_origins = [
     'http://localhost:3000',
-    'http://dashboard.localhost:3000'
+    'http://dashboard.localhost:3000',
+    'https://noon-rime.vercel.app'
 ];
 
 if (in_array($origin, $allowed_origins, true)) {
