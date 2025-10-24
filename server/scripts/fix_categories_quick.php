@@ -2,9 +2,7 @@
 
 require_once __DIR__ . '/../config/db.php';
 
-/**
- * Quick fix for categories_nested table to use varchar(21) category_id
- */
+
 
 try {
     echo "Fixing categories_nested table structure...\n";

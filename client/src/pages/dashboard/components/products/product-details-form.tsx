@@ -4,12 +4,12 @@ import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
-import { Save, X, Plus, Loader2, ImageIcon } from 'lucide-react'
+import { Save, X, Plus } from 'lucide-react'
 import { UPDATE_PRODUCT } from '@/graphql/product'
-import { UPLOADTHING_UPLOAD } from '@/graphql/uploadthing'
-import { Dropzone } from '@/components/ui/dropzone'
+import { ProductImageManager, type ProductImageManagerRef } from '@/components/product-image-manager'
 import { useDebounce } from '@/hooks/use-debounce'
 import type { ProductType, ProductImage, ProductSpecification } from '@/types'
+import { useRef } from 'react'
 
 interface ProductDetailsFormProps {
     product: ProductType
@@ -27,11 +27,33 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
         is_public: product.is_public || false
     })
 
-    const [images, setImages] = useState<ProductImage[]>(product.images || [])
-    const [localFiles, setLocalFiles] = useState<File[]>([])
+
+    const extractKeyFromUrl = (url: string): string | undefined => {
+        console.log('Extracting key from URL:', url)
+        if (url.includes('utfs.io/f/')) {
+            const match = url.match(/utfs\.io\/f\/([^/]+)/)
+            const key = match ? match[1] : undefined
+            console.log('Match result:', match, 'Extracted key:', key)
+            return key
+        }
+        console.log('URL does not contain utfs.io/f/')
+        return undefined
+    }
+
+    const [images, setImages] = useState<ProductImage[]>(
+        (product.images || []).map(img => {
+            const extractedKey = extractKeyFromUrl(img.image_url)
+            console.log('Processing image:', img.image_url, 'Extracted key:', extractedKey)
+            return {
+                ...img,
+                key: extractedKey
+            }
+        })
+    )
+
     const [specifications, setSpecifications] = useState<ProductSpecification[]>(product.productSpecifications || [])
     const [newSpec, setNewSpec] = useState({ spec_name: '', spec_value: '' })
-    const [uploading, setUploading] = useState(false)
+
     const [saving, setSaving] = useState(false)
     const [draftSaved, setDraftSaved] = useState(false)
 
@@ -47,7 +69,7 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
         }
         localStorage.setItem(draftKey, JSON.stringify(draftData))
         setDraftSaved(true)
-        setTimeout(() => setDraftSaved(false), 2000) // Hide indicator after 2 seconds
+        setTimeout(() => setDraftSaved(false), 2000)
     }, [formData, specifications, draftKey])
 
 
@@ -72,7 +94,13 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
     }
 
     const [updateProduct] = useMutation(UPDATE_PRODUCT)
-    const [uploadThingUpload] = useMutation(UPLOADTHING_UPLOAD)
+    const imageManagerRef = useRef<ProductImageManagerRef>(null)
+
+
+
+    const handleImagesChange = (newImages: ProductImage[]) => {
+        setImages(newImages)
+    }
 
 
     const debouncedSaveDraft = useDebounce(saveDraft, 1000)
@@ -109,88 +137,13 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
         debouncedSaveDraft()
     }, [formData, specifications, debouncedSaveDraft])
 
-    const validateImage = (file: File): Promise<string | null> => {
-
-        if (file.size > 10 * 1024 * 1024) {
-            return Promise.resolve('File size should be less than 10mb')
-        }
-
-        return new Promise((resolve) => {
-            const img = new Image()
-            img.onload = () => {
-
-                if (img.width <= 660) {
-                    resolve('Image width should be greater than 660px')
-                    return
-                }
 
 
-                const aspectRatio = img.width / img.height
-                if (aspectRatio <= 0.5) {
-                    resolve('Image aspect ratio should be greater than 0.5')
-                    return
-                }
-
-                resolve(null)
-            }
-            img.onerror = () => resolve('Invalid image file')
-            img.src = URL.createObjectURL(file)
-        })
-    }
-
-    const handleImageUpload = async (files: File[]) => {
-        if (images.length + localFiles.length + files.length > 4) {
-            toast.error('Maximum 4 images allowed')
-            return
-        }
 
 
-        const validationErrors: string[] = []
-        const validFiles: File[] = []
 
-        for (const file of files) {
-            try {
-                const error = await validateImage(file)
-                if (error) {
-                    validationErrors.push(`${file.name}: ${error}`)
-                } else {
-                    validFiles.push(file)
-                }
-            } catch {
-                validationErrors.push(`${file.name}: Failed to validate image`)
-            }
-        }
 
-        if (validationErrors.length > 0) {
-            toast.error(validationErrors.join(', '))
-        }
 
-        if (validFiles.length > 0) {
-            setLocalFiles(prev => [...prev, ...validFiles])
-            toast.success(`${validFiles.length} image(s) added (will be uploaded on save)`)
-        }
-    }
-
-    const removeImage = (index: number) => {
-        setImages(prev => {
-            const newImages = prev.filter((_, i) => i !== index)
-            if (prev[index]?.is_primary && newImages.length > 0) {
-                newImages[0].is_primary = true
-            }
-            return newImages
-        })
-    }
-
-    const removeLocalFile = (index: number) => {
-        setLocalFiles(prev => prev.filter((_, i) => i !== index))
-    }
-
-    const setPrimaryImage = (index: number) => {
-        setImages(prev => prev.map((img, i) => ({
-            ...img,
-            is_primary: i === index
-        })))
-    }
 
     const addSpecification = () => {
         if (newSpec.spec_name && newSpec.spec_value) {
@@ -209,73 +162,37 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
         setSpecifications(prev => prev.filter(spec => spec.id !== specId))
     }
 
-    const fileToBase64 = (file: File): Promise<string> => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader()
-            reader.readAsDataURL(file)
-            reader.onload = () => {
-                const result = reader.result as string
 
-                const base64 = result.split(',')[1]
-                resolve(base64)
-            }
-            reader.onerror = error => reject(error)
-        })
-    }
 
     const handleSave = async () => {
         setSaving(true)
         try {
-            let uploadedImages = [...images]
 
-
-            if (localFiles.length > 0) {
-                setUploading(true)
+            let uploadedImages: ProductImage[] = []
+            if (imageManagerRef.current) {
                 try {
-                    const filesToUpload = await Promise.all(
-                        localFiles.map(async (file) => ({
-                            name: file.name,
-                            type: file.type,
-                            content: await fileToBase64(file)
-                        }))
-                    )
+                    uploadedImages = await imageManagerRef.current.uploadFiles()
+                    if (uploadedImages.length > 0) {
 
-                    const { data: uploadData } = await uploadThingUpload({
-                        variables: { files: filesToUpload }
-                    })
-
-                    if (uploadData?.batchUploadImages?.success) {
-                        const newImages = uploadData.batchUploadImages.images.map((img: any, index: number) => ({
-                            id: Date.now().toString() + index,
-                            image_url: img.image_url,
-                            is_primary: false // Don't set any as primary by default
-                        }))
-                        uploadedImages = [...uploadedImages, ...newImages]
-
-
-                        if (uploadedImages.length > 0 && !uploadedImages.some(img => img.is_primary)) {
-                            uploadedImages[0].is_primary = true
-                        }
-
-                        setLocalFiles([]) // Clear local files after successful upload
-                    } else {
-                        toast.error('Failed to upload new images')
-                        return
+                        const newImages = [...images, ...uploadedImages]
+                        setImages(newImages)
+                        toast.success(`${uploadedImages.length} image(s) uploaded successfully`)
                     }
                 } catch (error) {
-                    console.error('Error uploading images:', error)
+                    console.error('Image upload failed:', error)
                     toast.error('Failed to upload images')
+                    setSaving(false)
                     return
-                } finally {
-                    setUploading(false)
                 }
             }
 
+
+            const allImages = [...images, ...uploadedImages]
             const { data } = await updateProduct({
                 variables: {
                     id: product.id,
                     ...formData,
-                    images: uploadedImages.map(img => ({
+                    images: allImages.map(img => ({
                         image_url: img.image_url,
                         is_primary: img.is_primary
                     })),
@@ -289,8 +206,7 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
             if (data?.updateProduct?.success) {
                 toast.success('Product updated successfully!')
                 onUpdate?.(data.updateProduct.product)
-                setImages(uploadedImages) // Update local state with uploaded images
-                clearDraft() // Clear the draft since product was saved successfully
+                clearDraft()
             } else {
                 toast.error(data?.updateProduct?.message || 'Failed to update product')
             }
@@ -454,97 +370,14 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
 
                     <div className="border rounded-lg p-6">
                         <h3 className="text-lg font-semibold mb-4">Product Images (Max 4)</h3>
-                        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                            <h4 className="text-sm font-medium text-blue-800 mb-2">Image Guidelines:</h4>
-                            <ul className="text-sm text-blue-700 space-y-1">
-                                <li>• Image width should be greater than 660px</li>
-                                <li>• Image aspect ratio should be greater than 0.5</li>
-                                <li>• File size should be less than 10mb</li>
-                            </ul>
-                        </div>
-                        {images.length + localFiles.length < 4 && (
-                            <div className="space-y-2">
-                                <Dropzone
-                                    onFilesDrop={handleImageUpload}
-                                    accept="image/*"
-                                    multiple={true}
-                                    className="h-32"
-                                />
-                                {uploading && (
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                        Uploading images...
-                                    </div>
-                                )}
-                            </div>
-                        )}
 
-                        {(images.length > 0 || localFiles.length > 0) && (
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5">
-                                {/* Existing uploaded images */}
-                                {images.map((image, index) => (
-                                    <div key={`uploaded-${index}`} className="relative group">
-                                        <div className="aspect-square bg-muted rounded-lg overflow-hidden">
-                                            <img
-                                                src={image.image_url}
-                                                alt={`Product ${index + 1}`}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                        <div className="absolute top-2 right-2 flex gap-1">
-                                            {!image.is_primary && (
-                                                <Button
-                                                    size="sm"
-                                                    variant="secondary"
-                                                    className="h-6 w-6 p-0"
-                                                    onClick={() => setPrimaryImage(index)}
-                                                    title="Set as primary"
-                                                >
-                                                    <ImageIcon className="h-3 w-3" />
-                                                </Button>
-                                            )}
-                                            <Button
-                                                size="sm"
-                                                variant="destructive"
-                                                className="h-6 w-6 p-0"
-                                                onClick={() => removeImage(index)}
-                                                title="Remove image"
-                                            >
-                                                <X className="h-3 w-3" />
-                                            </Button>
-                                        </div>
-                                        {image.is_primary && (
-                                            <Badge className="absolute bottom-2 left-2 text-xs">Primary</Badge>
-                                        )}
-                                    </div>
-                                ))}
-
-                                {/* Local files (not yet uploaded) */}
-                                {localFiles.map((file, index) => (
-                                    <div key={`local-${index}`} className="relative group">
-                                        <div className="aspect-square bg-muted rounded-lg overflow-hidden">
-                                            <img
-                                                src={URL.createObjectURL(file)}
-                                                alt={`Local file ${index + 1}`}
-                                                className="w-full h-full object-contain bg-white"
-                                            />
-                                        </div>
-                                        <div className="absolute top-2 right-2 flex gap-1">
-                                            <Button
-                                                size="sm"
-                                                variant="destructive"
-                                                className="h-6 w-6 p-0"
-                                                onClick={() => removeLocalFile(index)}
-                                                title="Remove file"
-                                            >
-                                                <X className="h-3 w-3" />
-                                            </Button>
-                                        </div>
-                                        <Badge className="absolute bottom-2 left-2 text-xs bg-orange-500">Pending</Badge>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                        <ProductImageManager
+                            ref={imageManagerRef}
+                            images={images}
+                            onImagesChange={handleImagesChange}
+                            maxImages={4}
+                            disabled={saving}
+                        />
                     </div>
                 </div>
 

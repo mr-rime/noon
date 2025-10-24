@@ -97,7 +97,7 @@ export function ProductPskuPage() {
                 <div className="mb-0 block md:hidden">
                     <ProductPageTitle className="block text-[18px] md:hidden" title={product.name} />
                     <div className="mt-6 mb-4 flex w-full items-center justify-between">
-                        <ProductPageRates theme="mobile" />
+                        <ProductPageRates theme="mobile" product={product} />
                         <AddToWishlistButton />
                     </div>
                 </div>
@@ -109,7 +109,7 @@ export function ProductPskuPage() {
 
                     <ProductPageTitle className="hidden md:block" title={product.name} />
                     <div className="hidden md:block">
-                        <ProductPageRates />
+                        <ProductPageRates product={product} />
                     </div>
 
 

@@ -34,6 +34,7 @@ export type ProductImage = {
   id?: string
   image_url: string
   is_primary: boolean
+  key?: string // UploadThing file key for deletion
 }
 
 export type ProductVariant = {
@@ -144,6 +145,8 @@ export type ProductType = {
   subcategory_name?: string
   brand_name?: string
   group_name?: string
+  rating?: number
+  review_count?: number
   discount?: DiscountType | null
   discount_percentage?: number
   is_in_wishlist?: boolean

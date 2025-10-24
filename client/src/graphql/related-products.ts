@@ -15,6 +15,8 @@ export const GET_RELATED_PRODUCTS = gql`
         stock
         discount_percentage
         product_overview
+        rating
+        review_count
         images {
           id
           image_url

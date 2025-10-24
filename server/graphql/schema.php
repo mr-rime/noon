@@ -26,6 +26,7 @@ require_once __DIR__ . '/resolvers/ProdcutResolver.php';
 require_once __DIR__ . '/resolvers/OrderResolver.php';
 require_once __DIR__ . '/resolvers/UploadResolver.php';
 require_once __DIR__ . '/resolvers/BatchUploadResolver.php';
+require_once __DIR__ . '/resolvers/DeleteImageResolver.php';
 require_once __DIR__ . '/resolvers/DiscountResolver.php';
 require_once __DIR__ . '/resolvers/HomeResolver.php';
 require_once __DIR__ . '/resolvers/CartResolver.php';
@@ -473,6 +474,15 @@ $MutationType = new ObjectType([
                 'files' => Type::nonNull(Type::listOf($FileInputType)),
             ],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => batchUploadImagesResolver($args))
+        ],
+
+        'deleteImages' => [
+            'type' => $DeleteImageResponseType,
+            'args' => [
+                'fileKeys' => Type::listOf(Type::string()),
+                'imageIds' => Type::listOf(Type::int()),
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => deleteImagesResolver($args, $context))
         ],
         'createDiscount' => [
             'type' => $DiscountResponseType,

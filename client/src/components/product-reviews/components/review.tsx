@@ -41,7 +41,7 @@ export function ProductReview({ review }: ProductReviewProps) {
   const shortedContent = showMore ? review.comment : review.comment.slice(0, 250)
 
   const handleHelpfulClick = async () => {
-    if (isVoting) return // Prevent multiple clicks
+    if (isVoting) return
 
     setIsVoting(true)
     try {

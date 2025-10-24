@@ -605,7 +605,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                 {isExpanded && (
                     <div className="p-4 pt-0 space-y-4">
                         {!product.group_id ? (
-                            /* No Group - Show Create/Join Options */
+
                             <div className="bg-white border rounded-lg p-4 text-center space-y-3">
                                 <div className="text-sm text-gray-600 mb-4">
                                     This product is not part of any group
@@ -811,7 +811,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
 
                         <div className="flex-1 overflow-y-auto p-6 space-y-6">
                             {!currentGroup ? (
-                                /* Create New Group Form */
+
                                 <div className="space-y-4">
                                     <div>
                                         <Label htmlFor="group-name">Group Name *</Label>

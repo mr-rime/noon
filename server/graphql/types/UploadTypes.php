@@ -70,3 +70,13 @@ $BatchUploadResponseType = new ObjectType([
     ],
 ]);
 
+$DeleteImageResponseType = new ObjectType([
+    'name' => 'DeleteImageResponse',
+    'fields' => [
+        'success' => Type::nonNull(Type::boolean()),
+        'message' => Type::string(),
+        'deletedCount' => Type::int(),
+        'dbDeletedCount' => Type::int(),
+    ],
+]);
+

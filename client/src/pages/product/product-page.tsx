@@ -227,7 +227,7 @@ export function ProductPage() {
             title={selectedProduct?.name as string}
           />
           <div className="mt-6 mb-4 flex w-full items-center justify-between ">
-            <ProductPageRates theme="mobile" />
+            <ProductPageRates theme="mobile" product={selectedProduct || undefined} />
             <AddToWishlistButton />
           </div>
         </div>
@@ -245,7 +245,7 @@ export function ProductPage() {
             title={selectedProduct?.name as string}
           />
           <div className="hidden md:block">
-            <ProductPageRates />
+            <ProductPageRates product={selectedProduct || undefined} />
           </div>
           <ProdcutPagePrice
             key={`price-${selectedProduct?.id}`}

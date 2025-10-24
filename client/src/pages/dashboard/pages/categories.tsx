@@ -311,7 +311,7 @@ export default function Categories() {
                             </Button>
                         </div>
                     ) : viewMode === 'list' ? (
-                        /* List View */
+
                         <div className="overflow-x-auto">
                             <Table>
                                 <TableHeader>
@@ -522,7 +522,7 @@ export default function Categories() {
                             </Table>
                         </div>
                     ) : viewMode === 'grid' ? (
-                        /* Grid View */
+
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                             {categories.map((category: Category) => {
                                 const subcategoryCount = category.subcategories?.length || 0
@@ -614,7 +614,7 @@ export default function Categories() {
                             })}
                         </div>
                     ) : (
-                        /* Tree View */
+
                         <div className="p-6">
                             <DashboardCategoryTree
                                 categories={categories}

@@ -199,7 +199,7 @@ export default function Brands() {
                             </Button>
                         </div>
                     ) : viewMode === 'list' ? (
-                        /* List View */
+
                         <div className="overflow-x-auto">
                             <Table>
                                 <TableHeader>
@@ -290,7 +290,7 @@ export default function Brands() {
                             </Table>
                         </div>
                     ) : (
-                        /* Grid View */
+
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
                             {brands.map((brand: Brand) => (
                                 <Card key={brand.brand_id} className="relative overflow-hidden hover:shadow-lg transition-shadow">

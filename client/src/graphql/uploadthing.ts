@@ -14,3 +14,14 @@ export const UPLOADTHING_UPLOAD = gql`
         }
     }
 `
+
+export const DELETE_IMAGES = gql`
+    mutation($fileKeys: [String!], $imageIds: [Int!]) {
+        deleteImages(fileKeys: $fileKeys, imageIds: $imageIds) {
+            success
+            message
+            deletedCount
+            dbDeletedCount
+        }
+    }
+`

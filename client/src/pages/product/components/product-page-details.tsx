@@ -9,6 +9,7 @@ import type { ProductType } from '@/types'
 import { toast } from 'sonner'
 import { BouncingLoading } from '@/components/ui/bouncing-loading'
 import { Image } from '@unpic/react'
+import { formatNumber } from '@/utils/format-number'
 
 export function ProductPageDetails({
   theme = 'desktop',
@@ -43,7 +44,7 @@ export function ProductPageDetails({
             </Link>
             <div className="flex items-center justify-start space-x-1">
               <Star fill="#008000" color="#008000" size={16} />{' '}
-              <span className="font-bold text-[#008000] text-[14px]">4.3</span>
+              <span className="font-bold text-[#008000] text-[14px]">{product?.rating?.toFixed(1) || '0.0'}</span>
             </div>
           </div>
         </div>
@@ -126,10 +127,10 @@ export function ProductPageDetails({
               </div>
               <div className="mt-2 flex items-center gap-[8px]">
                 <div className="flex h-[17px] w-fit items-center justify-center gap-[2px] rounded-full bg-[#38AE04] px-[4px] py-[2px] text-[14px] text-white">
-                  <span>4.7</span>
+                  <span>{product?.rating?.toFixed(1) || '0.0'}</span>
                   <Star fill="white" color="white" size={9} />
                 </div>
-                <div className="text-[12px]">96% Positive Ratings</div>
+                <div className="text-[12px]">{formatNumber(product?.review_count || 0)} Ratings</div>
               </div>
             </div>
           </div>

@@ -230,7 +230,7 @@ function createProductReview($db, $args)
 
         $reviewData = [
             'product_id' => $args['product_id'],
-            'user_id' => $args['user_id'], // Should be set by auth middleware
+            'user_id' => $args['user_id'],
             'rating' => $args['rating'],
             'title' => $args['title'] ?? '',
             'comment' => $args['comment'] ?? '',
@@ -288,7 +288,7 @@ function updateProductReview($db, $args)
     try {
         $reviewModel = new Review($db);
         $reviewId = $args['id'];
-        $userId = $args['user_id']; // Should be set by auth middleware
+        $userId = $args['user_id'];
 
 
         $existingReview = $reviewModel->findById($reviewId);
@@ -377,7 +377,7 @@ function deleteProductReview($db, $args)
     try {
         $reviewModel = new Review($db);
         $reviewId = $args['id'];
-        $userId = $args['user_id']; // Should be set by auth middleware
+        $userId = $args['user_id'];
 
 
         $existingReview = $reviewModel->findById($reviewId);
@@ -423,7 +423,7 @@ function voteReviewHelpful($db, $args)
     try {
         $voteModel = new ReviewHelpfulVote($db);
         $reviewId = $args['reviewId'];
-        $userId = $args['user_id']; // Should be set by auth middleware
+        $userId = $args['user_id'];
 
 
         $existingVote = $voteModel->findByReviewAndUser($reviewId, $userId);
@@ -472,7 +472,7 @@ function removeReviewVote($db, $args)
     try {
         $voteModel = new ReviewHelpfulVote($db);
         $reviewId = $args['reviewId'];
-        $userId = $args['user_id']; // Should be set by auth middleware
+        $userId = $args['user_id'];
 
 
         $existingVote = $voteModel->findByReviewAndUser($reviewId, $userId);

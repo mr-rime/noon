@@ -23,9 +23,7 @@ class UploadThingService
         ]);
     }
 
-    /**
-     * Upload multiple files (batch)
-     */
+
     public function uploadFiles(array $files): array
     {
         try {
@@ -120,12 +118,10 @@ class UploadThingService
         }
     }
 
-    /**
-     * Poll until UploadThing confirms the file is ready
-     */
+
     private function pollUntilReady(string $fileKey): array
     {
-        $maxAttempts = 20; // limit attempts (~20s max)
+        $maxAttempts = 20;
         $attempt = 0;
         $pollData = [];
 
@@ -144,7 +140,7 @@ class UploadThingService
 
             $attempt++;
             if ($attempt < $maxAttempts) {
-                usleep(500000); // wait 0.5 seconds between attempts
+                usleep(500000);
             }
         } while ($attempt < $maxAttempts);
 
@@ -152,9 +148,7 @@ class UploadThingService
     }
 
 
-    /**
-     * Delete a file from UploadThing
-     */
+
     public function deleteFile(string $key): array
     {
         try {
@@ -171,6 +165,33 @@ class UploadThingService
             return [
                 'success' => false,
                 'message' => 'Failed to delete file: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Delete multiple files using the v6/deleteFiles endpoint
+     */
+    public function deleteFiles(array $fileKeys): array
+    {
+        try {
+            $response = $this->client->post('/v6/deleteFiles', [
+                'json' => [
+                    'fileKeys' => $fileKeys
+                ],
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+            return [
+                'success' => $data['success'] ?? false,
+                'deletedCount' => $data['deletedCount'] ?? 0,
+                'message' => $data['message'] ?? 'Files deletion completed',
+            ];
+        } catch (GuzzleException $e) {
+            return [
+                'success' => false,
+                'deletedCount' => 0,
+                'message' => 'Failed to delete files: ' . $e->getMessage(),
             ];
         }
     }
