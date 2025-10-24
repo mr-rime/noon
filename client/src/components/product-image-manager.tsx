@@ -163,10 +163,6 @@ export const ProductImageManager = forwardRef<ProductImageManagerRef, ProductIma
 
     const removeImage = async (index: number) => {
         const imageToRemove = images[index]
-        console.log('Image to remove:', imageToRemove)
-        console.log('Image URL:', imageToRemove?.image_url)
-        console.log('Extracted key:', imageToRemove?.key)
-        console.log('Image ID:', imageToRemove?.id)
 
         setDeletingIndex(index)
 

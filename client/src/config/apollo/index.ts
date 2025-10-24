@@ -1,7 +1,8 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client'
 import createUploadLink from 'apollo-upload-client/createUploadLink.mjs'
 
-const isDashboard = typeof window !== 'undefined' && window.location.hostname === 'dashboard.localhost'
+const isDashboard = typeof window !== 'undefined' &&
+  (window.location.hostname === 'dashboard.localhost' || window.location.hostname === 'noon-dashboard.vercel.app')
 
 const graphqlUri = isDashboard
   ? 'https://dashboard.noon-btwv.onrender.com/graphql'

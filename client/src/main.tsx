@@ -6,6 +6,11 @@ import App from './app'
 function getSubdomainFromHost() {
     const host = window.location.hostname;
     if (!host) return null;
+
+    if (host === 'noon-dashboard.vercel.app'  || host === 'dashboard.localhost') {
+        return 'dashboard';
+    }
+
     const parts = host.split(".");
     if (host.includes("localhost")) return parts.length > 1 ? parts[0] : null;
     return parts.length > 2 ? parts[0] : null;
