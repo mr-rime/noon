@@ -3,8 +3,11 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
-$dotenv->load();
+if (file_exists(__DIR__ . '/../.env')) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+    $dotenv->load();
+}
+
 
 class StripeService
 {
@@ -15,8 +18,8 @@ class StripeService
     public function __construct()
     {
 
-        $this->stripeSecretKey = $_ENV['STRIPE_SECRET_KEY'] ?? 'sk_test_your_test_key_here';
-        $this->stripePublishableKey = $_ENV['STRIPE_PUBLISHABLE_KEY'] ?? 'pk_test_your_test_key_here';
+        $this->stripeSecretKey = getenv('STRIPE_SECRET_KEY') ?? 'sk_test_your_test_key_here';
+        $this->stripePublishableKey = getenv('STRIPE_PUBLISHABLE_KEY') ?? 'pk_test_your_test_key_here';
 
 
         \Stripe\Stripe::setApiKey($this->stripeSecretKey);
