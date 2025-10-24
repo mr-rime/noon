@@ -6,7 +6,8 @@ $allowed_origins = [
     'http://localhost:3000',
     'http://dashboard.localhost:3000',
     'https://noon-rime.vercel.app',
-    'https://noon-market.vercel.app'
+    'https://noon-market.vercel.app',
+    'https://noon-dashboard.vercel.app'
 ];
 
 if (in_array($origin, $allowed_origins, true)) {
