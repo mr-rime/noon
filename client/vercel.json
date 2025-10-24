@@ -1,3 +1,19 @@
 {
-    "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+    "version": 2,
+    "builds": [
+        {
+            "src": "dist/server/entry-server.js",
+            "use": "@vercel/node"
+        },
+        {
+            "src": "dist/**/*",
+            "use": "@vercel/static"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "dist/server/entry-server.js"
+        }
+    ]
 }
