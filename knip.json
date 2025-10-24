@@ -17,8 +17,6 @@
                 "client/src/**/*.d.ts",
                 "client/src/graphql/**",
                 "client/src/components/**",
-                "client/src/entry-client.tsx",
-                "client/src/entry-server.tsx",
                 "client/src/utils/**",
                 "client/src/hooks/**",
                 "client/src/types/**",

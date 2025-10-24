@@ -1,27 +1,22 @@
-// import { StrictMode } from "react";
-// import ReactDOM from "react-dom/client";
-// import "./index.css";
-// import { ApolloProvider } from "@apollo/client";
-// import { createRouter, RouterProvider } from "@tanstack/react-router";
-// import client from "./apollo";
-// import { routeTree } from "./routeTree.gen";
+import './styles/globals.css'
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import App from './app'
 
-// const router = createRouter({ routeTree, scrollRestoration: true });
+function getSubdomainFromHost() {
+    const host = window.location.hostname;
+    if (!host) return null;
+    const parts = host.split(".");
+    if (host.includes("localhost")) return parts.length > 1 ? parts[0] : null;
+    return parts.length > 2 ? parts[0] : null;
+}
 
-// declare module "@tanstack/react-router" {
-// 	interface Register {
-// 		router: typeof router;
-// 	}
-// }
+const subdomain = getSubdomainFromHost();
 
-// const rootElement = document.getElementById("root")!;
-// if (!rootElement.innerHTML) {
-// 	const root = ReactDOM.createRoot(rootElement);
-// 	root.render(
-// 		<StrictMode>
-// 			<ApolloProvider client={client}>
-// 				<RouterProvider router={router} defaultPendingMinMs={0} defaultPendingMs={0} defaultPreload="intent" defaultSsr />
-// 			</ApolloProvider>
-// 		</StrictMode>,
-// 	);
-// }
+createRoot(
+    document.getElementById('root') as HTMLElement,
+).render(
+    <StrictMode>
+        <App subdomain={subdomain} />
+    </StrictMode>,
+)
