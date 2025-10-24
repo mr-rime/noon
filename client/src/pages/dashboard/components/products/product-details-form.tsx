@@ -35,10 +35,10 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
     const [saving, setSaving] = useState(false)
     const [draftSaved, setDraftSaved] = useState(false)
 
-    // LocalStorage key for this product
+
     const draftKey = `product-draft-${product.id}`
 
-    // Save draft to localStorage
+
     const saveDraft = useCallback(() => {
         const draftData = {
             formData,
@@ -50,7 +50,7 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
         setTimeout(() => setDraftSaved(false), 2000) // Hide indicator after 2 seconds
     }, [formData, specifications, draftKey])
 
-    // Load draft from localStorage
+
     const loadDraft = useCallback(() => {
         try {
             const savedDraft = localStorage.getItem(draftKey)
@@ -66,7 +66,7 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
         return false
     }, [draftKey])
 
-    // Clear draft from localStorage
+
     const clearDraft = () => {
         localStorage.removeItem(draftKey)
     }
@@ -74,11 +74,11 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
     const [updateProduct] = useMutation(UPDATE_PRODUCT)
     const [uploadThingUpload] = useMutation(UPLOADTHING_UPLOAD)
 
-    // Create debounced save function
+
     const debouncedSaveDraft = useDebounce(saveDraft, 1000)
 
     useEffect(() => {
-        // Try to load draft first, if no draft exists, use product data
+
         const hasDraft = loadDraft()
 
         if (!hasDraft) {
@@ -104,13 +104,13 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
         setFormData(prev => ({ ...prev, [field]: value }))
     }
 
-    // Auto-save draft when form data or specifications change
+
     useEffect(() => {
         debouncedSaveDraft()
     }, [formData, specifications, debouncedSaveDraft])
 
     const validateImage = (file: File): Promise<string | null> => {
-        // Check file size (less than 10mb)
+
         if (file.size > 10 * 1024 * 1024) {
             return Promise.resolve('File size should be less than 10mb')
         }
@@ -118,13 +118,13 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
         return new Promise((resolve) => {
             const img = new Image()
             img.onload = () => {
-                // Check width (greater than 660px)
+
                 if (img.width <= 660) {
                     resolve('Image width should be greater than 660px')
                     return
                 }
 
-                // Check aspect ratio (greater than 0.5)
+
                 const aspectRatio = img.width / img.height
                 if (aspectRatio <= 0.5) {
                     resolve('Image aspect ratio should be greater than 0.5')
@@ -144,7 +144,7 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
             return
         }
 
-        // Validate each file
+
         const validationErrors: string[] = []
         const validFiles: File[] = []
 
@@ -215,7 +215,7 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
             reader.readAsDataURL(file)
             reader.onload = () => {
                 const result = reader.result as string
-                // Remove the data URL prefix (e.g., "data:image/jpeg;base64,")
+
                 const base64 = result.split(',')[1]
                 resolve(base64)
             }
@@ -228,7 +228,7 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
         try {
             let uploadedImages = [...images]
 
-            // Upload new local files to S3 if any
+
             if (localFiles.length > 0) {
                 setUploading(true)
                 try {
@@ -252,7 +252,7 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                         }))
                         uploadedImages = [...uploadedImages, ...newImages]
 
-                        // Ensure at least one image is primary if we have images
+
                         if (uploadedImages.length > 0 && !uploadedImages.some(img => img.is_primary)) {
                             uploadedImages[0].is_primary = true
                         }

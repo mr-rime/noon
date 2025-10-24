@@ -33,7 +33,7 @@ function uploadImageResolver($args)
     try {
         $uploadThingService = new UploadThingService();
 
-        // Upload file to UploadThing
+
         $result = $uploadThingService->uploadFile(
             base64_encode(file_get_contents($file['tmp_name'])),
             $file['name'],

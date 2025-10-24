@@ -44,6 +44,11 @@ if ($uri === '/webhooks/stripe-webhook') {
     exit;
 }
 
+if ($uri === '/api/uploadthing/callback') {
+    require_once __DIR__ . '/../webhooks/uploadthing-callback.php';
+    exit;
+}
+
 
 http_response_code(404);
 echo json_encode([

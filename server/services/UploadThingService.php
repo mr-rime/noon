@@ -13,7 +13,7 @@ class UploadThingService
 
     public function __construct()
     {
-        $this->apiKey = $_ENV['UPLOADTHING_TOKEN'] ?? '';
+        $this->apiKey = $_ENV['UPLOADTHING_KEY'] ?? '';
         $this->client = new Client([
             'base_uri' => $this->baseUrl,
             'headers' => [
@@ -23,129 +23,161 @@ class UploadThingService
         ]);
     }
 
-    public function uploadFile(string $fileContent, string $fileName, string $contentType = 'image/jpeg'): array
-    {
-        try {
-            $fileSize = strlen(base64_decode($fileContent));
-
-            $response = $this->client->post('/v6/uploadFiles', [
-                'json' => [
-                    'files' => [
-                        [
-                            'name' => $fileName,
-                            'size' => $fileSize,
-                            'type' => $contentType,
-                            'customId' => null
-                        ]
-                    ],
-                    'acl' => 'public-read',
-                    'metadata' => null,
-                    'contentDisposition' => 'inline'
-                ]
-            ]);
-
-            $data = json_decode($response->getBody()->getContents(), true);
-
-            if (isset($data['data'][0])) {
-                return [
-                    'success' => true,
-                    'url' => $data['data'][0]['url'],
-                    'key' => $data['data'][0]['key'],
-                    'message' => 'File uploaded successfully to UploadThing'
-                ];
-            } else {
-                return [
-                    'success' => false,
-                    'message' => 'Upload failed: ' . ($data['error'] ?? 'Unknown error')
-                ];
-            }
-        } catch (GuzzleException $e) {
-            error_log('UploadThing Upload Error: ' . $e->getMessage());
-            return [
-                'success' => false,
-                'message' => 'Failed to upload file to UploadThing: ' . $e->getMessage()
-            ];
-        }
-    }
-
+    /**
+     * Upload multiple files (batch)
+     */
     public function uploadFiles(array $files): array
     {
         try {
-            // Convert files to the correct v6 API format
+
             $uploadFiles = [];
             foreach ($files as $file) {
-                $fileContent = base64_decode($file['content']);
-                $fileSize = strlen($fileContent);
-
+                $decoded = base64_decode($file['content']);
                 $uploadFiles[] = [
                     'name' => $file['name'],
-                    'size' => $fileSize,
-                    'type' => $file['type'],
-                    'customId' => null
+                    'size' => strlen($decoded),
+                    'type' => $file['type'] ?? 'application/octet-stream',
+                    'customId' => $file['customId'] ?? null,
                 ];
             }
 
-            $response = $this->client->post('/v6/uploadFiles', [
+
+            $prepareResponse = $this->client->post('/v6/prepareUpload', [
                 'json' => [
                     'files' => $uploadFiles,
-                    'acl' => 'public-read',
+                    'callbackUrl' => $this->getCallbackUrl(),
+                    'callbackSlug' => 'image',
+                    'routeConfig' => ['image'],
                     'metadata' => null,
-                    'contentDisposition' => 'inline'
-                ]
+                ],
             ]);
 
-            $data = json_decode($response->getBody()->getContents(), true);
+            $prepareData = json_decode($prepareResponse->getBody()->getContents(), true);
+            error_log('UploadThing prepare response: ' . json_encode($prepareData));
 
-            if (isset($data['data']) && is_array($data['data'])) {
-                return [
-                    'success' => true,
-                    'files' => $data['data'],
-                    'message' => count($data['data']) . ' file(s) uploaded successfully to UploadThing'
+            if (empty($prepareData)) {
+                return ['success' => false, 'message' => 'No upload URLs received'];
+            }
+
+            $results = [];
+            foreach ($prepareData as $index => $fileInfo) {
+                $originalFile = $files[$index];
+                $decoded = base64_decode($originalFile['content']);
+                $uploadUrl = $fileInfo['url'] ?? null;
+                $uploadFields = $fileInfo['fields'] ?? null;
+
+                if (!$uploadUrl || !$uploadFields) {
+                    $results[] = [
+                        'name' => $originalFile['name'],
+                        'fileKey' => $fileInfo['key'] ?? null,
+                        'success' => false,
+                        'message' => 'Missing upload URL or fields',
+                    ];
+                    continue;
+                }
+
+
+                $multipart = [];
+                foreach ($uploadFields as $key => $value) {
+                    $multipart[] = ['name' => $key, 'contents' => $value];
+                }
+                $multipart[] = [
+                    'name' => 'file',
+                    'contents' => $decoded,
+                    'filename' => $originalFile['name'],
+                    'headers' => ['Content-Type' => $originalFile['type']],
                 ];
-            } else {
-                return [
-                    'success' => false,
-                    'message' => 'Upload failed: ' . ($data['error'] ?? 'Unknown error')
+
+                (new Client())->post($uploadUrl, ['multipart' => $multipart]);
+
+
+                $fileKey = $fileInfo['key'];
+                $pollData = $this->pollUntilReady($fileKey);
+
+                $results[] = [
+                    'name' => $originalFile['name'],
+                    'fileKey' => $fileKey,
+                    'url' => $pollData['file']['fileUrl'] ?? $fileInfo['fileUrl'] ?? null,
+                    'success' => !empty($pollData['file']['fileUrl']),
+                    'message' => !empty($pollData['file']['fileUrl'])
+                        ? 'Uploaded successfully'
+                        : 'Upload completed but file URL not found yet',
                 ];
             }
+
+            return [
+                'success' => true,
+                'message' => 'Batch upload complete',
+                'files' => $results,
+            ];
+
         } catch (GuzzleException $e) {
             error_log('UploadThing Batch Upload Error: ' . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Failed to upload files to UploadThing: ' . $e->getMessage()
+                'message' => 'Failed to upload files: ' . $e->getMessage(),
             ];
         }
     }
 
+    /**
+     * Poll until UploadThing confirms the file is ready
+     */
+    private function pollUntilReady(string $fileKey): array
+    {
+        $maxAttempts = 20; // limit attempts (~20s max)
+        $attempt = 0;
+        $pollData = [];
+
+        do {
+            $pollResponse = $this->client->get("/v6/pollUpload/{$fileKey}");
+            $pollData = json_decode($pollResponse->getBody()->getContents(), true);
+
+            error_log("Polling {$fileKey} (attempt " . ($attempt + 1) . "): " . json_encode($pollData));
+
+            if (
+                ($pollData['status'] ?? '') === 'done' ||
+                !empty($pollData['fileData']['fileUrl'])
+            ) {
+                break;
+            }
+
+            $attempt++;
+            if ($attempt < $maxAttempts) {
+                usleep(500000); // wait 0.5 seconds between attempts
+            }
+        } while ($attempt < $maxAttempts);
+
+        return $pollData;
+    }
+
+
+    /**
+     * Delete a file from UploadThing
+     */
     public function deleteFile(string $key): array
     {
         try {
             $response = $this->client->post('/v6/deleteFile', [
-                'json' => [
-                    'fileKey' => $key
-                ]
+                'json' => ['fileKey' => $key],
             ]);
 
             $data = json_decode($response->getBody()->getContents(), true);
-
             return [
                 'success' => $data['success'] ?? false,
-                'message' => $data['message'] ?? 'File deletion result unknown'
+                'message' => $data['message'] ?? 'Unknown deletion result',
             ];
         } catch (GuzzleException $e) {
-            error_log('UploadThing Delete Error: ' . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Failed to delete file from UploadThing: ' . $e->getMessage()
+                'message' => 'Failed to delete file: ' . $e->getMessage(),
             ];
         }
     }
 
-
-    public function generateFileName(string $originalName, string $prefix = 'products'): string
+    private function getCallbackUrl(): string
     {
-        $ext = pathinfo($originalName, PATHINFO_EXTENSION);
-        $hash = hash('sha256', $originalName . time() . uniqid());
-        return $prefix . '/' . $hash . '.' . $ext;
+        $baseUrl = $_ENV['APP_URL'] ?? 'http://localhost:8000';
+        return rtrim($baseUrl, '/') . '/api/uploadthing/callback';
     }
 }
