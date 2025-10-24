@@ -1,6 +1,7 @@
 <?php
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\InputObjectType;
 
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Language\AST\ValueNode;
@@ -40,6 +41,32 @@ $UploadResponseType = new ObjectType([
         'success' => Type::nonNull(Type::boolean()),
         'message' => Type::string(),
         'url' => Type::string(),
+    ],
+]);
+
+$FileInputType = new InputObjectType([
+    'name' => 'FileInput',
+    'fields' => [
+        'name' => Type::nonNull(Type::string()),
+        'type' => Type::nonNull(Type::string()),
+        'content' => Type::nonNull(Type::string()),
+    ],
+]);
+
+$BatchUploadResponseType = new ObjectType([
+    'name' => 'BatchUploadResponse',
+    'fields' => [
+        'success' => Type::nonNull(Type::boolean()),
+        'message' => Type::string(),
+        'images' => Type::listOf(new ObjectType([
+            'name' => 'UploadedImage',
+            'fields' => [
+                'image_url' => Type::nonNull(Type::string()),
+                'is_primary' => Type::boolean(),
+                'key' => Type::string(),
+            ],
+        ])),
+        'errors' => Type::listOf(Type::string()),
     ],
 ]);
 

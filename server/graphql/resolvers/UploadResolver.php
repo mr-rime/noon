@@ -1,4 +1,7 @@
 <?php
+
+require_once __DIR__ . '/../../services/UploadThingService.php';
+
 function uploadImageResolver($args)
 {
     error_log('uploadImageResolver: ' . json_encode($args), 0);
@@ -19,13 +22,6 @@ function uploadImageResolver($args)
         ];
     }
 
-    $uploadDir = __DIR__ . '/../../public/uploads/';
-    $baseUrl = 'http://localhost:8000/uploads/';
-
-    if (!file_exists($uploadDir)) {
-        mkdir($uploadDir, 0777, true);
-    }
-
     $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
     if (!in_array($file['type'], $allowedTypes)) {
         return [
@@ -34,29 +30,33 @@ function uploadImageResolver($args)
         ];
     }
 
-    $fileHash = hash_file('sha256', $file['tmp_name']);
-    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-    $hashedFilename = $fileHash . '.' . $ext;
-    $uploadPath = $uploadDir . $hashedFilename;
+    try {
+        $uploadThingService = new UploadThingService();
 
-    if (file_exists($uploadPath)) {
-        return [
-            'success' => true,
-            'message' => 'File already uploaded (cached)',
-            'url' => $baseUrl . $hashedFilename,
-        ];
-    }
+        // Upload file to UploadThing
+        $result = $uploadThingService->uploadFile(
+            base64_encode(file_get_contents($file['tmp_name'])),
+            $file['name'],
+            $file['type']
+        );
 
-    if (!move_uploaded_file($file['tmp_name'], $uploadPath)) {
+        if ($result['success']) {
+            return [
+                'success' => true,
+                'message' => 'File uploaded successfully to UploadThing',
+                'url' => $result['url'],
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => $result['message'],
+            ];
+        }
+    } catch (Exception $e) {
+        error_log('Upload error: ' . $e->getMessage());
         return [
             'success' => false,
-            'message' => 'Failed to move uploaded file',
+            'message' => 'Failed to upload file: ' . $e->getMessage(),
         ];
     }
-
-    return [
-        'success' => true,
-        'message' => 'File uploaded successfully',
-        'url' => $baseUrl . $hashedFilename,
-    ];
 }

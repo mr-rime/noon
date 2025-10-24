@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useMutation } from '@apollo/client'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
@@ -6,8 +6,9 @@ import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
 import { Save, X, Plus, Loader2, ImageIcon } from 'lucide-react'
 import { UPDATE_PRODUCT } from '@/graphql/product'
-import { UPLOAD_FILE } from '@/graphql/upload-file'
+import { UPLOADTHING_UPLOAD } from '@/graphql/uploadthing'
 import { Dropzone } from '@/components/ui/dropzone'
+import { useDebounce } from '@/hooks/use-debounce'
 import type { ProductType, ProductImage, ProductSpecification } from '@/types'
 
 interface ProductDetailsFormProps {
@@ -27,61 +28,146 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
     })
 
     const [images, setImages] = useState<ProductImage[]>(product.images || [])
+    const [localFiles, setLocalFiles] = useState<File[]>([])
     const [specifications, setSpecifications] = useState<ProductSpecification[]>(product.productSpecifications || [])
     const [newSpec, setNewSpec] = useState({ spec_name: '', spec_value: '' })
     const [uploading, setUploading] = useState(false)
     const [saving, setSaving] = useState(false)
+    const [draftSaved, setDraftSaved] = useState(false)
+
+    // LocalStorage key for this product
+    const draftKey = `product-draft-${product.id}`
+
+    // Save draft to localStorage
+    const saveDraft = useCallback(() => {
+        const draftData = {
+            formData,
+            specifications,
+            timestamp: Date.now()
+        }
+        localStorage.setItem(draftKey, JSON.stringify(draftData))
+        setDraftSaved(true)
+        setTimeout(() => setDraftSaved(false), 2000) // Hide indicator after 2 seconds
+    }, [formData, specifications, draftKey])
+
+    // Load draft from localStorage
+    const loadDraft = useCallback(() => {
+        try {
+            const savedDraft = localStorage.getItem(draftKey)
+            if (savedDraft) {
+                const draftData = JSON.parse(savedDraft)
+                setFormData(draftData.formData)
+                setSpecifications(draftData.specifications)
+                return true
+            }
+        } catch (error) {
+            console.error('Error loading draft:', error)
+        }
+        return false
+    }, [draftKey])
+
+    // Clear draft from localStorage
+    const clearDraft = () => {
+        localStorage.removeItem(draftKey)
+    }
 
     const [updateProduct] = useMutation(UPDATE_PRODUCT)
-    const [uploadFile] = useMutation(UPLOAD_FILE)
+    const [uploadThingUpload] = useMutation(UPLOADTHING_UPLOAD)
+
+    // Create debounced save function
+    const debouncedSaveDraft = useDebounce(saveDraft, 1000)
 
     useEffect(() => {
-        const validCurrency = product.currency && product.currency.length >= 3
-            ? product.currency
-            : 'USD'
+        // Try to load draft first, if no draft exists, use product data
+        const hasDraft = loadDraft()
 
-        setFormData({
-            name: product.name || '',
-            price: product.price || 0,
-            currency: validCurrency,
-            stock: product.stock || 0,
-            product_overview: product.product_overview || '',
-            is_returnable: product.is_returnable || false,
-            is_public: product.is_public || false
-        })
-        setImages(product.images || [])
-        setSpecifications(product.productSpecifications || [])
-    }, [product])
+        if (!hasDraft) {
+            const validCurrency = product.currency && product.currency.length >= 3
+                ? product.currency
+                : 'USD'
+
+            setFormData({
+                name: product.name || '',
+                price: product.price || 0,
+                currency: validCurrency,
+                stock: product.stock || 0,
+                product_overview: product.product_overview || '',
+                is_returnable: product.is_returnable || false,
+                is_public: product.is_public || false
+            })
+            setImages(product.images || [])
+            setSpecifications(product.productSpecifications || [])
+        }
+    }, [product, loadDraft])
 
     const handleInputChange = (field: string, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }))
     }
 
+    // Auto-save draft when form data or specifications change
+    useEffect(() => {
+        debouncedSaveDraft()
+    }, [formData, specifications, debouncedSaveDraft])
+
+    const validateImage = (file: File): Promise<string | null> => {
+        // Check file size (less than 10mb)
+        if (file.size > 10 * 1024 * 1024) {
+            return Promise.resolve('File size should be less than 10mb')
+        }
+
+        return new Promise((resolve) => {
+            const img = new Image()
+            img.onload = () => {
+                // Check width (greater than 660px)
+                if (img.width <= 660) {
+                    resolve('Image width should be greater than 660px')
+                    return
+                }
+
+                // Check aspect ratio (greater than 0.5)
+                const aspectRatio = img.width / img.height
+                if (aspectRatio <= 0.5) {
+                    resolve('Image aspect ratio should be greater than 0.5')
+                    return
+                }
+
+                resolve(null)
+            }
+            img.onerror = () => resolve('Invalid image file')
+            img.src = URL.createObjectURL(file)
+        })
+    }
+
     const handleImageUpload = async (files: File[]) => {
-        if (images.length + files.length > 4) {
+        if (images.length + localFiles.length + files.length > 4) {
             toast.error('Maximum 4 images allowed')
             return
         }
 
-        setUploading(true)
-        try {
-            const uploadPromises = files.map(async (file) => {
-                const { data } = await uploadFile({ variables: { file } })
-                return {
-                    id: Date.now().toString(),
-                    image_url: data.uploadImage.url,
-                    is_primary: images.length === 0
-                }
-            })
+        // Validate each file
+        const validationErrors: string[] = []
+        const validFiles: File[] = []
 
-            const uploadedImages = await Promise.all(uploadPromises)
-            setImages(prev => [...prev, ...uploadedImages])
-            toast.success(`${files.length} image(s) uploaded successfully`)
-        } catch (error) {
-            console.error(error)
-            toast.error('Failed to upload images')
-        } finally {
-            setUploading(false)
+        for (const file of files) {
+            try {
+                const error = await validateImage(file)
+                if (error) {
+                    validationErrors.push(`${file.name}: ${error}`)
+                } else {
+                    validFiles.push(file)
+                }
+            } catch {
+                validationErrors.push(`${file.name}: Failed to validate image`)
+            }
+        }
+
+        if (validationErrors.length > 0) {
+            toast.error(validationErrors.join(', '))
+        }
+
+        if (validFiles.length > 0) {
+            setLocalFiles(prev => [...prev, ...validFiles])
+            toast.success(`${validFiles.length} image(s) added (will be uploaded on save)`)
         }
     }
 
@@ -93,6 +179,10 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
             }
             return newImages
         })
+    }
+
+    const removeLocalFile = (index: number) => {
+        setLocalFiles(prev => prev.filter((_, i) => i !== index))
     }
 
     const setPrimaryImage = (index: number) => {
@@ -119,14 +209,73 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
         setSpecifications(prev => prev.filter(spec => spec.id !== specId))
     }
 
+    const fileToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.readAsDataURL(file)
+            reader.onload = () => {
+                const result = reader.result as string
+                // Remove the data URL prefix (e.g., "data:image/jpeg;base64,")
+                const base64 = result.split(',')[1]
+                resolve(base64)
+            }
+            reader.onerror = error => reject(error)
+        })
+    }
+
     const handleSave = async () => {
         setSaving(true)
         try {
+            let uploadedImages = [...images]
+
+            // Upload new local files to S3 if any
+            if (localFiles.length > 0) {
+                setUploading(true)
+                try {
+                    const filesToUpload = await Promise.all(
+                        localFiles.map(async (file) => ({
+                            name: file.name,
+                            type: file.type,
+                            content: await fileToBase64(file)
+                        }))
+                    )
+
+                    const { data: uploadData } = await uploadThingUpload({
+                        variables: { files: filesToUpload }
+                    })
+
+                    if (uploadData?.batchUploadImages?.success) {
+                        const newImages = uploadData.batchUploadImages.images.map((img: any, index: number) => ({
+                            id: Date.now().toString() + index,
+                            image_url: img.image_url,
+                            is_primary: false // Don't set any as primary by default
+                        }))
+                        uploadedImages = [...uploadedImages, ...newImages]
+
+                        // Ensure at least one image is primary if we have images
+                        if (uploadedImages.length > 0 && !uploadedImages.some(img => img.is_primary)) {
+                            uploadedImages[0].is_primary = true
+                        }
+
+                        setLocalFiles([]) // Clear local files after successful upload
+                    } else {
+                        toast.error('Failed to upload new images')
+                        return
+                    }
+                } catch (error) {
+                    console.error('Error uploading images:', error)
+                    toast.error('Failed to upload images')
+                    return
+                } finally {
+                    setUploading(false)
+                }
+            }
+
             const { data } = await updateProduct({
                 variables: {
                     id: product.id,
                     ...formData,
-                    images: images.map(img => ({
+                    images: uploadedImages.map(img => ({
                         image_url: img.image_url,
                         is_primary: img.is_primary
                     })),
@@ -140,6 +289,8 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
             if (data?.updateProduct?.success) {
                 toast.success('Product updated successfully!')
                 onUpdate?.(data.updateProduct.product)
+                setImages(uploadedImages) // Update local state with uploaded images
+                clearDraft() // Clear the draft since product was saved successfully
             } else {
                 toast.error(data?.updateProduct?.message || 'Failed to update product')
             }
@@ -167,6 +318,14 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
+                    {draftSaved && (
+                        <div className="flex items-center gap-2 text-sm text-green-600">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            Draft saved
+                        </div>
+                    )}
 
                     <div className="flex items-center gap-3 px-4 py-2 bg-white border rounded-lg">
                         <Switch
@@ -182,6 +341,14 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                             )}
                         </span>
                     </div>
+                    <Button
+                        variant="outline"
+                        onClick={saveDraft}
+                        className="mr-2"
+                    >
+                        <Save className="h-4 w-4 mr-2" />
+                        Save Draft
+                    </Button>
                     <Button onClick={handleSave} disabled={saving}>
                         {saving ? (
                             <>
@@ -287,7 +454,15 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
 
                     <div className="border rounded-lg p-6">
                         <h3 className="text-lg font-semibold mb-4">Product Images (Max 4)</h3>
-                        {images.length < 4 && (
+                        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <h4 className="text-sm font-medium text-blue-800 mb-2">Image Guidelines:</h4>
+                            <ul className="text-sm text-blue-700 space-y-1">
+                                <li>• Image width should be greater than 660px</li>
+                                <li>• Image aspect ratio should be greater than 0.5</li>
+                                <li>• File size should be less than 10mb</li>
+                            </ul>
+                        </div>
+                        {images.length + localFiles.length < 4 && (
                             <div className="space-y-2">
                                 <Dropzone
                                     onFilesDrop={handleImageUpload}
@@ -304,10 +479,11 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                             </div>
                         )}
 
-                        {images.length > 0 && (
+                        {(images.length > 0 || localFiles.length > 0) && (
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5">
+                                {/* Existing uploaded images */}
                                 {images.map((image, index) => (
-                                    <div key={index} className="relative group">
+                                    <div key={`uploaded-${index}`} className="relative group">
                                         <div className="aspect-square bg-muted rounded-lg overflow-hidden">
                                             <img
                                                 src={image.image_url}
@@ -340,6 +516,31 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                                         {image.is_primary && (
                                             <Badge className="absolute bottom-2 left-2 text-xs">Primary</Badge>
                                         )}
+                                    </div>
+                                ))}
+
+                                {/* Local files (not yet uploaded) */}
+                                {localFiles.map((file, index) => (
+                                    <div key={`local-${index}`} className="relative group">
+                                        <div className="aspect-square bg-muted rounded-lg overflow-hidden">
+                                            <img
+                                                src={URL.createObjectURL(file)}
+                                                alt={`Local file ${index + 1}`}
+                                                className="w-full h-full object-contain bg-white"
+                                            />
+                                        </div>
+                                        <div className="absolute top-2 right-2 flex gap-1">
+                                            <Button
+                                                size="sm"
+                                                variant="destructive"
+                                                className="h-6 w-6 p-0"
+                                                onClick={() => removeLocalFile(index)}
+                                                title="Remove file"
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </Button>
+                                        </div>
+                                        <Badge className="absolute bottom-2 left-2 text-xs bg-orange-500">Pending</Badge>
                                     </div>
                                 ))}
                             </div>
