@@ -13,7 +13,8 @@ RUN curl -sS https://getcomposer.org/installer | php && \
     php composer.phar install --no-dev --optimize-autoloader && \
     rm composer.phar
 
-COPY docker-entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY scripts/docker-entrypoint.sh /usr/local/bin/entrypoint.sh
+
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 8000
