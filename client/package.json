@@ -8,11 +8,9 @@
         "lint:fix": "eslint ./src --ext .js,.ts,.jsx,.tsx --fix",
         "format": "prettier --write './src/**/*.{js,ts,jsx,tsx,json,css,scss,md}'",
         "type-check": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
-        "dev": "node server",
-        "build": "pnpm run lint && pnpm run type-check && pnpm run build:client && pnpm run build:server",
-        "build:client": "vite build --outDir dist/client",
-        "build:server": "vite build --ssr src/entry-server.tsx --outDir dist/server",
-        "preview": "cross-env NODE_ENV=production node server"
+        "dev": "vite",
+        "build": "pnpm run lint && pnpm run type-check && vite build",
+        "preview": "vite preview"
     },
     "dependencies": {
         "@apollo/client": "^3.13.8",
