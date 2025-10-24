@@ -53,3 +53,5 @@ server/.env
 server/.env
 
 >>>>>>> 4255722 (chore: update .gitignore and add example environment file)
+
+.vercel

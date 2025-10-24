@@ -1,3 +1,4 @@
+// server.js
 import fs from "node:fs/promises";
 import express from "express";
 import { Transform } from "node:stream";
@@ -7,7 +8,8 @@ import sirv from "sirv";
 import { createServer as createViteServer } from "vite";
 import { LRUCache } from "lru-cache";
 
-const isProduction = process.env.NODE_ENV === "production";
+const isVercel = !!process.env.VERCEL;
+const isProduction = process.env.NODE_ENV === "production" || isVercel;
 const port = process.env.PORT || 3000;
 const base = process.env.BASE || "/";
 const ABORT_DELAY = 10000;
@@ -35,14 +37,15 @@ const templateHtml = isProduction ? await fs.readFile("./dist/client/index.html"
 
 const app = express();
 
+// --- Security middleware ---
 app.use(
     helmet({
         contentSecurityPolicy: {
             directives: {
                 ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-                "connect-src": ["'self'", "ws://localhost:24678", "ws://dashboard.localhost:24678", "http://localhost:8000", "http://dashboard.localhost:8000"],
+                "connect-src": ["'self'", "ws://localhost:24678", "http://localhost:8000"],
                 "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-                "img-src": ["'self'", "data:", "blob:", "http://localhost:8000", "http://dashboard.localhost:8000", "https://uploadthing-prod-sea1.s3.us-west-2.amazonaws.com", "https://utfs.io"],
+                "img-src": ["'self'", "data:", "blob:", "https://uploadthing-prod-sea1.s3.us-west-2.amazonaws.com", "https://utfs.io"],
             },
         },
     })
@@ -50,13 +53,11 @@ app.use(
 
 app.use(compression(config.ssr.compression));
 
-export function getSubdomainFromHost(host) {
+// --- Helpers ---
+function getSubdomainFromHost(host) {
     if (!host) return null;
     const parts = host.split(".");
-
-    if (host.includes("localhost")) {
-        return parts.length > 1 ? parts[0] : null;
-    }
+    if (host.includes("localhost")) return parts.length > 1 ? parts[0] : null;
     return parts.length > 2 ? parts[0] : null;
 }
 
@@ -67,8 +68,9 @@ function getCacheKey(req) {
     return `${subdomain || "main"}:${url}`;
 }
 
+// --- Vite or static serving ---
 let vite;
-if (!isProduction) {
+if (!isProduction && !isVercel) {
     vite = await createViteServer({
         server: { middlewareMode: true },
         appType: "custom",
@@ -79,14 +81,14 @@ if (!isProduction) {
     app.use(base, sirv("./dist/client", { extensions: [], gzip: true }));
 }
 
-app.use("*all", async (req, res) => {
+app.use("*", async (req, res) => {
     try {
         const cacheKey = getCacheKey(req);
         const url = req.originalUrl.replace(base, "");
         const host = req.headers.host || "";
         const subdomain = getSubdomainFromHost(host);
 
-        // Try cache
+        // Serve cached SSR (production only)
         if (isProduction) {
             const cached = ssrCache.get(cacheKey);
             if (cached) {
@@ -98,7 +100,7 @@ app.use("*all", async (req, res) => {
         let template;
         let render;
 
-        if (!isProduction) {
+        if (!isProduction && vite) {
             template = await fs.readFile("./index.html", "utf-8");
             template = await vite.transformIndexHtml(url, template);
             render = (await vite.ssrLoadModule("/src/entry-server.tsx")).render;
@@ -107,10 +109,8 @@ app.use("*all", async (req, res) => {
             render = (await import("./dist/server/entry-server.js")).render;
         }
 
-        let didError = false;
         let resolved = false;
         let chunks = [];
-
         const initialProps = { subdomain };
 
         const { pipe, abort } = render(
@@ -119,18 +119,13 @@ app.use("*all", async (req, res) => {
                 onShellError() {
                     if (resolved) return;
                     resolved = true;
-                    res.status(500).set({ "Content-Type": "text/html" });
-                    res.send("<h1>Something went wrong</h1>");
+                    res.status(500).send("<h1>Something went wrong</h1>");
                 },
                 onShellReady() {
                     if (resolved) return;
                     resolved = true;
 
-                    res.status(didError ? 500 : 200);
-                    res.set({
-                        "Content-Type": "text/html",
-                        ...(isProduction && !didError ? { "x-cache": "MISS" } : {}),
-                    });
+                    res.status(200).set({ "Content-Type": "text/html" });
 
                     const transformStream = new Transform({
                         transform(chunk, encoding, callback) {
@@ -140,18 +135,14 @@ app.use("*all", async (req, res) => {
                         },
                     });
 
-                    const [htmlStart, htmlEnd] = template.split(`<!--app-html-->`);
-
+                    const [htmlStart, htmlEnd] = template.split("<!--app-html-->");
                     res.write(htmlStart);
 
                     transformStream.on("finish", () => {
                         const appHtml = Buffer.concat(chunks).toString();
                         const fullHtml = htmlStart + appHtml + `<script>window.__INITIAL_PROPS__=${JSON.stringify(initialProps)}</script>` + htmlEnd;
 
-                        if (isProduction && !didError) {
-                            ssrCache.set(cacheKey, fullHtml);
-                        }
-
+                        if (isProduction) ssrCache.set(cacheKey, fullHtml);
                         res.end(fullHtml);
                     });
 
@@ -165,16 +156,23 @@ app.use("*all", async (req, res) => {
             if (!resolved) {
                 resolved = true;
                 abort();
-                res.status(503).send("Service Unavailable - Rendering timed out");
+                res.status(503).send("SSR timeout");
             }
         }, ABORT_DELAY);
-    } catch (e) {
-        vite?.ssrFixStacktrace(e);
-        console.error("SSR Error:", e.stack);
+    } catch (err) {
+        vite?.ssrFixStacktrace(err);
+        console.error("SSR Error:", err);
         res.status(500).end("Internal Server Error");
     }
 });
 
-app.listen(port, () => {
-    console.log(`Server started at http://localhost:${port}`);
-});
+if (!isVercel) {
+    app.listen(port, () => {
+        console.log(`Server started at http://localhost:${port}`);
+    });
+}
+
+// ✅ For Vercel serverless
+export default function handler(req, res) {
+    return app(req, res);
+}
