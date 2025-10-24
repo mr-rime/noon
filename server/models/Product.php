@@ -33,7 +33,7 @@ class Product
         $this->brandModel = new Brand($db);
     }
 
-    /* -------------------- DISCOUNT HELPERS -------------------- */
+
 
     private function calculateFinalPrice(float $price, ?array $discount): float
     {
@@ -90,7 +90,7 @@ class Product
         return strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name), '-'));
     }
 
-    /* -------------------- QUERY HELPERS -------------------- */
+
 
     private function fetchAssocAll(mysqli_stmt $stmt): array
     {
@@ -219,7 +219,7 @@ class Product
         return [$where, $order, $params, $types];
     }
 
-    /* -------------------- PUBLIC METHODS -------------------- */
+
 
     public function findAll(?int $userId, int $limit = 10, int $offset = 0, string $search = '', bool $publicOnly = false, ?string $categoryId = null, ?array $categories = null, ?array $brands = null, ?float $minPrice = null, ?float $maxPrice = null, ?float $minRating = null): array
     {
@@ -311,8 +311,6 @@ class Product
                 'brand' => [
                     'name' => $row['brand_name']
                 ],
-                'rating' => 4.5,
-                'review_count' => 0,
                 'created_at' => $row['created_at'],
                 'updated_at' => $row['updated_at'],
                 'is_in_wishlist' => (bool) ($row['is_in_wishlist'] ?? 0),
@@ -333,6 +331,10 @@ class Product
         foreach ($products as $pid => &$product) {
             $product['productSpecifications'] = $this->specModel->findByProductId($pid);
 
+
+            $ratingData = $this->getProductRatingData($pid);
+            $product['rating'] = $ratingData['rating'];
+            $product['review_count'] = $ratingData['review_count'];
 
             if ($product['group_id']) {
                 $product['groupAttributes'] = $this->groupModel->getGroupAttributes($product['group_id']);
@@ -438,6 +440,10 @@ class Product
 
             $product['productSpecifications'] = $this->specModel->findByProductId($product['id']);
 
+
+            $ratingData = $this->getProductRatingData($product['id']);
+            $product['rating'] = $ratingData['rating'];
+            $product['review_count'] = $ratingData['review_count'];
 
             $imageQuery = 'SELECT id, image_url, is_primary FROM product_images WHERE product_id = ? ORDER BY is_primary DESC, id ASC';
             $imageStmt = $this->db->prepare($imageQuery);
@@ -548,6 +554,10 @@ class Product
 
         $product['productSpecifications'] = $this->specModel->findByProductId($id);
 
+
+        $ratingData = $this->getProductRatingData($id);
+        $product['rating'] = $ratingData['rating'];
+        $product['review_count'] = $ratingData['review_count'];
 
         if ($product['group_id']) {
             $product['groupAttributes'] = $this->groupModel->getGroupAttributes($product['group_id']);
@@ -739,7 +749,7 @@ class Product
 
 
         if ($storeId !== null) {
-            $userId = 0; // Use 0 instead of null for store products
+            $userId = 0;
         } elseif (isset($_SESSION['user']['id'])) {
             $userId = $_SESSION['user']['id'];
             $storeId = null;
@@ -1039,6 +1049,41 @@ class Product
             $this->db->rollback();
             error_log("Product deletion failed: " . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Get product rating data (average rating and review count)
+     */
+    private function getProductRatingData(string $productId): array
+    {
+        try {
+
+            $countQuery = "SELECT COUNT(*) as total FROM reviews WHERE product_id = ?";
+            $countStmt = $this->db->prepare($countQuery);
+            $countStmt->bind_param('s', $productId);
+            $countStmt->execute();
+            $countResult = $countStmt->get_result()->fetch_assoc();
+            $reviewCount = (int) ($countResult['total'] ?? 0);
+
+
+            $avgQuery = "SELECT AVG(CAST(rating AS DECIMAL(3,2))) as avg_rating FROM reviews WHERE product_id = ?";
+            $avgStmt = $this->db->prepare($avgQuery);
+            $avgStmt->bind_param('s', $productId);
+            $avgStmt->execute();
+            $avgResult = $avgStmt->get_result()->fetch_assoc();
+            $averageRating = $avgResult['avg_rating'] ? round((float) $avgResult['avg_rating'], 1) : 0.0;
+
+            return [
+                'rating' => $averageRating,
+                'review_count' => $reviewCount
+            ];
+        } catch (Exception $e) {
+            error_log("Error getting product rating data: " . $e->getMessage());
+            return [
+                'rating' => 0.0,
+                'review_count' => 0
+            ];
         }
     }
 }

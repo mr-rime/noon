@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { Star } from 'lucide-react'
+import { formatNumber } from '@/utils/format-number'
 
 interface Product {
   id: string
@@ -75,7 +76,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             </span>
             {product.review_count && product.review_count > 0 && (
               <span className="text-xs text-gray-500">
-                ({product.review_count})
+                ({formatNumber(product.review_count)})
               </span>
             )}
           </div>

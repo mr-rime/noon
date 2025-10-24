@@ -43,6 +43,8 @@ export type DropzoneProps = {
     multiple?: boolean
     accept?: string
     className?: string
+    disabled?: boolean
+    children?: React.ReactNode
 }
 
 

@@ -6,7 +6,7 @@ import { Button } from '../ui/button'
 import { ArrowLeft, Package, Users } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { GET_PRODUCT } from '@/graphql/product'
-import { ProductDetailsForm } from './product-details-form'
+import {ProductDetailsForm} from './product-details-form'
 import type { ProductType } from '@/types'
 import { ProductGroupManager } from './product-group-manager'
 

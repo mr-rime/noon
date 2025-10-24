@@ -10,6 +10,7 @@ import { WishlistControls } from './components/wishlist-controls'
 import { useQuery } from '@apollo/client'
 import { GET_PRODUCT } from '@/graphql/product'
 import { useState } from 'react'
+import { formatNumber } from '@/utils/format-number'
 
 export function Product({
   id,
@@ -24,6 +25,8 @@ export function Product({
   psku,
   category_name,
   brand_name,
+  rating,
+  review_count,
   isWishlistProduct = false,
 }: Partial<ProductType> & { isWishlistProduct?: boolean }) {
   const [hasFetched, setHasFetched] = useState(false)
@@ -93,10 +96,12 @@ export function Product({
         <div className="my-2 flex w-fit items-center justify-center space-x-2 rounded-[6px] bg-[#f3f4f8] px-[6px] py-[4px]">
           <div className="flex items-center space-x-1">
             <Star fill="#008000" color="#008000" size={14} />
-            <div className="font-semibold text-[13px]">4.6</div>
+            <div className="font-semibold text-[13px]">
+              {rating ? rating.toFixed(1) : '0.0'}
+            </div>
           </div>
           <div className="text-[#9ba0b1] text-[13px]">
-            <span>(20.6K)</span>
+            <span>({formatNumber(review_count || 0)})</span>
           </div>
         </div>
         <ProdcutPrice

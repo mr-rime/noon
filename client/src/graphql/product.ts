@@ -227,6 +227,8 @@ export const GET_PRODUCTS = gql`
                     subcategory_name
                     brand_name
                     group_name
+                    rating
+                    review_count
                     discount_percentage
                     created_at
                     discount {
@@ -276,6 +278,8 @@ query ($id: ID!) {
         subcategory_name
         brand_name
         group_name
+        rating
+        review_count
         created_at
         updated_at
         discount_percentage
@@ -318,6 +322,8 @@ query ($id: ID!) {
             currency
             is_public
             stock
+            rating
+            review_count
             images {
                 id
                 image_url

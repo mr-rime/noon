@@ -18,6 +18,8 @@ query ($limit: Int, $offset: Int, $search: String) {
         stock
         is_in_wishlist
         wishlist_id
+        rating
+        review_count
         images {
           id
           image_url

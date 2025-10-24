@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useMutation } from '@apollo/client'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
-import { Save, X, Plus, Loader2, ImageIcon } from 'lucide-react'
+import { Save, X, Plus } from 'lucide-react'
 import { UPDATE_PRODUCT } from '@/graphql/product'
-import { UPLOAD_FILE } from '@/graphql/upload-file'
-import { Dropzone } from '@/components/ui/dropzone'
+import { ProductImageManager, type ProductImageManagerRef } from '@/components/product-image-manager'
+import { useDebounce } from '@/hooks/use-debounce'
 import type { ProductType, ProductImage, ProductSpecification } from '@/types'
+import { useRef } from 'react'
 
 interface ProductDetailsFormProps {
     product: ProductType
@@ -26,81 +27,123 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
         is_public: product.is_public || false
     })
 
-    const [images, setImages] = useState<ProductImage[]>(product.images || [])
+
+    const extractKeyFromUrl = (url: string): string | undefined => {
+        console.log('Extracting key from URL:', url)
+        if (url.includes('utfs.io/f/')) {
+            const match = url.match(/utfs\.io\/f\/([^/]+)/)
+            const key = match ? match[1] : undefined
+            console.log('Match result:', match, 'Extracted key:', key)
+            return key
+        }
+        console.log('URL does not contain utfs.io/f/')
+        return undefined
+    }
+
+    const [images, setImages] = useState<ProductImage[]>(
+        (product.images || []).map(img => {
+            const extractedKey = extractKeyFromUrl(img.image_url)
+            console.log('Processing image:', img.image_url, 'Extracted key:', extractedKey)
+            return {
+                ...img,
+                key: extractedKey
+            }
+        })
+    )
+
     const [specifications, setSpecifications] = useState<ProductSpecification[]>(product.productSpecifications || [])
     const [newSpec, setNewSpec] = useState({ spec_name: '', spec_value: '' })
-    const [uploading, setUploading] = useState(false)
+
     const [saving, setSaving] = useState(false)
+    const [draftSaved, setDraftSaved] = useState(false)
+
+
+    const draftKey = `product-draft-${product.id}`
+
+
+    const saveDraft = useCallback(() => {
+        const draftData = {
+            formData,
+            specifications,
+            timestamp: Date.now()
+        }
+        localStorage.setItem(draftKey, JSON.stringify(draftData))
+        setDraftSaved(true)
+        setTimeout(() => setDraftSaved(false), 2000)
+    }, [formData, specifications, draftKey])
+
+
+    const loadDraft = useCallback(() => {
+        try {
+            const savedDraft = localStorage.getItem(draftKey)
+            if (savedDraft) {
+                const draftData = JSON.parse(savedDraft)
+                setFormData(draftData.formData)
+                setSpecifications(draftData.specifications)
+                return true
+            }
+        } catch (error) {
+            console.error('Error loading draft:', error)
+        }
+        return false
+    }, [draftKey])
+
+
+    const clearDraft = () => {
+        localStorage.removeItem(draftKey)
+    }
 
     const [updateProduct] = useMutation(UPDATE_PRODUCT)
-    const [uploadFile] = useMutation(UPLOAD_FILE)
+    const imageManagerRef = useRef<ProductImageManagerRef>(null)
+
+
+
+    const handleImagesChange = (newImages: ProductImage[]) => {
+        setImages(newImages)
+    }
+
+
+    const debouncedSaveDraft = useDebounce(saveDraft, 1000)
 
     useEffect(() => {
-        const validCurrency = product.currency && product.currency.length >= 3
-            ? product.currency
-            : 'USD'
 
-        setFormData({
-            name: product.name || '',
-            price: product.price || 0,
-            currency: validCurrency,
-            stock: product.stock || 0,
-            product_overview: product.product_overview || '',
-            is_returnable: product.is_returnable || false,
-            is_public: product.is_public || false
-        })
-        setImages(product.images || [])
-        setSpecifications(product.productSpecifications || [])
-    }, [product])
+        const hasDraft = loadDraft()
+
+        if (!hasDraft) {
+            const validCurrency = product.currency && product.currency.length >= 3
+                ? product.currency
+                : 'USD'
+
+            setFormData({
+                name: product.name || '',
+                price: product.price || 0,
+                currency: validCurrency,
+                stock: product.stock || 0,
+                product_overview: product.product_overview || '',
+                is_returnable: product.is_returnable || false,
+                is_public: product.is_public || false
+            })
+            setImages(product.images || [])
+            setSpecifications(product.productSpecifications || [])
+        }
+    }, [product, loadDraft])
 
     const handleInputChange = (field: string, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }))
     }
 
-    const handleImageUpload = async (files: File[]) => {
-        if (images.length + files.length > 4) {
-            toast.error('Maximum 4 images allowed')
-            return
-        }
 
-        setUploading(true)
-        try {
-            const uploadPromises = files.map(async (file) => {
-                const { data } = await uploadFile({ variables: { file } })
-                return {
-                    id: Date.now().toString(),
-                    image_url: data.uploadImage.url,
-                    is_primary: images.length === 0
-                }
-            })
+    useEffect(() => {
+        debouncedSaveDraft()
+    }, [formData, specifications, debouncedSaveDraft])
 
-            const uploadedImages = await Promise.all(uploadPromises)
-            setImages(prev => [...prev, ...uploadedImages])
-            toast.success(`${files.length} image(s) uploaded successfully`)
-        } catch (error) {
-            console.error(error)
-            toast.error('Failed to upload images')
-        } finally {
-            setUploading(false)
-        }
-    }
 
-    const removeImage = (index: number) => {
-        setImages(prev => {
-            const newImages = prev.filter((_, i) => i !== index)
-            if (prev[index]?.is_primary && newImages.length > 0) {
-                newImages[0].is_primary = true
-            }
-            return newImages
-        })
-    }
 
-    const setPrimaryImage = (index: number) => {
-        setImages(prev => prev.map((img, i) => ({
-            ...img,
-            is_primary: i === index
-        })))
-    }
+
+
+
+
+
 
     const addSpecification = () => {
         if (newSpec.spec_name && newSpec.spec_value) {
@@ -119,14 +162,37 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
         setSpecifications(prev => prev.filter(spec => spec.id !== specId))
     }
 
+
+
     const handleSave = async () => {
         setSaving(true)
         try {
+
+            let uploadedImages: ProductImage[] = []
+            if (imageManagerRef.current) {
+                try {
+                    uploadedImages = await imageManagerRef.current.uploadFiles()
+                    if (uploadedImages.length > 0) {
+
+                        const newImages = [...images, ...uploadedImages]
+                        setImages(newImages)
+                        toast.success(`${uploadedImages.length} image(s) uploaded successfully`)
+                    }
+                } catch (error) {
+                    console.error('Image upload failed:', error)
+                    toast.error('Failed to upload images')
+                    setSaving(false)
+                    return
+                }
+            }
+
+
+            const allImages = [...images, ...uploadedImages]
             const { data } = await updateProduct({
                 variables: {
                     id: product.id,
                     ...formData,
-                    images: images.map(img => ({
+                    images: allImages.map(img => ({
                         image_url: img.image_url,
                         is_primary: img.is_primary
                     })),
@@ -140,6 +206,7 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
             if (data?.updateProduct?.success) {
                 toast.success('Product updated successfully!')
                 onUpdate?.(data.updateProduct.product)
+                clearDraft()
             } else {
                 toast.error(data?.updateProduct?.message || 'Failed to update product')
             }
@@ -167,6 +234,14 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
+                    {draftSaved && (
+                        <div className="flex items-center gap-2 text-sm text-green-600">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            Draft saved
+                        </div>
+                    )}
 
                     <div className="flex items-center gap-3 px-4 py-2 bg-white border rounded-lg">
                         <Switch
@@ -182,6 +257,14 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
                             )}
                         </span>
                     </div>
+                    <Button
+                        variant="outline"
+                        onClick={saveDraft}
+                        className="mr-2"
+                    >
+                        <Save className="h-4 w-4 mr-2" />
+                        Save Draft
+                    </Button>
                     <Button onClick={handleSave} disabled={saving}>
                         {saving ? (
                             <>
@@ -287,63 +370,14 @@ export function ProductDetailsForm({ product, onUpdate }: ProductDetailsFormProp
 
                     <div className="border rounded-lg p-6">
                         <h3 className="text-lg font-semibold mb-4">Product Images (Max 4)</h3>
-                        {images.length < 4 && (
-                            <div className="space-y-2">
-                                <Dropzone
-                                    onFilesDrop={handleImageUpload}
-                                    accept="image/*"
-                                    multiple={true}
-                                    className="h-32"
-                                />
-                                {uploading && (
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                        Uploading images...
-                                    </div>
-                                )}
-                            </div>
-                        )}
 
-                        {images.length > 0 && (
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5">
-                                {images.map((image, index) => (
-                                    <div key={index} className="relative group">
-                                        <div className="aspect-square bg-muted rounded-lg overflow-hidden">
-                                            <img
-                                                src={image.image_url}
-                                                alt={`Product ${index + 1}`}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                        <div className="absolute top-2 right-2 flex gap-1">
-                                            {!image.is_primary && (
-                                                <Button
-                                                    size="sm"
-                                                    variant="secondary"
-                                                    className="h-6 w-6 p-0"
-                                                    onClick={() => setPrimaryImage(index)}
-                                                    title="Set as primary"
-                                                >
-                                                    <ImageIcon className="h-3 w-3" />
-                                                </Button>
-                                            )}
-                                            <Button
-                                                size="sm"
-                                                variant="destructive"
-                                                className="h-6 w-6 p-0"
-                                                onClick={() => removeImage(index)}
-                                                title="Remove image"
-                                            >
-                                                <X className="h-3 w-3" />
-                                            </Button>
-                                        </div>
-                                        {image.is_primary && (
-                                            <Badge className="absolute bottom-2 left-2 text-xs">Primary</Badge>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                        <ProductImageManager
+                            ref={imageManagerRef}
+                            images={images}
+                            onImagesChange={handleImagesChange}
+                            maxImages={4}
+                            disabled={saving}
+                        />
                     </div>
                 </div>
 

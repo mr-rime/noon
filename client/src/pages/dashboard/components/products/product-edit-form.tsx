@@ -24,8 +24,11 @@ import { Badge } from "../ui/badge"
 import { useMutation, useQuery } from "@apollo/client"
 import { GET_PRODUCT, UPDATE_PRODUCT } from "@/graphql/product"
 import { UPLOAD_FILE } from "@/graphql/upload-file"
+import { ProductImageManager, type ProductImageManagerRef } from "@/components/product-image-manager"
 import { toast } from "sonner"
-import { Dropzone } from "@/components/ui/dropzone"
+import { useRef } from "react"
+import type { ProductImage } from '@/types'
+
 
 interface ProductEditFormProps {
     productId: string
@@ -50,13 +53,12 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
         product_overview: ""
     })
 
-    const [images, setImages] = useState<Array<{ id?: string, image_url: string, is_primary?: boolean }>>([])
+    const [images, setImages] = useState<Array<{ id?: string, image_url: string, is_primary: boolean, key?: string }>>([])
     const [specifications, setSpecifications] = useState<Array<{ id?: string, spec_name: string, spec_value: string }>>([])
     const [options, setOptions] = useState<Array<{ id?: string, name: string, value: string, type?: string, image_url?: string }>>([])
     const [variants, setVariants] = useState<Array<{ id?: string, sku: string, option_combination?: string, price?: number, stock?: number, image_url?: string }>>([])
     const [newSpec, setNewSpec] = useState({ name: "", value: "" })
     const [newOption, setNewOption] = useState({ name: "", value: "", type: "text", image_url: "" })
-    const [uploadingImages, setUploadingImages] = useState(false)
     useEffect(() => {
         if (product) {
             setFormData({
@@ -68,7 +70,22 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
                 is_public: product.is_public || false,
                 product_overview: product.product_overview || ""
             })
-            setImages(product.images || [])
+
+            const imagesWithKeys = (product.images || []).map((img: any) => {
+                console.log('Processing image:', img.image_url)
+                const extractedKey = img.image_url.includes('utfs.io/f/')
+                    ? img.image_url.match(/utfs\.io\/f\/([^/]+)/)?.[1]
+                    : undefined
+                console.log('Extracted key for', img.image_url, ':', extractedKey)
+                const result = {
+                    ...img,
+                    is_primary: img.is_primary || false,
+                    key: extractedKey
+                }
+                console.log('Final image object:', result)
+                return result
+            })
+            setImages(imagesWithKeys)
             setSpecifications(product.productSpecifications || [])
             setOptions(product.productOptions || [])
             setVariants(product.variants || [])
@@ -76,6 +93,7 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
     }, [product])
 
     const [uploadFile] = useMutation(UPLOAD_FILE)
+    const imageManagerRef = useRef<ProductImageManagerRef>(null)
 
     const [updateProduct, { loading: updating }] = useMutation(UPDATE_PRODUCT, {
         onCompleted: (data) => {
@@ -91,48 +109,9 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
         }
     })
 
-    const handleImageUpload = async (files: File[]) => {
-        if (images.length + files.length > 4) {
-            toast.error('Maximum 4 images allowed')
-            return
-        }
 
-        setUploadingImages(true)
-        try {
-            const uploadPromises = files.map(async (file) => {
-                const { data } = await uploadFile({ variables: { file } })
-                return {
-                    image_url: data.uploadImage.url,
-                    is_primary: images.length === 0
-                }
-            })
-
-            const uploadedImages = await Promise.all(uploadPromises)
-            setImages(prev => [...prev, ...uploadedImages])
-            toast.success(`${files.length} image(s) uploaded successfully`)
-        } catch (error) {
-            console.error(error)
-            toast.error('Failed to upload images')
-        } finally {
-            setUploadingImages(false)
-        }
-    }
-
-    const removeImage = (index: number) => {
-        setImages(prev => {
-            const newImages = prev.filter((_, i) => i !== index)
-            if (prev[index]?.is_primary && newImages.length > 0) {
-                newImages[0].is_primary = true
-            }
-            return newImages
-        })
-    }
-
-    const setPrimaryImage = (index: number) => {
-        setImages(prev => prev.map((img, i) => ({
-            ...img,
-            is_primary: i === index
-        })))
+    const handleImagesChange = (newImages: any[]) => {
+        setImages(newImages)
     }
 
     const addSpecification = () => {
@@ -222,6 +201,26 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
 
     const handleSave = async () => {
         try {
+
+            let uploadedImages: ProductImage[] = []
+            if (imageManagerRef.current) {
+                try {
+                    uploadedImages = await imageManagerRef.current.uploadFiles()
+                    if (uploadedImages.length > 0) {
+
+                        const newImages = [...images, ...uploadedImages]
+                        setImages(newImages)
+                        toast.success(`${uploadedImages.length} image(s) uploaded successfully`)
+                    }
+                } catch (error) {
+                    console.error('Image upload failed:', error)
+                    toast.error('Failed to upload images')
+                    return
+                }
+            }
+
+
+            const allImages = [...images, ...uploadedImages]
             await updateProduct({
                 variables: {
                     id: productId,
@@ -232,7 +231,7 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
                     is_returnable: formData.is_returnable,
                     is_public: formData.is_public,
                     product_overview: formData.product_overview,
-                    images: images.map(img => ({
+                    images: allImages.map(img => ({
                         image_url: img.image_url,
                         is_primary: img.is_primary || false
                     })),
@@ -327,63 +326,13 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
                                 <h3 className="text-lg font-semibold">Product Images (Max 4)</h3>
                             </div>
 
-                            {images.length < 4 && (
-                                <div className="space-y-2">
-                                    <Dropzone
-                                        onFilesDrop={handleImageUpload}
-                                        accept="image/*"
-                                        multiple={true}
-                                        className="h-32"
-                                    />
-                                    {uploadingImages && (
-                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            <Loader2 className="h-4 w-4 animate-spin" />
-                                            Uploading images...
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {images.length > 0 && (
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    {images.map((image, index) => (
-                                        <div key={index} className="relative group">
-                                            <div className="aspect-square bg-muted rounded-lg overflow-hidden">
-                                                <img
-                                                    src={image.image_url}
-                                                    alt={`Product ${index + 1}`}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            </div>
-                                            <div className="absolute top-2 right-2 flex gap-1">
-                                                {!image.is_primary && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="secondary"
-                                                        className="h-6 w-6 p-0"
-                                                        onClick={() => setPrimaryImage(index)}
-                                                        title="Set as primary"
-                                                    >
-                                                        <ImageIcon className="h-3 w-3" />
-                                                    </Button>
-                                                )}
-                                                <Button
-                                                    size="sm"
-                                                    variant="destructive"
-                                                    className="h-6 w-6 p-0"
-                                                    onClick={() => removeImage(index)}
-                                                    title="Remove image"
-                                                >
-                                                    <X className="h-3 w-3" />
-                                                </Button>
-                                            </div>
-                                            {image.is_primary && (
-                                                <Badge className="absolute bottom-2 left-2 text-xs">Primary</Badge>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
+                            <ProductImageManager
+                                ref={imageManagerRef}
+                                images={images}
+                                onImagesChange={handleImagesChange}
+                                maxImages={4}
+                                disabled={updating}
+                            />
                         </div>
 
 
@@ -706,7 +655,7 @@ export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormP
                             <Button
                                 onClick={handleSave}
                                 className="flex-1"
-                                disabled={updating || uploadingImages}
+                                disabled={updating}
                             >
                                 <Save className="h-4 w-4 mr-2" />
                                 {updating ? 'Updating...' : 'Update Product'}

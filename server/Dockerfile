@@ -6,6 +6,10 @@ WORKDIR /var/www/html
 
 COPY . .
 
-EXPOSE 8000
+RUN curl -sS https://getcomposer.org/installer | php && \
+    php composer.phar install --no-dev --optimize-autoloader && \
+    rm composer.phar
 
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+EXPOSE 10000
+
+CMD ["php", "-S", "0.0.0.0:${PORT}", "-t", "public"]
