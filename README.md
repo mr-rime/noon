@@ -23,6 +23,11 @@ The goal is to provide a scalable, maintainable, and developer-friendly foundati
 - Docker Compose for local development
 - pnpm
 
+### Deployment
+- **Render** for server-side deployment
+- **Vercel** for client-side deployment
+- **Railway** for database hosting
+
 ---
 
 ## Features
