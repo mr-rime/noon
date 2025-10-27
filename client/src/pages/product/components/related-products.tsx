@@ -4,6 +4,8 @@ import { Carousel } from '@/components/ui/carousel'
 import { ProductsListSkeleton } from '@/components/ui/products-list-skeleton'
 import { GET_RELATED_PRODUCTS } from '@/graphql/related-products'
 import type { ProductType } from '@/types'
+import { safeMap } from '@/utils/safe-operators'
+import { ErrorDisplay } from '@/components/error-display'
 
 interface RelatedProductsProps {
     productId: string
@@ -45,7 +47,21 @@ export function RelatedProducts({ productId, limit = 8 }: RelatedProductsProps) 
 
     const displayProducts = getDisplayProducts()
 
-    if (error || !displayProducts.length) {
+    if (error) {
+        return (
+            <section className="site-container mt-16 mb-8">
+                <ErrorDisplay
+                    title="Failed to load related products"
+                    message="Unable to fetch products you might like"
+                    error={error.message}
+                    onRetry={() => window.location.reload()}
+                    variant="error"
+                />
+            </section>
+        )
+    }
+
+    if (!displayProducts.length) {
         return null
     }
 
@@ -62,7 +78,7 @@ export function RelatedProducts({ productId, limit = 8 }: RelatedProductsProps) 
                         className="w-full"
                         controlClassName="flex items-center justify-center bg-white cursor-pointer w-[30px] h-[30px] shadow-[0_0_3px_-1px_rgba(0,0,0,.5)] border border-[#ccc]"
                     >
-                        {displayProducts.map((product) => (
+                        {safeMap(displayProducts, (product) => (
                             <Product key={product.id} {...product} />
                         ))}
                     </Carousel>

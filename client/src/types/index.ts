@@ -34,7 +34,7 @@ export type ProductImage = {
   id?: string
   image_url: string
   is_primary: boolean
-  key?: string // UploadThing file key for deletion
+  key?: string
 }
 
 export type ProductVariant = {

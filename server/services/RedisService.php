@@ -14,7 +14,7 @@ class RedisService
 
     private function loadPredis(): void
     {
-        // Try to load Predis if not already loaded
+
         if (!class_exists('Predis\\Client')) {
             $autoloadPath = __DIR__ . '/../../vendor/autoload.php';
             if (file_exists($autoloadPath)) {
@@ -42,7 +42,7 @@ class RedisService
             $host = $_ENV['REDIS_HOST'] ?? getenv('REDIS_HOST') ?? '127.0.0.1';
             $port = (int) ($_ENV['REDIS_PORT'] ?? getenv('REDIS_PORT') ?? 6379);
 
-            // If host is 'redis' (Docker service name), try localhost for local development
+
             if ($host === 'redis' && !$this->isDockerEnvironment()) {
                 $host = '127.0.0.1';
             }
@@ -66,14 +66,14 @@ class RedisService
             $this->redis->ping();
 
         } catch (Exception $e) {
-            // Silently fail - app will use database instead
+
             $this->redis = null;
         }
     }
 
     private function isDockerEnvironment(): bool
     {
-        // Check if we're running in Docker by looking for Docker-specific environment variables
+
         return getenv('DOCKER_CONTAINER') !== false ||
             getenv('REDIS_HOST') === 'redis' ||
             file_exists('/.dockerenv');

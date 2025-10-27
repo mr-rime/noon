@@ -143,7 +143,7 @@ export const ProductImageManager = forwardRef<ProductImageManagerRef, ProductIma
                     id: Date.now().toString() + index,
                     image_url: img.image_url,
                     is_primary: images.length === 0 && index === 0,
-                    key: img.key // Store the UploadThing key for deletion
+                    key: img.key
                 }))
 
 
@@ -239,7 +239,7 @@ export const ProductImageManager = forwardRef<ProductImageManagerRef, ProductIma
 
     return (
         <div className="space-y-4">
-            {/* Image Guidelines */}
+            { }
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <h4 className="font-medium text-blue-900 mb-2">Image Guidelines</h4>
                 <ul className="text-sm text-blue-800 space-y-1">
@@ -249,7 +249,7 @@ export const ProductImageManager = forwardRef<ProductImageManagerRef, ProductIma
                 </ul>
             </div>
 
-            {/* Upload Zone */}
+            { }
             <Dropzone
                 onFilesDrop={handleImageUpload}
                 accept="image/*"
@@ -289,7 +289,7 @@ export const ProductImageManager = forwardRef<ProductImageManagerRef, ProductIma
                                     />
                                 </div>
 
-                                {/* Remove Button */}
+                                { }
                                 <Button
                                     className={`absolute top-2 right-2 h-6 w-6 p-0 transition-opacity ${uploading
                                         ? 'opacity-50 cursor-not-allowed'
@@ -302,7 +302,7 @@ export const ProductImageManager = forwardRef<ProductImageManagerRef, ProductIma
                                     <X className="h-3 w-3" />
                                 </Button>
 
-                                {/* File Info */}
+                                { }
                                 <div className="absolute bottom-2 left-2 right-2 bg-black/70 text-white text-xs p-1 rounded">
                                     <div className="truncate">{file.name}</div>
                                     <div>{(file.size / 1024 / 1024).toFixed(1)}MB</div>
@@ -313,7 +313,7 @@ export const ProductImageManager = forwardRef<ProductImageManagerRef, ProductIma
                 </div>
             )}
 
-            {/* Image Grid */}
+            { }
             {images.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {images.map((image, index) => (
@@ -326,14 +326,14 @@ export const ProductImageManager = forwardRef<ProductImageManagerRef, ProductIma
                                 />
                             </div>
 
-                            {/* Primary Badge */}
+                            { }
                             {image.is_primary && (
                                 <Badge className="absolute bottom-2 left-2 bg-blue-600 text-white">
                                     Primary
                                 </Badge>
                             )}
 
-                            {/* Delete Button */}
+                            { }
                             <Button
                                 className={`absolute top-2 right-2 h-6 w-6 p-0 transition-opacity ${uploading
                                     ? 'opacity-50 cursor-not-allowed'
@@ -350,7 +350,7 @@ export const ProductImageManager = forwardRef<ProductImageManagerRef, ProductIma
                                 )}
                             </Button>
 
-                            {/* Set Primary Button */}
+                            { }
                             {!image.is_primary && (
                                 <Button
                                     className="absolute bottom-2 right-2 h-6 px-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity bg-gray-500 hover:bg-gray-600 text-white"

@@ -21,24 +21,24 @@ export default function HierarchicalCategoryFilter({
     if (selectedCategories.length > 0 && categories.length > 0) {
       const toExpand: string[] = []
 
-      // const checkAndExpand = (cats: Category[], parentIds: string[] = []) => {
-      //   cats.forEach(cat => {
-      //     const hasSelectedChild = cat.children?.some(child =>
-      //       selectedCategories.includes(child.category_id) ||
-      //       selectedCategories.includes(`all_${child.category_id}`)
-      //     )
 
-      //     if (hasSelectedChild || selectedCategories.includes(cat.category_id) || selectedCategories.includes(`all_${cat.category_id}`)) {
-      //       toExpand.push(...parentIds, cat.category_id)
-      //     }
 
-      //     if (cat.children) {
-      //       checkAndExpand(cat.children, [...parentIds, cat.category_id])
-      //     }
-      //   })
-      // }
 
-      // checkAndExpand(categories)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       setExpandedCategories(prev => [...new Set([...prev, ...toExpand])])
     }
   }, [selectedCategories, categories])
