@@ -12,10 +12,6 @@ class Cart
     {
         $this->db = $db;
         $this->productModel = new Product($db);
-
-        if (!isset($_SESSION['guest_cart'])) {
-            $_SESSION['guest_cart'] = [];
-        }
     }
 
     private function isGuest(?int $userId): bool
@@ -23,16 +19,36 @@ class Cart
         return !$userId || !isset($_SESSION['user']);
     }
 
+    /**
+     * Generate a unique guest cart identifier
+     * This can be based on session ID, IP address, or a combination
+     */
+    private function generateGuestCartId(): string
+    {
+
+        $sessionId = session_id();
+        if ($sessionId) {
+            return 'guest_' . substr(md5($sessionId), 0, 16);
+        }
+
+
+        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
+        return 'guest_' . substr(md5($ip . $userAgent), 0, 16);
+    }
+
     public function getCartItems(?int $userId): array
     {
 
-        if (!$this->isGuest($userId) && !empty($_SESSION['guest_cart'])) {
-            $this->mergeGuestCartWithUserCart($userId);
-        }
+        $this->cleanupExpiredGuestCarts();
 
-        return $this->isGuest($userId)
-            ? $this->getCartItemsFromSession()
-            : $this->getCartItemsFromDatabase($userId);
+        if (!$this->isGuest($userId)) {
+
+            return $this->getCartItemsFromDatabase($userId);
+        } else {
+
+            return $this->getCartItemsFromGuestCart();
+        }
     }
 
     private function getCartItemsFromDatabase(int $userId): array
@@ -73,25 +89,39 @@ class Cart
         return $items;
     }
 
-    private function getCartItemsFromSession(): array
+    private function getCartItemsFromGuestCart(): array
     {
+        $guestCartId = $this->generateGuestCartId();
+        $cartId = $this->getOrCreateGuestCart($guestCartId);
+
+        $query = "
+            SELECT ci.*, p.name, p.stock, p.price as original_price, p.currency, p.id as product_id
+            FROM cart_items ci
+            JOIN products p ON ci.product_id = p.id
+            WHERE ci.cart_id = ?
+        ";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("s", $cartId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
         $items = [];
-
-        foreach ($_SESSION['guest_cart'] as $productId => $quantity) {
-            $product = $this->productModel->findById($productId);
-            if (!$product)
-                continue;
-
+        while ($row = $result->fetch_assoc()) {
+            $product = $this->productModel->findById($row['product_id']);
             $items[] = [
-                'product_id' => $productId,
-                'name' => $product['name'],
-                'quantity' => $quantity,
-                'currency' => $product['currency'],
-                'price' => $product['price'],
-                'final_price' => $product['final_price'],
-                'discount_percentage' => $product['discount_percentage'],
+                'id' => $row['id'],
+                'product_id' => $row['product_id'],
+                'name' => $row['name'],
+                'quantity' => (int) $row['quantity'],
+                'currency' => $row['currency'],
+                'price' => (float) $row['price'],
+                'final_price' => $product['final_price'] ?? $row['price'],
+                'discount_percentage' => $product['discount_percentage'] ?? null,
                 'images' => $product['images'] ?? [],
-                'stock' => $product['stock'],
+                'stock' => (int) $product['stock'],
+                'created_at' => $row['created_at'],
+                'updated_at' => $row['updated_at']
             ];
         }
 
@@ -111,11 +141,12 @@ class Cart
             return null;
 
         if ($this->isGuest($userId)) {
-            $_SESSION['guest_cart'][$productId] = ($_SESSION['guest_cart'][$productId] ?? 0) + $quantity;
-            return $this->getCartItemsFromSession();
+            $guestCartId = $this->generateGuestCartId();
+            $cartId = $this->getOrCreateGuestCart($guestCartId);
+        } else {
+            $cartId = $this->getOrCreateCart($userId);
         }
 
-        $cartId = $this->getOrCreateCart($userId);
         $price = $product['final_price'] ?? $product['price'];
         $currency = $product['currency'];
 
@@ -139,7 +170,7 @@ class Cart
             $insert->execute();
         }
 
-        return $this->getCartItemsFromDatabase($userId);
+        return $this->getCartItems($userId);
     }
 
     public function updateItemQuantity(?int $userId, string $productId, int $newQuantity): bool
@@ -148,14 +179,12 @@ class Cart
             return false;
 
         if ($this->isGuest($userId)) {
-            if (isset($_SESSION['guest_cart'][$productId])) {
-                $_SESSION['guest_cart'][$productId] = $newQuantity;
-                return true;
-            }
-            return false;
+            $guestCartId = $this->generateGuestCartId();
+            $cartId = $this->getOrCreateGuestCart($guestCartId);
+        } else {
+            $cartId = $this->getOrCreateCart($userId);
         }
 
-        $cartId = $this->getOrCreateCart($userId);
         $stmt = $this->db->prepare("UPDATE cart_items SET quantity = ?, updated_at = CURRENT_TIMESTAMP WHERE cart_id = ? AND product_id = ?");
         $stmt->bind_param("iss", $newQuantity, $cartId, $productId);
         return $stmt->execute();
@@ -164,11 +193,12 @@ class Cart
     public function removeItem(?int $userId, string $productId): bool
     {
         if ($this->isGuest($userId)) {
-            unset($_SESSION['guest_cart'][$productId]);
-            return true;
+            $guestCartId = $this->generateGuestCartId();
+            $cartId = $this->getOrCreateGuestCart($guestCartId);
+        } else {
+            $cartId = $this->getOrCreateCart($userId);
         }
 
-        $cartId = $this->getOrCreateCart($userId);
         $stmt = $this->db->prepare("DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?");
         $stmt->bind_param("ss", $cartId, $productId);
         return $stmt->execute();
@@ -177,11 +207,12 @@ class Cart
     public function clearCart(?int $userId): bool
     {
         if ($this->isGuest($userId)) {
-            $_SESSION['guest_cart'] = [];
-            return true;
+            $guestCartId = $this->generateGuestCartId();
+            $cartId = $this->getOrCreateGuestCart($guestCartId);
+        } else {
+            $cartId = $this->getOrCreateCart($userId);
         }
 
-        $cartId = $this->getOrCreateCart($userId);
         $stmt = $this->db->prepare("DELETE FROM cart_items WHERE cart_id = ?");
         $stmt->bind_param("s", $cartId);
         return $stmt->execute();
@@ -197,14 +228,23 @@ class Cart
 
     public function mergeGuestCartWithUserCart(int $userId): void
     {
-        if (empty($_SESSION['guest_cart']))
-            return;
+        $guestCartId = $this->generateGuestCartId();
+        $guestCartId = $this->getOrCreateGuestCart($guestCartId);
 
-        foreach ($_SESSION['guest_cart'] as $productId => $quantity) {
-            $this->addItem($userId, $productId, $quantity);
+
+        $guestItems = $this->getCartItemsFromGuestCart();
+
+        if (empty($guestItems)) {
+            return;
         }
 
-        $_SESSION['guest_cart'] = [];
+
+        foreach ($guestItems as $item) {
+            $this->addItem($userId, $item['product_id'], $item['quantity']);
+        }
+
+
+        $this->clearGuestCart($guestCartId);
     }
 
     private function getOrCreateCart(int $userId): string
@@ -224,5 +264,42 @@ class Cart
         $insert->execute();
 
         return $cartId;
+    }
+
+    private function getOrCreateGuestCart(string $guestCartId): string
+    {
+        $stmt = $this->db->prepare("SELECT id FROM carts WHERE guest_cart_id = ? AND is_guest_cart = 1");
+        $stmt->bind_param("s", $guestCartId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($row = $result->fetch_assoc()) {
+
+            $update = $this->db->prepare("UPDATE carts SET expires_at = DATE_ADD(NOW(), INTERVAL 7 DAY) WHERE id = ?");
+            $update->bind_param("s", $row['id']);
+            $update->execute();
+            return $row['id'];
+        }
+
+        $cartId = generateHash();
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+7 days'));
+        $insert = $this->db->prepare("INSERT INTO carts (id, guest_cart_id, is_guest_cart, expires_at) VALUES (?, ?, 1, ?)");
+        $insert->bind_param("sss", $cartId, $guestCartId, $expiresAt);
+        $insert->execute();
+
+        return $cartId;
+    }
+
+    private function clearGuestCart(string $cartId): void
+    {
+        $stmt = $this->db->prepare("DELETE FROM cart_items WHERE cart_id = ?");
+        $stmt->bind_param("s", $cartId);
+        $stmt->execute();
+    }
+
+    private function cleanupExpiredGuestCarts(): void
+    {
+        $stmt = $this->db->prepare("DELETE FROM carts WHERE is_guest_cart = 1 AND expires_at < NOW()");
+        $stmt->execute();
     }
 }

@@ -1,13 +1,36 @@
 <?php
 
 require_once __DIR__ . "/../../models/Cart.php";
+require_once __DIR__ . "/../../models/SessionManager.php";
+
+function getUserId(): ?int
+{
+
+    if (isset($GLOBALS['db']) && $GLOBALS['db'] instanceof mysqli) {
+        $sessionManager = new SessionManager($GLOBALS['db']);
+        $sessionId = $sessionManager->getSessionId();
+        $user = $sessionManager->getUser($sessionId);
+
+        if ($user && isset($user['id'])) {
+            return $user['id'];
+        }
+    }
+
+
+    if (isset($_SESSION['user']) && isset($_SESSION['user']['id'])) {
+        return $_SESSION['user']['id'];
+    }
+
+    return null;
+}
 
 function getCart(mysqli $db): array
 {
     try {
         $cart = new Cart($db);
 
-        $userId = $_SESSION['user']['id'] ?? null;
+
+        $userId = getUserId();
         $items = $cart->getCartItems($userId);
 
         return [
@@ -28,7 +51,7 @@ function removeFromCart(mysqli $db, array $args, array $context): array
 {
     try {
         $cart = new Cart($db);
-        $userId = $_SESSION['user']['id'] ?? null;
+        $userId = getUserId();
 
         $success = $cart->removeItem($userId, $args['product_id']);
         return [
@@ -50,7 +73,7 @@ function addToCart(mysqli $db, array $args): array
     try {
         $cart = new Cart($db);
 
-        $userId = $_SESSION['user']['id'] ?? null;
+        $userId = getUserId();
         $productId = $args['product_id'] ?? null;
         $quantity = $args['quantity'] ?? 1;
 
@@ -75,6 +98,39 @@ function addToCart(mysqli $db, array $args): array
         return [
             'success' => true,
             'message' => 'Item added to cart.',
+            'cartItems' => $items
+        ];
+    } catch (Exception $e) {
+        return [
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage(),
+            'cartItems' => []
+        ];
+    }
+}
+
+function mergeGuestCart(mysqli $db): array
+{
+    try {
+        $cart = new Cart($db);
+
+        $userId = getUserId();
+
+        if (!$userId) {
+            return [
+                'success' => false,
+                'message' => 'User must be logged in to merge cart.',
+                'cartItems' => []
+            ];
+        }
+
+        $cart->mergeGuestCartWithUserCart($userId);
+
+        $items = $cart->getCartItems($userId);
+
+        return [
+            'success' => true,
+            'message' => 'Guest cart merged successfully.',
             'cartItems' => $items
         ];
     } catch (Exception $e) {

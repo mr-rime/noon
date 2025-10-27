@@ -4,15 +4,18 @@ use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\ValidationException;
 require_once __DIR__ . '/../utils/generateHash.php';
 require_once __DIR__ . '/../log/logger.php';
+require_once __DIR__ . '/../models/SessionManager.php';
 
 
 class AuthService
 {
     private mysqli|null $db;
+    private SessionManager $sessionManager;
 
     public function __construct(mysqli|null $db)
     {
         $this->db = $db;
+        $this->sessionManager = new SessionManager($db);
     }
 
     public function login(string $email, string $password)
@@ -42,12 +45,15 @@ class AuthService
             ];
         }
 
+
+        $sessionId = $this->sessionManager->getSessionId();
+        $this->sessionManager->startSession($currentUser['id']);
+        $this->sessionManager->setUser($sessionId, $currentUser);
+
+
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
-            session_regenerate_id(true);
         }
-
-
         $_SESSION['user'] = $currentUser;
 
         $duration = round((microtime(true) - $start) * 1000, 2);
@@ -70,6 +76,17 @@ class AuthService
         $start = microtime(true);
         $userModel = new User($this->db);
 
+
+        $existingUser = $userModel->findByEmail($data['email']);
+        if ($existingUser) {
+            $this->logRegister($data['email'], false, $start, "Duplicate email");
+            return [
+                'success' => false,
+                'message' => 'Email is already registered',
+                'user' => null,
+            ];
+        }
+
         try {
             $hashedPassword = password_hash($data['password'], PASSWORD_BCRYPT);
 
@@ -91,6 +108,11 @@ class AuthService
             }
 
 
+            $sessionId = $this->sessionManager->getSessionId();
+            $this->sessionManager->startSession($newUser['id']);
+            $this->sessionManager->setUser($sessionId, $newUser);
+
+
             if (session_status() !== PHP_SESSION_ACTIVE) {
                 session_start();
             }
@@ -104,17 +126,7 @@ class AuthService
                 'user' => $newUser,
             ];
 
-        } catch (\PDOException $e) {
-
-            if ($e->errorInfo[1] == 1062) {
-                $this->logRegister($data['email'], false, $start, "Duplicate email");
-                return [
-                    'success' => false,
-                    'message' => 'Email is already registered',
-                    'user' => null,
-                ];
-            }
-
+        } catch (\Exception $e) {
             $this->logRegister($data['email'], false, $start, $e->getMessage());
             throw $e;
         }
@@ -134,6 +146,17 @@ class AuthService
 
     public function logout()
     {
+        $sessionId = $this->sessionManager->getSessionId();
+
+
+        $user = $this->sessionManager->getUser($sessionId);
+
+
+        if ($user) {
+            $this->sessionManager->clearUser($sessionId);
+        }
+
+
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
@@ -156,18 +179,12 @@ class AuthService
                     $params['httponly']
                 );
             }
-
-            return [
-                'success' => true,
-                'message' => 'Logged out successfully',
-                'user' => null
-            ];
         }
 
         return [
-            'success' => false,
-            'message' => 'No active session to destroy',
-            'user' => null,
+            'success' => true,
+            'message' => 'Logged out successfully',
+            'user' => null
         ];
     }
 }

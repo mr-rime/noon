@@ -1,7 +1,6 @@
 import { useMutation } from '@apollo/client'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Cookies from 'js-cookie'
-import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { type SubmitHandler, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -12,6 +11,7 @@ import type { User } from '../../../types'
 import { animateElement } from '../../../utils/animateElement'
 import { cn } from '../../../utils/cn'
 import { Input } from '../../ui/input'
+import { BouncingLoading } from '@/components/ui/bouncing-loading'
 import { SignupFormSchema, type SignupFormSchemaType } from '../schema/schema'
 import type { SignupFormContentProps } from '@/types/auth'
 
@@ -218,7 +218,7 @@ export function SignupFormContent({
         <button
           type="submit"
           className="mt-4 flex h-[48px] w-full cursor-pointer items-center justify-center rounded-lg bg-[#3866df] p-[16px] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#3e72f7]">
-          {loading ? <Loader2 size={20} className="animate-spin transition-all" /> : 'Sign up'}
+          {loading ? <BouncingLoading /> : 'Sign up'}
         </button>
       )}
     </form>

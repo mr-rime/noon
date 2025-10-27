@@ -136,9 +136,17 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
         try {
 
             const isDashboard = window.location.hostname === 'dashboard.localhost'
-            const graphqlUrl = isDashboard
-                ? 'http://dashboard.localhost:8000/graphql'
-                : 'http://localhost:8000/graphql'
+            const hostname = window.location.hostname
+
+            let graphqlUrl = 'http://localhost:8000/graphql'
+
+            if (isDashboard) {
+                graphqlUrl = 'http://dashboard.localhost:8000/graphql'
+            } else if (hostname === 'noon-market.vercel.app') {
+                graphqlUrl = 'https://noon-btwv.onrender.com/graphql'
+            } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                graphqlUrl = 'http://localhost:8000/graphql'
+            }
 
             const response = await fetch(graphqlUrl, {
                 method: 'POST',
