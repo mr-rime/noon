@@ -2,16 +2,19 @@
 
 require_once __DIR__ . '/../utils/generateHash.php';
 require_once __DIR__ . '/Product.php';
+require_once __DIR__ . '/../services/CacheManager.php';
 
 class Cart
 {
     private mysqli $db;
     private Product $productModel;
+    private CacheManager $cache;
 
     public function __construct(mysqli $db)
     {
         $this->db = $db;
         $this->productModel = new Product($db);
+        $this->cache = new CacheManager();
     }
 
     private function isGuest(?int $userId): bool
@@ -19,10 +22,7 @@ class Cart
         return !$userId || !isset($_SESSION['user']);
     }
 
-    /**
-     * Generate a unique guest cart identifier
-     * This can be based on session ID, IP address, or a combination
-     */
+
     private function generateGuestCartId(): string
     {
 
@@ -39,15 +39,19 @@ class Cart
 
     public function getCartItems(?int $userId): array
     {
-
         $this->cleanupExpiredGuestCarts();
 
         if (!$this->isGuest($userId)) {
-
-            return $this->getCartItemsFromDatabase($userId);
+            $cacheKey = "cart:user:{$userId}";
+            return $this->cache->getCart($cacheKey, function () use ($userId) {
+                return $this->getCartItemsFromDatabase($userId);
+            });
         } else {
-
-            return $this->getCartItemsFromGuestCart();
+            $guestCartId = $this->generateGuestCartId();
+            $cacheKey = "cart:guest:{$guestCartId}";
+            return $this->cache->getCart($cacheKey, function () {
+                return $this->getCartItemsFromGuestCart();
+            });
         }
     }
 
@@ -170,7 +174,17 @@ class Cart
             $insert->execute();
         }
 
-        return $this->getCartItems($userId);
+        $items = $this->getCartItems($userId);
+
+
+        if ($this->isGuest($userId)) {
+            $guestCartId = $this->generateGuestCartId();
+            $this->cache->invalidateCart("cart:guest:{$guestCartId}");
+        } else {
+            $this->cache->invalidateCart("cart:user:{$userId}");
+        }
+
+        return $items;
     }
 
     public function updateItemQuantity(?int $userId, string $productId, int $newQuantity): bool
@@ -186,8 +200,19 @@ class Cart
         }
 
         $stmt = $this->db->prepare("UPDATE cart_items SET quantity = ?, updated_at = CURRENT_TIMESTAMP WHERE cart_id = ? AND product_id = ?");
-        $stmt->bind_param("iss", $newQuantity, $cartId, $productId);
-        return $stmt->execute();
+        $result = $stmt->execute();
+
+        if ($result) {
+
+            if ($this->isGuest($userId)) {
+                $guestCartId = $this->generateGuestCartId();
+                $this->cache->invalidateCart("cart:guest:{$guestCartId}");
+            } else {
+                $this->cache->invalidateCart("cart:user:{$userId}");
+            }
+        }
+
+        return $result;
     }
 
     public function removeItem(?int $userId, string $productId): bool
@@ -200,8 +225,19 @@ class Cart
         }
 
         $stmt = $this->db->prepare("DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?");
-        $stmt->bind_param("ss", $cartId, $productId);
-        return $stmt->execute();
+        $result = $stmt->execute();
+
+        if ($result) {
+
+            if ($this->isGuest($userId)) {
+                $guestCartId = $this->generateGuestCartId();
+                $this->cache->invalidateCart("cart:guest:{$guestCartId}");
+            } else {
+                $this->cache->invalidateCart("cart:user:{$userId}");
+            }
+        }
+
+        return $result;
     }
 
     public function clearCart(?int $userId): bool
@@ -214,8 +250,19 @@ class Cart
         }
 
         $stmt = $this->db->prepare("DELETE FROM cart_items WHERE cart_id = ?");
-        $stmt->bind_param("s", $cartId);
-        return $stmt->execute();
+        $result = $stmt->execute();
+
+        if ($result) {
+
+            if ($this->isGuest($userId)) {
+                $guestCartId = $this->generateGuestCartId();
+                $this->cache->invalidateCart("cart:guest:{$guestCartId}");
+            } else {
+                $this->cache->invalidateCart("cart:user:{$userId}");
+            }
+        }
+
+        return $result;
     }
 
     public function deleteCart(int $userId): bool

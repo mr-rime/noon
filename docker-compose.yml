@@ -16,6 +16,18 @@ services:
     networks:
       - noon-dev-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: noon-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - noon-dev-network
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+
   server:
     build:
       context: ./server
@@ -30,16 +42,21 @@ services:
       - DB_USER=${DB_USER:-noon_user}
       - DB_PASSWORD=${DB_PASSWORD:-noon_password}
       - DB_PORT=3306
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     volumes:
       - ./server:/var/www/html
       - ./server/public/uploads:/var/www/html/public/uploads
     depends_on:
       - mysql
+      - redis
     networks:
       - noon-dev-network
 
 volumes:
   mysql_dev_data:
+    driver: local
+  redis_dev_data:
     driver: local
 
 networks:

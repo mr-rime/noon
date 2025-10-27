@@ -169,9 +169,7 @@ class UploadThingService
         }
     }
 
-    /**
-     * Delete multiple files using the v6/deleteFiles endpoint
-     */
+
     public function deleteFiles(array $fileKeys): array
     {
         try {

@@ -1,18 +1,20 @@
 <?php
 
+require_once __DIR__ . '/../services/RedisService.php';
+
 class SessionManager
 {
     private mysqli $db;
-    private const SESSION_LIFETIME = 259200; // 3 days in seconds
+    private RedisService $redis;
+    private const SESSION_LIFETIME = 259200;
 
     public function __construct(mysqli $db)
     {
         $this->db = $db;
+        $this->redis = RedisService::getInstance();
     }
 
-    /**
-     * Get current session ID from cookie or generate new one
-     */
+
     public function getSessionId(): string
     {
         $sessionName = session_name();
@@ -25,17 +27,13 @@ class SessionManager
         return $this->generateSessionId();
     }
 
-    /**
-     * Generate a unique session ID
-     */
+
     private function generateSessionId(): string
     {
         return bin2hex(random_bytes(32));
     }
 
-    /**
-     * Start or resume a session
-     */
+
     public function startSession(?int $userId = null): void
     {
         $sessionId = $this->getSessionId();
@@ -55,13 +53,20 @@ class SessionManager
         }
     }
 
-    /**
-     * Get session data from database
-     */
+
     public function getSessionData(string $sessionId): ?array
     {
+
+        $cacheKey = "session:{$sessionId}";
+        $session = $this->redis->get($cacheKey);
+
+        if ($session !== null) {
+            return $session;
+        }
+
+
         $stmt = $this->db->prepare("
-            SELECT data, user_id 
+            SELECT data, user_id, expires_at
             FROM sessions 
             WHERE id = ? AND expires_at > NOW()
         ");
@@ -74,15 +79,18 @@ class SessionManager
             if ($row['user_id']) {
                 $data['user_id'] = $row['user_id'];
             }
+
+
+            $ttl = max(1, strtotime($row['expires_at']) - time());
+            $this->redis->set($cacheKey, $data, $ttl);
+
             return $data;
         }
 
         return null;
     }
 
-    /**
-     * Create a new session in database
-     */
+
     private function createSession(string $sessionId, ?int $userId = null): void
     {
         $data = [];
@@ -97,11 +105,13 @@ class SessionManager
         $dataJson = json_encode($data);
         $stmt->bind_param("sissss", $sessionId, $userId, $dataJson, $ipAddress, $userAgent, $expiresAt);
         $stmt->execute();
+
+
+        $cacheKey = "session:{$sessionId}";
+        $this->redis->set($cacheKey, $data, self::SESSION_LIFETIME);
     }
 
-    /**
-     * Update session data
-     */
+
     public function updateSession(string $sessionId, array $data): void
     {
         $expiresAt = date('Y-m-d H:i:s', time() + self::SESSION_LIFETIME);
@@ -116,20 +126,15 @@ class SessionManager
         $stmt->execute();
     }
 
-    /**
-     * Set user in session
-     */
+
     public function setUser(string $sessionId, array $userData): void
     {
         $userId = $userData['id'] ?? null;
 
-
         $session = $this->getSessionData($sessionId);
         $data = $session ?? [];
 
-
         $data['user'] = $userData;
-
 
         $expiresAt = date('Y-m-d H:i:s', time() + self::SESSION_LIFETIME);
         $dataJson = json_encode($data);
@@ -141,11 +146,13 @@ class SessionManager
         ");
         $stmt->bind_param("siss", $dataJson, $userId, $expiresAt, $sessionId);
         $stmt->execute();
+
+
+        $cacheKey = "session:{$sessionId}";
+        $this->redis->set($cacheKey, $data, self::SESSION_LIFETIME);
     }
 
-    /**
-     * Get user from session
-     */
+
     public function getUser(string $sessionId): ?array
     {
         $session = $this->getSessionData($sessionId);
@@ -157,9 +164,7 @@ class SessionManager
         return null;
     }
 
-    /**
-     * Clear user from session
-     */
+
     public function clearUser(string $sessionId): void
     {
         $session = $this->getSessionData($sessionId);
@@ -176,22 +181,26 @@ class SessionManager
             ");
             $stmt->bind_param("ss", $dataJson, $sessionId);
             $stmt->execute();
+
+
+            $cacheKey = "session:{$sessionId}";
+            $this->redis->set($cacheKey, $session, self::SESSION_LIFETIME);
         }
     }
 
-    /**
-     * Destroy session
-     */
+
     public function destroySession(string $sessionId): void
     {
         $stmt = $this->db->prepare("DELETE FROM sessions WHERE id = ?");
         $stmt->bind_param("s", $sessionId);
         $stmt->execute();
+
+
+        $cacheKey = "session:{$sessionId}";
+        $this->redis->delete($cacheKey);
     }
 
-    /**
-     * Update session expiration time
-     */
+
     private function updateSessionExpiration(string $sessionId): void
     {
         $expiresAt = date('Y-m-d H:i:s', time() + self::SESSION_LIFETIME);
@@ -205,18 +214,14 @@ class SessionManager
         $stmt->execute();
     }
 
-    /**
-     * Clean up expired sessions
-     */
+
     public function cleanupExpiredSessions(): void
     {
         $stmt = $this->db->prepare("DELETE FROM sessions WHERE expires_at < NOW()");
         $stmt->execute();
     }
 
-    /**
-     * Destroy all sessions for a specific user
-     */
+
     public function destroyUserSessions(int $userId): void
     {
         $stmt = $this->db->prepare("DELETE FROM sessions WHERE user_id = ?");

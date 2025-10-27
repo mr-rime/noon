@@ -11,6 +11,7 @@ require_once __DIR__ . '/Category.php';
 require_once __DIR__ . '/Subcategory.php';
 require_once __DIR__ . '/Brand.php';
 require_once __DIR__ . '/../utils/generateHash.php';
+require_once __DIR__ . '/../services/CacheManager.php';
 
 class Product
 {
@@ -21,6 +22,7 @@ class Product
     private ProductGroup $groupModel;
     private Category $categoryModel;
     private Brand $brandModel;
+    private CacheManager $cache;
 
     public function __construct(mysqli $db)
     {
@@ -31,6 +33,7 @@ class Product
         $this->groupModel = new ProductGroup($db);
         $this->categoryModel = new Category($db);
         $this->brandModel = new Brand($db);
+        $this->cache = new CacheManager();
     }
 
 
@@ -475,6 +478,15 @@ class Product
 
     public function findById(string $id, bool $publicOnly = false): ?array
     {
+        $cacheKey = "product:{$id}:" . ($publicOnly ? 'public' : 'all');
+
+        return $this->cache->getProduct($cacheKey, function () use ($id, $publicOnly) {
+            return $this->findByIdFromDatabase($id, $publicOnly);
+        });
+    }
+
+    private function findByIdFromDatabase(string $id, bool $publicOnly = false): ?array
+    {
         $query = "
             SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary,
                 c.name as category_name, s.name as subcategory_name, b.name as brand_name,
@@ -836,6 +848,11 @@ class Product
             }
         }
 
+
+        if ($createdProduct) {
+            $this->cache->invalidateProduct($createdProduct['id']);
+        }
+
         return $createdProduct;
     }
 
@@ -979,7 +996,14 @@ class Product
             $this->setProductAttributes($id, $data['productAttributes']);
         }
 
-        return $this->findById($id);
+        $updatedProduct = $this->findById($id);
+
+
+        if ($updatedProduct) {
+            $this->cache->invalidateProduct($id);
+        }
+
+        return $updatedProduct;
     }
 
 
@@ -1052,9 +1076,7 @@ class Product
         }
     }
 
-    /**
-     * Get product rating data (average rating and review count)
-     */
+
     private function getProductRatingData(string $productId): array
     {
         try {
