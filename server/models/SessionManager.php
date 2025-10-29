@@ -18,13 +18,16 @@ class SessionManager
     public function getSessionId(): string
     {
         $sessionName = session_name();
+        error_log('SessionManager.getSessionId: using session name ' . $sessionName);
 
         if (isset($_COOKIE[$sessionName])) {
             return $_COOKIE[$sessionName];
         }
 
 
-        return $this->generateSessionId();
+        $newId = $this->generateSessionId();
+        error_log('SessionManager.getSessionId: no cookie found, generated id ' . substr($newId, 0, 8) . '...');
+        return $newId;
     }
 
 
@@ -37,12 +40,37 @@ class SessionManager
     public function startSession(?int $userId = null): void
     {
         $sessionId = $this->getSessionId();
+        $sessionName = session_name();
+        error_log('SessionManager.startSession: ensuring cookie ' . json_encode([
+            'session_name' => $sessionName,
+            'id_prefix' => substr($sessionId, 0, 8)
+        ]));
+
+        if (!isset($_COOKIE[$sessionName])) {
+            $cookieParams = session_get_cookie_params();
+
+            setcookie(
+                $sessionName,
+                $sessionId,
+                [
+                    'expires' => time() + self::SESSION_LIFETIME,
+                    'path' => $cookieParams['path'] ?: '/',
+                    'domain' => $cookieParams['domain'] ?: '',
+                    'secure' => (bool) $cookieParams['secure'],
+                    'httponly' => true,
+                    'samesite' => $cookieParams['samesite'] ?: 'Lax',
+                ]
+            );
+            $_COOKIE[$sessionName] = $sessionId;
+            error_log('SessionManager.startSession: cookie set');
+        }
 
 
         $this->cleanupExpiredSessions();
 
 
         $session = $this->getSessionData($sessionId);
+        error_log('SessionManager.setStore: current session data keys ' . json_encode(array_keys($session ?? [])));
 
         if ($session === null) {
 
@@ -109,6 +137,9 @@ class SessionManager
 
         $cacheKey = "session:{$sessionId}";
         $this->redis->set($cacheKey, $data, self::SESSION_LIFETIME);
+        error_log('SessionManager.setStore: store saved ' . json_encode([
+            'id_prefix' => substr($sessionId, 0, 8)
+        ]));
     }
 
 
@@ -150,6 +181,68 @@ class SessionManager
 
         $cacheKey = "session:{$sessionId}";
         $this->redis->set($cacheKey, $data, self::SESSION_LIFETIME);
+    }
+
+
+    public function setStore(string $sessionId, array $storeData): void
+    {
+        $session = $this->getSessionData($sessionId);
+        $data = $session ?? [];
+
+        $data['store'] = $storeData;
+
+        $expiresAt = date('Y-m-d H:i:s', time() + self::SESSION_LIFETIME);
+        $dataJson = json_encode($data);
+
+        $stmt = $this->db->prepare("
+            UPDATE sessions 
+            SET data = ?, expires_at = ?
+            WHERE id = ?
+        ");
+        $stmt->bind_param("sss", $dataJson, $expiresAt, $sessionId);
+        $stmt->execute();
+
+        $cacheKey = "session:{$sessionId}";
+        $this->redis->set($cacheKey, $data, self::SESSION_LIFETIME);
+    }
+
+
+    public function getStore(string $sessionId): ?array
+    {
+        $session = $this->getSessionData($sessionId);
+        error_log('SessionManager.getStore: data present ' . json_encode([
+            'has_session' => (bool) $session,
+            'keys' => $session ? array_keys($session) : []
+        ]));
+
+        if ($session && isset($session['store'])) {
+            return $session['store'];
+        }
+
+        return null;
+    }
+
+
+    public function clearStore(string $sessionId): void
+    {
+        $session = $this->getSessionData($sessionId);
+
+        if ($session) {
+            unset($session['store']);
+
+            $dataJson = json_encode($session);
+
+            $stmt = $this->db->prepare("
+                UPDATE sessions 
+                SET data = ?
+                WHERE id = ?
+            ");
+            $stmt->bind_param("ss", $dataJson, $sessionId);
+            $stmt->execute();
+
+            $cacheKey = "session:{$sessionId}";
+            $this->redis->set($cacheKey, $session, self::SESSION_LIFETIME);
+        }
     }
 
 

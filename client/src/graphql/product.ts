@@ -256,9 +256,147 @@ export const GET_PRODUCTS = gql`
 `
 
 
+export const GET_DASHBOARD_PRODUCTS = gql`
+        query($limit:Int, $offset:Int,$search:String){
+            getDashboardProducts(limit:$limit,offset:$offset, search: $search) {
+                success
+                message
+                total
+                products {
+                    id
+                    psku
+                    name
+                    price
+                    currency
+                    product_overview
+                    is_returnable
+                    is_public
+                    final_price
+                    stock
+                    category_id
+                    subcategory_id
+                    brand_id
+                    group_id
+                    category_name
+                    subcategory_name
+                    brand_name
+                    group_name
+                    rating
+                    review_count
+                    discount_percentage
+                    created_at
+                    discount {
+                        id
+                        product_id
+                        type
+                        value
+                        starts_at
+                        ends_at
+                    }
+                    images {
+                        id
+                        image_url
+                        is_primary
+                    }
+                    productSpecifications {
+                        id
+                        spec_name
+                        spec_value
+                    }
+                }
+            }
+    }
+
+`
+
+
 export const GET_PRODUCT = gql`
 query ($id: ID!) {
     getProduct(id: $id) {
+        product {
+        id
+        psku
+        name
+        price
+        final_price
+        currency
+        stock
+        is_returnable
+        is_public
+        product_overview
+        category_id
+        subcategory_id
+        brand_id
+        group_id
+        category_name
+        subcategory_name
+        brand_name
+        group_name
+        rating
+        review_count
+        created_at
+        updated_at
+        discount_percentage
+        discount {
+            id
+            product_id
+            type
+            value
+            starts_at
+            ends_at
+        }
+        images {
+            id
+            image_url
+            is_primary
+        }
+        productSpecifications {
+            id
+            spec_name
+            spec_value
+        }
+        productAttributes {
+            id
+            attribute_name
+            attribute_value
+        }
+        groupAttributes {
+            id
+            attribute_name
+            attribute_values
+            is_required
+            display_order
+        }
+        groupProducts {
+            id
+            psku
+            name
+            price
+            final_price
+            currency
+            is_public
+            stock
+            rating
+            review_count
+            images {
+                id
+                image_url
+                is_primary
+            }
+            productAttributes {
+                id
+                attribute_name
+                attribute_value
+            }
+        }
+        }
+    }
+    }
+`
+
+export const GET_DASHBOARD_PRODUCT = gql`
+query ($id: ID!) {
+    getDashboardProduct(id: $id) {
         product {
         id
         psku

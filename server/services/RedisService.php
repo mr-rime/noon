@@ -5,11 +5,17 @@ class RedisService
     private $redis = null;
     private static ?RedisService $instance = null;
     private string $prefix = 'noon:';
+    private static bool $disabled = false;
 
     private function __construct()
     {
         $this->loadPredis();
-        $this->connect();
+        $enabled = ($_ENV['REDIS_ENABLED'] ?? getenv('REDIS_ENABLED') ?? 'true') === 'true';
+        if ($enabled) {
+            $this->connect();
+        } else {
+            self::$disabled = true;
+        }
     }
 
     private function loadPredis(): void
@@ -38,6 +44,11 @@ class RedisService
 
     private function connect(): void
     {
+        if (self::$disabled) {
+            $this->redis = null;
+            return;
+        }
+
         try {
             $host = $_ENV['REDIS_HOST'] ?? getenv('REDIS_HOST') ?? '127.0.0.1';
             $port = (int) ($_ENV['REDIS_PORT'] ?? getenv('REDIS_PORT') ?? 6379);
@@ -57,7 +68,7 @@ class RedisService
                 'scheme' => 'tcp',
                 'host' => $host,
                 'port' => $port,
-                'timeout' => 2,
+                'timeout' => 0.05,
             ], [
                 'prefix' => $this->prefix,
             ]);
@@ -66,7 +77,7 @@ class RedisService
             $this->redis->ping();
 
         } catch (Exception $e) {
-
+            self::$disabled = true;
             $this->redis = null;
         }
     }
@@ -92,6 +103,10 @@ class RedisService
 
     public function get(string $key, ?callable $callback = null): mixed
     {
+        if ($this->redis === null) {
+            $this->connect();
+        }
+
         if (!$this->isConnected()) {
             return $callback ? $callback() : null;
         }

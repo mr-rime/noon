@@ -10,14 +10,14 @@ import { PartnerRegisterSchema, type PartnerRegisterSchemaType } from '../../sch
 import { PartnerLogo, dashboard_icons } from '../../constants'
 import { Input } from '@/components/ui/input'
 
-export function PartnerRegister({ setForm }: { setForm: React.Dispatch<React.SetStateAction<'login' | 'register'>> }) {
+export function PartnerRegister() {
   const { register, handleSubmit } = useForm<PartnerRegisterSchemaType>({
     resolver: zodResolver(PartnerRegisterSchema),
   })
   const [registerStore, { loading }] = useMutation<{
     registerStore: { success: boolean; message: string; store: any }
   }>(REGISTER_STORE)
-  const navigate = useNavigate({ from: '/d/partners' })
+  const navigate = useNavigate({ from: '/d/login' })
   const handleCreatePartner: SubmitHandler<PartnerRegisterSchemaType> = async ({ email, password, storeName }) => {
     try {
       const { data } = await registerStore({
@@ -92,23 +92,6 @@ export function PartnerRegister({ setForm }: { setForm: React.Dispatch<React.Set
           <Button type="submit" className="h-[43px] w-full normal-case">
             Register
           </Button>
-        )}
-      </div>
-      <div className="mt-5 flex items-center space-x-2">
-        <p>Already have an account?</p>
-        {loading ? (
-          <button disabled className="cursor-pointer text-[#3866df]">
-            click here
-          </button>
-        ) : (
-          <button
-            onClick={() => {
-              navigate({ search: () => ({ page: 'login' }) })
-              setForm('login')
-            }}
-            className="cursor-pointer text-[#3866df]">
-            click here
-          </button>
         )}
       </div>
     </form>

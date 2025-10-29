@@ -92,6 +92,29 @@ $QueryType = new ObjectType([
             'resolve' => fn($root, $args, $context) => getPublicProductById($context['db'], $args['id'])
         ],
 
+        'getDashboardProducts' => [
+            'type' => $ProductsResponseType,
+            'args' => [
+                'limit' => Type::int(),
+                'offset' => Type::int(),
+                'search' => Type::string(),
+                'categoryId' => Type::string(),
+                'categories' => Type::listOf(Type::string()),
+                'brands' => Type::listOf(Type::int()),
+                'minPrice' => Type::float(),
+                'maxPrice' => Type::float(),
+                'minRating' => Type::float()
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => getAllProducts($context['db'], $args))
+        ],
+        'getDashboardProduct' => [
+            'type' => $ProductResponseType,
+            'args' => [
+                'id' => Type::nonNull(Type::id())
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => getProductById($context['db'], $args['id']))
+        ],
+
         'getDiscount' => [
             'type' => $DiscountResponseType,
             'args' => [
@@ -372,7 +395,7 @@ $MutationType = new ObjectType([
 
         'logout' => [
             'type' => $UserResponseType,
-            'resolve' => fn($root, $args, $context) => logout()
+            'resolve' => fn($root, $args, $context) => logout($context['db'])
         ],
 
         'createPartner' => [

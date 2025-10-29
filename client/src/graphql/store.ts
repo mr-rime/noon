@@ -36,6 +36,18 @@ export const REGISTER_STORE = gql`
   }
 `
 
+export const CHECK_STORE_AUTH = gql`
+  query CheckStoreAuth {
+    getAllOrders(limit: 1) {
+      success
+      message
+      orders {
+        id
+      }
+    }
+  }
+`
+
 export const LOGOUT_STORE = gql`
   mutation LogoutStore {
     logoutStore {

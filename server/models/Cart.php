@@ -28,13 +28,13 @@ class Cart
 
         $sessionId = session_id();
         if ($sessionId) {
-            return 'guest_' . substr(md5($sessionId), 0, 16);
+            return 'guest_' . substr(md5($sessionId), 0, 15);
         }
 
 
         $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
-        return 'guest_' . substr(md5($ip . $userAgent), 0, 16);
+        return 'guest_' . substr(md5($ip . $userAgent), 0, 15);
     }
 
     public function getCartItems(?int $userId): array
@@ -225,6 +225,7 @@ class Cart
         }
 
         $stmt = $this->db->prepare("DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?");
+        $stmt->bind_param("ss", $cartId, $productId);
         $result = $stmt->execute();
 
         if ($result) {
@@ -250,6 +251,7 @@ class Cart
         }
 
         $stmt = $this->db->prepare("DELETE FROM cart_items WHERE cart_id = ?");
+        $stmt->bind_param("s", $cartId);
         $result = $stmt->execute();
 
         if ($result) {
@@ -278,18 +280,26 @@ class Cart
         $guestCartId = $this->generateGuestCartId();
         $guestCartId = $this->getOrCreateGuestCart($guestCartId);
 
-
         $guestItems = $this->getCartItemsFromGuestCart();
-
         if (empty($guestItems)) {
             return;
         }
 
-
-        foreach ($guestItems as $item) {
-            $this->addItem($userId, $item['product_id'], $item['quantity']);
+        $userCartId = $this->getOrCreateCart($userId);
+        $existingStmt = $this->db->prepare("SELECT product_id FROM cart_items WHERE cart_id = ?");
+        $existingStmt->bind_param("s", $userCartId);
+        $existingStmt->execute();
+        $existingRes = $existingStmt->get_result();
+        $existingProductIds = [];
+        while ($row = $existingRes->fetch_assoc()) {
+            $existingProductIds[$row['product_id']] = true;
         }
 
+        foreach ($guestItems as $item) {
+            if (!isset($existingProductIds[$item['product_id']])) {
+                $this->addItem($userId, $item['product_id'], $item['quantity']);
+            }
+        }
 
         $this->clearGuestCart($guestCartId);
     }

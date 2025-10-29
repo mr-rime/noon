@@ -36,18 +36,45 @@ if (strpos($request->headers->get('Content-Type'), 'multipart/form-data') !== fa
 } else {
     $rawInput = file_get_contents('php://input');
     $input = json_decode($rawInput, true);
+
+    // if batching is enabled Apollo sends an array of operations
+    if (is_array($input) && array_is_list($input)) {
+        $responses = [];
+        foreach ($input as $op) {
+            $query = $op['query'] ?? null;
+            $variables = $op['variables'] ?? [];
+            $operationName = $op['operationName'] ?? null;
+
+            try {
+                $context = ['db' => $conn];
+                if (isset($_SESSION['user']['id'])) {
+                    $context['user_id'] = $_SESSION['user']['id'];
+                }
+
+                $result = GraphQL::executeQuery($schema, $query, null, $context, $variables, $operationName);
+                $responses[] = $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE);
+            } catch (Throwable $e) {
+                error_log("GraphQL Batch Error: " . $e->getMessage());
+                $responses[] = ['error' => FormattedError::createFromException($e)];
+            }
+        }
+
+        echo json_encode($responses);
+        exit;
+    }
+
     $query = $input['query'] ?? null;
     $variables = $input['variables'] ?? [];
+    $operationName = $input['operationName'] ?? null;
 }
 
 try {
-
     $context = ['db' => $conn];
     if (isset($_SESSION['user']['id'])) {
         $context['user_id'] = $_SESSION['user']['id'];
     }
 
-    $result = GraphQL::executeQuery($schema, $query, null, $context, $variables);
+    $result = GraphQL::executeQuery($schema, $query, null, $context, $variables, $operationName ?? null);
     $output = $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE);
 } catch (Throwable $e) {
     http_response_code(500);

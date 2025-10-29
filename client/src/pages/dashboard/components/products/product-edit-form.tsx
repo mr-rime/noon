@@ -22,7 +22,7 @@ import { Textarea } from "../ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { Badge } from "../ui/badge"
 import { useMutation, useQuery } from "@apollo/client"
-import { GET_PRODUCT, UPDATE_PRODUCT } from "@/graphql/product"
+import { GET_DASHBOARD_PRODUCT, UPDATE_PRODUCT } from "@/graphql/product"
 import { UPLOAD_FILE } from "@/graphql/upload-file"
 import { ProductImageManager, type ProductImageManagerRef } from "@/components/product-image-manager"
 import { toast } from "sonner"
@@ -37,11 +37,11 @@ interface ProductEditFormProps {
 }
 
 export function ProductEditForm({ productId, onClose, onSave }: ProductEditFormProps) {
-    const { data, loading: loadingProduct, error } = useQuery(GET_PRODUCT, {
+    const { data, loading: loadingProduct, error } = useQuery(GET_DASHBOARD_PRODUCT, {
         variables: { id: productId }
     })
 
-    const product = data?.getProduct?.product
+    const product = data?.getDashboardProduct?.product
 
     const [formData, setFormData] = useState({
         name: "",

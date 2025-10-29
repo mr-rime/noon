@@ -1049,6 +1049,19 @@ class Product
             }
 
 
+            $stmt = $this->db->prepare('DELETE rhv FROM review_helpful_votes rhv INNER JOIN reviews r ON rhv.review_id = r.id WHERE r.product_id = ?');
+            if ($stmt) {
+                $stmt->bind_param('s', $id);
+                $stmt->execute();
+            }
+
+            $stmt = $this->db->prepare('DELETE FROM reviews WHERE product_id = ?');
+            if ($stmt) {
+                $stmt->bind_param('s', $id);
+                $stmt->execute();
+            }
+
+
 
 
 

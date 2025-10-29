@@ -4,7 +4,6 @@ import {
     Search,
     Plus,
     MoreHorizontal,
-    Edit,
     Eye,
     Trash2,
     Package,
@@ -22,7 +21,7 @@ import { ProductViewDetails } from "../components/products/product-view-details"
 import { ProductEditForm } from "../components/products/product-edit-form"
 import { ProductFilters } from "../components/products/product-filters"
 import { Pagination } from "../components/ui/pagination"
-import { GET_PRODUCTS, DELETE_PRODUCT } from "../../../graphql/product"
+import { GET_DASHBOARD_PRODUCTS, DELETE_PRODUCT } from "../../../graphql/product"
 import { toast } from "sonner"
 import { DeleteConfirmationModal } from "../components/ui/delete-confirmation-modal"
 
@@ -51,7 +50,7 @@ export default function Products() {
     })
 
 
-    const { data, loading, error, refetch } = useQuery(GET_PRODUCTS, {
+    const { data, loading, error, refetch } = useQuery(GET_DASHBOARD_PRODUCTS, {
         variables: {
             limit: ITEMS_PER_PAGE,
             offset: (currentPage - 1) * ITEMS_PER_PAGE,
@@ -75,8 +74,8 @@ export default function Products() {
         }
     })
 
-    const products = data?.getProducts?.products || []
-    const total = data?.getProducts?.total || 0
+    const products = data?.getDashboardProducts?.products || []
+    const total = data?.getDashboardProducts?.total || 0
     const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
 
 
@@ -304,10 +303,6 @@ export default function Products() {
                                                                     <Eye className="mr-2 h-4 w-4" />
                                                                     View Details
                                                                 </DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => handleEditProduct(product.id)}>
-                                                                    <Edit className="mr-2 h-4 w-4" />
-                                                                    Edit Product
-                                                                </DropdownMenuItem>
                                                                 <DropdownMenuItem
                                                                     className="text-destructive"
                                                                     onClick={() => handleDeleteProduct(product.id, product.name)}
@@ -375,10 +370,6 @@ export default function Products() {
                                                                     <DropdownMenuItem onClick={() => handleViewProduct(product.id)}>
                                                                         <Eye className="mr-2 h-4 w-4" />
                                                                         View
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuItem onClick={() => handleEditProduct(product.id)}>
-                                                                        <Edit className="mr-2 h-4 w-4" />
-                                                                        Edit
                                                                     </DropdownMenuItem>
                                                                     <DropdownMenuItem
                                                                         className="text-destructive"

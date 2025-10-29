@@ -16,9 +16,9 @@ function register(array $data)
     return $auth->register($data);
 }
 
-function logout()
+function logout(mysqli $db)
 {
-    $auth = new AuthService(null);
+    $auth = new AuthService($db);
 
     return $auth->logout();
 }

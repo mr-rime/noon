@@ -1,23 +1,24 @@
 import { useMutation } from '@apollo/client'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { Loader2 } from 'lucide-react'
 import { type SubmitHandler, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { PartnerLoginSchema, type PartnerLoginSchemaType } from '../../schema'
 import { LOGIN_STORE } from '@/graphql/store'
 import { dashboard_icons, PartnerLogo } from '../../constants'
-import { Button } from '../ui/button'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
-export function PartnerLogin({ setForm }: { setForm: React.Dispatch<React.SetStateAction<'login' | 'register'>> }) {
+export function PartnerLogin() {
   const { register, handleSubmit } = useForm<PartnerLoginSchemaType>({
     resolver: zodResolver(PartnerLoginSchema),
   })
   const [loginStore, { loading }] = useMutation<{
     loginStore: { success: boolean; message: string; store: any }
   }>(LOGIN_STORE)
-  const navigate = useNavigate({ from: '/d/partners' })
+  const navigate = useNavigate()
+  const { redirect } = useSearch({ from: '/(dashboard)/d/login/' }) as { redirect?: string }
 
   const handleLogin: SubmitHandler<PartnerLoginSchemaType> = async ({ email, password }) => {
     try {
@@ -26,7 +27,7 @@ export function PartnerLogin({ setForm }: { setForm: React.Dispatch<React.SetSta
       })
       if (data?.loginStore.success) {
         toast.success(data?.loginStore.message)
-        navigate({ to: '/d/overview' })
+        navigate({ to: redirect || '/d/overview', replace: true })
       } else {
         toast.error(data?.loginStore.message || 'Login failed')
       }
@@ -81,7 +82,7 @@ export function PartnerLogin({ setForm }: { setForm: React.Dispatch<React.SetSta
           </Button>
         )}
       </div>
-      <div className="mt-5 flex items-center space-x-2">
+      {/* <div className="mt-5 flex items-center space-x-2">
         <p>Register as a new partner?</p>
         {loading ? (
           <button disabled className="cursor-pointer text-[#3866df]">
@@ -95,9 +96,9 @@ export function PartnerLogin({ setForm }: { setForm: React.Dispatch<React.SetSta
             }}
             className="cursor-pointer text-[#3866df]">
             click here
-          </button> 
+          </button>
         )}
-      </div>
+      </div> */}
     </form>
   )
 }

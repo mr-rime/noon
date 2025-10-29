@@ -17,12 +17,6 @@ $cookieParams = [
     'samesite' => 'Lax'
 ];
 
-
-if ($originHost === 'dashboard.localhost') {
-    $cookieParams['domain'] = 'dashboard.localhost';
-}
-
-
 session_set_cookie_params($cookieParams);
 
 

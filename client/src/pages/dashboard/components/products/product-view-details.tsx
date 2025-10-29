@@ -17,7 +17,7 @@ import { CardContent, CardHeader, CardTitle } from "../ui/card"
 import { Button } from "../ui/button"
 import { Badge } from "../ui/badge"
 import { useQuery } from "@apollo/client"
-import { GET_PRODUCT } from "@/graphql/product"
+import { GET_DASHBOARD_PRODUCT } from "@/graphql/product"
 
 interface ProductDetailsProps {
     productId: string
@@ -26,11 +26,11 @@ interface ProductDetailsProps {
 }
 
 export function ProductViewDetails({ productId, onClose, onEdit }: ProductDetailsProps) {
-    const { data, loading, error } = useQuery(GET_PRODUCT, {
+    const { data, loading, error } = useQuery(GET_DASHBOARD_PRODUCT, {
         variables: { id: productId }
     })
 
-    const product = data?.getProduct?.product
+    const product = data?.getDashboardProduct?.product
 
     if (loading) {
         return (

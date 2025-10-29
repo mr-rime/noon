@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../models/Store.php';
 require_once __DIR__ . '/../log/logger.php';
+require_once __DIR__ . '/../models/SessionManager.php';
 
 class StoreAuthService
 {
@@ -40,13 +41,23 @@ class StoreAuthService
         }
 
 
+        $sessionManager = new SessionManager($this->db);
+        $sessionId = $sessionManager->getSessionId();
+        error_log('StoreAuthService.login: session id before start ' . json_encode([
+            'session_name' => session_name(),
+            'session_id_prefix' => substr((string) $sessionId, 0, 8)
+        ]));
+        $sessionManager->startSession(null);
+        unset($currentStore['password']);
+        $sessionManager->setStore($sessionId, $currentStore);
+        error_log('StoreAuthService.login: store set ' . json_encode([
+            'session_id_prefix' => substr((string) $sessionId, 0, 8),
+            'store_id' => $currentStore['id'] ?? null
+        ]));
+
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
-            session_regenerate_id(true);
         }
-
-
-        unset($currentStore['password']);
         $_SESSION['store'] = $currentStore;
 
         $this->logAuth("Login", $email, true, $start);
@@ -105,6 +116,21 @@ class StoreAuthService
             }
 
 
+            // Create DB-backed session and cookie
+            $sessionManager = new SessionManager($this->db);
+            $sessionId = $sessionManager->getSessionId();
+            error_log('StoreAuthService.register: session id before start ' . json_encode([
+                'session_name' => session_name(),
+                'session_id_prefix' => substr((string) $sessionId, 0, 8)
+            ]));
+            $sessionManager->startSession(null);
+            $sessionManager->setStore($sessionId, $newStore);
+            error_log('StoreAuthService.register: store set ' . json_encode([
+                'session_id_prefix' => substr((string) $sessionId, 0, 8),
+                'store_id' => $newStore['id'] ?? null
+            ]));
+
+            // Maintain PHP session for backward compatibility
             if (session_status() !== PHP_SESSION_ACTIVE) {
                 session_start();
             }
@@ -130,43 +156,26 @@ class StoreAuthService
 
     public function logout()
     {
+        // Clear DB-backed session store data
+        $sessionManager = new SessionManager($this->db);
+        $sessionId = $sessionManager->getSessionId();
+        error_log('StoreAuthService.logout: clearing store ' . json_encode([
+            'session_id_prefix' => substr((string) $sessionId, 0, 8)
+        ]));
+        $sessionManager->clearStore($sessionId);
+
+        // Maintain PHP session cleanup
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
-
         if (isset($_SESSION['store'])) {
             unset($_SESSION['store']);
         }
 
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            $_SESSION = [];
-            session_unset();
-            session_destroy();
-
-            if (ini_get("session.use_cookies")) {
-                $params = session_get_cookie_params();
-                setcookie(
-                    session_name(),
-                    '',
-                    time() - 42000,
-                    $params['path'],
-                    $params['domain'],
-                    $params['secure'],
-                    $params['httponly']
-                );
-            }
-
-            return [
-                'success' => true,
-                'message' => 'Logged out successfully',
-                'store' => null
-            ];
-        }
-
         return [
-            'success' => false,
-            'message' => 'No active session to destroy',
-            'store' => null,
+            'success' => true,
+            'message' => 'Logged out successfully',
+            'store' => null
         ];
     }
 

@@ -2,13 +2,18 @@
 
 require_once __DIR__ . '/../../models/Product.php';
 require_once __DIR__ . '/../../models/ProductVariant.php';
+require_once __DIR__ . '/../../models/SessionManager.php';
 
 
 function getAllProducts(mysqli $db, array $data): array
 {
     try {
         $model = new Product($db);
-        $userId = $_SESSION['user']['id'] ?? null;
+        $sessionManager = new SessionManager($db);
+        $sessionId = $sessionManager->getSessionId();
+        $store = $sessionManager->getStore($sessionId);
+        $user = $sessionManager->getUser($sessionId);
+        $userId = $user['id'] ?? ($_SESSION['user']['id'] ?? null);
         $limit = $data['limit'] ?? 10;
         $offset = $data['offset'] ?? 0;
         $search = $data['search'] ?? '';
@@ -19,15 +24,7 @@ function getAllProducts(mysqli $db, array $data): array
         $maxPrice = $data['maxPrice'] ?? null;
         $minRating = $data['minRating'] ?? null;
 
-
-        $publicOnly = false;
-        if (isset($_SESSION['store']['id'])) {
-
-            $publicOnly = false;
-        } else {
-
-            $publicOnly = true;
-        }
+        $publicOnly = !$store;
 
         $products = $model->findAll($userId, $limit, $offset, $search, $publicOnly, $categoryId, $categories, $brands, $minPrice, $maxPrice, $minRating);
         $total = $model->getTotalCount($search, $publicOnly, $categoryId, $categories, $brands, $minPrice, $maxPrice, $minRating);
@@ -54,16 +51,10 @@ function getProductById(mysqli $db, string $id): array
 {
     try {
         $model = new Product($db);
-
-
-        $publicOnly = false;
-        if (isset($_SESSION['store']['id'])) {
-
-            $publicOnly = false;
-        } else {
-
-            $publicOnly = true;
-        }
+        $sessionManager = new SessionManager($db);
+        $sessionId = $sessionManager->getSessionId();
+        $store = $sessionManager->getStore($sessionId);
+        $publicOnly = !$store;
 
         $product = $model->findById($id, $publicOnly);
 
@@ -105,12 +96,10 @@ function createProduct(mysqli $db, array $data): array
 {
     try {
         $model = new Product($db);
-
-
-        $storeId = null;
-        if (isset($_SESSION['store']['id'])) {
-            $storeId = $_SESSION['store']['id'];
-        }
+        $sessionManager = new SessionManager($db);
+        $sessionId = $sessionManager->getSessionId();
+        $store = $sessionManager->getStore($sessionId);
+        $storeId = $store['id'] ?? (isset($_SESSION['store']['id']) ? $_SESSION['store']['id'] : null);
 
         $product = $model->create($data, $storeId);
 
@@ -275,10 +264,10 @@ function createProductWithVariants(mysqli $db, array $args): array
         }
 
 
-        $storeId = null;
-        if (isset($_SESSION['store']['id'])) {
-            $storeId = $_SESSION['store']['id'];
-        }
+        $sessionManager = new SessionManager($db);
+        $sessionId = $sessionManager->getSessionId();
+        $store = $sessionManager->getStore($sessionId);
+        $storeId = $store['id'] ?? (isset($_SESSION['store']['id']) ? $_SESSION['store']['id'] : null);
 
         $product = $productModel->create($baseProductData, $storeId);
         if (!$product) {
@@ -384,9 +373,10 @@ function getRelatedProducts(mysqli $db, string $productId, int $limit = 8): arra
 {
     try {
         $productModel = new Product($db);
-
-
-        $publicOnly = !isset($_SESSION['store']['id']);
+        $sessionManager = new SessionManager($db);
+        $sessionId = $sessionManager->getSessionId();
+        $store = $sessionManager->getStore($sessionId);
+        $publicOnly = !$store;
 
 
         $currentProduct = $productModel->findById($productId, $publicOnly);
@@ -469,6 +459,19 @@ function getRelatedVariants(mysqli $db, string $productId): array
 function deleteProduct(mysqli $db, string $id): array
 {
     try {
+        $check = $db->prepare('SELECT 1 FROM order_items WHERE product_id = ? LIMIT 1');
+        if ($check) {
+            $check->bind_param('s', $id);
+            $check->execute();
+            $check->store_result();
+            if ($check->num_rows > 0) {
+                return [
+                    'success' => false,
+                    'message' => 'Cannot delete product because it is referenced by existing orders.',
+                ];
+            }
+        }
+
         $model = new Product($db);
         $deleted = $model->delete($id);
 
