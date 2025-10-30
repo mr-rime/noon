@@ -34,3 +34,21 @@ export const GET_USER = gql`
             }
         }
     `
+
+export const UPDATE_USER = gql`
+  mutation UpdateUser($id: Int!, $first_name: String, $last_name: String, $phone_number: String, $birthday: String) {
+    updateUser(id: $id, first_name: $first_name, last_name: $last_name, phone_number: $phone_number, birthday: $birthday) {
+      success
+      message
+      user {
+        id
+        hash
+        first_name
+        last_name
+        email
+        birthday
+        phone_number
+      }
+    }
+  }
+`;

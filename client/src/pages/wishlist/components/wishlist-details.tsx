@@ -14,16 +14,15 @@ import { DeleteButtonWithModal } from './delete-button-with-modal'
 import { useMemo } from 'react'
 import { MakeDefaultWishlistButton } from './make-default-wishlist-button'
 import { EmptyWishlistButton } from './empty-wishlist-button'
+// import { MoveOrCopyWishlistItemModal } from './move-or-copy-wishlist-modal'
 
 export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
   const { wishlistCode } = useSearch({ from: '/(main)/_homeLayout/wishlist/' })
-
   const { data, loading } = useQuery<WishlistResponse<'getWishlistItems', WishlistType[]>>(GET_WISHLIST_ITEMS, {
     variables: { wishlist_id: wishlistCode },
   })
-
-
   const currentWishlist = useMemo(() => wishlists.find((w) => w.id === wishlistCode), [wishlistCode, wishlists])
+  // const [modal, setModal] = useState<'move' | 'copy' | null>(null)
 
   return (
     <section className="w-full flex-auto">
@@ -36,7 +35,6 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
             </span>
           )}
         </p>
-
         <div className="flex items-center gap-4">
           <button className="flex cursor-pointer items-center gap-3 rounded-full border border-[#ebecf0] px-[30px] py-[6px]">
             <span>{wishlist_icons.shareIcon}</span>
@@ -52,6 +50,18 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
                 <span className="font-bold text-[14px]">More</span>
               </button>
             }>
+            <div
+              // onClick={() => setModal('move')}
+              className="flex w-full cursor-pointer items-center gap-2 border-gray-200/80 border-b p-2 text-start transition-colors hover:bg-gray-300/10"
+            >
+              Move to another wishlist
+            </div>
+            <div
+              // onClick={() => setModal('copy')}
+              className="flex w-full cursor-pointer items-center gap-2 border-gray-200/80 border-b p-2 text-start transition-colors hover:bg-gray-300/10"
+            >
+              Copy to another wishlist
+            </div>
             <EditButttonWithModal wishlist={currentWishlist} />
             {!currentWishlist?.is_default && <MakeDefaultWishlistButton currentWishlist={currentWishlist} />}
             <EmptyWishlistButton currentWishlist={currentWishlist} />
@@ -62,7 +72,6 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
         </div>
       </header>
       <Separator />
-
       <div className="m-5 w-full">
         {(currentWishlist?.item_count || 0) <= 0 ? (
           <div className="flex h-full w-full flex-col items-center justify-center">
@@ -102,6 +111,14 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
           </div>
         )}
       </div>
+      {/* <MoveOrCopyWishlistItemModal
+        productId={productId}
+        isOpen={modal !== null}
+        wishlists={wishlists}
+        operation={modal ?? 'move'}
+        onClose={() => setModal(null)}
+        onDone={() => setModal(null)}
+      /> */}
     </section>
   )
 }

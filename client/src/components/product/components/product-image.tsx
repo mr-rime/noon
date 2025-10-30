@@ -8,15 +8,17 @@ export function ProductImage({
   is_in_wishlist,
   wishlist_id,
   isWishlistProduct,
+  height = 290,
 }: {
   images: string[]
   product_id: string
   wishlist_id: string
   is_in_wishlist: boolean
   isWishlistProduct: boolean
+  height?: number
 }) {
   return (
-    <div className="relative min-h-[289px] w-full rounded-[12px] bg-[#F6F6F7]" aria-label="Product image section">
+    <div className="relative w-full rounded-[12px] bg-[#F6F6F7]" style={{ minHeight: `${height - 1}px` }} aria-label="Product image section">
       {!isWishlistProduct && (
         <div className="absolute top-2.5 right-2.5 z-10">
           <ProductWishlistButton
@@ -38,7 +40,7 @@ export function ProductImage({
         showProductControls={true}
         showProductDots={true}
         scaleOnHover={true}
-        height={290}
+        height={height}
         disableDragDesktop={true}
         rounded={true}
       />

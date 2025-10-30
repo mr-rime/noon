@@ -50,18 +50,18 @@ export const UserMenu = memo(({ user }: { user: User; loading: boolean }) => {
           {header_icons.ordersIcon}
           <span className="ml-4 text-[1rem]">Orders</span>
         </button>
-        <button
+        {/* <button
           onClick={() => navigate({ to: '/addresses', resetScroll: true })}
           className=" flex w-full cursor-pointer items-center whitespace-nowrap p-[8px_25px] text-center transition-colors hover:bg-[#F3F4F8]">
           {header_icons.addressesIcon}
           <span className="ml-4 text-[1rem]">Addresses</span>
-        </button>
-        <button
+        </button> */}
+        {/* <button
           onClick={() => navigate({ to: '/payments', resetScroll: true })}
           className=" flex w-full cursor-pointer items-center whitespace-nowrap p-[8px_25px] text-center transition-colors hover:bg-[#F3F4F8]">
           {header_icons.paymentsIcon}
           <span className="ml-4 text-[1rem]">Payments</span>
-        </button>
+        </button> */}
         <button
           onClick={() => navigate({ to: '/returns', resetScroll: true })}
           className=" flex w-full cursor-pointer items-center whitespace-nowrap p-[8px_25px] text-center transition-colors hover:bg-[#F3F4F8]">

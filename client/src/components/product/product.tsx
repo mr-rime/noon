@@ -1,7 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import type { ProductType } from '@/types'
 import { ProdcutPrice } from './components/prodcut-price'
-import { ProductBadge } from './components/product-badge'
 import { ProductImage } from './components/product-image'
 import { ProductTitle } from './components/product-title'
 import { Star } from 'lucide-react'
@@ -28,7 +27,9 @@ export function Product({
   rating,
   review_count,
   isWishlistProduct = false,
-}: Partial<ProductType> & { isWishlistProduct?: boolean }) {
+  className,
+  imageHeight = 290,
+}: Partial<ProductType> & { isWishlistProduct?: boolean; className?: string; imageHeight?: number }) {
   const [hasFetched, setHasFetched] = useState(false)
   const { refetch } = useQuery(GET_PRODUCT, { variables: { id }, skip: true })
 
@@ -53,6 +54,7 @@ export function Product({
       className={cn(
         'h-[467px] min-w-[230px] w-full max-w-[230px] select-none overflow-x-hidden rounded-[12px] border border-[#DDDDDD] bg-white p-2',
         isWishlistProduct && 'h-fit',
+        className,
       )}>
       <Link
         to="/$title/$productId"
@@ -65,6 +67,7 @@ export function Product({
           wishlist_id={wishlist_id!}
           isWishlistProduct={isWishlistProduct}
           is_in_wishlist={is_in_wishlist!}
+          height={imageHeight}
         />
         <ProductTitle name={name || ''} />
 
@@ -110,7 +113,6 @@ export function Product({
           final_price={final_price || 0}
           discount_percentage={discount_percentage}
         />
-        <ProductBadge />
       </Link>
       {isWishlistProduct && <WishlistControls productId={id} />}
     </article>

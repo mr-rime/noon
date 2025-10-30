@@ -4,9 +4,9 @@ import { gql } from '@apollo/client'
 import { useState } from 'react'
 import CategoryCarousel from '../components/category/category-carousel'
 import Breadcrumb from '../components/category/breadcrumb'
-import FilterSidebar from '../components/filters/filter-sidebar'
-import ProductCard from '../components/product-card'
-import { Loader2 } from 'lucide-react'
+import FilterSidebar, { FilterSidebarSkeleton } from '../components/filters/filter-sidebar'
+import { Product } from '@/components/product/product'
+import { ProductsListSkeleton } from '@/components/ui/products-list-skeleton'
 import { GET_CATEGORY_BY_NESTED_PATH } from '../graphql/category'
 
 const GET_CATEGORY_BY_SLUG = gql`
@@ -91,14 +91,9 @@ interface FilterState {
   category?: string | null
   categories?: string[]
   brands?: number[]
-  sellers?: number[]
   minPrice?: number
   maxPrice?: number
   minRating?: number
-  priceDrop?: boolean
-  newArrivals?: boolean
-  fulfilment?: string[]
-  condition?: string[]
 }
 
 export default function CategoryPage() {
@@ -145,8 +140,15 @@ export default function CategoryPage() {
 
   if (categoryLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+      <div className="min-h-screen bg-gray-50">
+        <div className="px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex gap-6">
+            <FilterSidebarSkeleton />
+            <div className="flex-1 p-2">
+              <ProductsListSkeleton />
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
@@ -174,8 +176,8 @@ export default function CategoryPage() {
 
           <div className="flex-1">
             {productsLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+              <div className="p-2">
+                <ProductsListSkeleton />
               </div>
             ) : products.length === 0 ? (
               <div className="bg-white rounded-lg shadow-sm p-8 text-center">
@@ -183,9 +185,21 @@ export default function CategoryPage() {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {products.map((product: any) => (
-                    <ProductCard key={product.id} product={product} />
+                <div className="flex flex-wrap gap-4 items-stretch">
+                  {products.map((p: any) => (
+                    <Product
+                      key={p.id}
+                      id={p.id}
+                      name={p.name}
+                      images={p.images}
+                      price={p.price}
+                      final_price={p.final_price}
+                      brand_name={p.brand?.name}
+                      rating={p.rating}
+                      review_count={p.review_count}
+                      className="h-fit w-[230px] max-w-[230px] min-w-[230px] flex-shrink-0 overflow-hidden"
+                      imageHeight={260}
+                    />
                   ))}
                 </div>
 

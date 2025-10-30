@@ -22,7 +22,7 @@ export const MyAccountMenu = memo(() => {
             <span>Profile</span>
           </button>
         </li>
-        <li>
+        {/* <li>
           <button
             onClick={() => navigate({ to: '/addresses' })}
             className={cn(
@@ -32,8 +32,8 @@ export const MyAccountMenu = memo(() => {
             {profile_page_icons.locationIcon}
             <span>Addresses</span>
           </button>
-        </li>
-        <li>
+        </li> */}
+        {/* <li>
           <button
             onClick={() => navigate({ to: '/payments' })}
             className={cn(
@@ -43,9 +43,9 @@ export const MyAccountMenu = memo(() => {
             {profile_page_icons.stackIcon}
             <span>Payments</span>
           </button>
-        </li>
+        </li> */}
 
-        <li>
+        {/* <li>
           <button
             onClick={() => navigate({ to: '/security-settings' })}
             className={cn(
@@ -55,7 +55,7 @@ export const MyAccountMenu = memo(() => {
             {profile_page_icons.shieldUser}
             <span>Security Settings</span>
           </button>
-        </li>
+        </li> */}
       </ul>
     </section>
   )

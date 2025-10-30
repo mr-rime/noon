@@ -1,97 +1,50 @@
-import { Calendar, Pencil } from 'lucide-react'
-import { useState } from 'react'
-import { profil_information_icons } from '../constants/icons'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Input } from '@/components/ui/input'
-import type { User } from '@/types'
-import { Select } from '@/components/ui/select'
-import { Radio } from '@/components/ui/radio'
+import { useFormContext } from 'react-hook-form';
+import { Pencil } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
 
-export function PersonalInformation({ user, loading }: { user: User | undefined; loading: boolean }) {
-  const [selected, setSelected] = useState('male')
+export function PersonalInformation({ loading, editable = true }: { loading: boolean; editable?: boolean }) {
+  const { register, formState: { errors } } = useFormContext();
 
   return (
     <section className="mt-7 rounded-[20px] bg-white p-[32px]">
       <h2 className="font-bold text-[18px]">Personal Information</h2>
-
       <div className="mt-5 flex flex-wrap items-center space-x-6">
         {loading ? (
           <Skeleton className="mt-8 h-[58px] w-[300px] rounded-[12px] p-[8px_12px]" />
         ) : (
-          <Input
-            id="firstName"
-            name="firstName"
-            defaultValue={user?.first_name}
-            labelContent="First name"
-            icon={<Pencil size={14} color="#7E859B" />}
-            iconDirection="right"
-            placeholder="First Name"
-            input={{
-              className: 'bg-white rounded-[12px] w-[300px] h-[58px] p-[8px_12px] indent-0 focus:border-[#00f]',
-            }}
-          />
+          <div className="flex flex-col min-w-[300px]">
+            <Input
+              id="first_name"
+              {...register('first_name')}
+              labelContent="First name"
+              icon={<Pencil size={14} color="#7E859B" />}
+              iconDirection="right"
+              disabled={!editable}
+              placeholder="First Name"
+              input={{ className: 'bg-white rounded-[12px] w-[300px] h-[58px] p-[8px_12px] indent-0 focus:border-[#00f]' }}
+            />
+            {errors.first_name && <span className="text-xs text-red-500 mt-1">{String(errors.first_name.message)}</span>}
+          </div>
         )}
         {loading ? (
           <Skeleton className="mt-8 h-[58px] w-[300px] rounded-[12px] p-[8px_12px]" />
         ) : (
-          <Input
-            id="lastName"
-            name="lastName"
-            defaultValue={user?.last_name}
-            labelContent="Last name"
-            icon={<Pencil size={14} color="#7E859B" />}
-            iconDirection="right"
-            placeholder="Last Name"
-            input={{
-              className: 'bg-white rounded-[12px] w-[300px] h-[58px] p-[8px_12px] indent-0 focus:border-[#00f]',
-            }}
-          />
-        )}
-        <Select
-          options={[]}
-          labelContent="Nationality"
-          className="h-[58px] w-[300px] rounded-[12px] bg-white p-[8px_12px]"
-        />
-
-        <div className="mt-10 flex items-center space-x-6">
-          <div>
+          <div className="flex flex-col min-w-[300px]">
             <Input
-              id="birthday"
-              name="birthday"
-              labelContent="Birthday"
-              readOnly
-              icon={<Calendar size={20} color="#7E859B" />}
+              id="last_name"
+              {...register('last_name')}
+              labelContent="Last name"
+              icon={<Pencil size={14} color="#7E859B" />}
               iconDirection="right"
-              value={'01 / 01 / 2007'}
-              placeholder="birthday"
-              input={{
-                className:
-                  'bg-[#f3f4f8] rounded-[12px] font-bold w-[300px] h-[58px] p-[8px_12px] indent-0 cursor-not-allowed',
-              }}
+              disabled={!editable}
+              placeholder="Last Name"
+              input={{ className: 'bg-white rounded-[12px] w-[300px] h-[58px] p-[8px_12px] indent-0 focus:border-[#00f]' }}
             />
-            <span className="mt-3 flex items-center space-x-2 text-[#008000] text-[12px]">
-              {profil_information_icons.discountTagIcon}
-              <span>Get offers on your special day</span>
-            </span>
+            {errors.last_name && <span className="text-xs text-red-500 mt-1">{String(errors.last_name.message)}</span>}
           </div>
-          <div className="flex items-center space-x-4">
-            <Radio
-              label="Male"
-              name="gender"
-              value="male"
-              checked={selected === 'male'}
-              onChange={(e) => setSelected(e.target.value)}
-            />
-            <Radio
-              label="Female"
-              name="gender"
-              value="female"
-              checked={selected === 'female'}
-              onChange={(e) => setSelected(e.target.value)}
-            />
-          </div>
-        </div>
+        )}
       </div>
     </section>
-  )
+  );
 }

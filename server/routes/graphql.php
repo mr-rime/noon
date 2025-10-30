@@ -31,8 +31,34 @@ if (strpos($request->headers->get('Content-Type'), 'multipart/form-data') !== fa
         }
     }
 
-    $query = $operations['query'];
-    $variables = $operations['variables'];
+    // Support batched multipart operations
+    if (is_array($operations) && array_is_list($operations)) {
+        $responses = [];
+        foreach ($operations as $op) {
+            $query = $op['query'] ?? null;
+            $variables = $op['variables'] ?? [];
+            $operationName = $op['operationName'] ?? null;
+
+            try {
+                $context = ['db' => $conn];
+                if (isset($_SESSION['user']['id'])) {
+                    $context['user_id'] = $_SESSION['user']['id'];
+                }
+
+                $result = GraphQL::executeQuery($schema, $query, null, $context, $variables, $operationName);
+                $responses[] = $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE);
+            } catch (Throwable $e) {
+                error_log("GraphQL Multipart Batch Error: " . $e->getMessage());
+                $responses[] = ['error' => FormattedError::createFromException($e)];
+            }
+        }
+
+        echo json_encode($responses);
+        exit;
+    }
+
+    $query = $operations['query'] ?? null;
+    $variables = $operations['variables'] ?? [];
 } else {
     $rawInput = file_get_contents('php://input');
     $input = json_decode($rawInput, true);

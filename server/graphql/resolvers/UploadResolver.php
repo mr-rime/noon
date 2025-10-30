@@ -6,19 +6,12 @@ function uploadImageResolver($args)
 {
     error_log('uploadImageResolver: ' . json_encode($args), 0);
 
-    if (!isset($_FILES) || !isset($_FILES['1'])) {
+    $file = $args['file'] ?? null;
+
+    if (!$file || !isset($file['content'], $file['name'], $file['type'])) {
         return [
             'success' => false,
-            'message' => 'No file was uploaded',
-        ];
-    }
-
-    $file = $_FILES['1'];
-
-    if ($file['error'] !== UPLOAD_ERR_OK) {
-        return [
-            'success' => false,
-            'message' => 'File upload error: ' . $file['error'],
+            'message' => 'No file data provided',
         ];
     }
 
@@ -32,24 +25,23 @@ function uploadImageResolver($args)
 
     try {
         $uploadThingService = new UploadThingService();
-
-
-        $result = $uploadThingService->uploadFile(
-            base64_encode(file_get_contents($file['tmp_name'])),
-            $file['name'],
-            $file['type']
-        );
-
-        if ($result['success']) {
+        $singleResult = $uploadThingService->uploadFiles([
+            [
+                'name' => $file['name'],
+                'type' => $file['type'],
+                'content' => $file['content'],
+            ]
+        ]);
+        if (($singleResult['success'] ?? false) && !empty($singleResult['files'][0]['url'])) {
             return [
                 'success' => true,
                 'message' => 'File uploaded successfully to UploadThing',
-                'url' => $result['url'],
+                'url' => $singleResult['files'][0]['url'] ?? null,
             ];
         } else {
             return [
                 'success' => false,
-                'message' => $result['message'],
+                'message' => $singleResult['message'] ?? ($singleResult['files'][0]['message'] ?? 'Upload failed'),
             ];
         }
     } catch (Exception $e) {

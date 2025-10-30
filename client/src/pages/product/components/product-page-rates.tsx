@@ -17,6 +17,13 @@ export function ProductPageRates({
   const filledStars = Math.floor(rating)
   const hasHalfStar = rating % 1 >= 0.5
 
+  const scrollToReviews = () => {
+    const el = document.getElementById('product_reviews')
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
   return theme === 'desktop' ? (
     <div className="mt-2 flex items-center space-x-2">
       <div className="font-semibold text-[14px]">{rating.toFixed(1)}</div>
@@ -32,13 +39,16 @@ export function ProductPageRates({
         ))}
       </div>
 
-      <div className="cursor-pointer space-x-[4px] font-semibold text-[#3866DF] text-[14px] underline">
+      <button
+        type="button"
+        onClick={scrollToReviews}
+        className="cursor-pointer space-x-[4px] font-semibold text-[#3866DF] text-[14px] underline focus:outline-none">
         <span>{formattedReviewCount} Ratings</span>
-      </div>
+      </button>
     </div>
   ) : (
     <a
-      href="#porduct_reviews"
+      href="#product_reviews"
       className="flex w-fit items-center justify-center space-x-2 rounded-[6px] bg-[#f3f4f8] px-[6px] py-[4px]">
       <div className="flex items-center space-x-1">
         <Star fill="#008000" color="#008000" size={14} />

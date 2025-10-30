@@ -486,7 +486,7 @@ $MutationType = new ObjectType([
         'uploadImage' => [
             'type' => $UploadResponseType,
             'args' => [
-                'file' => Type::nonNull($UploadScalar),
+                'file' => Type::nonNull($FileInputType),
             ],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => uploadImageResolver($args))
         ],
@@ -841,6 +841,17 @@ $MutationType = new ObjectType([
                 'reviewId' => Type::nonNull(Type::int())
             ],
             'resolve' => requireAuth(fn($root, $args, $context) => removeReviewVote($context['db'], array_merge($args, ['user_id' => $context['user_id']])))
+        ],
+        'updateUser' => [
+            'type' => $UserResponseType,
+            'args' => [
+                'id' => Type::nonNull(Type::int()),
+                'first_name' => Type::string(),
+                'last_name' => Type::string(),
+                'phone_number' => Type::string(),
+                'birthday' => Type::string(),
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => updateUser($context['db'], $args))
         ]
     ]
 ]);

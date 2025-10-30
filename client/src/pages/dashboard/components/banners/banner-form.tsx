@@ -11,12 +11,24 @@ import { toast } from "sonner"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog"
 import { CREATE_BANNER, UPDATE_BANNER } from "@/graphql/banner"
 import { BANNER_PLACEMENTS, type Banner } from "@/types/banner"
+import { Dropzone } from "@/components/ui/dropzone"
+import { UPLOAD_FILE } from '@/graphql/upload-file'
 
 interface BannerFormProps {
   banner?: Banner | null
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void
+}
+
+// helper for converting File object to base64 as string
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve((reader.result as string).split(',')[1]);
+    reader.onerror = reject;
+  });
 }
 
 export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormProps) {
@@ -31,9 +43,13 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
     endDate: "",
     isActive: true
   })
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadError, setUploadError] = useState("")
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
 
   const [createBanner, { loading: creating }] = useMutation(CREATE_BANNER)
   const [updateBanner, { loading: updating }] = useMutation(UPDATE_BANNER)
+  const [uploadFile] = useMutation(UPLOAD_FILE)
 
   const loading = creating || updating
 
@@ -59,7 +75,7 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
       const now = new Date()
       const nextMonth = new Date(now)
       nextMonth.setMonth(nextMonth.getMonth() + 1)
-      
+
       setFormData({
         name: "",
         placement: "",
@@ -86,9 +102,36 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
       return
     }
 
+    setUploadError("")
+    let imageUrlToSave = formData.imageUrl
+    if (selectedImageFile) {
+      setIsUploading(true)
+      try {
+        const content = await fileToBase64(selectedImageFile)
+        const fileInput = {
+          name: selectedImageFile.name,
+          type: selectedImageFile.type,
+          content,
+        }
+        const { data } = await uploadFile({ variables: { file: fileInput } })
+        if (data?.uploadImage?.success && data?.uploadImage?.url) {
+          imageUrlToSave = data.uploadImage.url
+        } else {
+          setUploadError(data?.uploadImage?.message || 'Failed to upload image')
+          setIsUploading(false)
+          return
+        }
+      } catch {
+        setUploadError('Image upload failed.')
+        setIsUploading(false)
+        return
+      }
+      setIsUploading(false)
+    }
     try {
       const variables = {
         ...formData,
+        imageUrl: imageUrlToSave,
         startDate: new Date(formData.startDate).toISOString(),
         endDate: new Date(formData.endDate).toISOString()
       }
@@ -188,29 +231,41 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="imageUrl" className="flex items-center gap-2">
+              <Label htmlFor="imageUpload" className="flex items-center gap-2">
                 <Image className="h-4 w-4" />
-                Image URL
+                Banner Image
               </Label>
-              <Input
-                id="imageUrl"
-                type="url"
-                value={formData.imageUrl}
-                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                placeholder="https://example.com/banner-image.jpg"
-              />
-              {formData.imageUrl && (
-                <div className="mt-2 rounded-lg overflow-hidden border bg-muted">
-                  <img 
-                    src={formData.imageUrl} 
-                    alt="Banner preview" 
-                    className="w-full h-32 object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none'
-                    }}
-                  />
+              <Dropzone
+                onFilesDrop={(files) => {
+                  setSelectedImageFile(files && files[0] ? files[0] : null)
+                  setFormData((prev) => ({ ...prev, imageUrl: "" }))
+                  setUploadError("")
+                }}
+                multiple={false}
+                accept="image/*"
+                disabled={isUploading}
+              >
+                <div className="w-full flex flex-col items-center gap-2 py-4">
+                  {isUploading ? (
+                    <span>Uploading...</span>
+                  ) : selectedImageFile ? (
+                    <img
+                      src={URL.createObjectURL(selectedImageFile)}
+                      alt="Banner preview"
+                      className="w-full h-32 object-cover rounded-lg border"
+                    />
+                  ) : formData.imageUrl ? (
+                    <img
+                      src={formData.imageUrl}
+                      alt="Banner preview"
+                      className="w-full h-32 object-cover rounded-lg border"
+                    />
+                  ) : (
+                    <span className="text-gray-400">Drag and drop or click to upload</span>
+                  )}
                 </div>
-              )}
+              </Dropzone>
+              {uploadError && <p className="text-red-500 text-xs mt-1">{uploadError}</p>}
             </div>
 
             <div className="space-y-2">

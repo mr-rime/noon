@@ -24,6 +24,7 @@ interface ImageSliderProps {
   disableDragDesktop?: boolean
   disableDragMobile?: boolean
   rounded?: boolean
+  activeIndex?: number
 }
 
 export function ImageSlider({
@@ -40,7 +41,8 @@ export function ImageSlider({
   disableDragDesktop = false,
   disableDragMobile = false,
   dotsTheme = 'theme1',
-  rounded
+  rounded,
+  activeIndex
 }: ImageSliderProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number | null>(null)
@@ -94,6 +96,16 @@ export function ImageSlider({
       setTranslate(currentTranslate.current, false)
     }
   }, [displayImages.length, setTranslate])
+
+  // Sync with externally controlled index (0-based)
+  useEffect(() => {
+    if (typeof activeIndex === 'number' && displayImages.length > 0) {
+      const clamped = Math.max(0, Math.min(displayImages.length - 1, activeIndex))
+      // internal logical indices are shifted by +1 due to clones
+      goToSlide(clamped + 1)
+    }
+     
+  }, [activeIndex, displayImages.length])
 
   const goToSlide = useCallback(
     (newIndex: number) => {
