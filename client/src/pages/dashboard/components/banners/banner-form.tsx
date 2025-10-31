@@ -21,7 +21,6 @@ interface BannerFormProps {
   onSuccess: () => void
 }
 
-// helper for converting File object to base64 as string
 async function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

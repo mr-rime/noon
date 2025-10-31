@@ -80,7 +80,6 @@ function updateUser(mysqli $db, array $args): array
             $updateData['last_name'] = $args['last_name'];
         if (isset($args['phone_number']))
             $updateData['phone_number'] = $args['phone_number'];
-        // Allow updating birthday only if it's not set
         if (isset($args['birthday']) && (empty($user['birthday']) || $user['birthday'] == null)) {
             $updateData['birthday'] = $args['birthday'];
         }

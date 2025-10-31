@@ -17,7 +17,6 @@ class Banner
     {
         try {
             $id = $this->generateId();
-            // Convert ISO8601 to MySQL datetime format
             $startDateFmt = date('Y-m-d H:i:s', strtotime($startDate));
             $endDateFmt = date('Y-m-d H:i:s', strtotime($endDate));
             $query = "INSERT INTO banners (id, name, placement, description, target_url, image_url, start_date, end_date, is_active, created_at)

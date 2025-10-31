@@ -97,11 +97,9 @@ export function ImageSlider({
     }
   }, [displayImages.length, setTranslate])
 
-  // Sync with externally controlled index (0-based)
   useEffect(() => {
     if (typeof activeIndex === 'number' && displayImages.length > 0) {
       const clamped = Math.max(0, Math.min(displayImages.length - 1, activeIndex))
-      // internal logical indices are shifted by +1 due to clones
       goToSlide(clamped + 1)
     }
      

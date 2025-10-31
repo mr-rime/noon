@@ -1,8 +1,4 @@
-/**
- * Format large numbers with K, M, B suffixes
- * @param num - The number to format
- * @returns Formatted string (e.g., "1K", "20.6K", "1.2M")
- */
+
 export function formatNumber(num: number): string {
     if (num < 1000) {
         return num.toString()

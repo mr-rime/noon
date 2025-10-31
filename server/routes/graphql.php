@@ -31,7 +31,6 @@ if (strpos($request->headers->get('Content-Type'), 'multipart/form-data') !== fa
         }
     }
 
-    // Support batched multipart operations
     if (is_array($operations) && array_is_list($operations)) {
         $responses = [];
         foreach ($operations as $op) {
@@ -63,7 +62,6 @@ if (strpos($request->headers->get('Content-Type'), 'multipart/form-data') !== fa
     $rawInput = file_get_contents('php://input');
     $input = json_decode($rawInput, true);
 
-    // if batching is enabled Apollo sends an array of operations
     if (is_array($input) && array_is_list($input)) {
         $responses = [];
         foreach ($input as $op) {

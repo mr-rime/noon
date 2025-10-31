@@ -56,13 +56,11 @@ class AuthService
         }
         $_SESSION['user'] = $currentUser;
 
-        // Merge guest cart into user cart without duplicating existing items
         try {
             require_once __DIR__ . '/../models/Cart.php';
             $cart = new Cart($this->db);
             $cart->mergeGuestCartWithUserCart((int) $currentUser['id']);
         } catch (Throwable $e) {
-            // Non-fatal for login; log and continue
             error_log('Cart merge on login failed: ' . $e->getMessage());
         }
 
