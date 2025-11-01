@@ -22,10 +22,6 @@ try {
 
     error_log('UploadThing callback received: ' . json_encode($data));
 
-
-
-
-
     http_response_code(200);
     echo json_encode([
         'success' => true,
