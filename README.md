@@ -9,14 +9,23 @@ The goal is to provide a scalable, maintainable, and developer-friendly foundati
 
 ### Frontend
 - React with TypeScript
-- Custom Vite SSR setup
-- GraphQL client  (Apollo)
+- TanStack Router
+- Zustand
+- Zod (with React Hook Form)
+- Tailwind CSS
+- Recharts
+- UploadThing
+- GraphQL client (Apollo)
 - pnpm for dependency management
 
 ### Backend
 - PHP with GraphQL
 - Modular schema and resolver structure
 - Dockerized environment
+
+### Databases
+- MySQL
+- Redis for caching, sessions, and quick data acces
 
 ### Development Tools
 - Husky for pre-commit hooks (linting, formatting, type checks)
