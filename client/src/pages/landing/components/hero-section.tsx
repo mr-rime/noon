@@ -23,6 +23,7 @@ export default function HeroSection() {
           mobileImages={mobileImages}
           autoPlay={true}
           autoPlayInterval={3000}
+          height={350}
           showControls={true}
           showDots={true}
         />
