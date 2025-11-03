@@ -358,6 +358,15 @@ class Product
         [$where, $order, $params, $types] = $this->buildWhereWithFilters($search, $categoryId, $categories, $brands, $minPrice, $maxPrice, $minRating);
 
 
+        if (!empty(trim($search))) {
+            $remove = 6;
+            if (count($params) >= $remove) {
+                $params = array_slice($params, 0, count($params) - $remove);
+                $types = substr($types, 0, strlen($types) - $remove);
+            }
+        }
+
+
         if ($publicOnly) {
             if (empty($where)) {
                 $where = "WHERE is_public = 1";

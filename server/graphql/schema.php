@@ -242,8 +242,11 @@ $QueryType = new ObjectType([
         ],
         'getHierarchicalCategories' => [
             'type' => $CategoriesResponseType,
-            'args' => [],
-            'resolve' => fn($root, $args, $context) => getHierarchicalCategories($context['db'])
+            'args' => [
+                'rootCategoryId' => Type::string(),
+                'maxDepth' => Type::int()
+            ],
+            'resolve' => fn($root, $args, $context) => getHierarchicalCategories($context['db'], $args)
         ],
         'getSubcategories' => [
             'type' => $SubcategoriesResponseType,
@@ -582,6 +585,7 @@ $MutationType = new ObjectType([
             'type' => $WishlistResponse,
             'args' => [
                 'product_id' => Type::nonNull(Type::string()),
+                'wishlist_id' => Type::string(),
             ],
             'resolve' => fn($root, $args, $context) => addItemToWishlist($context['db'], $args)
         ],

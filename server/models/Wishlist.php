@@ -31,7 +31,7 @@ class Wishlist
             throw new Exception("Validation failed: " . $e->getFullMessage());
         }
 
-        
+
         $stmt = $this->db->prepare("SELECT id FROM wishlists WHERE user_id = ? AND name = ?");
         $stmt->bind_param("ss", $user_id, $name);
         $stmt->execute();
@@ -171,6 +171,51 @@ class Wishlist
 
         if (!$success) {
             throw new Exception("Failed to add product to default wishlist");
+        }
+
+        return true;
+    }
+
+    public function addItemToWishlist(int $userId, string $wishlistId, string $productId): bool
+    {
+        if (!v::intVal()->min(1)->validate($userId)) {
+            throw new Exception("Invalid user ID");
+        }
+        if (!v::stringType()->notEmpty()->length(1, 21)->validate($wishlistId)) {
+            throw new Exception("Invalid wishlist ID");
+        }
+        if (!v::stringType()->notEmpty()->length(1, 36)->validate($productId)) {
+            throw new Exception("Invalid product ID");
+        }
+
+        $stmt = $this->db->prepare("SELECT id FROM wishlists WHERE id = ? AND user_id = ? LIMIT 1");
+        $stmt->bind_param("si", $wishlistId, $userId);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows === 0) {
+            $stmt->close();
+            throw new Exception("Wishlist not found for this user");
+        }
+        $stmt->close();
+
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM wishlist_items WHERE wishlist_id = ? AND product_id = ?");
+        $stmt->bind_param("ss", $wishlistId, $productId);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        $stmt->close();
+
+        if ($count > 0) {
+            throw new Exception("Product is already in the wishlist");
+        }
+
+        $stmt = $this->db->prepare("INSERT INTO wishlist_items (wishlist_id, product_id) VALUES (?, ?)");
+        $stmt->bind_param("ss", $wishlistId, $productId);
+        $success = $stmt->execute();
+        $stmt->close();
+
+        if (!$success) {
+            throw new Exception("Failed to add product to wishlist");
         }
 
         return true;

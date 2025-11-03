@@ -5,7 +5,8 @@ import PriceFilter from './price-filter'
 import BrandFilter from './brand-filter'
 import RatingFilter from './rating-filter'
 import { GET_CATEGORY_BREADCRUMB } from '@/graphql/category'
-import { useLazyQuery } from '@apollo/client'
+import { GET_PRODUCTS } from '@/graphql/product'
+import { useLazyQuery, useQuery } from '@apollo/client'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface FilterState {
@@ -28,6 +29,11 @@ export default function FilterSidebar({
 }: FilterSidebarProps) {
 
   const [getBreadcrumb] = useLazyQuery(GET_CATEGORY_BREADCRUMB)
+  const { data: rootBreadcrumb } = useQuery(GET_CATEGORY_BREADCRUMB, {
+    variables: { categoryId: currentCategoryId as string },
+    skip: !currentCategoryId,
+    fetchPolicy: 'cache-first'
+  })
 
 
   const location = useLocation()
@@ -40,11 +46,27 @@ export default function FilterSidebar({
   })
 
   const navigate = useNavigate()
+  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
+  const q = searchParams.get('q') || undefined
+
+  const { data: searchProducts } = useQuery(GET_PRODUCTS, {
+    variables: { search: q, limit: 1, offset: 0 },
+    skip: !q,
+    fetchPolicy: 'cache-first'
+  })
+  const firstProduct = searchProducts?.getProducts?.products?.[0]
+  const firstCategoryId = firstProduct?.category_id
+
+  const { data: breadcrumbData } = useQuery(GET_CATEGORY_BREADCRUMB, {
+    variables: { categoryId: firstCategoryId },
+    skip: !firstCategoryId
+  })
+
 
 
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search)
+    const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
     const newFilters: FilterState = {
       brands: searchParams.get('brands')?.split(',').map(Number).filter(Boolean) || [],
       minPrice: searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : undefined,
@@ -129,11 +151,31 @@ export default function FilterSidebar({
         <div className="p-4">
           <h2 className="text-lg font-semibold mb-4">Filters</h2>
 
+          {!currentCategoryId && q && breadcrumbData?.getCategoryBreadcrumb?.breadcrumb?.length > 0 && (
+            <div className="mb-4 rounded border border-gray-200 p-3 bg-gray-50">
+              <div className="text-xs text-gray-600 mb-1">Suggested category</div>
+              <button
+                className="text-sm text-blue-700 hover:underline"
+                onClick={() => {
+                  const path = breadcrumbData.getCategoryBreadcrumb.breadcrumb
+                    .map((b: any) => b.slug)
+                    .join('/')
+                  navigate({ to: '/category/$', params: { _splat: path } })
+                }}
+              >
+                {breadcrumbData.getCategoryBreadcrumb.breadcrumb
+                  .map((b: any) => b.name)
+                  .join(' \u2192 ')}
+              </button>
+            </div>
+          )}
+
           <div className="space-y-4">
 
             <HierarchicalCategoryFilter
               selectedCategories={[]}
               onCategoryToggle={handleCategoryToggle}
+              rootCategoryId={rootBreadcrumb?.getCategoryBreadcrumb?.breadcrumb?.[0]?.id}
             />
 
 

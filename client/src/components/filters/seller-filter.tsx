@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ChevronDown, X } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface Seller {
   id: number
@@ -57,25 +58,14 @@ export default function SellerFilter({
             <div className="text-sm text-gray-500">No sellers available</div>
           ) : (
             sellers.map(seller => (
-              <label
-                key={seller.id}
-                className="flex items-center py-1 hover:bg-gray-50 cursor-pointer"
-              >
-                <input
-                  type="checkbox"
+              <div key={seller.id} className="py-1 hover:bg-gray-50">
+                <Checkbox
                   checked={selectedSellers.includes(seller.id)}
-                  onChange={() => onSellerToggle(seller.id)}
-                  className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  onCheckedChange={() => onSellerToggle(seller.id)}
+                  label={seller.name}
+                  description={seller.productCount ? `(${seller.productCount})` : undefined}
                 />
-                <span className="text-sm text-gray-700">
-                  {seller.name}
-                  {seller.productCount && (
-                    <span className="ml-1 text-xs text-gray-500">
-                      ({seller.productCount})
-                    </span>
-                  )}
-                </span>
-              </label>
+              </div>
             ))
           )}
         </div>

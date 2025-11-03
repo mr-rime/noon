@@ -47,7 +47,9 @@ const GET_CATEGORY_BY_SLUG = gql`
 
 const GET_FILTERED_PRODUCTS = gql`
   query GetFilteredProducts(
+    $search: String
     $categoryId: String
+    $categories: [String]
     $brands: [Int]
     $minPrice: Float
     $maxPrice: Float
@@ -56,7 +58,9 @@ const GET_FILTERED_PRODUCTS = gql`
     $offset: Int
   ) {
     getProducts(
+      search: $search
       categoryId: $categoryId
+      categories: $categories
       brands: $brands
       minPrice: $minPrice
       maxPrice: $maxPrice
@@ -72,6 +76,7 @@ const GET_FILTERED_PRODUCTS = gql`
         price
         final_price
         product_overview
+        category_id
         images {
           image_url
           is_primary
@@ -122,16 +127,30 @@ export default function CategoryPage() {
   const category = categoryData?.getCategoryByNestedPath?.category ||
     categoryData?.getCategoryBySlug?.category
 
-  const { data: productsData, loading: productsLoading } = useQuery(GET_FILTERED_PRODUCTS, {
-    skip: !category,
-    variables: {
-      categoryId: filters.categories && filters.categories.length > 0 ? null : category?.category_id,
+  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
+  const rawSearch = searchParams.get('q') || undefined
+  const search = isNestedPath ? undefined : rawSearch
 
-      categories: filters.categories && filters.categories.length > 0 ? filters.categories : undefined,
-      ...filters,
+  const { data: productsData, loading: productsLoading } = useQuery(GET_FILTERED_PRODUCTS, {
+    skip: !category && !search,
+    variables: {
+      search,
+      categoryId:
+        filters.categories && filters.categories.length > 0
+          ? null
+          : category?.category_id,
+      categories:
+        filters.categories && filters.categories.length > 0
+          ? filters.categories
+          : undefined,
+      brands: filters.brands,
+      minPrice: filters.minPrice,
+      maxPrice: filters.maxPrice,
+      minRating: filters.minRating,
       limit,
-      offset: (page - 1) * limit
-    }
+      offset: (page - 1) * limit,
+    },
+    fetchPolicy: 'cache-and-network',
   })
 
   const products = productsData?.getProducts?.products || []
@@ -153,7 +172,7 @@ export default function CategoryPage() {
     )
   }
 
-  if (!category) {
+  if (!category && !search) {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-semibold text-gray-900">Category not found</h2>
@@ -165,12 +184,12 @@ export default function CategoryPage() {
     <div className="min-h-screen bg-gray-50">
       <CategoryCarousel />
 
-      <Breadcrumb categoryId={category.category_id} />
+      {category && <Breadcrumb categoryId={category.category_id} />}
 
       <div className=" px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex gap-6">
           <FilterSidebar
-            currentCategoryId={category.category_id}
+            currentCategoryId={category?.category_id}
             onFiltersChange={setFilters}
           />
 

@@ -5,7 +5,7 @@ import { useQuery } from '@apollo/client'
 import { GET_WISHLIST_ITEMS } from '@/graphql/wishlist'
 import { useSearch } from '@tanstack/react-router'
 import { ProductSkeleton } from '@/components/product/components'
-import { wishlist_icons } from '../constants'
+// import { wishlist_icons } from '../constants'
 import { Ellipsis } from 'lucide-react'
 import { Image } from '@unpic/react'
 import { Dropdown } from '@/components/ui/dropdown'
@@ -14,12 +14,15 @@ import { DeleteButtonWithModal } from './delete-button-with-modal'
 import { useMemo } from 'react'
 import { MakeDefaultWishlistButton } from './make-default-wishlist-button'
 import { EmptyWishlistButton } from './empty-wishlist-button'
+import { ShareWishlistButtonWithModal } from './share-wishlist-button-with-modal'
+import { TogglePublicSharingButton } from './toggle-public-sharing-button'
 // import { MoveOrCopyWishlistItemModal } from './move-or-copy-wishlist-modal'
 
 export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
   const { wishlistCode } = useSearch({ from: '/(main)/_homeLayout/wishlist/' })
   const { data, loading } = useQuery<WishlistResponse<'getWishlistItems', WishlistType[]>>(GET_WISHLIST_ITEMS, {
     variables: { wishlist_id: wishlistCode },
+    fetchPolicy: 'network-only',
   })
   const currentWishlist = useMemo(() => wishlists.find((w) => w.id === wishlistCode), [wishlistCode, wishlists])
   // const [modal, setModal] = useState<'move' | 'copy' | null>(null)
@@ -36,10 +39,7 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
           )}
         </p>
         <div className="flex items-center gap-4">
-          <button className="flex cursor-pointer items-center gap-3 rounded-full border border-[#ebecf0] px-[30px] py-[6px]">
-            <span>{wishlist_icons.shareIcon}</span>
-            <span className="font-bold text-[14px]">Share</span>
-          </button>
+          <ShareWishlistButtonWithModal currentWishlist={currentWishlist} />
           <Dropdown
             align="center"
             trigger={
@@ -50,20 +50,10 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
                 <span className="font-bold text-[14px]">More</span>
               </button>
             }>
-            <div
-              // onClick={() => setModal('move')}
-              className="flex w-full cursor-pointer items-center gap-2 border-gray-200/80 border-b p-2 text-start transition-colors hover:bg-gray-300/10"
-            >
-              Move to another wishlist
-            </div>
-            <div
-              // onClick={() => setModal('copy')}
-              className="flex w-full cursor-pointer items-center gap-2 border-gray-200/80 border-b p-2 text-start transition-colors hover:bg-gray-300/10"
-            >
-              Copy to another wishlist
-            </div>
+
             <EditButttonWithModal wishlist={currentWishlist} />
             {!currentWishlist?.is_default && <MakeDefaultWishlistButton currentWishlist={currentWishlist} />}
+            <TogglePublicSharingButton currentWishlist={currentWishlist} />
             <EmptyWishlistButton currentWishlist={currentWishlist} />
             {!currentWishlist?.is_default && (
               <DeleteButtonWithModal wishlists={wishlists} currentWishlist={currentWishlist} />

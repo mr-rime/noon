@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ChevronDown, Search, X } from 'lucide-react'
 import { useQuery } from '@apollo/client'
 import { gql } from '@apollo/client'
+import { Checkbox } from '@/components/ui/checkbox'
 
 const GET_BRANDS = gql`
   query GetBrands($search: String) {
@@ -92,18 +93,13 @@ export default function BrandFilter({
               <div className="text-sm text-gray-500">No brands found</div>
             ) : (
               brands.map((brand: Brand) => (
-                <label
-                  key={brand.brand_id}
-                  className="flex items-center py-1 hover:bg-gray-50 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
+                <div key={brand.brand_id} className="py-1 hover:bg-gray-50">
+                  <Checkbox
                     checked={selectedBrands.includes(brand.brand_id)}
-                    onChange={() => onBrandToggle(brand.brand_id)}
-                    className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    onCheckedChange={() => onBrandToggle(brand.brand_id)}
+                    label={brand.name}
                   />
-                  <span className="text-sm text-gray-700">{brand.name}</span>
-                </label>
+                </div>
               ))
             )}
           </div>

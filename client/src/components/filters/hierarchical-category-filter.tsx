@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useQuery } from '@apollo/client'
+import { useParams } from '@tanstack/react-router'
 import type { Category, HierarchicalCategoryFilterProps } from '@/types/category'
 import { CategoryItem } from './components/category-item'
 import { GET_HIERARCHICAL_CATEGORIES } from '@/graphql/category'
@@ -10,38 +11,53 @@ import { GET_HIERARCHICAL_CATEGORIES } from '@/graphql/category'
 export default function HierarchicalCategoryFilter({
   selectedCategories,
   onCategoryToggle,
-}: HierarchicalCategoryFilterProps) {
+  rootCategoryId,
+}: HierarchicalCategoryFilterProps & { rootCategoryId?: string }) {
   const [expandedCategories, setExpandedCategories] = useState<string[]>([])
 
-  const { data, loading } = useQuery(GET_HIERARCHICAL_CATEGORIES)
+  const { data, loading } = useQuery(GET_HIERARCHICAL_CATEGORIES, {
+    variables: { rootCategoryId, maxDepth: 5 },
+  })
   const categories = useMemo(() => data?.getHierarchicalCategories?.categories || [], [data])
   const hasSelection = selectedCategories.length > 0
+  const params = useParams({ from: '/(main)/_homeLayout/category/$' })
+  const currentPath = (params as any)?._splat || ''
 
   useEffect(() => {
-    if (selectedCategories.length > 0 && categories.length > 0) {
-      const toExpand: string[] = []
+    if (categories.length === 0) return
 
+    const toExpand: string[] = []
 
+    
+    if (currentPath) {
+      const slugs = currentPath.split('/').filter(Boolean)
+      const collect = (nodes: any[], remaining: string[]): boolean => {
+        if (remaining.length === 0) return true
+        const [slug, ...rest] = remaining
+        const node = nodes.find(n => n.slug === slug)
+        if (!node) return false
+        toExpand.push(node.category_id)
+        return collect(node.children || [], rest)
+      }
+      collect(categories, slugs)
+    }
 
+    if (selectedCategories.length > 0) {
+      const parentSet = new Set<string>()
+      const dfs = (node: any, path: string[]) => {
+        if (selectedCategories.includes(node.category_id)) {
+          path.forEach(id => parentSet.add(id))
+        }
+        ; (node.children || []).forEach((c: any) => dfs(c, [...path, node.category_id]))
+      }
+      categories.forEach((c: any) => dfs(c, []))
+      toExpand.push(...Array.from(parentSet))
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    if (toExpand.length > 0) {
       setExpandedCategories(prev => [...new Set([...prev, ...toExpand])])
     }
-  }, [selectedCategories, categories])
+  }, [selectedCategories, categories, currentPath])
 
   const handleExpand = (categoryId: string) => {
     setExpandedCategories(prev =>

@@ -21,7 +21,14 @@ function addItemToWishlist(mysqli $db, array $args): array
         $userId = $_SESSION['user']['id'];
 
         $wishlistModel = new Wishlist($db);
-        $wishlistModel->addItemToDefault($userId, $args['product_id']);
+
+        if (!empty($args['wishlist_id'])) {
+            $wishlistIdValidator = v::stringType()->notEmpty()->length(1, 21);
+            $wishlistIdValidator->assert($args['wishlist_id']);
+            $wishlistModel->addItemToWishlist((int) $userId, $args['wishlist_id'], $args['product_id']);
+        } else {
+            $wishlistModel->addItemToDefault((int) $userId, $args['product_id']);
+        }
 
         return [
             'success' => true,

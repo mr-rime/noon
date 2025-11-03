@@ -6,18 +6,23 @@ import { useQuery } from '@apollo/client'
 import { GET_WISHLISTS } from '@/graphql/wishlist'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useEffect, useMemo } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import type { WishlistResponse, WishlistType } from './types'
 
 export function WishlistPage() {
   const navigate = useNavigate({ from: '/wishlist' })
+  const { wishlistCode } = useSearch({ from: '/(main)/_homeLayout/wishlist/' })
   const { data, loading } = useQuery<WishlistResponse<'getWishlists', WishlistType[]>>(GET_WISHLISTS)
   const wishlists = useMemo(() => data?.getWishlists.data || [], [data])
 
   useEffect(() => {
-    navigate({ search: { wishlistCode: wishlists[0]?.id } })
-
-  }, [loading, navigate, wishlists])
+    if (loading) return
+    if (!wishlists.length) return
+    const currentExists = wishlistCode && wishlists.some((w) => w.id === wishlistCode)
+    if (!currentExists) {
+      navigate({ search: { wishlistCode: wishlists[0]?.id }, replace: true })
+    }
+  }, [loading, navigate, wishlists, wishlistCode])
 
   return (
     <main className="site-container mt-10 min-h-screen w-full px-[45px] py-2">

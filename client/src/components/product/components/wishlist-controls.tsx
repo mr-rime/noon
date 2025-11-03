@@ -3,20 +3,26 @@ import { Button } from '@/components/ui/button'
 import { Dropdown } from '@/components/ui/dropdown'
 import { ADD_CART_ITEM, GET_CART_ITEMS } from '@/graphql/cart'
 import { GET_WISHLIST_ITEMS, GET_WISHLISTS, REMOVE_WISHLIST_ITEM } from '@/graphql/wishlist'
+import { MoveOrCopyWishlistItemModal } from '@/pages/wishlist/components/move-or-copy-wishlist-modal'
 import type { WishlistResponse, WishlistType } from '@/pages/wishlist'
 import type { ProductType } from '@/types'
-import { useMutation } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 import { useSearch } from '@tanstack/react-router'
 import { Clipboard, Ellipsis, Move, Trash } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
 export function WishlistControls({ productId }: { productId: ProductType['id'] | undefined }) {
+  const [modal, setModal] = useState<'move' | 'copy' | null>(null)
   const [addCartItem, { loading }] = useMutation(ADD_CART_ITEM, {
     refetchQueries: [GET_CART_ITEMS],
     awaitRefetchQueries: true,
   })
 
   const { wishlistCode } = useSearch({ from: '/(main)/_homeLayout/wishlist/' })
+
+  const { data } = useQuery<WishlistResponse<'getWishlists', WishlistType[]>>(GET_WISHLISTS)
+  const wishlists = useMemo(() => data?.getWishlists?.data || [], [data])
 
   const [removeWishlistItem,] = useMutation<WishlistResponse<'removeWishlistItem', WishlistType>>(
     REMOVE_WISHLIST_ITEM,
@@ -69,11 +75,15 @@ export function WishlistControls({ productId }: { productId: ProductType['id'] |
             <Ellipsis color="#3866df" size={20} />
           </button>
         }>
-        <button className="flex w-full cursor-pointer items-center gap-2 border-gray-200/80 border-b p-2 text-start transition-colors hover:bg-gray-300/10">
+        <button
+          onClick={() => setModal('move')}
+          className="flex w-full cursor-pointer items-center gap-2 border-gray-200/80 border-b p-2 text-start transition-colors hover:bg-gray-300/10">
           <Move size={15} color="#3866DF" />
           Move to another wishlist
         </button>
-        <button className="flex w-full cursor-pointer items-center gap-2 border-gray-200/80 border-b p-2 text-start transition-colors hover:bg-gray-300/10">
+        <button
+          onClick={() => setModal('copy')}
+          className="flex w-full cursor-pointer items-center gap-2 border-gray-200/80 border-b p-2 text-start transition-colors hover:bg-gray-300/10">
           <Clipboard size={15} color="#3866DF" />
           Copy to another wishlist
         </button>
@@ -85,6 +95,15 @@ export function WishlistControls({ productId }: { productId: ProductType['id'] |
           Delete
         </button>
       </Dropdown>
+      <MoveOrCopyWishlistItemModal
+        isOpen={modal !== null}
+        operation={modal ?? 'move'}
+        wishlists={wishlists}
+        productId={productId as string | null}
+        currentWishlistId={wishlistCode}
+        onClose={() => setModal(null)}
+        onDone={() => setModal(null)}
+      />
     </div>
   )
 }

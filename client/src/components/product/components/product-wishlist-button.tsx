@@ -131,7 +131,6 @@ export function ProductWishlistButton({
     [isInWishlist, isLoading, handleAddWishlistItem, handleRemoveWishlistItem],
   )
 
-  console.log(user)
   return (
     <>
       {user?.getUser.user !== undefined ? (

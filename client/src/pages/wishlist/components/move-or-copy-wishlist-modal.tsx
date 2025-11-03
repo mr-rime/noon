@@ -1,11 +1,11 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
+import { BouncingLoading } from '@/components/ui/bouncing-loading'
 import { ModalDialog } from '@/components/ui/modal-dialog/modal-dialog'
 import { Separator } from '@/components/ui/separator'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { wishlist_icons } from '../constants'
-import { useMutation } from '@apollo/client'
+import { useApolloClient, useMutation } from '@apollo/client'
 import { CREATE_WISHLIST, ADD_WISHLIST_ITEM, REMOVE_WISHLIST_ITEM, GET_WISHLISTS, GET_WISHLIST_ITEMS } from '@/graphql/wishlist'
 
 export function MoveOrCopyWishlistItemModal({
@@ -27,7 +27,8 @@ export function MoveOrCopyWishlistItemModal({
 }) {
     const [checked, setChecked] = useState<string[]>([])
     const [createNew, setCreateNew] = useState('')
-    const inputRef = useRef<HTMLInputElement>(null)
+    const [submitting, setSubmitting] = useState(false)
+    const apolloClient = useApolloClient()
     const [createWishlist] = useMutation(CREATE_WISHLIST, {
         refetchQueries: [GET_WISHLISTS],
         awaitRefetchQueries: true,
@@ -41,6 +42,8 @@ export function MoveOrCopyWishlistItemModal({
         awaitRefetchQueries: true,
     })
     const handleDone = async () => {
+        if (submitting) return
+        setSubmitting(true)
         const targetIds = [...checked]
         if (createNew.trim()) {
             const { data } = await createWishlist({ variables: { name: createNew } })
@@ -49,12 +52,16 @@ export function MoveOrCopyWishlistItemModal({
         }
         if (productId) {
             await Promise.all(targetIds.map((wishlist_id) => addWishlistItem({ variables: { product_id: productId, wishlist_id } })))
+            await Promise.all(targetIds.map((wishlist_id) =>
+                apolloClient.query({ query: GET_WISHLIST_ITEMS, variables: { wishlist_id }, fetchPolicy: 'network-only' })
+            ))
             if (operation === 'move' && currentWishlistId) {
                 await removeWishlistItem({ variables: { wishlist_id: currentWishlistId, product_id: productId } })
             }
         }
         setChecked([])
         setCreateNew('')
+        setSubmitting(false)
         onDone()
     }
     return isOpen ? (
@@ -93,28 +100,16 @@ export function MoveOrCopyWishlistItemModal({
                             </div>
                         </div>
                     ))}
-                    <div
-                        className="mt-2 flex cursor-pointer items-center gap-2 rounded border bg-[#fafbfc] px-4 py-4 text-[#535871] hover:bg-[#f1f1f2]"
-                        onClick={() => inputRef.current && inputRef.current.focus()}
-                    >
-                        <span className="inline-block h-8 w-8 shrink-0 rounded-full border bg-white" />
-                        <Input
-                            className="flex-1 border-none bg-transparent outline-none focus:ring-0 focus-visible:ring-0"
-                            placeholder="Create New Wishlist"
-                            value={createNew}
-                            onChange={(e) => setCreateNew(e.target.value)}
-                            ref={inputRef}
-                        />
-                    </div>
+
                 </div>
             }
             footer={
                 <Button
                     className="mt-2 w-full"
                     onClick={handleDone}
-                    disabled={checked.length === 0 && !createNew.trim()}
+                    disabled={submitting || (checked.length === 0 && !createNew.trim())}
                 >
-                    DONE
+                    {submitting ? <BouncingLoading /> : 'DONE'}
                 </Button>
             }
         />

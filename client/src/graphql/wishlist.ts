@@ -32,8 +32,8 @@ export const CREATE_WISHLIST = gql`
     }
 `
 export const ADD_WISHLIST_ITEM = gql`
-    mutation ($product_id: String!) {
-        addWishlistItem(product_id: $product_id) {
+    mutation ($product_id: String!, $wishlist_id: String) {
+        addWishlistItem(product_id: $product_id, wishlist_id: $wishlist_id) {
             success
             message
         }

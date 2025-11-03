@@ -16,10 +16,6 @@ export function CategoryItem({
     const params = useParams({ from: "/(main)/_homeLayout/category/$" })
     const selectedCategory = params._splat?.split("/").at(-1)
 
-    console.log(selectedCategory)
-
-    console.log(category.slug)
-
     return (
         <div className={`${level > 0 ? 'ml-2' : ''}`}>
             <div className="flex items-start py-1">
@@ -64,7 +60,7 @@ export function CategoryItem({
                                 <div key={child.category_id} className="flex items-center py-1">
                                     <Checkbox
                                         id={`category-${child.category_id}`}
-                                        checked={category.slug === selectedCategory}
+                                        checked={child.slug === selectedCategory}
                                         onChange={() => onCategoryToggle(child.category_id)}
                                         className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                     />

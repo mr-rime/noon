@@ -76,12 +76,26 @@ function getCategories(mysqli $db, ?string $parentId = null, bool $includeChildr
     }
 }
 
-function getHierarchicalCategories(mysqli $db): array
+function getHierarchicalCategories(mysqli $db, array $args = []): array
 {
     $categoryModel = new Category($db);
 
     try {
-        $categories = $categoryModel->getCategoryTree(null, 5);
+        $rootCategoryId = $args['rootCategoryId'] ?? null;
+        $maxDepth = isset($args['maxDepth']) ? (int) $args['maxDepth'] : 5;
+
+        if ($rootCategoryId) {
+            $root = $categoryModel->findById($rootCategoryId, true);
+            if ($root) {
+                $children = $categoryModel->getCategoryTree($rootCategoryId, $maxDepth);
+                $root['children'] = $children;
+                $categories = [$root];
+            } else {
+                $categories = [];
+            }
+        } else {
+            $categories = $categoryModel->getCategoryTree(null, $maxDepth);
+        }
 
 
         function processCategories(&$categories, $db)

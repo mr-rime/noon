@@ -143,8 +143,8 @@ export const GET_SUBCATEGORIES = gql`
 `
 
 export const GET_HIERARCHICAL_CATEGORIES = gql`
-  query GetHierarchicalCategories {
-    getHierarchicalCategories {
+  query GetHierarchicalCategories($rootCategoryId: String, $maxDepth: Int) {
+    getHierarchicalCategories(rootCategoryId: $rootCategoryId, maxDepth: $maxDepth) {
       success
       categories {
         category_id
