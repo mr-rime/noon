@@ -386,6 +386,90 @@ class Product
         return (int) ($result[0]['total'] ?? 0);
     }
 
+    public function findDiscountedProducts(int $limit = 12, string $orderDir = 'DESC'): array
+    {
+        $orderDir = strtoupper($orderDir) === 'ASC' ? 'ASC' : 'DESC';
+
+        $query = "
+            SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary,
+                   c.name as category_name, s.name as subcategory_name, b.name as brand_name,
+                   pg.name as group_name, pg.group_id,
+                   d.id as discount_id, d.type as discount_type, d.value as discount_value, d.starts_at, d.ends_at
+            FROM products p
+            LEFT JOIN discounts d ON d.product_id = p.id
+            LEFT JOIN product_images pi ON p.id = pi.product_id
+            LEFT JOIN categories_nested c ON p.category_id = c.category_id
+            LEFT JOIN subcategories s ON p.subcategory_id = s.subcategory_id
+            LEFT JOIN brands b ON p.brand_id = b.brand_id
+            LEFT JOIN product_groups pg ON p.group_id = pg.group_id
+            WHERE p.is_public = 1 AND d.id IS NOT NULL
+            ORDER BY p.id
+        ";
+
+        $stmt = $this->db->prepare($query);
+        $rows = $this->fetchAssocAll($stmt);
+
+        // Build products and compute discount_percentage
+        $products = [];
+        foreach ($rows as $row) {
+            $pid = $row['id'];
+            if (!isset($products[$pid])) {
+                $products[$pid] = [
+                    'id' => $pid,
+                    'psku' => $row['psku'],
+                    'name' => $row['name'],
+                    'slug' => $this->generateSlug($row['name']),
+                    'price' => $row['price'],
+                    'currency' => $row['currency'],
+                    'stock' => $row['stock'],
+                    'product_overview' => $row['product_overview'],
+                    'is_returnable' => $row['is_returnable'],
+                    'is_public' => $row['is_public'] ?? 0,
+                    'final_price' => $row['final_price'],
+                    'category_id' => $row['category_id'],
+                    'brand_id' => $row['brand_id'],
+                    'group_id' => $row['group_id'],
+                    'category_name' => $row['category_name'],
+                    'subcategory_name' => $row['subcategory_name'],
+                    'brand_name' => $row['brand_name'],
+                    'group_name' => $row['group_name'],
+                    'created_at' => $row['created_at'],
+                    'updated_at' => $row['updated_at'],
+                    'images' => [],
+                ];
+            }
+
+            if ($row['image_id']) {
+                $products[$pid]['images'][] = [
+                    'id' => $row['image_id'],
+                    'image_url' => $row['image_url'],
+                    'is_primary' => (bool) $row['is_primary'],
+                ];
+            }
+        }
+
+        // Attach discount data and filter active
+        $active = [];
+        foreach ($products as &$product) {
+            $this->attachDiscountData($product, $product['price']);
+            if (!empty($product['discount'])) {
+                $active[] = $product;
+            }
+        }
+
+        // Sort by discount_percentage
+        usort($active, function ($a, $b) use ($orderDir) {
+            $da = $a['discount_percentage'] ?? 0;
+            $db = $b['discount_percentage'] ?? 0;
+            if ($da == $db)
+                return 0;
+            $cmp = $da <=> $db;
+            return $orderDir === 'DESC' ? -$cmp : $cmp;
+        });
+
+        return array_slice($active, 0, $limit);
+    }
+
     public function findRelatedProducts(string $productId, ?string $categoryId, ?int $brandId, int $limit = 8): array
     {
 

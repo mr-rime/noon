@@ -9,6 +9,9 @@ $HomeType = new ObjectType([
     'name' => 'Home',
     'fields' => [
         'recommendedForYou' => Type::listOf($ProductType),
+        'previouslyBrowsed' => Type::listOf($ProductType),
+        'bestDeals' => Type::listOf($ProductType),
+        'discountedProducts' => Type::listOf($ProductType),
     ]
 ]);
 

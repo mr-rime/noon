@@ -1,3 +1,6 @@
 export * from './hero-section'
 export * from './recommended-products'
+export { default as PreviouslyBrowsedProducts } from './previously-browsed-products'
+export { default as BestDeals } from './best-deals'
+export { default as DiscountedProducts } from './discounted-products'
 export * from './slideable-images'

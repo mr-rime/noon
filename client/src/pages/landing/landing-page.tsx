@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import HeroSection from './components/hero-section'
 import RecommendedProducts from './components/recommended-products'
+import { PreviouslyBrowsedProducts, BestDeals, DiscountedProducts } from './components'
 import { ProductsListSkeleton } from '@/components/ui/products-list-skeleton'
 import { HeroBanner, SecondaryBanner, MobileBanner } from '@/components/banners/banner-display'
 import CategoryCarousel from '@/components/category/category-carousel'
@@ -38,6 +39,27 @@ export function Landing() {
 
             <RecommendedProducts />
           </Suspense>
+        </div>
+
+        <div className="min-h-[467px] bg-white mt-10">
+          <h3 className="my-2 select-none text-center font-extrabold text-[36px] uppercase">
+            <span className="text-black">Previously</span> <span className="text-[#E4041B]">browsed</span>
+          </h3>
+          <PreviouslyBrowsedProducts />
+        </div>
+
+        <div className="min-h-[467px] bg-white mt-10">
+          <h3 className="my-2 select-none text-center font-extrabold text-[36px] uppercase">
+            <span className="text-black">Best</span> <span className="text-[#E4041B]">deals for you</span>
+          </h3>
+          <BestDeals />
+        </div>
+
+        <div className="min-h-[467px] bg-white mt-10">
+          <h3 className="my-2 select-none text-center font-extrabold text-[36px] uppercase">
+            <span className="text-black">Products</span> <span className="text-[#E4041B]">on discount</span>
+          </h3>
+          <DiscountedProducts />
         </div>
       </div>
     </div>
