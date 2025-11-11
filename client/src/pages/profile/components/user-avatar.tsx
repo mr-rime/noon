@@ -17,7 +17,7 @@ export function UserAvatar() {
       <div>
         <div className="text-[18px]">
           <strong className="flex items-center">
-            <span className="mr-1">Hala</span>{' '}
+            <span className="mr-1">Hello</span>{' '}
             {loading ? <Skeleton className="h-[15px] rounded-[3px]" /> : `${data.getUser.user.first_name}!`}
           </strong>
         </div>

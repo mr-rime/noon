@@ -23,13 +23,12 @@ class BrowsingHistory
                 INDEX idx_user_id (user_id),
                 INDEX idx_product_session (product_id, session_id),
                 INDEX idx_viewed_at (viewed_at)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+            )"
         );
     }
 
     public function logView(string $sessionId, ?int $userId, string $productId): void
     {
-        // Avoid duplicates next to each other: delete existing recent same pair
         $del = $this->db->prepare("DELETE FROM browsing_history WHERE session_id = ? AND product_id = ?");
         $del->bind_param('ss', $sessionId, $productId);
         $del->execute();
@@ -38,7 +37,6 @@ class BrowsingHistory
         $stmt->bind_param('sis', $sessionId, $userId, $productId);
         $stmt->execute();
 
-        // Keep only last 50 per session
         $cleanup = $this->db->prepare(
             "DELETE FROM browsing_history 
              WHERE session_id = ? AND id NOT IN (
@@ -53,7 +51,6 @@ class BrowsingHistory
 
     public function getRecent(string $sessionId, ?int $userId, int $limit = 12): array
     {
-        // Prefer user_id to consolidate across sessions if logged in
         if ($userId) {
             $stmt = $this->db->prepare(
                 "SELECT product_id FROM browsing_history WHERE user_id = ? ORDER BY viewed_at DESC LIMIT ?"

@@ -6,8 +6,9 @@ import { ProductTitle } from './components/product-title'
 import { Star } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { WishlistControls } from './components/wishlist-controls'
-import { useQuery } from '@apollo/client'
+import { useQuery, useMutation } from '@apollo/client'
 import { GET_PRODUCT } from '@/graphql/product'
+import { LOG_PRODUCT_VIEW } from '@/graphql/browsing-history'
 import { useState } from 'react'
 import { formatNumber } from '@/utils/format-number'
 
@@ -31,8 +32,10 @@ export function Product({
   imageHeight = 290,
 }: Partial<ProductType> & { isWishlistProduct?: boolean; className?: string; imageHeight?: number }) {
   const [hasFetched, setHasFetched] = useState(false)
-  const { refetch } = useQuery(GET_PRODUCT, { variables: { id }, skip: true })
+  const [viewLogged, setViewLogged] = useState(false)
 
+  const { refetch } = useQuery(GET_PRODUCT, { variables: { id }, skip: true })
+  const [logView] = useMutation(LOG_PRODUCT_VIEW)
 
   const productImages = images
     ? [...images].sort(
@@ -43,9 +46,17 @@ export function Product({
   const handlePrefetch = async () => {
     if (!hasFetched) {
       await refetch({ fetchPolicy: 'network-only' })
+      setHasFetched(true)
     }
+  }
 
-    setHasFetched(true)
+  const handleLogView = () => {
+    if (id && !viewLogged) {
+      logView({ variables: { productId: id } })
+        .then(res => console.log(res.data.logProductView.message))
+        .catch(err => console.error('Log view error:', err))
+      setViewLogged(true)
+    }
   }
 
   return (
@@ -54,13 +65,15 @@ export function Product({
       className={cn(
         'h-[467px] min-w-[230px] w-full max-w-[230px] select-none overflow-x-hidden rounded-[12px] border border-[#DDDDDD] bg-white p-2',
         isWishlistProduct && 'h-fit',
-        className,
+        className
       )}>
       <Link
         to="/$title/$productId"
         params={{ productId: id || '', title: name?.replace(/\s+/g, '-') || '' }}
         className="h-full w-full"
-        preload="intent">
+        preload="intent"
+        onClick={handleLogView} // ✅ Log product view on click
+      >
         <ProductImage
           images={productImages?.map((img) => img.image_url) || []}
           product_id={id!}
@@ -70,7 +83,6 @@ export function Product({
           height={imageHeight}
         />
         <ProductTitle name={name || ''} />
-
 
         {(psku || category_name || brand_name) && (
           <div className="my-2 space-y-1">

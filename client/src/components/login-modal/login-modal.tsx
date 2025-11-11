@@ -19,7 +19,7 @@ export function LoginModal({ onClose }: LoginModalProps) {
         <>
           <InfiniteScrollingImage imageUrl="/media/imgs/random-items.png" />
           <h2 id="login-dialog-title" className="mb-4 text-center font-bold text-xl">
-            Hala! Let's get started
+            Hello! Let's get started
           </h2>
         </>
       }

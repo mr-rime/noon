@@ -59,14 +59,9 @@ function getProductById(mysqli $db, string $id): array
 
         $product = $model->findById($id, $publicOnly);
 
-        // Record view in browsing history (session/user based)
         try {
             $user = $sessionManager->getUser($sessionId);
             $userId = $user['id'] ?? (isset($_SESSION['user']['id']) ? $_SESSION['user']['id'] : null);
-            $history = new BrowsingHistory($db);
-            if ($product) {
-                $history->logView($sessionId, $userId, $id);
-            }
         } catch (Exception $inner) {
             error_log('browsing history log error: ' . $inner->getMessage());
         }

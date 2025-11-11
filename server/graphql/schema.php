@@ -19,6 +19,7 @@ require_once __DIR__ . '/types/CartTypes.php';
 require_once __DIR__ . '/types/WishlistTypes.php';
 require_once __DIR__ . '/types/BannerTypes.php';
 require_once __DIR__ . '/types/ReviewTypes.php';
+require_once __DIR__ . '/types/BrowsingHistoryTypes.php';
 require_once __DIR__ . '/resolvers/UserResolver.php';
 require_once __DIR__ . '/resolvers/PartnerResolver.php';
 require_once __DIR__ . '/resolvers/AuthResolver.php';
@@ -35,6 +36,8 @@ require_once __DIR__ . '/resolvers/StoreResolver.php';
 require_once __DIR__ . '/resolvers/PskuResolver.php';
 require_once __DIR__ . '/resolvers/BannerResolver.php';
 require_once __DIR__ . '/resolvers/ReviewResolver.php';
+require_once __DIR__ . '/resolvers/BrowsingHistoryResolver.php';
+
 
 $QueryType = new ObjectType([
     'name' => 'query',
@@ -367,6 +370,15 @@ $QueryType = new ObjectType([
             ],
             'resolve' => requireStoreAuth(fn($root, $args, $context) => getAllOrders($context['db'], $args))
         ],
+
+        'getRecentBrowsingHistory' => [
+            'type' => $BrowsingHistoryListResponseType,
+            'args' => [
+                'limit' => Type::int()
+            ],
+            'resolve' => requireStoreAuth(fn($root, $args, $context) => getRecentBrowsingHistory($context['db'], $args))
+        ],
+
 
     ],
 
@@ -856,7 +868,21 @@ $MutationType = new ObjectType([
                 'birthday' => Type::string(),
             ],
             'resolve' => requireAuth(fn($root, $args, $context) => updateUser($context['db'], $args))
-        ]
+        ],
+
+        'logProductView' => [
+            'type' => $BrowsingHistoryResponseType,
+            'args' => [
+                'productId' => Type::nonNull(Type::string())
+            ],
+            'resolve' => requireAuth(fn($root, $args, $context) => logProductView($context['db'], $args))
+        ],
+
+        'clearBrowsingHistory' => [
+            'type' => $BrowsingHistoryResponseType,
+            'resolve' => requireAuth(fn($root, $args, $context) => clearBrowsingHistory($context['db']))
+        ],
+
     ]
 ]);
 

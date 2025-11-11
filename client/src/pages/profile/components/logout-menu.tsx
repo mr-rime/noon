@@ -8,18 +8,23 @@ import { GET_USER } from '@/graphql/user'
 import { cn } from '@/utils/cn'
 import { GET_WISHLISTS } from '@/graphql/wishlist'
 import { GET_CART_ITEMS } from '@/graphql/cart'
+import { useNavigate } from '@tanstack/react-router'
 
 export function LogoutMenu() {
   const [logout] = useMutation(LOGOUT, {
     refetchQueries: [GET_USER, GET_HOME, GET_WISHLISTS, GET_CART_ITEMS],
     awaitRefetchQueries: true,
   })
+
+  const navigate = useNavigate();
+
   const handleLogout = async () => {
     try {
       const { data } = await logout()
       Cookies.remove('hash')
       Cookies.remove('NOON_SESSION_ID')
       toast.success(data.logout.message)
+      navigate({ to: '/', reloadDocument: true })
     } catch (e) {
       console.error(e)
       toast.error('Something went wrong!')

@@ -1,4 +1,4 @@
-import { useParams } from '@tanstack/react-router'
+import { useLocation, useParams } from '@tanstack/react-router'
 import { useQuery } from '@apollo/client'
 import { gql } from '@apollo/client'
 import { useState } from 'react'
@@ -127,7 +127,8 @@ export default function CategoryPage() {
   const category = categoryData?.getCategoryByNestedPath?.category ||
     categoryData?.getCategoryBySlug?.category
 
-  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
+  const location = useLocation()
+  const searchParams = new URLSearchParams(location.search)
   const rawSearch = searchParams.get('q') || undefined
   const search = isNestedPath ? undefined : rawSearch
 

@@ -91,7 +91,7 @@ export function ProfileInformation() {
             type="submit"
             disabled={updating || loading || !formState.isDirty || !formState.isValid}
             className={`mt-5 h-[48px] w-full max-w-[300px] rounded-[8px] px-[32px] text-white text-[14px] uppercase ${updating || loading || !formState.isDirty || !formState.isValid
-              ? 'bg-[#7e859b] cursor-not-allowed'
+              ? 'bg-[#7e859b] hover:bg-[#7e859b] cursor-not-allowed'
               : 'bg-[#3E72F7] hover:bg-[#3E72F7]'}`}
           >
             {updating ? 'Saving...' : 'Update Profile'}

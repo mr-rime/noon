@@ -130,27 +130,18 @@ class Product
         $params = [];
         $types = '';
 
-
         if (!empty(trim($search))) {
             $conditions[] = "(name LIKE CONCAT('%', ?, '%') OR product_overview LIKE CONCAT('%', ?, '%') OR psku LIKE CONCAT('%', ?, '%'))";
             $params = array_merge($params, [$search, $search, $search]);
             $types .= 'sss';
         }
 
-
-
         if (!empty($categories) && is_array($categories)) {
-
-            $categoryModel = new Category($this->db);
             $allCategoryIds = [];
-
             foreach ($categories as $catId) {
-                $descendantIds = $categoryModel->getAllDescendantIds($catId);
-                $allCategoryIds = array_merge($allCategoryIds, $descendantIds);
+                $allCategoryIds = array_merge($allCategoryIds, $this->categoryModel->getAllDescendantIds($catId));
             }
-
             $allCategoryIds = array_unique($allCategoryIds);
-
             if (!empty($allCategoryIds)) {
                 $placeholders = implode(',', array_fill(0, count($allCategoryIds), '?'));
                 $conditions[] = "category_id IN ($placeholders)";
@@ -158,10 +149,7 @@ class Product
                 $types .= str_repeat('s', count($allCategoryIds));
             }
         } elseif ($categoryId !== null) {
-
-            $categoryModel = new Category($this->db);
-            $descendantIds = $categoryModel->getAllDescendantIds($categoryId);
-
+            $descendantIds = $this->categoryModel->getAllDescendantIds($categoryId);
             if (!empty($descendantIds)) {
                 $placeholders = implode(',', array_fill(0, count($descendantIds), '?'));
                 $conditions[] = "category_id IN ($placeholders)";
@@ -174,14 +162,12 @@ class Product
             }
         }
 
-
         if (!empty($brands)) {
             $placeholders = implode(',', array_fill(0, count($brands), '?'));
             $conditions[] = "brand_id IN ($placeholders)";
             $params = array_merge($params, $brands);
             $types .= str_repeat('i', count($brands));
         }
-
 
         if ($minPrice !== null) {
             $conditions[] = "price >= ?";
@@ -194,100 +180,62 @@ class Product
             $types .= 'd';
         }
 
-
-
-
-
-
-
-
         $where = empty($conditions) ? '' : 'WHERE ' . implode(' AND ', $conditions);
 
-        $order = !empty(trim($search)) ? "
-            ORDER BY CASE
-                WHEN psku = ? THEN 1
-                WHEN name = ? THEN 2
-                WHEN psku LIKE CONCAT(?, '%') THEN 3
-                WHEN name LIKE CONCAT(?, '%') THEN 4
-                WHEN name LIKE CONCAT('%', ?, '%') THEN 5
-                WHEN product_overview LIKE CONCAT('%', ?, '%') THEN 6
-                ELSE 7
-            END, id" : 'ORDER BY id';
-
+        $order = 'ORDER BY id DESC';
         if (!empty(trim($search))) {
-            $params = array_merge($params, array_fill(0, 6, $search));
-            $types .= 'ssssss';
+            $escapedSearch = $this->db->real_escape_string($search);
+            $order = "
+            ORDER BY 
+                (psku LIKE '%$escapedSearch%') DESC,
+                (name LIKE '%$escapedSearch%') DESC,
+                (product_overview LIKE '%$escapedSearch%') DESC,
+                id DESC
+        ";
         }
 
         return [$where, $order, $params, $types];
     }
 
 
-
     public function findAll(?int $userId, int $limit = 10, int $offset = 0, string $search = '', bool $publicOnly = false, ?string $categoryId = null, ?array $categories = null, ?array $brands = null, ?float $minPrice = null, ?float $maxPrice = null, ?float $minRating = null): array
     {
         [$where, $order, $params, $types] = $this->buildWhereWithFilters($search, $categoryId, $categories, $brands, $minPrice, $maxPrice, $minRating);
 
-
         if ($publicOnly) {
-            if (trim($where) === '') {
-                $where = "WHERE is_public = 1";
-            } else {
-                $where = preg_replace('/^\s*WHERE\s*/i', 'WHERE ', $where);
-                $where .= " AND is_public = 1";
-            }
+            $where = empty($where) ? "WHERE is_public = 1" : $where . " AND is_public = 1";
         }
 
-
         $query = "SELECT id FROM products $where $order LIMIT ? OFFSET ?";
-        $params = [...$params, $limit, $offset];
+        $params = array_merge($params, [$limit, $offset]);
         $types .= 'ii';
 
         $stmt = $this->db->prepare($query);
         $stmt->bind_param($types, ...$params);
         $productIds = array_column($this->fetchAssocAll($stmt), 'id');
 
-        if (!$productIds)
+        if (empty($productIds)) {
             return [];
-
-
-        $wishlistJoin = $wishlistSelect = '';
-        $wishlistParams = [];
-        $wishlistTypes = '';
-        if ($userId) {
-            $wishlistJoin = "
-                LEFT JOIN wishlist_items wi ON wi.product_id = p.id
-                LEFT JOIN wishlists w ON wi.wishlist_id = w.id AND w.user_id = ?";
-            $wishlistSelect = "CASE WHEN w.id IS NOT NULL THEN 1 ELSE 0 END AS is_in_wishlist, w.id AS wishlist_id,";
-            $wishlistParams = [$userId];
-            $wishlistTypes = 'i';
         }
-
 
         $placeholders = implode(',', array_fill(0, count($productIds), '?'));
         $query = "
-    SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary, $wishlistSelect
-           c.name as category_name, s.name as subcategory_name, b.name as brand_name,
-           pg.name as group_name, pg.group_id,
-           0 as dummy
-    FROM products p
-    LEFT JOIN product_images pi ON p.id = pi.product_id
-    LEFT JOIN categories_nested c ON p.category_id = c.category_id
-    LEFT JOIN subcategories s ON p.subcategory_id = s.subcategory_id
-    LEFT JOIN brands b ON p.brand_id = b.brand_id
-    LEFT JOIN product_groups pg ON p.group_id = pg.group_id
-    $wishlistJoin
-    WHERE p.id IN ($placeholders)"
-            . ($publicOnly ? " AND p.is_public = 1" : "") . "
-    ORDER BY p.id";
-
-
+        SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary,
+               c.name as category_name, s.name as subcategory_name, b.name as brand_name,
+               pg.name as group_name, pg.group_id
+        FROM products p
+        LEFT JOIN product_images pi ON p.id = pi.product_id
+        LEFT JOIN categories_nested c ON p.category_id = c.category_id
+        LEFT JOIN subcategories s ON p.subcategory_id = s.subcategory_id
+        LEFT JOIN brands b ON p.brand_id = b.brand_id
+        LEFT JOIN product_groups pg ON p.group_id = pg.group_id
+        WHERE p.id IN ($placeholders)
+        ORDER BY FIELD(p.id, " . implode(',', array_map('intval', $productIds)) . ")
+    ";
 
         $stmt = $this->db->prepare($query);
-        $params = array_merge($wishlistParams, $productIds);
-        $stmt->bind_param($wishlistTypes . str_repeat('i', count($productIds)), ...$params);
+        $stmt->bind_param(str_repeat('s', count($productIds)), ...$productIds);
         $rows = $this->fetchAssocAll($stmt);
-
 
         $products = [];
         foreach ($rows as $row) {
@@ -311,16 +259,8 @@ class Product
                 'subcategory_name' => $row['subcategory_name'],
                 'brand_name' => $row['brand_name'],
                 'group_name' => $row['group_name'],
-                'brand' => [
-                    'name' => $row['brand_name']
-                ],
-                'created_at' => $row['created_at'],
-                'updated_at' => $row['updated_at'],
-                'is_in_wishlist' => (bool) ($row['is_in_wishlist'] ?? 0),
-                'wishlist_id' => $row['wishlist_id'] ?? null,
                 'images' => [],
             ];
-
             if ($row['image_id']) {
                 $products[$pid]['images'][] = [
                     'id' => $row['image_id'],
@@ -330,28 +270,9 @@ class Product
             }
         }
 
-
-        foreach ($products as $pid => &$product) {
-            $product['productSpecifications'] = $this->specModel->findByProductId($pid);
-
-
-            $ratingData = $this->getProductRatingData($pid);
-            $product['rating'] = $ratingData['rating'];
-            $product['review_count'] = $ratingData['review_count'];
-
-            if ($product['group_id']) {
-                $product['groupAttributes'] = $this->groupModel->getGroupAttributes($product['group_id']);
-                $product['productAttributes'] = $this->getProductAttributes($pid);
-            } else {
-                $product['groupAttributes'] = [];
-                $product['productAttributes'] = [];
-            }
-
-            $this->attachDiscountData($product, $product['price']);
-        }
-
         return array_values($products);
     }
+
 
     public function getTotalCount(string $search = '', bool $publicOnly = false, ?string $categoryId = null, ?array $categories = null, ?array $brands = null, ?float $minPrice = null, ?float $maxPrice = null, ?float $minRating = null): int
     {

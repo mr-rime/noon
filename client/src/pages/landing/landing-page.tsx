@@ -41,26 +41,9 @@ export function Landing() {
           </Suspense>
         </div>
 
-        <div className="min-h-[467px] bg-white mt-10">
-          <h3 className="my-2 select-none text-center font-extrabold text-[36px] uppercase">
-            <span className="text-black">Previously</span> <span className="text-[#E4041B]">browsed</span>
-          </h3>
-          <PreviouslyBrowsedProducts />
-        </div>
-
-        <div className="min-h-[467px] bg-white mt-10">
-          <h3 className="my-2 select-none text-center font-extrabold text-[36px] uppercase">
-            <span className="text-black">Best</span> <span className="text-[#E4041B]">deals for you</span>
-          </h3>
-          <BestDeals />
-        </div>
-
-        <div className="min-h-[467px] bg-white mt-10">
-          <h3 className="my-2 select-none text-center font-extrabold text-[36px] uppercase">
-            <span className="text-black">Products</span> <span className="text-[#E4041B]">on discount</span>
-          </h3>
-          <DiscountedProducts />
-        </div>
+        <PreviouslyBrowsedProducts />
+        <BestDeals />
+        <DiscountedProducts />
       </div>
     </div>
   )

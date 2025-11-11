@@ -12,24 +12,32 @@ export default function BestDeals() {
     })
     const deals = (data?.getHome.home?.bestDeals || []) as ProductType[]
 
+    if (deals.length === 0) return;
+
     return (
-        <div className="flex min-h-[200px] w-full items-center bg-white p-4">
-            <div className="w-full">
-                {loading ? (
-                    <ProductsListSkeleton />
-                ) : deals.length === 0 ? (
-                    <div className="p-6 text-center text-sm text-muted-foreground">No deals available right now.</div>
-                ) : (
-                    <Carousel
-                        className="w-full"
-                        controlClassName="flex items-center justify-center bg-white cursor-pointer w-[30px] h-[30px] shadow-[0_0_3px_-1px_rgba(0,0,0,.5)] border border-[#ccc]  ">
-                        {deals.map((product) => (
-                            <Product key={product.id} {...product} />
-                        ))}
-                    </Carousel>
-                )}
+        <div className="min-h-[467px] bg-white mt-10">
+            <h3 className="my-2 select-none text-center font-extrabold text-[36px] uppercase">
+                <span className="text-black">Best</span> <span className="text-[#E4041B]">deals for you</span>
+            </h3>
+            <div className="flex min-h-[200px] w-full items-center bg-white p-4">
+                <div className="w-full">
+                    {loading ? (
+                        <ProductsListSkeleton />
+                    ) : deals.length === 0 ? (
+                        <div className="p-6 text-center text-sm text-muted-foreground">No deals available right now.</div>
+                    ) : (
+                        <Carousel
+                            className="w-full"
+                            controlClassName="flex items-center justify-center bg-white cursor-pointer w-[30px] h-[30px] shadow-[0_0_3px_-1px_rgba(0,0,0,.5)] border border-[#ccc]  ">
+                            {deals.map((product) => (
+                                <Product key={product.id} {...product} />
+                            ))}
+                        </Carousel>
+                    )}
+                </div>
             </div>
         </div>
+
     )
 }
 
