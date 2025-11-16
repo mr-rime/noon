@@ -11,14 +11,16 @@ function getHome(mysqli $db, array $data): array
         $sessionManager = new SessionManager($db);
         $sessionId = $sessionManager->getSessionId();
         $user = $sessionManager->getUser($sessionId);
-        $userId = $user['id'] ?? ($_SESSION['user']['id'] ?? null);
+        $userId = $user['id'];
         $limit = $data['limit'] ?? 10;
         $offset = $data['offset'] ?? 0;
         $search = $data['search'] ?? '';
 
+        error_log("User iD" . $userId);
+        error_log("_SESSION iD" . $sessionId);
+
         $recommended = $productModel->findAll($userId, $limit, $offset, $search, true);
 
-        // Previously browsed by session/user
         $history = new BrowsingHistory($db);
         $recentIds = $history->getRecent($sessionId, $userId, 12);
         $previouslyBrowsed = [];
@@ -28,10 +30,8 @@ function getHome(mysqli $db, array $data): array
                 $previouslyBrowsed[] = $p;
         }
 
-        // Best deals: discounted, sort by discount_percentage desc
         $bestDeals = $productModel->findDiscountedProducts(12, 'DESC');
 
-        // Discounted products: recent discounted
         $discounted = $productModel->findDiscountedProducts(12, 'DESC');
 
         return [

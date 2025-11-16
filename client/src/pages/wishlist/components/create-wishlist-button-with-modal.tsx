@@ -6,7 +6,7 @@ import { ModalDialog } from '@/components/ui/modal-dialog/modal-dialog'
 import { Separator } from '@/components/ui/separator'
 import { CREATE_WISHLIST, GET_WISHLISTS } from '@/graphql/wishlist'
 import { useModalDialog } from '@/hooks/use-modal-dialog'
-import { useMutation } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 import type { WishlistResponse, WishlistType } from '../types'
@@ -22,8 +22,19 @@ export function CreateWishlistButtonWithModal() {
   const wishlistNameInputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
 
+
+  const { data: wishlistsData } = useQuery<WishlistResponse<'getWishlists', WishlistType[]>>(GET_WISHLISTS)
+  const existingWishlists = wishlistsData?.getWishlists?.data || []
+  const MAX_WISHLISTS = 4
+  const isAtLimit = existingWishlists.length >= MAX_WISHLISTS
+
   const handleCreateWishlist = async () => {
     if (wishlistNameInputRef.current?.value.trim() === '') return toast.error('Wishlist name cannot be empty')
+
+
+    if (existingWishlists.length >= MAX_WISHLISTS) {
+      return toast.error(`You can only have ${MAX_WISHLISTS} wishlists. Please delete an existing wishlist to create a new one.`)
+    }
 
     const { data } = await createWishlist({ variables: { name: String(wishlistNameInputRef.current?.value) } })
     const res = data?.createWishlist
@@ -36,10 +47,22 @@ export function CreateWishlistButtonWithModal() {
     }
   }
 
+  const handleOpenModal = () => {
+    if (isAtLimit) {
+      toast.error(`You can only have ${MAX_WISHLISTS} wishlists. Please delete an existing wishlist to create a new one.`)
+      return
+    }
+    open()
+  }
+
   return (
     <div>
-      <Button onClick={open} className="h-[40px] px-[20px] py-[10px]">
-        Create new wishlist
+      <Button
+        onClick={handleOpenModal}
+        className="h-[40px] px-[20px] py-[10px]"
+        disabled={isAtLimit}
+      >
+        Create new wishlist {isAtLimit && `(${existingWishlists.length}/${MAX_WISHLISTS})`}
       </Button>
 
       {isOpen && (

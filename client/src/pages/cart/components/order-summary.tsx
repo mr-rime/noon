@@ -5,6 +5,7 @@ import { useMutation } from '@apollo/client'
 import { CREATE_CHECKOUT_SESSION } from '@/graphql/orders'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { ChevronRight } from 'lucide-react'
 
 export function OrderSummary({ cartItems }: { cartItems: CartItemType[] }) {
   const [isProcessing, setIsProcessing] = useState(false)
@@ -23,12 +24,11 @@ export function OrderSummary({ cartItems }: { cartItems: CartItemType[] }) {
       const { data } = await createCheckoutSession({
         variables: {
           success_url: `${window.location.origin}/orders?payment=success`,
-          cancel_url: `${window.location.origin}/cart?payment=cancelled`
-        }
+          cancel_url: `${window.location.origin}/cart?payment=cancelled`,
+        },
       })
 
       if (data?.createCheckoutSession?.success && data?.createCheckoutSession?.session_url) {
-
         window.location.href = data.createCheckoutSession.session_url
       } else {
         toast.error(data?.createCheckoutSession?.message || 'Failed to create checkout session')
@@ -43,59 +43,75 @@ export function OrderSummary({ cartItems }: { cartItems: CartItemType[] }) {
 
   const subtotal = cartItems.reduce((total, item) => {
     const price = item.final_price || item.price || 0
-    return total + (price * item.quantity)
+    return total + price * item.quantity
   }, 0)
 
   const total = subtotal
 
   return (
-    <section className="sticky w-full max-w-[35%] rounded-[6px] rounded-t-none border border-[rgba(198,204,221,.5)] p-[10px_20px]">
-      <h2 className="font-bold text-[19px]">Order Summary</h2>
+    <section className="w-full rounded-2xl border border-[#EAECF0] bg-white p-4 shadow-sm sm:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-[#20232a]">Order Summary</h2>
+          <p className="text-xs text-[#7e859b]">Review your order costs before checkout</p>
+        </div>
+        <div className="text-right">
+          <p className="text-xs uppercase tracking-wide text-[#7e859b]">Cart Total</p>
+          <p className="text-base font-semibold text-[#20232a]">
+            EGP {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </p>
+        </div>
+      </div>
+
       <Input
         placeholder="Coupon Code"
-        className="mt-2"
+        className="mt-4"
         input={{ className: 'bg-white' }}
         button
         buttonDirection="right"
       />
-      <div className="mt-5 w-full space-y-3">
-        <div className="flex w-full items-center justify-between ">
-          <div className="text-[#7e859b] text-[14px] ">Subtotal ({cartItems.length || 0} items)</div>
-          <div className="text-[15px]">
-            <span className="mr-1">EGP</span>
-            <span>{subtotal.toFixed(2)}</span>
-          </div>
-        </div>
-        <div className="flex w-full items-center justify-between ">
-          <div className="text-[#7e859b] text-[14px]">Shipping Fee</div>
-          <div className="font-bold text-[#38ae04] text-[15px] uppercase">
-            <span>Free</span>
-          </div>
-        </div>
-      </div>
-      <Separator className="my-5 bg-[#DFDFDF]" />
-      <div>
-        <div className="flex w-full items-center justify-between ">
-          <div className="text-[14px] ">
-            <span className="font-bold text-[20px]">Total</span>{' '}
-            <span className="text-[#7e859b] ">(Inclusive of VAT)</span>
-          </div>
-          <div className="font-bold text-[21px]">
-            <span className="mr-1">EGP</span>
-            <span>{total.toFixed(2)}</span>
-          </div>
-        </div>
 
-        <div className="mt-5">
-          <button
-            onClick={handleCheckout}
-            disabled={isProcessing || cartItems.length === 0}
-            className="h-[48px] w-full cursor-pointer rounded-[4px] bg-[#3866df] p-[16px] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#3e72f7] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isProcessing ? 'Processing...' : 'Checkout'}
-          </button>
+      <button
+        type="button"
+        className="mt-3 flex w-full items-center justify-between rounded-2xl border border-[#EAECF0] px-4 py-3 text-sm font-semibold text-[#404553] transition-colors hover:border-[#c3c8db]">
+        <span>View Available Offers</span>
+        <ChevronRight size={16} />
+      </button>
+
+      <div className="mt-5 space-y-3 text-sm">
+        <div className="flex items-center justify_between text-[#404553]">
+          <span>Subtotal ({cartItems.length || 0} items)</span>
+          <span className="font-semibold">
+            EGP {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
+        </div>
+        <div className="flex items-center justify_between text-[#404553]">
+          <span>Shipping</span>
+          <span className="font-semibold uppercase text-[#38ae04]">Free</span>
         </div>
       </div>
+
+      <Separator className="my-5 bg-[#DFDFDF]" />
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-xs uppercase text-[#7e859b]">Total (VAT included)</p>
+          <p className="text-2xl font-semibold text-[#20232a]">
+            EGP {total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </p>
+        </div>
+        <div className="text-right text-xs text-[#7e859b]">
+          <p>VAT and Duties included</p>
+          <p>Secure checkout</p>
+        </div>
+      </div>
+
+      <button
+        onClick={handleCheckout}
+        disabled={isProcessing || cartItems.length === 0}
+        className="mt-5 h-12 w-full rounded-xl bg-[#3866df] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#3e72f7] disabled:cursor-not-allowed disabled:opacity-50">
+        {isProcessing ? 'Processing…' : 'Checkout'}
+      </button>
     </section>
   )
 }

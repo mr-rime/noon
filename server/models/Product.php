@@ -330,7 +330,7 @@ class Product
         $stmt = $this->db->prepare($query);
         $rows = $this->fetchAssocAll($stmt);
 
-        // Build products and compute discount_percentage
+        
         $products = [];
         foreach ($rows as $row) {
             $pid = $row['id'];
@@ -369,7 +369,7 @@ class Product
             }
         }
 
-        // Attach discount data and filter active
+        
         $active = [];
         foreach ($products as &$product) {
             $this->attachDiscountData($product, $product['price']);
@@ -378,7 +378,7 @@ class Product
             }
         }
 
-        // Sort by discount_percentage
+        
         usort($active, function ($a, $b) use ($orderDir) {
             $da = $a['discount_percentage'] ?? 0;
             $db = $b['discount_percentage'] ?? 0;

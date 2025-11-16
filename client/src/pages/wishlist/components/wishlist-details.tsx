@@ -1,12 +1,11 @@
 import { Product } from '@/components/product/product'
-import { Separator } from '@/components/ui/separator'
 import type { WishlistResponse, WishlistType } from '../types'
 import { useQuery } from '@apollo/client'
 import { GET_WISHLIST_ITEMS } from '@/graphql/wishlist'
 import { useSearch } from '@tanstack/react-router'
 import { ProductSkeleton } from '@/components/product/components'
-// import { wishlist_icons } from '../constants'
-import { Ellipsis } from 'lucide-react'
+
+import { Ellipsis, ShieldCheck, Users } from 'lucide-react'
 import { Image } from '@unpic/react'
 import { Dropdown } from '@/components/ui/dropdown'
 import { EditButttonWithModal } from './edit-buttton-with-modal'
@@ -16,7 +15,7 @@ import { MakeDefaultWishlistButton } from './make-default-wishlist-button'
 import { EmptyWishlistButton } from './empty-wishlist-button'
 import { ShareWishlistButtonWithModal } from './share-wishlist-button-with-modal'
 import { TogglePublicSharingButton } from './toggle-public-sharing-button'
-// import { MoveOrCopyWishlistItemModal } from './move-or-copy-wishlist-modal'
+
 
 export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
   const { wishlistCode } = useSearch({ from: '/(main)/_homeLayout/wishlist/' })
@@ -25,90 +24,101 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
     fetchPolicy: 'network-only',
   })
   const currentWishlist = useMemo(() => wishlists.find((w) => w.id === wishlistCode), [wishlistCode, wishlists])
-  // const [modal, setModal] = useState<'move' | 'copy' | null>(null)
+
+
+  const itemCount = currentWishlist?.item_count || 0
+  const isPrivate = currentWishlist?.is_private
 
   return (
     <section className="w-full flex-auto">
-      <header className="flex items-center justify-between p-[20px]">
-        <p className="flex items-center gap-1">
-          <span className="px-[7px] text-start font-bold text-[22px]">{currentWishlist?.name}</span>
-          {currentWishlist?.is_default && (
-            <span className="rounded-[14px] bg-[#3866df] px-[10px] py-[2px] font-bold text-[12px] text-white">
-              Default
-            </span>
-          )}
-        </p>
-        <div className="flex items-center gap-4">
-          <ShareWishlistButtonWithModal currentWishlist={currentWishlist} />
-          <Dropdown
-            align="center"
-            trigger={
-              <button className="flex cursor-pointer items-center gap-2 rounded-full border border-[#ebecf0] px-[30px] py-[6px]">
-                <span>
-                  <Ellipsis />
+      <div className="rounded-2xl border border-[#EAECF0] bg-white shadow-sm">
+        <header className="flex flex-col gap-4 border-b border-[#F0F2F5] p-4 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-2xl font-bold text-[#1f2024]">{currentWishlist?.name || 'Wishlist'}</h2>
+              {currentWishlist?.is_default && (
+                <span className="rounded-full bg-[#3866df] px-3 py-1 text-xs font-semibold uppercase text-white">
+                  Default
                 </span>
-                <span className="font-bold text-[14px]">More</span>
-              </button>
-            }>
-
-            <EditButttonWithModal wishlist={currentWishlist} />
-            {!currentWishlist?.is_default && <MakeDefaultWishlistButton currentWishlist={currentWishlist} />}
-            <TogglePublicSharingButton currentWishlist={currentWishlist} />
-            <EmptyWishlistButton currentWishlist={currentWishlist} />
-            {!currentWishlist?.is_default && (
-              <DeleteButtonWithModal wishlists={wishlists} currentWishlist={currentWishlist} />
-            )}
-          </Dropdown>
-        </div>
-      </header>
-      <Separator />
-      <div className="m-5 w-full">
-        {(currentWishlist?.item_count || 0) <= 0 ? (
-          <div className="flex h-full w-full flex-col items-center justify-center">
-            <Image
-              src="/media/gifs/wishlist-empty-desktop-fallback.gif"
-              alt="empty wishlist fallback"
-              width={400}
-              height={400}
-              className={'select-none'}
-              layout="constrained"
-            />
-            <div className="text-center">
-              <h3 className="font-bold text-[22px]">Ready to make a wish?</h3>
-              <p className="text-[#7e859b] text-[14px]">
-                Start adding items you love to your wishlist by tapping on the heart icon
-              </p>
+              )}
+              <span className="rounded-full bg-[#F4F7FF] px-3 py-1 text-xs font-semibold text-[#3866df]">
+                {itemCount} item{itemCount === 1 ? '' : 's'}
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase text-[#7e859b]">
+              {isPrivate ? (
+                <span className="flex items-center gap-1 rounded-full bg-[#FDF2F8] px-3 py-1 text-[#C11574]">
+                  <ShieldCheck size={14} /> Private list
+                </span>
+              ) : (
+                <span className="flex items-center gap-1 rounded-full bg-[#F0FDF4] px-3 py-1 text-[#027A48]">
+                  <Users size={14} /> Shared list
+                </span>
+              )}
+              <span className="text-[11px] normal-case text-[#9CA3AF]">
+                Updated {currentWishlist?.created_at ? new Date(currentWishlist.created_at).toLocaleDateString() : 'recently'}
+              </span>
             </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-[repeat(4,minmax(0,calc(25%-15px)))] gap-[20px] ">
-            {loading ? (
-              <>
-                <ProductSkeleton />
-                <ProductSkeleton />
-                <ProductSkeleton />
-              </>
-            ) : (
-              data?.getWishlistItems.data.map((item) => (
-                <Product
-                  key={item.id}
-                  isWishlistProduct
-                  {...item}
-                  user_id={parseInt(item.user_id)}
-                />
-              ))
-            )}
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <ShareWishlistButtonWithModal currentWishlist={currentWishlist} />
+            <Dropdown
+              align="center"
+              trigger={
+                <button className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-[#dfe4f2] px-6 py-2 text-sm font-semibold text-[#1f2024] transition-colors hover:border-[#3866df] hover:text-[#3866df] sm:w-auto">
+                  <Ellipsis size={16} /> More
+                </button>
+              }>
+              <EditButttonWithModal wishlist={currentWishlist} />
+              {!currentWishlist?.is_default && <MakeDefaultWishlistButton currentWishlist={currentWishlist} />}
+              <TogglePublicSharingButton currentWishlist={currentWishlist} />
+              <EmptyWishlistButton currentWishlist={currentWishlist} />
+              {!currentWishlist?.is_default && (
+                <DeleteButtonWithModal wishlists={wishlists} currentWishlist={currentWishlist} />
+              )}
+            </Dropdown>
           </div>
-        )}
+        </header>
+
+        <div className="p-4 sm:p-6">
+          {itemCount <= 0 ? (
+            <div className="flex h-full w-full flex-col items-center justify-center text-center">
+              <Image
+                src="/media/gifs/wishlist-empty-desktop-fallback.gif"
+                alt="empty wishlist fallback"
+                width={320}
+                height={320}
+                className="select-none"
+                layout="constrained"
+              />
+              <div className="max-w-md space-y-2">
+                <h3 className="text-xl font-semibold text-[#1f2024]">Ready to make a wish?</h3>
+                <p className="text-sm text-[#7e859b]">
+                  Start adding items you love to your wishlist by tapping on the heart icon when browsing products.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+              {loading ? (
+                Array.from({ length: 4 }).map((_, idx) => <ProductSkeleton key={idx} />)
+              ) : (
+                data?.getWishlistItems.data.map((item) => (
+                  <Product
+                    key={item.id}
+                    isWishlistProduct
+                    className="w-full max-w-full min-w-0"
+                    imageHeight={220}
+                    {...item}
+                    user_id={parseInt(item.user_id)}
+                  />
+                ))
+              )}
+            </div>
+          )}
+        </div>
       </div>
-      {/* <MoveOrCopyWishlistItemModal
-        productId={productId}
-        isOpen={modal !== null}
-        wishlists={wishlists}
-        operation={modal ?? 'move'}
-        onClose={() => setModal(null)}
-        onDone={() => setModal(null)}
-      /> */}
     </section>
   )
 }

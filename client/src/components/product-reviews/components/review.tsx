@@ -6,21 +6,23 @@ import { VOTE_REVIEW_HELPFUL, REMOVE_REVIEW_VOTE } from '@/graphql/review'
 import { useMutation } from '@apollo/client'
 import { toast } from 'sonner'
 
-interface ProductReviewProps {
-  review: {
-    id: number
-    rating: number
-    title?: string
-    comment: string
-    created_at: string
-    verified_purchase: boolean
-    user: {
-      first_name: string
-      last_name: string
-    }
-    helpful_votes_count: number
-    user_has_voted: boolean
+export interface ReviewItem {
+  id: number
+  rating: number
+  title?: string
+  comment: string
+  created_at: string
+  verified_purchase: boolean
+  user: {
+    first_name: string
+    last_name: string
   }
+  helpful_votes_count: number
+  user_has_voted: boolean
+}
+
+interface ProductReviewProps {
+  review: ReviewItem
 }
 
 export function ProductReview({ review }: ProductReviewProps) {

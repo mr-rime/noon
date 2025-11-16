@@ -13,27 +13,55 @@ export function CartPage() {
   if (loading) return <CartLoadingSkeleton />
 
   const cartItems = data?.getCartItems.cartItems || []
+  const subtotal = cartItems.reduce((total, item) => {
+    const price = Number(item.final_price ?? item.price ?? 0)
+    return total + price * item.quantity
+  }, 0)
 
   return (
-    <main className="site-container mt-10 h-full w-full px-[45px] py-2">
-      {cartItems.length <= 0 ? (
-        <section className="mt-5 flex w-full items-center justify-center">
-          <Link to="/">
-            <EmptyCart />
-          </Link>
-        </section>
-      ) : (
-        <>
-          <h1 className="flex items-center space-x-1">
-            <strong className="text-[23px]">Cart</strong>
-            <div className="text-[#7e859b] text-[14px]">({cartItems.length} items)</div>
-          </h1>
-          <section className="flex w-full items-start space-x-7">
-            <CartItems cartItems={cartItems} />
-            <OrderSummary cartItems={cartItems} />
+    <main className="min-h-screen bg-[#f7f7fa]">
+      <div className="site-container mx-auto w-full max-w-6xl px-3 pb-32 pt-4 sm:px-6 lg:px-8 lg:pt-10">
+        {cartItems.length <= 0 ? (
+          <section className="mt-5 flex w-full items-center justify-center">
+            <Link to="/">
+              <EmptyCart />
+            </Link>
           </section>
-        </>
-      )}
+        ) : (
+          <>
+            <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <h1 className="flex flex-wrap items-baseline gap-2 text-2xl font-semibold text-[#20232a]">
+                Cart
+                <span className="text-sm font-normal text-[#7e859b]">({cartItems.length} items)</span>
+              </h1>
+              <div className="text-base font-semibold text-[#20232a] sm:text-lg">
+                <span className="mr-1 text-sm font-normal text-[#7e859b]">Cart Total:</span>
+                <span>
+                  EGP {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
+              {/* Cart Items */}
+              <section className="flex-1 lg:flex-[2]">
+                <CartItems cartItems={cartItems} />
+              </section>
+
+              {/* Order Summary */}
+              <aside className="w-full lg:flex-[1] lg:max-w-sm">
+                <div className="hidden lg:block lg:sticky lg:top-28">
+                  <OrderSummary cartItems={cartItems} />
+                </div>
+
+                <div className="lg:hidden">
+                  <OrderSummary cartItems={cartItems} />
+                </div>
+              </aside>
+            </div>
+          </>
+        )}
+      </div>
     </main>
   )
 }

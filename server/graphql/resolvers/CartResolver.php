@@ -109,6 +109,38 @@ function addToCart(mysqli $db, array $args): array
     }
 }
 
+function updateCartItemQuantity(mysqli $db, array $args): array
+{
+    try {
+        $cart = new Cart($db);
+        $userId = getUserId();
+        $productId = $args['product_id'] ?? null;
+        $quantity = $args['quantity'] ?? 1;
+
+        if (!$productId || $quantity < 1) {
+            return [
+                'success' => false,
+                'message' => 'Invalid product ID or quantity.',
+                'cartItems' => []
+            ];
+        }
+
+        $success = $cart->updateItemQuantity($userId, $productId, $quantity);
+
+        return [
+            'success' => $success,
+            'message' => $success ? 'Quantity updated.' : 'Failed to update quantity.',
+            'cartItems' => $cart->getCartItems($userId)
+        ];
+    } catch (Exception $e) {
+        return [
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage(),
+            'cartItems' => []
+        ];
+    }
+}
+
 function mergeGuestCart(mysqli $db): array
 {
     try {

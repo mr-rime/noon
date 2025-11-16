@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { wishlist_icons } from '../constants'
 import { useApolloClient, useMutation } from '@apollo/client'
 import { CREATE_WISHLIST, ADD_WISHLIST_ITEM, REMOVE_WISHLIST_ITEM, GET_WISHLISTS, GET_WISHLIST_ITEMS } from '@/graphql/wishlist'
+import { toast } from 'sonner'
 
 export function MoveOrCopyWishlistItemModal({
     isOpen,
@@ -41,6 +42,23 @@ export function MoveOrCopyWishlistItemModal({
         refetchQueries: [GET_WISHLISTS, { query: GET_WISHLIST_ITEMS, variables: { wishlist_id: currentWishlistId } }],
         awaitRefetchQueries: true,
     })
+
+    const MAX_ITEMS_PER_WISHLIST = 5
+
+    const checkWishlistCapacity = async (wishlistId: string): Promise<boolean> => {
+        try {
+            const { data } = await apolloClient.query({
+                query: GET_WISHLIST_ITEMS,
+                variables: { wishlist_id: wishlistId },
+                fetchPolicy: 'network-only'
+            })
+            const currentItems = data?.getWishlistItems?.data || []
+            return currentItems.length < MAX_ITEMS_PER_WISHLIST
+        } catch (error) {
+            console.error('Error checking wishlist capacity:', error)
+            return false
+        }
+    }
     const handleDone = async () => {
         if (submitting) return
         setSubmitting(true)
@@ -50,7 +68,26 @@ export function MoveOrCopyWishlistItemModal({
             const newId = data?.createWishlist?.data?.id
             if (newId) targetIds.push(newId)
         }
+
         if (productId) {
+
+            const capacityChecks = await Promise.all(
+                targetIds.map(async (wishlist_id) => {
+                    const hasCapacity = await checkWishlistCapacity(wishlist_id)
+                    const wishlist = wishlists.find(w => w.id === wishlist_id)
+                    return { wishlist_id, hasCapacity, wishlistName: wishlist?.name || 'Unknown' }
+                })
+            )
+
+            const fullWishlists = capacityChecks.filter(({ hasCapacity }) => !hasCapacity)
+
+            if (fullWishlists.length > 0) {
+                const names = fullWishlists.map(({ wishlistName }) => wishlistName).join(', ')
+                toast.error(`Cannot add to ${names}: Maximum ${MAX_ITEMS_PER_WISHLIST} items per wishlist`)
+                setSubmitting(false)
+                return
+            }
+
             await Promise.all(targetIds.map((wishlist_id) => addWishlistItem({ variables: { product_id: productId, wishlist_id } })))
             await Promise.all(targetIds.map((wishlist_id) =>
                 apolloClient.query({ query: GET_WISHLIST_ITEMS, variables: { wishlist_id }, fetchPolicy: 'network-only' })

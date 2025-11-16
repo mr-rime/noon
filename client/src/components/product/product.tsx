@@ -72,7 +72,7 @@ export function Product({
         params={{ productId: id || '', title: name?.replace(/\s+/g, '-') || '' }}
         className="h-full w-full"
         preload="intent"
-        onClick={handleLogView} // ✅ Log product view on click
+        onClick={handleLogView}
       >
         <ProductImage
           images={productImages?.map((img) => img.image_url) || []}

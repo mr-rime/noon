@@ -128,11 +128,11 @@ export default function FilterSidebar({
 
 
   return (
-    <div className="w-[350px] flex-shrink-0">
+    <div className="w-full lg:w-[350px] flex-shrink-0">
       <div className="bg-white rounded-lg shadow-sm">
         <div className="p-4">
           <h2 className="text-lg font-semibold mb-4">Filters</h2>
-          
+
 
           <div className="space-y-4">
 
@@ -171,7 +171,7 @@ export default function FilterSidebar({
 
 export function FilterSidebarSkeleton() {
   return (
-    <div className="w-[350px] flex-shrink-0">
+    <div className="w-full lg:w-[350px] flex-shrink-0">
       <div className="bg-white rounded-lg shadow-sm">
         <div className="p-4 space-y-4">
           <Skeleton className="h-[22px] w-[120px]" />

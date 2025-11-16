@@ -47,6 +47,14 @@ export function ProductWishlistButton({
     awaitRefetchQueries: true,
   })
 
+
+  const { data: wishlistItemsData } = useQuery(GET_WISHLIST_ITEMS, {
+    variables: { wishlist_id: defaultWishlist?.id },
+    skip: !defaultWishlist?.id,
+  })
+  const currentItems = wishlistItemsData?.getWishlistItems?.data || []
+  const MAX_ITEMS_PER_WISHLIST = 5
+
   const [removeWishlistItem, { loading: isRemovingWishlistItem }] = useMutation<
     WishlistResponse<'removeWishlistItem', WishlistType>
   >(REMOVE_WISHLIST_ITEM, {
@@ -66,6 +74,12 @@ export function ProductWishlistButton({
       e.preventDefault()
       e.stopPropagation()
 
+
+      if (currentItems.length >= MAX_ITEMS_PER_WISHLIST) {
+        toast.error(`You can only have ${MAX_ITEMS_PER_WISHLIST} items per wishlist. Please remove some items to add new ones.`)
+        return
+      }
+
       setIsInWishlist(true)
 
       const { data } = await addWishlistItem({ variables: { product_id } })
@@ -78,7 +92,7 @@ export function ProductWishlistButton({
         setIsInWishlist(false)
       }
     },
-    [addWishlistItem, product_id],
+    [addWishlistItem, product_id, currentItems.length],
   )
 
   const handleRemoveWishlistItem = useCallback(

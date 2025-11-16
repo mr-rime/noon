@@ -52,8 +52,8 @@ export function ProfileInformation() {
         email: user.email ?? '',
       });
     }
-    // eslint-disable-next-line
-  }, [user?.first_name, user?.last_name, user?.email]);
+
+  }, [user, reset]);
 
   const onSubmit = async (form: ProfileValues) => {
     if (!user) return;
@@ -79,18 +79,20 @@ export function ProfileInformation() {
   };
 
   return (
-    <section className="h-screen w-full">
-      <h1 className="font-bold text-[28px]">Profile</h1>
-      <p className="text-[#7e859b] text-[1rem]">View & Update Your Personal and Contact Information</p>
+    <section className="h-full w-full">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold">Profile</h1>
+        <p className="text-[#7e859b] text-sm sm:text-base mt-1">View & Update Your Personal and Contact Information</p>
+      </div>
 
       <FormProvider {...methods}>
-        <form className="mt-5" onSubmit={handleSubmit(onSubmit)}>
+        <form className="mt-5 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <ContactInformation loading={loading} editable />
           <PersonalInformation loading={loading} editable />
           <Button
             type="submit"
             disabled={updating || loading || !formState.isDirty || !formState.isValid}
-            className={`mt-5 h-[48px] w-full max-w-[300px] rounded-[8px] px-[32px] text-white text-[14px] uppercase ${updating || loading || !formState.isDirty || !formState.isValid
+            className={`mt-6 h-[48px] w-full max-w-[300px] rounded-[8px] px-[32px] text-white text-[14px] uppercase ${updating || loading || !formState.isDirty || !formState.isValid
               ? 'bg-[#7e859b] hover:bg-[#7e859b] cursor-not-allowed'
               : 'bg-[#3E72F7] hover:bg-[#3E72F7]'}`}
           >

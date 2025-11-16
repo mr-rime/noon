@@ -274,7 +274,7 @@ export const ProductImageManager = forwardRef<ProductImageManagerRef, ProductIma
                 </p>
             </Dropzone>
 
-            {/* Local Files Preview */}
+
             {localFiles.length > 0 && (
                 <div className="space-y-2">
                     <h4 className="font-medium text-orange-600">Files ready for upload:</h4>

@@ -11,18 +11,60 @@ import { BouncingLoading } from '@/components/ui/bouncing-loading'
 import { Image } from '@unpic/react'
 import { formatNumber } from '@/utils/format-number'
 
+type ProductPageDetailsProps = {
+  theme?: 'mobile' | 'desktop'
+  product?: ProductType
+  quantity?: number
+  onQuantityClick?: () => void
+  onAddToCart?: () => Promise<void> | void
+  onBuyNow?: () => Promise<void> | void
+  addToCartLoading?: boolean
+}
+
 export function ProductPageDetails({
   theme = 'desktop',
   product,
-}: {
-  theme?: 'mobile' | 'desktop'
-  product?: ProductType
-}) {
+  quantity = 1,
+  onQuantityClick,
+  onAddToCart,
+  onBuyNow,
+  addToCartLoading,
+}: ProductPageDetailsProps) {
   const { productId } = useParams({ from: '/(main)/_homeLayout/$title/$productId/' })
   const [addCartItem, { loading }] = useMutation(ADD_CART_ITEM, {
     refetchQueries: [GET_CART_ITEMS],
     awaitRefetchQueries: true,
   })
+
+  const handleInternalAddToCart = async () => {
+    if (!productId) return
+    const { data } = await addCartItem({ variables: { product_id: productId, quantity } })
+    if (data.addToCart.success) {
+      toast.success('Product added to cart successfully.')
+    } else {
+      toast.error('Failed to add product to cart. Please try again.')
+    }
+  }
+
+  const handleAddToCartClick = async () => {
+    if (onAddToCart) {
+      await onAddToCart()
+    } else {
+      await handleInternalAddToCart()
+    }
+  }
+
+  const handleBuyNowClick = async () => {
+    if (onBuyNow) {
+      await onBuyNow()
+    } else {
+      await handleInternalAddToCart()
+    }
+  }
+
+  const resolvedLoading = addToCartLoading ?? loading
+  const showEnhancedActions = Boolean(onAddToCart)
+  const isOutOfStock = Number(product?.stock ?? 0) === 0
 
   return theme === 'desktop' ? (
     <div className="w-full rounded-[8px] border border-[#eceef4]">
@@ -88,22 +130,48 @@ export function ProductPageDetails({
       <Separator className="my-5" />
 
       <div className="px-4 py-3">
-        {Number(product?.stock) === 0 ? (
+        {isOutOfStock ? (
           <Button
             disabled
             className="flex h-[48px] w-full cursor-default items-center justify-center rounded-[14px] bg-[#6079E1] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#6079E1]">
             Out of stock
           </Button>
+        ) : showEnhancedActions ? (
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+              <div className="flex min-w-[72px] flex-col text-xs font-semibold text-[#6f7285]">
+                <span>Qty</span>
+                <button
+                  type="button"
+                  onClick={onQuantityClick}
+                  className="mt-1 rounded-[10px] border border-[#DADCE3] px-4 py-2 text-base font-semibold text-[#20232a]"
+                  aria-label="Change quantity">
+                  {quantity}
+                </button>
+              </div>
+
+              <div className="flex flex-1 flex-col gap-3 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={handleAddToCartClick}
+                  disabled={resolvedLoading}
+                  className="flex h-[48px] flex-1 items-center justify-center rounded-[12px] bg-[#2B4CD7] text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#1e36a5] disabled:cursor-not-allowed disabled:opacity-60">
+                  {resolvedLoading ? <BouncingLoading /> : 'Add to cart'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBuyNowClick}
+                  disabled={resolvedLoading}
+                  className="flex h-[48px] flex-1 items-center justify-center rounded-[12px] border border-[#2B4CD7] text-sm font-bold uppercase tracking-wide text-[#2B4CD7] transition-colors hover:bg-[#eef1ff] disabled:cursor-not-allowed disabled:opacity-60">
+                  Buy now
+                </button>
+              </div>
+            </div>
+            <p className="text-xs text-[#7e859b]">Fast checkout • Secure payment</p>
+          </div>
         ) : (
           <Button
-            onClick={async () => {
-              const { data } = await addCartItem({ variables: { product_id: productId, quantity: 1 } })
-              if (data.addToCart.success) {
-                toast.success('Product added to cart successfully.')
-              } else {
-                toast.error('Failed to add product to cart. Please try again.')
-              }
-            }}
+            onClick={handleInternalAddToCart}
             className="flex h-[48px] w-full cursor-pointer items-center justify-center rounded-[14px] bg-[#2B4CD7] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#6079E1]">
             {loading ? <BouncingLoading /> : 'Add to cart'}
           </Button>
@@ -138,6 +206,48 @@ export function ProductPageDetails({
         </Link>
       </button>
       <Separator className="my-5" />
+      {isOutOfStock ? (
+        <Button
+          disabled
+          className="flex h-[48px] w-full cursor-default items-center justify-center rounded-[14px] bg-[#6079E1] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#6079E1]">
+          Out of stock
+        </Button>
+      ) : showEnhancedActions ? (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between rounded-[10px] border border-[#DADCE3] px-4 py-2 text-sm font-semibold text-[#6f7285]">
+            <span>Quantity</span>
+            <button
+              type="button"
+              onClick={onQuantityClick}
+              className="text-base font-bold text-[#20232a]"
+              aria-label="Change quantity">
+              {quantity}
+            </button>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={handleAddToCartClick}
+              disabled={resolvedLoading}
+              className="flex h-[48px] flex-1 items-center justify-center rounded-[12px] bg-[#2B4CD7] text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#1e36a5] disabled:cursor-not-allowed disabled:opacity-60">
+              {resolvedLoading ? <BouncingLoading /> : 'Add to cart'}
+            </button>
+            <button
+              type="button"
+              onClick={handleBuyNowClick}
+              disabled={resolvedLoading}
+              className="flex h-[48px] flex-1 items-center justify-center rounded-[12px] border border-[#2B4CD7] text-sm font-bold uppercase tracking-wide text-[#2B4CD7] transition-colors hover:bg-[#eef1ff] disabled:cursor-not-allowed disabled:opacity-60">
+              Buy now
+            </button>
+          </div>
+        </div>
+      ) : (
+        <Button
+          onClick={handleInternalAddToCart}
+          className="flex h-[48px] w-full cursor-pointer items-center justify-center rounded-[14px] bg-[#2B4CD7] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#6079E1]">
+          {loading ? <BouncingLoading /> : 'Add to cart'}
+        </Button>
+      )}
     </div>
   )
 }

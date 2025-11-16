@@ -20,13 +20,13 @@ export function Orders() {
 
   if (loading) {
     return (
-      <section className="h-screen w-full">
+      <section className="h-full w-full">
         <div className="w-full">
-          <h1 className="font-bold text-[28px]">Orders</h1>
-          <p className="text-[#7e859b] text-[1rem]">View the delivery status for items and your order history</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Orders</h1>
+          <p className="text-[#7e859b] text-sm sm:text-base mt-1">View the delivery status for items and your order history</p>
         </div>
         <div className="mt-5 flex w-full items-center justify-between">
-          <h3 className="font-bold text-[19px]">Loading...</h3>
+          <h3 className="font-bold text-lg sm:text-xl">Loading...</h3>
         </div>
         <div className="mt-5 flex flex-col space-y-4">
           {[...Array(3)].map((_, i) => (
@@ -40,10 +40,10 @@ export function Orders() {
   if (error) {
     toast.error('Failed to load orders')
     return (
-      <section className="h-screen w-full">
+      <section className="h-full w-full">
         <div className="w-full">
-          <h1 className="font-bold text-[28px]">Orders</h1>
-          <p className="text-[#7e859b] text-[1rem]">View the delivery status for items and your order history</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Orders</h1>
+          <p className="text-[#7e859b] text-sm sm:text-base mt-1">View the delivery status for items and your order history</p>
         </div>
         <div className="mt-5 flex w-full items-center justify-center">
           <p className="text-red-500">Failed to load orders. Please try again.</p>
@@ -96,14 +96,14 @@ export function Orders() {
 
 
   return (
-    <section className="h-screen w-full">
+    <section className="h-full w-full">
       <div className="w-full">
-        <h1 className="font-bold text-[28px]">Orders</h1>
-        <p className="text-[#7e859b] text-[1rem]">View the delivery status for items and your order history</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">Orders</h1>
+        <p className="text-[#7e859b] text-sm sm:text-base mt-1">View the delivery status for items and your order history</p>
       </div>
 
-      <div className="mt-5 flex w-full items-center justify-between">
-        <h3 className="font-bold text-[19px]">
+      <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h3 className="font-bold text-lg sm:text-xl">
           {filteredOrders.length > 0 ? 'Your Orders' : 'No Orders Found'}
         </h3>
 
@@ -111,7 +111,7 @@ export function Orders() {
           <Input
             type="search"
             name="finditems"
-            className="w-[360px]"
+            className="w-full sm:w-[360px]"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             input={{
@@ -145,27 +145,27 @@ export function Orders() {
               <Link to='/orders/track/order/$orderId' params={{ orderId: order.id }}>
                 <div
                   key={order.id}
-                  className="flex w-full cursor-pointer items-center justify-between overflow-hidden rounded-[8px] border border-[#dadce3] bg-white px-8 py-10 transition-colors hover:border-[#9ba0b1]"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full cursor-pointer overflow-hidden rounded-[8px] border border-[#dadce3] bg-white p-4 sm:p-6 lg:px-8 lg:py-10 transition-colors hover:border-[#9ba0b1]"
                 >
-                  <div className="z-[2]">
-                    <div className="flex items-center space-x-1">
-                      <span className={`font-bold text-[16px] ${statusDisplay.color}`}>
+                  <div className="z-[2] flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 mb-3">
+                      <span className={`font-bold text-sm sm:text-base ${statusDisplay.color}`}>
                         {statusDisplay.text}
                       </span>
-                      <div>
+                      <div className="text-xs sm:text-sm text-gray-600">
                         <span>on {formatDate(order.created_at)}</span>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-5">
+                    <div className="flex items-start space-x-3 sm:space-x-5">
                       {firstItem?.product_image && (
                         <img
                           src={firstItem.product_image}
                           alt="product"
-                          className="h-[89px] w-[64px] object-cover rounded"
+                          className="h-[89px] w-[64px] object-cover rounded flex-shrink-0"
                         />
                       )}
-                      <div className="max-w-[270px]">
-                        <p className="line-clamp-3 text-left text-[12px]">
+                      <div className="flex-1 min-w-0 max-w-[270px]">
+                        <p className="line-clamp-3 text-left text-xs sm:text-[12px]">
                           {firstItem?.product_name || 'Product name not available'}
                         </p>
                         {order.items && order.items.length > 1 && (
@@ -177,17 +177,18 @@ export function Orders() {
                     </div>
                   </div>
 
-                  <div className="z-[2] flex min-h-[115px] flex-col items-center justify-between">
-                    <div />
-                    <div className="text-[#9ba0b1] text-[12px] text-center">
-                      <div>
-                        <span>Order ID</span> <strong>{order.id}</strong>
-                      </div>
-                      {order.tracking?.tracking_number && (
-                        <div className="mt-1">
-                          <span>Tracking</span> <strong className="font-mono">{order.tracking.tracking_number}</strong>
+                  <div className="z-[2] flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 sm:mt-0 sm:min-h-[115px]">
+                    <div className="text-center sm:text-right">
+                      <div className="text-[#9ba0b1] text-[12px] mb-2">
+                        <div>
+                          <span>Order ID</span> <strong className="font-mono">{order.id}</strong>
                         </div>
-                      )}
+                        {order.tracking?.tracking_number && (
+                          <div className="mt-1">
+                            <span>Tracking</span> <strong className="font-mono">{order.tracking.tracking_number}</strong>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

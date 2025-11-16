@@ -45,3 +45,16 @@ export const REMOVE_CART_ITEM = gql`
         }
     }
 `
+
+export const UPDATE_CART_ITEM_QUANTITY = gql`
+    mutation ($product_id: String!, $quantity: Int!) {
+        updateCartItemQuantity(product_id: $product_id, quantity: $quantity) {
+            success
+            message
+            cartItems {
+                product_id
+                quantity
+            }
+        }
+    }
+`
