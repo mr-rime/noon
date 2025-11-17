@@ -59,6 +59,13 @@ function getProductById(mysqli $db, string $id): array
 
         $product = $model->findById($id, $publicOnly);
 
+
+        error_log("getProductById return: " . json_encode([
+            'success' => $product !== null,
+            'message' => $product ? 'Product found.' : 'Product not found.',
+            'product' => $product
+        ]));
+
         try {
             $user = $sessionManager->getUser($sessionId);
             $userId = $user['id'] ?? (isset($_SESSION['user']['id']) ? $_SESSION['user']['id'] : null);
@@ -66,12 +73,23 @@ function getProductById(mysqli $db, string $id): array
             error_log('browsing history log error: ' . $inner->getMessage());
         }
 
+
+
+
         return [
             'success' => $product !== null,
             'message' => $product ? 'Product found.' : 'Product not found.',
             'product' => $product
         ];
     } catch (Exception $e) {
+        error_log("getProductById return: " . json_encode([
+            'success' => $product !== null,
+            'message' => $product ? 'Product found.' : 'Product not found.',
+            'product' => $product
+        ]));
+
+        error_log("Error Message: " . $e->getMessage());
+
         return [
             'success' => false,
             'message' => 'Error: ' . $e->getMessage(),

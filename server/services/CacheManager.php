@@ -12,14 +12,15 @@ class CacheManager
     }
 
 
-    public function getProduct(string $productId, callable $callback): array
+    public function getProduct(string $productId, callable $callback, ?string $scope = null): array
     {
-        $cacheKey = "product:{$productId}";
+        $cacheKey = $scope ? "product:{$productId}:{$scope}" : "product:{$productId}";
         return $this->redis->remember($cacheKey, 3600, $callback);
     }
 
     public function invalidateProduct(string $productId): void
     {
+        $this->redis->clearPattern("product:{$productId}:*");
         $this->redis->delete("product:{$productId}");
         $this->redis->delete("products:list");
     }

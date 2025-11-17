@@ -12,18 +12,15 @@ export const Route = createFileRoute('/(dashboard)/d/_dashboardLayout')({
     }
 
     try {
-      const { errors } = await client.query({
+      const { data } = await client.query({
         query: CHECK_STORE_AUTH,
         fetchPolicy: 'network-only',
       })
 
-      const hasUnauthorizedError = Array.isArray(errors)
-        ? errors.some((e) => /unauthorized/i.test(e.message))
-        : false
-
-      if (hasUnauthorizedError) {
+      if (!data.getAllOrders.success) {
         throw redirect({ to: '/d/login', search: { redirect: location.href } })
       }
+
     } catch {
       throw redirect({ to: '/d/login', search: { redirect: location.href } })
     }

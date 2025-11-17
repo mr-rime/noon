@@ -22,6 +22,7 @@ import { ModalDialog } from '@/components/ui/modal-dialog/modal-dialog'
 import { toast } from 'sonner'
 import { Image } from '@unpic/react'
 import { CheckCircle2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export function ProductPage() {
   const { productId } = useParams({
@@ -434,9 +435,6 @@ export function ProductPage() {
             <div className="px-6 pt-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-[#20232a]">Quantity</h3>
-                <button type="button" className="text-sm font-semibold text-[#7e859b]" onClick={() => setIsQuantityModalOpen(false)}>
-                  Close
-                </button>
               </div>
             </div>
           }
@@ -475,7 +473,7 @@ export function ProductPage() {
           onClose={() => setIsAddedModalOpen(false)}
           className="w-[90%] max-w-sm overflow-hidden p-0"
           header={
-            <div className="px-6 pt-6">
+            <div className="px-6 pt-6 mb-5">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e8f5e9]">
                   <CheckCircle2 className="text-[#2B4CD7]" />
@@ -511,18 +509,17 @@ export function ProductPage() {
           }
           footer={
             <div className="grid grid-cols-2 gap-3 px-6 pb-6">
-              <button type="button" className="rounded-[12px] border border-[#DADCE3] py-3 text-sm font-semibold text-[#404553]" onClick={() => setIsAddedModalOpen(false)}>
+              <button className="rounded-[12px] cursor-pointer border border-[#DADCE3] py-3 text-sm font-semibold text-[#404553]" onClick={() => setIsAddedModalOpen(false)}>
                 Continue Shopping
               </button>
-              <button
-                type="button"
+              <Button
                 className="rounded-[12px] bg-[#2B4CD7] py-3 text-sm font-semibold text-white"
                 onClick={() => {
                   setIsAddedModalOpen(false)
                   navigate({ to: '/cart' })
                 }}>
                 View Cart
-              </button>
+              </Button>
             </div>
           }
         />

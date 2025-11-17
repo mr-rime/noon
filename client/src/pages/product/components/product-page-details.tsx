@@ -139,32 +139,14 @@ export function ProductPageDetails({
         ) : showEnhancedActions ? (
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-              <div className="flex min-w-[72px] flex-col text-xs font-semibold text-[#6f7285]">
-                <span>Qty</span>
-                <button
-                  type="button"
-                  onClick={onQuantityClick}
-                  className="mt-1 rounded-[10px] border border-[#DADCE3] px-4 py-2 text-base font-semibold text-[#20232a]"
-                  aria-label="Change quantity">
-                  {quantity}
-                </button>
-              </div>
-
               <div className="flex flex-1 flex-col gap-3 sm:flex-row">
-                <button
+                <Button
                   type="button"
                   onClick={handleAddToCartClick}
                   disabled={resolvedLoading}
                   className="flex h-[48px] flex-1 items-center justify-center rounded-[12px] bg-[#2B4CD7] text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#1e36a5] disabled:cursor-not-allowed disabled:opacity-60">
                   {resolvedLoading ? <BouncingLoading /> : 'Add to cart'}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleBuyNowClick}
-                  disabled={resolvedLoading}
-                  className="flex h-[48px] flex-1 items-center justify-center rounded-[12px] border border-[#2B4CD7] text-sm font-bold uppercase tracking-wide text-[#2B4CD7] transition-colors hover:bg-[#eef1ff] disabled:cursor-not-allowed disabled:opacity-60">
-                  Buy now
-                </button>
+                </Button>
               </div>
             </div>
             <p className="text-xs text-[#7e859b]">Fast checkout • Secure payment</p>

@@ -266,7 +266,8 @@ export const CREATE_PRODUCT_GROUP = gql`
       }
     }
   }
-`
+`;
+
 
 export const ADD_PRODUCT_TO_GROUP = gql`
   mutation AddProductToGroup($product_id: String!, $group_id: String!) {

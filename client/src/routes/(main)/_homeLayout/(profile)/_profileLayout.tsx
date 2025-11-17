@@ -6,7 +6,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import Cookies from "js-cookie";
 
 export const Route = createFileRoute("/(main)/_homeLayout/(profile)/_profileLayout")({
-	loader: async () => {
+	beforeLoad: async () => {
 		const hash = Cookies.get('hash');
 		const { data } = await client.query<GetUserResponse>({
 			query: GET_USER,

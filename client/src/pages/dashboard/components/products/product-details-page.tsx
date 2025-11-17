@@ -5,8 +5,8 @@ import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { ArrowLeft, Package, Users } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
-import { GET_PRODUCT } from '@/graphql/product'
-import {ProductDetailsForm} from './product-details-form'
+import { GET_DASHBOARD_PRODUCT } from '@/graphql/product'
+import { ProductDetailsForm } from './product-details-form'
 import type { ProductType } from '@/types'
 import { ProductGroupManager } from './product-group-manager'
 
@@ -14,11 +14,11 @@ export function ProductDetailsPage() {
     const { productId } = useParams({ from: '/(dashboard)/d/_dashboardLayout/products/$productId/' })
     const [product, setProduct] = useState<ProductType | null>(null)
 
-    const { loading, error, refetch } = useQuery(GET_PRODUCT, {
+    const { loading, error, refetch } = useQuery(GET_DASHBOARD_PRODUCT, {
         variables: { id: productId },
         onCompleted: (data) => {
-            if (data?.getProduct?.product) {
-                setProduct(data.getProduct.product)
+            if (data?.getDashboardProduct?.product) {
+                setProduct(data.getDashboardProduct.product)
             }
         }
     })

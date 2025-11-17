@@ -453,15 +453,18 @@ CREATE TABLE `product_groups` (
   `name` varchar(200) NOT NULL,
   `description` text,
   `category_id` varchar(21) DEFAULT NULL,
+  `subcategory_id` varchar(21) DEFAULT NULL,
   `brand_id` int DEFAULT NULL,
   `attributes` json DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`group_id`),
   KEY `idx_product_groups_category` (`category_id`),
+  KEY `idx_product_groups_subcategory` (`subcategory_id`),
   KEY `idx_product_groups_brand` (`brand_id`),
   CONSTRAINT `fk_product_groups_brand` FOREIGN KEY (`brand_id`) REFERENCES `brands` (`brand_id`) ON DELETE SET NULL,
-  CONSTRAINT `fk_product_groups_category_nested` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`)
+  CONSTRAINT `fk_product_groups_category_nested` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`),
+  CONSTRAINT `fk_product_groups_subcategory` FOREIGN KEY (`subcategory_id`) REFERENCES `subcategories` (`subcategory_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

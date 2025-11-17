@@ -246,7 +246,7 @@ export function ProductGroupManager({ product, onGroupUpdate }: ProductGroupMana
                             attributes: groupAxes
                         }
                     }
-                })
+                });
 
                 if (data?.createProductGroup?.success) {
                     const newGroupId = data.createProductGroup.group.group_id

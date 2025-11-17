@@ -74,15 +74,27 @@ class ProductGroup
 
     public function create(array $data): ?array
     {
+        error_log("DATA DEBUG: " . var_export($data, true));
+
         $validator = v::key('name', v::stringType()->notEmpty()->length(1, 200))
-            ->key('description', v::optional(v::stringType()))
-            ->key('category_id', v::optional(v::stringType()))
-            ->key('subcategory_id', v::optional(v::intVal()->positive()))
+            ->key(
+                'description',
+                v::optional(v::nullable(v::stringType()))
+            )
+            ->key(
+                'category_id',
+                v::optional(v::nullable(v::stringType()))
+            )
+            ->key(
+                'subcategory_id',
+                v::optional(v::nullable(v::stringType()))
+            )
             ->key('brand_id', v::optional(v::intVal()->positive()))
-            ->key('attributes', v::optional(v::arrayType()));
+            ->key('attributes', v::optional(v::arrayType()->each(v::stringType())));
+
 
         try {
-            $validator->assert($data);
+            $validator->validate($data);
         } catch (ValidationException $e) {
             error_log("Validation failed: " . $e->getMessage());
             return null;
@@ -103,7 +115,7 @@ class ProductGroup
         $brandId = $data['brand_id'] ?? null;
         $attributes = isset($data['attributes']) ? json_encode($data['attributes']) : null;
 
-        $stmt->bind_param('ssssiss', $groupId, $data['name'], $description, $categoryId, $subcategoryId, $brandId, $attributes);
+        $stmt->bind_param('sssssis', $groupId, $data['name'], $description, $categoryId, $subcategoryId, $brandId, $attributes);
 
         if ($stmt->execute()) {
             return $this->findById($groupId);
