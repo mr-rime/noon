@@ -65,20 +65,18 @@ export function Header() {
           'sticky top-0 z-30 flex w-full items-center justify-center bg-[#FEEE00] shadow-sm transition-shadow ' +
           (isScrolled ? 'shadow-md' : '')
         }>
-        <div className="site-container flex h-[64px] w-full items-center justify-between px-3 sm:px-4 lg:px-2">
-          <div className="flex flex-1 items-center gap-2 sm:gap-4">
-            <Link to="/" className="text-[20px] sm:text-[24px] font-bold">
+        <div className="site-container flex h-[64px] w-full items-center justify-between px-3 sm:px-4 lg:px-6 xl:px-8">
+          <div className="flex flex-1 items-center gap-2 sm:gap-4 lg:gap-6">
+            <Link to="/" className="text-[20px] sm:text-[24px] lg:text-[28px] font-bold whitespace-nowrap min-w-[60px]">
               noon
             </Link>
 
-            {/* Desktop Search - Hidden on Mobile */}
-            <div className="hidden flex-1 lg:block">
+            <div className="hidden flex-1 lg:block max-w-2xl xl:max-w-3xl">
               {memoizedSearchInput}
             </div>
           </div>
 
-          {/* Desktop Actions - Hidden on Mobile */}
-          <div className="hidden lg:flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-3 xl:gap-4">
             {loading ? (
               <Skeleton className="h-[20px] w-[160px] rounded-[2px] bg-[#d4d4d46b]" />
             ) : isOnAccountRoutes ? (
@@ -91,7 +89,7 @@ export function Header() {
               <LoginButtonWithModalDialog />
             )}
 
-            <Separator className=" mx-3 h-[20px] w-[1px] bg-[#404553] opacity-[0.2]" />
+            <Separator className="mx-2 lg:mx-3 h-[20px] w-[1px] bg-[#404553] opacity-[0.2]" />
 
             {!isOnAccountRoutes && (
               <>
@@ -124,9 +122,8 @@ export function Header() {
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
           <button
-            className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
+            className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors ml-2"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -140,11 +137,9 @@ export function Header() {
           </button>
         </div>
 
-        {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="lg:hidden absolute top-[64px] left-0 right-0 z-50 border-t border-gray-200 bg-white shadow-lg">
-            <div className="space-y-4 px-4 py-4">
-              {/* Mobile Search */}
+            <div className="site-container space-y-4 px-4 py-4 max-h-[70vh] overflow-y-auto">
               <div className="rounded-md border border-gray-200 p-2 shadow-sm">
                 {memoizedSearchInput}
               </div>
@@ -160,7 +155,6 @@ export function Header() {
                 )}
               </div>
 
-              {/* Mobile Actions */}
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   {loading ? (

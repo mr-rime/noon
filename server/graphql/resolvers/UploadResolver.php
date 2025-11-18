@@ -15,7 +15,7 @@ function uploadImageResolver($args)
         ];
     }
 
-    $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif'];
     if (!in_array($file['type'], $allowedTypes)) {
         return [
             'success' => false,

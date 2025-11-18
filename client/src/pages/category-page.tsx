@@ -1,15 +1,15 @@
 import { useLocation, useParams } from '@tanstack/react-router'
 import { useQuery } from '@apollo/client'
 import { gql } from '@apollo/client'
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import CategoryCarousel from '../components/category/category-carousel'
 import Breadcrumb from '../components/category/breadcrumb'
 import FilterSidebar, { FilterSidebarSkeleton } from '../components/filters/filter-sidebar'
 import { Product } from '@/components/product/product'
 import { ProductsListSkeleton } from '@/components/ui/products-list-skeleton'
-import { InfinityCarousel } from '@/components/ui/carousel/infinity-carousel'
-import { useIsMobile } from '@/hooks/use-mobile'
 import { GET_CATEGORY_BY_NESTED_PATH } from '../graphql/category'
+import { Button } from '@/components/ui/button'
+import { BouncingLoading } from '@/components/ui/bouncing-loading'
 
 const GET_CATEGORY_BY_SLUG = gql`
   query GetCategoryBySlug($slug: String!) {
@@ -108,9 +108,8 @@ export default function CategoryPage() {
   const categoryPath = (params as any)._splat || ''
   const [filters, setFilters] = useState<FilterState>({})
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
-  const [page, setPage] = useState(1)
-  const limit = 20
-  const isMobile = useIsMobile()
+  const [limit, setLimit] = useState(20)
+  const [loadingMore, setLoadingMore] = useState(false)
 
   const isNestedPath = categoryPath.includes('/')
 
@@ -133,7 +132,7 @@ export default function CategoryPage() {
   const rawSearch = searchParams.get('q') || undefined
   const search = isNestedPath ? undefined : rawSearch
 
-  const { data: productsData, loading: productsLoading, fetchMore } = useQuery(GET_FILTERED_PRODUCTS, {
+  const { data: productsData, loading: productsLoading, refetch: refetchProducts } = useQuery(GET_FILTERED_PRODUCTS, {
     skip: !category && !search,
     variables: {
       search,
@@ -150,23 +149,21 @@ export default function CategoryPage() {
       maxPrice: filters.maxPrice,
       minRating: filters.minRating,
       limit,
-      offset: (page - 1) * limit,
     },
-    fetchPolicy: 'cache-and-network',
   })
 
   const products = useMemo(() => productsData?.getProducts?.products || [], [productsData?.getProducts?.products])
   const totalCount = productsData?.getProducts?.totalCount || 0
-  const totalPages = Math.ceil(totalCount / limit)
   const hasMore = products.length >= limit && products.length < totalCount
 
-  const handleLoadMore = useCallback(() => {
-    if (!hasMore || productsLoading) return
+  const handleLoadMore = useCallback(async () => {
+    if (!hasMore || productsLoading || loadingMore) return
 
-    const nextPage = page + 1
+    setLoadingMore(true)
+    const newLimit = limit + 20
 
-    fetchMore({
-      variables: {
+    try {
+      await refetchProducts({
         search,
         categoryId:
           filters.categories && filters.categories.length > 0
@@ -180,39 +177,33 @@ export default function CategoryPage() {
         minPrice: filters.minPrice,
         maxPrice: filters.maxPrice,
         minRating: filters.minRating,
-        limit,
-        offset: (nextPage - 1) * limit,
-      },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev
-
-        return {
-          getProducts: {
-            ...fetchMoreResult.getProducts,
-            products: [...prev.getProducts.products, ...fetchMoreResult.getProducts.products]
-          }
-        }
-      }
-    })
-
-    setPage(nextPage)
-  }, [hasMore, productsLoading, fetchMore, page, limit, search, filters, category])
+        limit: newLimit,
+      })
+      setLimit(newLimit)
+    } catch (error) {
+      console.error('Error loading more products:', error)
+    } finally {
+      setLoadingMore(false)
+    }
+  }, [hasMore, productsLoading, loadingMore, limit, refetchProducts, search, filters, category])
 
 
   const productList = useMemo(() => {
-    return products.map((p: any) => (
+    return [...products].reverse().map((p: any) => (
       <Product
         key={p.id}
         id={p.id}
         name={p.name}
         images={p.images}
+        currency={p.currency}
         price={p.price}
         final_price={p.final_price}
-        brand_name={p.brand?.name}
+        discount_percentage={p.discount_percentage}
+        is_in_wishlist={p.is_in_wishlist}
+        wishlist_id={p.wishlist_id}
         rating={p.rating}
         review_count={p.review_count}
-        className="h-fit w-[180px] sm:w-[200px] md:w-[220px] lg:w-[230px] max-w-[230px] min-w-[180px] flex-shrink-0 overflow-hidden"
-        imageHeight={220}
+        imageHeight={290}
       />
     ))
   }, [products])
@@ -281,39 +272,29 @@ export default function CategoryPage() {
                 <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900">Top picks for you</h2>
-                    <p className="text-sm text-gray-500">Showing {products.length} items</p>
                   </div>
                 </div>
 
-                <div className="mb-6">
-                  <InfinityCarousel
-                    gap={12}
-                    onLoadMore={handleLoadMore}
-                    hasMore={hasMore}
-                    isLoading={productsLoading}
-                    virtualization={true}
-                    containerHeight={520}
-                    itemHeight={280}
-                    itemWidth={180}
-                    gridCols={isMobile ? 2 : 4}
-                    className="w-full"
-                  >
-                    {productList}
-                  </InfinityCarousel>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+                  {productList}
                 </div>
 
-                {totalPages > 1 && (
-                  <div className="mt-6 flex flex-col items-center gap-2 sm:flex-row sm:justify-between">
-                    <div className="text-sm text-gray-600">
-                      Showing {products.length} of {totalCount} products
-                    </div>
-                    <button
-                      type="button"
-                      className="rounded-md px-4 py-2 text-sm font-semibold text-[#3866df] hover:text-[#274ab0] disabled:text-gray-400"
+                {hasMore && (
+                  <div className="mt-8 flex justify-center">
+                    <Button
                       onClick={handleLoadMore}
-                      disabled={!hasMore || productsLoading}>
-                      {productsLoading ? 'Loading...' : 'Load more'}
-                    </button>
+                      disabled={productsLoading || loadingMore}>
+                      {loadingMore ? (
+                        <div className="flex items-center gap-2">
+                          <span>Loading</span>
+                          <div className="scale-75">
+                            <BouncingLoading />
+                          </div>
+                        </div>
+                      ) : (
+                        'Load more products'
+                      )}
+                    </Button>
                   </div>
                 )}
               </>

@@ -71,6 +71,72 @@ class BrowsingHistory
         }
         return $productIds;
     }
+
+    public function getUserCategories(string $sessionId, ?int $userId, int $limit = 5): array
+    {
+        $sql = "SELECT DISTINCT p.category_id, COUNT(*) as view_count 
+                FROM browsing_history bh 
+                JOIN products p ON bh.product_id = p.id 
+                WHERE bh.session_id = ? AND p.category_id IS NOT NULL";
+
+        if ($userId) {
+            $sql = "SELECT DISTINCT p.category_id, COUNT(*) as view_count 
+                    FROM browsing_history bh 
+                    JOIN products p ON bh.product_id = p.id 
+                    WHERE bh.user_id = ? AND p.category_id IS NOT NULL";
+        }
+
+        $sql .= " GROUP BY p.category_id ORDER BY view_count DESC LIMIT ?";
+
+        $stmt = $this->db->prepare($sql);
+
+        if ($userId) {
+            $stmt->bind_param('ii', $userId, $limit);
+        } else {
+            $stmt->bind_param('si', $sessionId, $limit);
+        }
+
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $categories = [];
+        while ($row = $res->fetch_assoc()) {
+            $categories[] = $row['category_id'];
+        }
+        return $categories;
+    }
+
+    public function getUserBrands(string $sessionId, ?int $userId, int $limit = 5): array
+    {
+        $sql = "SELECT DISTINCT p.brand_id, COUNT(*) as view_count 
+                FROM browsing_history bh 
+                JOIN products p ON bh.product_id = p.id 
+                WHERE bh.session_id = ? AND p.brand_id IS NOT NULL";
+
+        if ($userId) {
+            $sql = "SELECT DISTINCT p.brand_id, COUNT(*) as view_count 
+                    FROM browsing_history bh 
+                    JOIN products p ON bh.product_id = p.id 
+                    WHERE bh.user_id = ? AND p.brand_id IS NOT NULL";
+        }
+
+        $sql .= " GROUP BY p.brand_id ORDER BY view_count DESC LIMIT ?";
+
+        $stmt = $this->db->prepare($sql);
+
+        if ($userId) {
+            $stmt->bind_param('ii', $userId, $limit);
+        } else {
+            $stmt->bind_param('si', $sessionId, $limit);
+        }
+
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $brands = [];
+        while ($row = $res->fetch_assoc()) {
+            $brands[] = $row['brand_id'];
+        }
+        return $brands;
+    }
 }
 
 

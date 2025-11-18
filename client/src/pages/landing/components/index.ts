@@ -4,3 +4,4 @@ export { default as PreviouslyBrowsedProducts } from './previously-browsed-produ
 export { default as BestDeals } from './best-deals'
 export { default as DiscountedProducts } from './discounted-products'
 export * from './slideable-images'
+export { default as OtherProducts } from './other-products'

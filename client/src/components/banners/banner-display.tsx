@@ -16,10 +16,10 @@ interface BannerDisplayProps {
 export function BannerDisplay({ placement, className = '', showCloseButton = false, onClose }: BannerDisplayProps) {
   const [dismissed, setDismissed] = useState(false)
   const { trackBannerView, trackBannerClick, trackBannerDismiss } = useBannerAnalytics()
-  
+
   const { data, loading, error } = useQuery(GET_ACTIVE_BANNERS_BY_PLACEMENT, {
     variables: { placement },
-    errorPolicy: 'ignore' 
+    errorPolicy: 'ignore'
   })
 
   const banners: Banner[] = useMemo(() => data?.getActiveBannersByPlacement || [], [data?.getActiveBannersByPlacement])
@@ -53,7 +53,7 @@ export function BannerDisplay({ placement, className = '', showCloseButton = fal
           {showCloseButton && (
             <button
               onClick={() => handleDismiss(banner)}
-              className="absolute top-2 right-2 z-10 p-1 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-black/70"
+              className="absolute top-2 right-2 z-10 p-1 bg-black/50 text-white rounded-full opacity-0  transition-opacity duration-200 hover:bg-black/70"
               aria-label="Close banner"
             >
               <X className="h-4 w-4" />
@@ -64,12 +64,12 @@ export function BannerDisplay({ placement, className = '', showCloseButton = fal
             <Link
               to={banner.target_url}
               onClick={() => handleBannerClick(banner)}
-              className="block relative overflow-hidden rounded-lg transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="block relative overflow-hidden transition-transform duration-200  focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <BannerContent banner={banner} />
             </Link>
           ) : (
-            <div className="relative overflow-hidden rounded-lg">
+            <div className="relative overflow-hidden ">
               <BannerContent banner={banner} />
             </div>
           )}
@@ -83,34 +83,25 @@ function BannerContent({ banner }: { banner: Banner }) {
   return (
     <>
       {banner.image_url ? (
-        <div className="relative">
+        <div className="relative w-full">
           <img
             src={banner.image_url}
             alt={banner.name}
-            className="w-full h-auto object-cover"
+            className="w-full h-[200px] object-cover"
             loading="lazy"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none'
             }}
           />
-          
+
           {(banner.name || banner.description) && (
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
           )}
-          
+
           {(banner.name || banner.description) && (
             <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-              {banner.name && (
-                <h3 className="text-lg font-semibold mb-1">{banner.name}</h3>
-              )}
               {banner.description && (
                 <p className="text-sm opacity-90">{banner.description}</p>
-              )}
-              {banner.target_url && (
-                <div className="flex items-center mt-2 text-sm">
-                  <span>Learn more</span>
-                  <ExternalLink className="ml-1 h-3 w-3" />
-                </div>
               )}
             </div>
           )}
@@ -134,6 +125,7 @@ function BannerContent({ banner }: { banner: Banner }) {
     </>
   )
 }
+
 
 export function HeroBanner({ className = '' }: { className?: string }) {
   return (

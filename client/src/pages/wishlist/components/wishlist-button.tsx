@@ -2,14 +2,9 @@ import { cn } from '@/utils/cn'
 import { wishlist_icons } from '../constants'
 import type { WishlistType } from '../types'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { useQuery } from '@apollo/client'
-import { GET_WISHLIST_ITEMS } from '@/graphql/wishlist'
-import { useState } from 'react'
 
 export function WishlistButton({ id, name, is_default, is_private, item_count }: WishlistType) {
-  const [hasFetched, setHasFetched] = useState(false)
   const navigate = useNavigate({ from: '/wishlist' })
-  const { refetch } = useQuery(GET_WISHLIST_ITEMS, { variables: { wishlist_id: id }, skip: true })
   const { wishlistCode } = useSearch({ from: '/(main)/_homeLayout/wishlist/' })
 
   const isActive = id === wishlistCode
@@ -18,17 +13,9 @@ export function WishlistButton({ id, name, is_default, is_private, item_count }:
     navigate({ search: { wishlistCode: id } })
   }
 
-  const handlePrefetch = async () => {
-    if (!hasFetched) {
-      await refetch({ fetchPolicy: 'network-only' })
-      setHasFetched(true)
-    }
-  }
-
   return (
     <button
       onClick={handleNavigate}
-      onMouseEnter={handlePrefetch}
       aria-pressed={isActive}
       className={cn(
         'group relative flex w-full min-w-[220px] cursor-pointer flex-col rounded-2xl border border-[#EAECF0] px-4 py-3 text-left shadow-sm transition-all duration-200 hover:border-[#cfd7f6] hover:shadow-md lg:min-w-0',

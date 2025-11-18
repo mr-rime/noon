@@ -198,6 +198,102 @@ class Product
     }
 
 
+    public function findByPreferences(?int $userId, array $categories, array $brands, int $limit = 10, int $offset = 0, string $search = '', bool $publicOnly = false): array
+    {
+        $where = [];
+        $params = [];
+        $types = '';
+
+        if (!empty($categories)) {
+            $categoryPlaceholders = implode(',', array_fill(0, count($categories), '?'));
+            $where[] = "category_id IN ($categoryPlaceholders)";
+            $params = array_merge($params, $categories);
+            $types .= str_repeat('i', count($categories));
+        }
+
+        if (!empty($brands)) {
+            $brandPlaceholders = implode(',', array_fill(0, count($brands), '?'));
+            $where[] = "brand_id IN ($brandPlaceholders)";
+            $params = array_merge($params, $brands);
+            $types .= str_repeat('i', count($brands));
+        }
+
+        if ($publicOnly) {
+            $where[] = "is_public = 1";
+        }
+
+        $whereClause = !empty($where) ? 'WHERE ' . implode(' OR ', $where) : '';
+
+        $query = "SELECT id FROM products $whereClause ORDER BY RAND() LIMIT ? OFFSET ?";
+        $params = array_merge($params, [$limit, $offset]);
+        $types .= 'ii';
+
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param($types, ...$params);
+        $productIds = array_column($this->fetchAssocAll($stmt), 'id');
+
+        if (empty($productIds)) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($productIds), '?'));
+        $query = "
+        SELECT p.*, pi.id AS image_id, pi.image_url, pi.is_primary,
+               c.name as category_name, s.name as subcategory_name, b.name as brand_name,
+               pg.name as group_name, pg.group_id
+        FROM products p
+        LEFT JOIN product_images pi ON p.id = pi.product_id
+        LEFT JOIN categories_nested c ON p.category_id = c.category_id
+        LEFT JOIN subcategories s ON p.subcategory_id = s.subcategory_id
+        LEFT JOIN brands b ON p.brand_id = b.brand_id
+        LEFT JOIN product_groups pg ON p.group_id = pg.group_id
+        WHERE p.id IN ($placeholders)
+        ORDER BY FIELD(p.id, " . implode(',', array_map('intval', $productIds)) . ")
+    ";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param(str_repeat('i', count($productIds)), ...$productIds);
+        $allRows = $this->fetchAssocAll($stmt);
+
+        $products = [];
+        foreach ($allRows as $row) {
+            $pid = $row['id'];
+            if (!isset($products[$pid])) {
+                $products[$pid] = [
+                    'id' => $pid,
+                    'psku' => $row['psku'],
+                    'name' => $row['name'],
+                    'slug' => $this->generateSlug($row['name']),
+                    'price' => $row['price'],
+                    'currency' => $row['currency'],
+                    'stock' => $row['stock'],
+                    'product_overview' => $row['product_overview'],
+                    'is_returnable' => $row['is_returnable'],
+                    'is_public' => $row['is_public'] ?? 0,
+                    'final_price' => $row['final_price'],
+                    'category_id' => $row['category_id'],
+                    'brand_id' => $row['brand_id'],
+                    'group_id' => $row['group_id'],
+                    'category_name' => $row['category_name'],
+                    'subcategory_name' => $row['subcategory_name'],
+                    'brand_name' => $row['brand_name'],
+                    'group_name' => $row['group_name'],
+                    'images' => [],
+                ];
+            }
+
+            if ($row['image_id']) {
+                $products[$pid]['images'][] = [
+                    'id' => $row['image_id'],
+                    'image_url' => $row['image_url'],
+                    'is_primary' => (bool) $row['is_primary'],
+                ];
+            }
+        }
+
+        return array_values($products);
+    }
+
     public function findAll(?int $userId, int $limit = 10, int $offset = 0, string $search = '', bool $publicOnly = false, ?string $categoryId = null, ?array $categories = null, ?array $brands = null, ?float $minPrice = null, ?float $maxPrice = null, ?float $minRating = null): array
     {
         [$where, $order, $params, $types] = $this->buildWhereWithFilters($search, $categoryId, $categories, $brands, $minPrice, $maxPrice, $minRating);
