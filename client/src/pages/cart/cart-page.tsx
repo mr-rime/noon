@@ -13,10 +13,6 @@ export function CartPage() {
   if (loading) return <CartLoadingSkeleton />
 
   const cartItems = data?.getCartItems.cartItems || []
-  const subtotal = cartItems.reduce((total, item) => {
-    const price = Number(item.final_price ?? item.price ?? 0)
-    return total + price * item.quantity
-  }, 0)
 
   return (
     <main className="min-h-screen bg-[#f7f7fa]">
@@ -34,21 +30,13 @@ export function CartPage() {
                 Cart
                 <span className="text-sm font-normal text-[#7e859b]">({cartItems.length} items)</span>
               </h1>
-              <div className="text-base font-semibold text-[#20232a] sm:text-lg">
-                <span className="mr-1 text-sm font-normal text-[#7e859b]">Cart Total:</span>
-                <span>
-                  EGP {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </span>
-              </div>
             </div>
 
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
-              {/* Cart Items */}
               <section className="flex-1 lg:flex-[2]">
                 <CartItems cartItems={cartItems} />
               </section>
 
-              {/* Order Summary */}
               <aside className="w-full lg:flex-[1] lg:max-w-sm">
                 <div className="hidden lg:block lg:sticky lg:top-28">
                   <OrderSummary cartItems={cartItems} />

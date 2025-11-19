@@ -115,14 +115,14 @@ export function ProductReview({ review }: ProductReviewProps) {
   return (
     <div className="break-words border-[#f3f4f8] border-b py-[24px]">
       <div className="mb-[8px] flex flex-row items-start gap-x-[8px] gap-y-[4px]">
-        <div className="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-[#eff3fd] font-bold text-[#9ba0b1] uppercase">
+        <div className="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-[#eff3fd] font-bold text-[#374151] uppercase">
           {getUserInitials(review.user.first_name, review.user.last_name)}
         </div>
         <div className="flex w-full flex-col gap-[2px]">
           <div className="flex w-full items-center justify-between">
             <div>
               <div>{review.user.first_name} {review.user.last_name.charAt(0)}.</div>
-              <div className="text-[#9ba0b1] text-[12px]">{formatDate(review.created_at)}</div>
+              <div className="text-[#374151] text-[12px]">{formatDate(review.created_at)}</div>
             </div>
             {review.verified_purchase && (
               <div className="flex h-[20px] items-center gap-[4px] rounded-full bg-[#f3f4f8] px-[5px] text-[12px] ">
@@ -175,7 +175,7 @@ export function ProductReview({ review }: ProductReviewProps) {
             'flex cursor-pointer items-center gap-[4px] rounded-[4px] border px-[5px] py-[2px] transition-colors',
             helpful
               ? 'border-[#3866df] bg-[#3866df] text-white'
-              : 'border-[#7e859b] text-[#7e859b] hover:border-[#3866df] hover:text-[#3866df]',
+              : 'border-[#374151] text-[#374151] hover:border-[#3866df] hover:text-[#3866df]',
             isVoting && 'opacity-50 cursor-not-allowed'
           )}>
           {reviews_icons.helpfulIcon}

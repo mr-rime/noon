@@ -29,7 +29,7 @@ export function SellerInformation() {
         <div className="relative w-1/2 rounded-[8px] border border-[#ebecf0] bg-white p-[16px]">
           <div className="flex items-center justify-between">
             <div className="text-start font-bold text-[16px]">Seller Rating</div>
-            <div className="gray-filter cursor-pointer">{seller_page_icons.helpIcon}</div>
+            <button aria-label="Seller help" className="gray-filter cursor-pointer">{seller_page_icons.helpIcon}</button>
           </div>
           <div className="mt-1 flex items-center space-x-1.5">
             <span className="font-bold text-[1.8rem]">4.3</span>
@@ -37,7 +37,7 @@ export function SellerInformation() {
           </div>
           <div>
             <span className="font-bold text-[#404553] text-[14px]">81%</span>{' '}
-            <span className="text-[#9ba0b1] text-[14px]">Positive Ratings</span>
+            <span className="text-[#374151] text-[14px]">Positive Ratings</span>
           </div>
         </div>
         <div className="relative w-1/2 rounded-[8px] border border-[#ebecf0] bg-white p-[16px]">
@@ -48,7 +48,7 @@ export function SellerInformation() {
             <span className="font-bold text-[1.8rem]">308K+</span>
           </div>
           <div>
-            <span className="text-[#9ba0b1] text-[14px]">During the last 90 days</span>
+            <span className="text-[#374151] text-[14px]">During the last 90 days</span>
           </div>
         </div>
       </div>
@@ -56,11 +56,11 @@ export function SellerInformation() {
         <div className="flex w-1/2 items-center space-x-1">
           <div>{seller_page_icons.greatSellerIcon}</div>
           <div className="font-bold text-[13px]">Great Recent Rating</div>
-          <div className="gray-filter cursor-pointer">{seller_page_icons.helpIcon}</div>
+          <button aria-label="Seller help" className="gray-filter cursor-pointer">{seller_page_icons.helpIcon}</button>
         </div>
         <Separator className="mx-4 h-[100px] w-[1px]" />
         <div className="w-1/2 ">
-          <span className="text-start text-[#9ba0b1] text-[14px]">
+          <span className="text-start text-[#374151] text-[14px]">
             Noon reviews these badges every day and sellers are awarded special badges based on their performence.
           </span>
         </div>
@@ -77,7 +77,7 @@ export function SellerInformation() {
         </div>
         <div className="mt-5 flex w-full items-center justify-between">
           <div className="text-[#7e859b]">What do these mean?</div>
-          <div className="gray-filter cursor-pointer">{seller_page_icons.helpIcon}</div>
+          <button aria-label="Seller help" className="gray-filter cursor-pointer">{seller_page_icons.helpIcon}</button>
         </div>
       </div>
 

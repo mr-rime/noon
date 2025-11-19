@@ -20,7 +20,7 @@ export function SellerRatings() {
             <Star fill="#80AE04" color="#80AE04" size={25} />
             <Star fill="#80AE04" color="#80AE04" size={25} />
           </div>
-          <div className="text-[#7e859b]">
+          <div className="text-[#374151]">
             <span>Based on 169299 ratings</span>
           </div>
         </div>
@@ -30,7 +30,7 @@ export function SellerRatings() {
       </div>
       <div className="mt-[17px]">
         <Separator className="my-2" />
-        <div className="text-[#9ba0b1] text-[14px]">There are 169299 ratings and 79576 reviews for this seller</div>
+        <div className="text-[#374151] text-[14px]">There are 169299 ratings and 79576 reviews for this seller</div>
         <Separator className="my-2" />
       </div>
 

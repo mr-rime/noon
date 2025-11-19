@@ -84,8 +84,8 @@ ${order.items.map((item: any) => `- ${item.product_name} (Qty: ${item.quantity})
             <div className="flex items-center justify-between mb-8">
                 <button
                     onClick={() => navigate({ to: '/orders' })}
-                    className="flex cursor-pointer items-center space-x-1 text-[#7e859b] text-[14px] hover:underline">
-                    <ArrowLeft size={18} color="#7e859b" />
+                    className="flex cursor-pointer items-center space-x-1 text-[#374151] text-[14px] hover:underline">
+                    <ArrowLeft size={18} color="#374151" />
                     <span>Back to orders</span>
                 </button>
 

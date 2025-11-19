@@ -74,7 +74,7 @@ export function Landing() {
         </div>
 
         <div className="min-h-[440px] bg-white ">
-          <h3 className="my-2 select-none text-center font-extrabold text-[50px] uppercase">
+          <h3 className="my-2 select-none text-center font-extrabold text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[50px] uppercase">
             <span className="text-black">Recommended</span> <span className="text-[#E4041B]">for you</span>
           </h3>
           <Suspense

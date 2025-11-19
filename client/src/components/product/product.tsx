@@ -76,7 +76,7 @@ export function Product({
               {rating ? rating.toFixed(1) : '0.0'}
             </div>
           </div>
-          <div className="text-[#9ba0b1] text-[13px]">
+          <div className="text-[#374151] text-[13px]">
             <span>({formatNumber(review_count || 0)})</span>
           </div>
         </div>

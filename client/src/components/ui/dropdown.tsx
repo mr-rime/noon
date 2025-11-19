@@ -29,6 +29,8 @@ interface DropdownProps {
   dropdownClassName?: string
   position?: 'bottom' | 'top'
   align?: 'left' | 'center' | 'right'
+  /** Optional CSS selector for a container element to anchor to (for mobile menus) */
+  containerSelector?: string
   closeOnSelect?: boolean
   animationDuration?: number
 }
@@ -40,20 +42,39 @@ export const Dropdown = memo(function Dropdown({
   dropdownClassName,
   position = 'bottom',
   align = 'center',
+  // ensure containerSelector is defined when referenced
+  containerSelector,
   closeOnSelect = true,
   animationDuration = 150,
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [coords, setCoords] = useState({ top: 0, left: 0 })
+  const [coordsRight, setCoordsRight] = useState<number | null>(null)
   const triggerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (isOpen && triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect()
-      const scrollX = window.scrollX || window.pageXOffset
-      const scrollY = window.scrollY || window.pageYOffset
+    if (!isOpen) return
 
+    const scrollX = window.scrollX || window.pageXOffset
+    const scrollY = window.scrollY || window.pageYOffset
+
+    // If a containerSelector is provided, anchor relative to that container
+    if (containerSelector) {
+      const container = document.querySelector(containerSelector) as HTMLElement | null
+      if (container) {
+        const crect = container.getBoundingClientRect()
+        const top = position === 'top' ? crect.top + scrollY : crect.bottom + scrollY
+
+        // Position right edge to container's right by calculating right offset from viewport
+        setCoords({ top, left: crect.right + scrollX })
+        setCoordsRight(window.innerWidth - (crect.right + scrollX))
+        return
+      }
+    }
+
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect()
       const top = position === 'top' ? rect.top + scrollY : rect.bottom + scrollY
       let left = rect.left + scrollX
 
@@ -61,8 +82,9 @@ export const Dropdown = memo(function Dropdown({
       if (align === 'right') left = rect.right + scrollX
 
       setCoords({ top, left })
+      setCoordsRight(null)
     }
-  }, [isOpen, position, align])
+  }, [isOpen, position, align, containerSelector])
 
   useEffect(() => {
     if (!isOpen) return
@@ -88,13 +110,13 @@ export const Dropdown = memo(function Dropdown({
       el,
       isOpen
         ? [
-            { opacity: 0, transform: 'scale(0.95)' },
-            { opacity: 1, transform: 'scale(1)' },
-          ]
+          { opacity: 0, transform: 'scale(0.95)' },
+          { opacity: 1, transform: 'scale(1)' },
+        ]
         : [
-            { opacity: 1, transform: 'scale(1)' },
-            { opacity: 0, transform: 'scale(0.95)' },
-          ],
+          { opacity: 1, transform: 'scale(1)' },
+          { opacity: 0, transform: 'scale(0.95)' },
+        ],
       { duration: animationDuration, fill: 'forwards', easing: 'cubic-bezier(0.4,0,0.2,1)' },
     ).onfinish = () => {
       if (!isOpen) el.style.display = 'none'
@@ -118,28 +140,29 @@ export const Dropdown = memo(function Dropdown({
         style={{
           position: 'absolute',
           top: coords.top,
-          left: coords.left,
+          left: coordsRight !== null ? undefined : coords.left,
+          right: coordsRight !== null ? coordsRight : undefined,
           visibility: !isOpen ? 'hidden' : 'visible',
           pointerEvents: isOpen ? 'auto' : 'none',
           minWidth: 120,
         }}>
         {closeOnSelect
           ? React.Children.map(children, (child) => {
-              if (!React.isValidElement(child)) return child
-              return (
-                <div
-                  onClick={(e) => {
-                    if (typeof (child.props as any).onClick === 'function') {
-                      ;(child.props as any).onClick(e)
-                    }
-                    if (!e.defaultPrevented) {
-                      setIsOpen(false)
-                    }
-                  }}>
-                  {child}
-                </div>
-              )
-            })
+            if (!React.isValidElement(child)) return child
+            return (
+              <div
+                onClick={(e) => {
+                  if (typeof (child.props as any).onClick === 'function') {
+                    ; (child.props as any).onClick(e)
+                  }
+                  if (!e.defaultPrevented) {
+                    setIsOpen(false)
+                  }
+                }}>
+                {child}
+              </div>
+            )
+          })
           : children}
       </div>
     </>

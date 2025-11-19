@@ -15,7 +15,7 @@ export default function BestDeals({ products = [], loading }: BestDealsProps) {
 
     return (
         <div className="min-h-[467px] bg-white mt-10">
-            <h3 className="my-2 select-none text-center font-extrabold text-[36px] uppercase">
+            <h3 className="my-2 select-none text-center font-extrabold text-xl sm:text-2xl md:text-3xl lg:text-4xl uppercase">
                 <span className="text-black">Best</span> <span className="text-[#E4041B]">deals for you</span>
             </h3>
             <div className="flex min-h-[200px] w-full items-center bg-white p-4">

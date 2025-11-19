@@ -66,14 +66,14 @@ export function Header() {
           (isScrolled ? 'shadow-md' : '')
         }>
         <div className="site-container flex h-[64px] w-full items-center justify-between px-3 sm:px-4 lg:px-6 xl:px-8">
-          <div className="flex flex-1 items-center gap-2 sm:gap-4 lg:gap-6">
+          <div className="flex items-center gap-2 sm:gap-4 lg:gap-6">
             <Link to="/" className="text-[20px] sm:text-[24px] lg:text-[28px] font-bold whitespace-nowrap min-w-[60px]">
               noon
             </Link>
+          </div>
 
-            <div className="hidden flex-1 lg:block max-w-2xl xl:max-w-3xl">
-              {memoizedSearchInput}
-            </div>
+          <div className="hidden lg:flex flex-1 justify-center">
+            <div className="w-full max-w-2xl xl:max-w-3xl">{memoizedSearchInput}</div>
           </div>
 
           <div className="hidden lg:flex items-center gap-3 xl:gap-4">
@@ -138,21 +138,13 @@ export function Header() {
         </div>
 
         {isMobileMenuOpen && (
-          <div className="lg:hidden absolute top-[64px] left-0 right-0 z-50 border-t border-gray-200 bg-white shadow-lg">
-            <div className="site-container space-y-4 px-4 py-4 max-h-[70vh] overflow-y-auto">
+          <div data-mobile-menu="true" className="lg:hidden absolute top-[64px] left-0 right-0 z-50 border-t border-gray-200 bg-white shadow-lg">
+            <div className="site-container relative space-y-4 px-4 py-4 max-h-[70vh] overflow-y-auto">
               <div className="rounded-md border border-gray-200 p-2 shadow-sm">
                 {memoizedSearchInput}
               </div>
 
               <div className="flex flex-wrap items-center gap-3 text-sm text-[#404553]">
-                {cart?.getCartItems.cartItems?.length ? (
-                  <span className="flex items-center gap-2 rounded-full bg-[#FEEE00]/50 px-3 py-1 text-xs font-semibold">
-                    <span className="text-[#404553]">Cart Items:</span>
-                    <span>{cart?.getCartItems.cartItems?.length}</span>
-                  </span>
-                ) : (
-                  <span className="text-gray-500 text-xs">Cart is empty</span>
-                )}
               </div>
 
               <div className="flex flex-col gap-4">
@@ -167,7 +159,8 @@ export function Header() {
                       {header_icons.homeIcon}
                     </button>
                   ) : user ? (
-                    <UserMenu user={user} loading={isLoading} />
+                    // user menu trigger moved to bottom-right; keep placeholder/greeting here
+                    <div className="font-medium text-sm text-[#1f2024]">Hello {user.first_name}</div>
                   ) : (
                     <LoginButtonWithModalDialog />
                   )}
@@ -194,20 +187,15 @@ export function Header() {
                       </>
                     )}
                   </div>
-                  <Link
-                    to={'/cart'}
-                    preload="render"
-                    className="relative text-[#404553] transition-colors hover:text-[#8C8832]"
-                    onClick={() => setIsMobileMenuOpen(false)}>
-                    {cartCount > 0 && (
-                      <div className="-right-[8px] -top-2 absolute flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[#3866DF] font-semibold text-[10px] text-white">
-                        {cartCount}
-                      </div>
-                    )}
-                    {header_icons.cartIcon}
-                  </Link>
+                  {/* cart link intentionally omitted in mobile menu */}
                 </div>
               </div>
+              {/* user menu trigger anchored to bottom-right of the mobile drawer */}
+              {user && (
+                <div className="absolute right-4 bottom-4 z-50">
+                  <UserMenu user={user} loading={isLoading} />
+                </div>
+              )}
             </div>
           </div>
         )}

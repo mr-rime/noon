@@ -17,7 +17,7 @@ export function SearchInput() {
   )
 
   return (
-    <div className="mx-5 flex w-full items-center justify-center">
+    <div className="flex w-full items-center">
       <Input
         type="text"
         icon={<Search size={19} />}
@@ -25,7 +25,7 @@ export function SearchInput() {
         className="w-full"
         input={{
           className:
-            'h-[40px] w-full rounded-[5px] indent-3 bg-white border border-transparent outline-none focus:border-[#c7ba00] w-full !pl-0',
+            'h-[40px] w-full rounded-[6px] px-3 bg-white border border-transparent outline-none focus:border-[#c7ba00]',
         }}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
         onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {

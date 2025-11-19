@@ -88,7 +88,7 @@ export function ProductPskuPage() {
                         <span className="text-[#8d94a7] text-[1rem]">Qty</span>
                         <span className="font-bold text-[1.5rem] text-inherit">1</span>
                     </button>
-                    <Button className="h-[48px] w-full cursor-pointer rounded-[4px] bg-[#2B4CD7] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#6079E1]">
+                    <Button className="h-[52px] w-full cursor-pointer rounded-[4px] bg-[#2B4CD7] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#6079E1]">
                         Add to cart
                     </Button>
                 </div>

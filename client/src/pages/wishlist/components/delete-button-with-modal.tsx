@@ -60,7 +60,7 @@ export function DeleteButtonWithModal({
             <div className="mt-24 flex items-center gap-2">
               <Button
                 onClick={close}
-                className="relative h-[40px] w-full flex-1 basis-1/2 border-1 border-[#7e859b] bg-transparent text-[#7e859b] hover:bg-transparent disabled:cursor-default ">
+                className="relative h-[40px] w-full flex-1 basis-1/2 border-1 border-[#374151] bg-transparent text-[#374151] hover:bg-transparent disabled:cursor-default ">
                 No
               </Button>
               {loading ? (

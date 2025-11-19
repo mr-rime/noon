@@ -89,7 +89,7 @@ export default function OtherProducts({ excludedIds }: OtherProductsProps) {
     if ((loading || isLoadingMore) && products.length === 0) {
         return (
             <div className="mt-10 bg-white">
-                <h3 className="my-2 select-none text-center font-extrabold text-[32px] uppercase">
+                <h3 className="my-2 select-none text-center font-extrabold text-xl sm:text-2xl md:text-3xl lg:text-4xl uppercase">
                     <span className="text-black">Products</span> <span className="text-[#E4041B]">you'll like</span>
                 </h3>
                 <div className="p-4">
@@ -105,7 +105,7 @@ export default function OtherProducts({ excludedIds }: OtherProductsProps) {
 
     return (
         <div className="mt-10 bg-white">
-            <h3 className="my-2 select-none text-center font-extrabold text-[32px] uppercase">
+            <h3 className="my-2 select-none text-center font-extrabold text-xl sm:text-2xl md:text-3xl lg:text-4xl uppercase">
                 <span className="text-black">Products</span> <span className="text-[#E4041B]">you'll like</span>
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">

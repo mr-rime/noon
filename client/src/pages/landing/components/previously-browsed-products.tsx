@@ -14,7 +14,7 @@ export default function PreviouslyBrowsedProducts({ products = [], loading }: Pr
 
     return (
         <div className="min-h-[467px] bg-white mt-10">
-            <h3 className="my-2 select-none text-center font-extrabold text-[36px] uppercase">
+            <h3 className="my-2 select-none text-center font-extrabold text-xl sm:text-2xl md:text-3xl lg:text-4xl uppercase">
                 <span className="text-black">Previously</span> <span className="text-[#E4041B]">browsed</span>
             </h3>
             <div className="flex min-h-[200px] w-[300px] items-center bg-white p-4">

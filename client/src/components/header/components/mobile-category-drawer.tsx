@@ -161,7 +161,7 @@ export function MobileCategoryDrawer({ open, onOpenChange }: MobileCategoryDrawe
 
 function normalizeCategories(categories: RawCategory[], parentPath = ''): DrawerCategory[] {
     return categories.map((category) => {
-        const sanitizedPath = sanitizePath(category.path) || buildPath([parentPath, category.slug])
+        const sanitizedPath = buildPath([parentPath, category.slug])
         const childCategories = normalizeCategories(category.children || [], sanitizedPath)
         const subcategoryItems = (category.subcategories || []).map((sub) => ({
             id: `sub_${sub.subcategory_id}`,

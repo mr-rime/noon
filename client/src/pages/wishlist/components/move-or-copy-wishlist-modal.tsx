@@ -120,7 +120,7 @@ export function MoveOrCopyWishlistItemModal({
                         >
                             <div className="flex flex-col">
                                 <span className="font-semibold text-[16px]">{w.name}</span>
-                                <span className="text-xs text-[#7e859b]">{w.item_count > 0 ? `${w.item_count} items` : 'No items'}</span>
+                                <span className="text-xs text-[#374151]">{w.item_count > 0 ? `${w.item_count} items` : 'No items'}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 {w.is_private ? wishlist_icons.wishlistPrivateIcon : wishlist_icons.wishlistPublicIcon}

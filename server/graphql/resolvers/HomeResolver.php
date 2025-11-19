@@ -90,7 +90,7 @@ function getHome(mysqli $db, array $data): array
         if (count($recommendedCandidates) < 20) {
             $randomLimit = 40 - count($recommendedCandidates);
             $randomCandidates = $productModel->findAll($userId, $randomLimit, $offset, $search, true);
-            shuffle($randomCandidates);
+            // Do not shuffle randomCandidates — keep deterministic order
             $recommendedCandidates = array_merge($recommendedCandidates, $randomCandidates);
         }
 
@@ -106,7 +106,7 @@ function getHome(mysqli $db, array $data): array
         $discountCandidates = $productModel->findDiscountedProducts(80, 'DESC');
 
         $usedIds = [];
-        shuffle($recommendedCandidates);
+        // Keep recommendedCandidates order deterministic; do not shuffle here.
         $recommended = home_pick_diverse_unique($recommendedCandidates, 20, $usedIds);
         $previouslyBrowsed = home_pick_diverse_unique($previouslyBrowsedCandidates, 20, $usedIds);
 

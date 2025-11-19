@@ -70,7 +70,7 @@ export function EditButttonWithModal({ wishlist }: { wishlist: WishlistType | un
                 onChange={(e) => setWishlistName(e.target.value)}
                 placeholder="Enter  wishlist name..."
                 className="w-full"
-                input={{ className: 'focus:border-[#9ba0b1]' }}
+                input={{ className: 'focus:border-[#6B7280]' }}
                 value={wishlistName}
               />
             </div>

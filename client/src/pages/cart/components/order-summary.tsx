@@ -50,12 +50,12 @@ export function OrderSummary({ cartItems }: { cartItems: CartItemType[] }) {
 
   return (
     <section className="w-full rounded-2xl border border-[#EAECF0] bg-white p-4 shadow-sm sm:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="w-full sm:w-auto">
           <h2 className="text-lg font-semibold text-[#20232a]">Order Summary</h2>
           <p className="text-xs text-[#7e859b]">Review your order costs before checkout</p>
         </div>
-        <div className="text-right">
+        <div className="w-full sm:w-auto text-center sm:text-right">
           <p className="text-xs uppercase tracking-wide text-[#7e859b]">Cart Total</p>
           <p className="text-base font-semibold text-[#20232a]">
             EGP {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -65,7 +65,7 @@ export function OrderSummary({ cartItems }: { cartItems: CartItemType[] }) {
 
       <Input
         placeholder="Coupon Code"
-        className="mt-4"
+        className="mt-4 w-full"
         input={{ className: 'bg-white' }}
         button
         buttonDirection="right"
@@ -79,28 +79,28 @@ export function OrderSummary({ cartItems }: { cartItems: CartItemType[] }) {
       </button>
 
       <div className="mt-5 space-y-3 text-sm">
-        <div className="flex items-center justify_between text-[#404553]">
-          <span>Subtotal ({cartItems.length || 0} items)</span>
-          <span className="font-semibold">
+        <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between text-[#404553]">
+          <span className="w-full sm:w-auto">Subtotal ({cartItems.length || 0} items)</span>
+          <span className="w-full sm:w-auto font-semibold text-right sm:text-right">
             EGP {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
         </div>
-        <div className="flex items-center justify_between text-[#404553]">
-          <span>Shipping</span>
-          <span className="font-semibold uppercase text-[#38ae04]">Free</span>
+        <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between text-[#404553]">
+          <span className="w-full sm:w-auto">Shipping</span>
+          <span className="w-full sm:w-auto font-semibold uppercase text-[#38ae04] text-right sm:text-right">Free</span>
         </div>
       </div>
 
       <Separator className="my-5 bg-[#DFDFDF]" />
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="w-full sm:w-auto">
           <p className="text-xs uppercase text-[#7e859b]">Total (VAT included)</p>
           <p className="text-2xl font-semibold text-[#20232a]">
             EGP {total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
-        <div className="text-right text-xs text-[#7e859b]">
+        <div className="w-full sm:w-auto text-right text-xs text-[#7e859b]">
           <p>VAT and Duties included</p>
           <p>Secure checkout</p>
         </div>

@@ -224,7 +224,8 @@ class Product
 
         $whereClause = !empty($where) ? 'WHERE ' . implode(' OR ', $where) : '';
 
-        $query = "SELECT id FROM products $whereClause ORDER BY RAND() LIMIT ? OFFSET ?";
+        // Removed random ordering to ensure deterministic results for recommendations
+        $query = "SELECT id FROM products $whereClause ORDER BY id DESC LIMIT ? OFFSET ?";
         $params = array_merge($params, [$limit, $offset]);
         $types .= 'ii';
 

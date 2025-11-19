@@ -8,12 +8,12 @@ export function Address() {
       <div className="flex flex-col items-start">
         <div className="font-bold text-[19px]">Home</div>
         <div className="mt-5 flex items-start">
-          <div className="w-[104px] text-[#9ba0b1]">Name</div>
+          <div className="w-[104px] text-[#374151]">Name</div>
           <div className="w-[100px]">Ahmed Hany</div>
         </div>
 
         <div className="mt-3 flex items-start">
-          <div className="w-[104px] text-[#9ba0b1]">Address</div>
+          <div className="w-[104px] text-[#374151]">Address</div>
           <div className="w-[500px]">
             <div className="">
               <strong className="break-words ">
@@ -25,17 +25,17 @@ export function Address() {
         </div>
 
         <div className="mt-3 flex items-start">
-          <div className="w-[104px] text-[#9ba0b1]">Phone</div>
+          <div className="w-[104px] text-[#374151]">Phone</div>
           <span className="mr-2 min-w-0">+20-10-33579442</span>
           <span className="font-bold text-[#38ae04]">Verified</span>
         </div>
       </div>
       <div className="flex items-center space-x-10">
         <div className="flex items-center space-x-5">
-          <button disabled className="cursor-pointer text-[#9ba0b1] underline disabled:text-[#cbcfd7]">
+          <button disabled className="cursor-pointer text-[#374151] underline disabled:text-[#cbcfd7]">
             Delete
           </button>
-          <button className="cursor-pointer text-[#9ba0b1] underline hover:no-underline disabled:text-[#cbcfd7]">
+          <button className="cursor-pointer text-[#374151] underline hover:no-underline disabled:text-[#cbcfd7]">
             Edit
           </button>
         </div>

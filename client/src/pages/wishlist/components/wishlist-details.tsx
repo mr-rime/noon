@@ -45,7 +45,7 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
                 {itemCount} item{itemCount === 1 ? '' : 's'}
               </span>
             </div>
-            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase text-[#7e859b]">
+            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase text-[#374151]">
               {isPrivate ? (
                 <span className="flex items-center gap-1 rounded-full bg-[#FDF2F8] px-3 py-1 text-[#C11574]">
                   <ShieldCheck size={14} /> Private list
@@ -55,7 +55,7 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
                   <Users size={14} /> Shared list
                 </span>
               )}
-              <span className="text-[11px] normal-case text-[#9CA3AF]">
+              <span className="text-[11px] normal-case text-[#6B7280]">
                 Updated {currentWishlist?.created_at ? new Date(currentWishlist.created_at).toLocaleDateString() : 'recently'}
               </span>
             </div>
@@ -83,13 +83,13 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
 
         <div className="p-4 sm:p-6">
           {itemCount <= 0 ? (
-            <div className="flex h-full w-full flex-col items-center justify-center text-center">
+            <div className="flex h-full w-full flex-col items-center justify-center text-center ">
               <Image
                 src="/media/gifs/wishlist-empty-desktop-fallback.gif"
                 alt="empty wishlist fallback"
                 width={320}
                 height={320}
-                className="select-none"
+                className="select-none rounded-xl mb-2"
                 layout="constrained"
               />
               <div className="max-w-md space-y-2">
@@ -100,7 +100,7 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
               </div>
             </div>
           ) : (
-            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
               {loading ? (
                 Array.from({ length: 4 }).map((_, idx) => <ProductSkeleton key={idx} />)
               ) : (
@@ -108,8 +108,7 @@ export function WishlistDetails({ wishlists }: { wishlists: WishlistType[] }) {
                   <Product
                     key={item.id}
                     isWishlistProduct
-                    className="w-full max-w-full min-w-0"
-                    imageHeight={220}
+                    className="w-full max-w-full "
                     {...item}
                     user_id={parseInt(item.user_id)}
                   />

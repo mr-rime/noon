@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import Cookies from 'js-cookie'
 import { ChevronDown } from 'lucide-react'
 import { memo } from 'react'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { toast } from 'sonner'
 import { header_icons } from '../constants/icons'
 import type { User } from '@/types'
@@ -33,9 +34,14 @@ export const UserMenu = memo(({ user }: { user: User; loading: boolean }) => {
     }
   }
 
+  const isMobile = useIsMobile()
+
   return (
     <Dropdown
-      align="center"
+      align={isMobile ? 'right' : 'center'}
+      position="bottom"
+      // anchor to the mobile menu container so dropdown appears bottom-right on mobile
+      containerSelector={isMobile ? '[data-mobile-menu="true"] .site-container' : undefined}
       trigger={(isOpen) => (
         <button className="flex cursor-pointer items-center gap-1 font-bold text-[1rem]">
           <span>Hello</span>

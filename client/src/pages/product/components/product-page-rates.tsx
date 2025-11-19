@@ -54,7 +54,7 @@ export function ProductPageRates({
         <Star fill="#008000" color="#008000" size={14} />
         <div className="font-semibold text-[14px]">{rating.toFixed(1)}</div>
       </div>
-      <div className="text-[#9ba0b1] text-[14px]">
+      <div className="text-[#374151] text-[14px]">
         <span>({formattedReviewCount})</span>
       </div>
     </a>

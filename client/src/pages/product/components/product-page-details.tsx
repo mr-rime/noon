@@ -133,7 +133,7 @@ export function ProductPageDetails({
         {isOutOfStock ? (
           <Button
             disabled
-            className="flex h-[48px] w-full cursor-default items-center justify-center rounded-[14px] bg-[#6079E1] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#6079E1]">
+            className="flex h-[52px] w-full cursor-default items-center justify-center rounded-[14px] bg-[#6079E1] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#6079E1]">
             Out of stock
           </Button>
         ) : showEnhancedActions ? (
@@ -144,7 +144,7 @@ export function ProductPageDetails({
                   type="button"
                   onClick={handleAddToCartClick}
                   disabled={resolvedLoading}
-                  className="flex h-[48px] flex-1 items-center justify-center rounded-[12px] bg-[#2B4CD7] text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#1e36a5] disabled:cursor-not-allowed disabled:opacity-60">
+                  className="flex h-[52px] flex-1 items-center justify-center rounded-[12px] bg-[#2B4CD7] text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#1e36a5] disabled:cursor-not-allowed disabled:opacity-60">
                   {resolvedLoading ? <BouncingLoading /> : 'Add to cart'}
                 </Button>
               </div>
@@ -154,7 +154,7 @@ export function ProductPageDetails({
         ) : (
           <Button
             onClick={handleInternalAddToCart}
-            className="flex h-[48px] w-full cursor-pointer items-center justify-center rounded-[14px] bg-[#2B4CD7] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#6079E1]">
+            className="flex h-[52px] w-full cursor-pointer items-center justify-center rounded-[14px] bg-[#2B4CD7] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#6079E1]">
             {loading ? <BouncingLoading /> : 'Add to cart'}
           </Button>
         )}
@@ -191,7 +191,7 @@ export function ProductPageDetails({
       {isOutOfStock ? (
         <Button
           disabled
-          className="flex h-[48px] w-full cursor-default items-center justify-center rounded-[14px] bg-[#6079E1] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#6079E1]">
+          className="flex h-[52px] w-full cursor-default items-center justify-center rounded-[14px] bg-[#6079E1] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#6079E1]">
           Out of stock
         </Button>
       ) : showEnhancedActions ? (
@@ -211,14 +211,14 @@ export function ProductPageDetails({
               type="button"
               onClick={handleAddToCartClick}
               disabled={resolvedLoading}
-              className="flex h-[48px] flex-1 items-center justify-center rounded-[12px] bg-[#2B4CD7] text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#1e36a5] disabled:cursor-not-allowed disabled:opacity-60">
+              className="flex h-[52px] flex-1 items-center justify-center rounded-[12px] bg-[#2B4CD7] text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#1e36a5] disabled:cursor-not-allowed disabled:opacity-60">
               {resolvedLoading ? <BouncingLoading /> : 'Add to cart'}
             </button>
             <button
               type="button"
               onClick={handleBuyNowClick}
               disabled={resolvedLoading}
-              className="flex h-[48px] flex-1 items-center justify-center rounded-[12px] border border-[#2B4CD7] text-sm font-bold uppercase tracking-wide text-[#2B4CD7] transition-colors hover:bg-[#eef1ff] disabled:cursor-not-allowed disabled:opacity-60">
+              className="flex h-[52px] flex-1 items-center justify-center rounded-[12px] border border-[#2B4CD7] text-sm font-bold uppercase tracking-wide text-[#2B4CD7] transition-colors hover:bg-[#eef1ff] disabled:cursor-not-allowed disabled:opacity-60">
               Buy now
             </button>
           </div>
@@ -226,7 +226,7 @@ export function ProductPageDetails({
       ) : (
         <Button
           onClick={handleInternalAddToCart}
-          className="flex h-[48px] w-full cursor-pointer items-center justify-center rounded-[14px] bg-[#2B4CD7] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#6079E1]">
+          className="flex h-[52px] w-full cursor-pointer items-center justify-center rounded-[14px] bg-[#2B4CD7] font-bold text-[14px] text-white uppercase transition-colors hover:bg-[#6079E1]">
           {loading ? <BouncingLoading /> : 'Add to cart'}
         </Button>
       )}

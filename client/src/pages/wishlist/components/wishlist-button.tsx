@@ -24,7 +24,7 @@ export function WishlistButton({ id, name, is_default, is_private, item_count }:
       <div className="flex items-center justify-between gap-2">
         <div>
           <p className="font-semibold text-sm text-[#1f2024]">{name}</p>
-          <p className="text-xs text-[#7e859b]">{item_count} item{item_count === 1 ? '' : 's'}</p>
+          <p className="text-xs text-[#374151]">{item_count} item{item_count === 1 ? '' : 's'}</p>
         </div>
         {is_default && (
           <span className="rounded-full bg-[#3866df] px-3 py-1 text-[11px] font-semibold uppercase text-white">
@@ -33,7 +33,7 @@ export function WishlistButton({ id, name, is_default, is_private, item_count }:
         )}
       </div>
 
-      <div className="mt-3 flex items-center gap-2 text-xs text-[#7e859b]">
+      <div className="mt-3 flex items-center gap-2 text-xs text-[#374151]">
         {is_private ? wishlist_icons.wishlistPrivateIcon : wishlist_icons.wishlistPublicIcon}
         <span>{is_private ? 'Private list' : 'Shared list'}</span>
       </div>

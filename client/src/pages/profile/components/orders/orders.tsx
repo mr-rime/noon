@@ -23,7 +23,7 @@ export function Orders() {
       <section className="h-full w-full">
         <div className="w-full">
           <h1 className="text-2xl sm:text-3xl font-bold">Orders</h1>
-          <p className="text-[#7e859b] text-sm sm:text-base mt-1">View the delivery status for items and your order history</p>
+          <p className="text-[#374151] text-sm sm:text-base mt-1">View the delivery status for items and your order history</p>
         </div>
         <div className="mt-5 flex w-full items-center justify-between">
           <h3 className="font-bold text-lg sm:text-xl">Loading...</h3>
@@ -43,7 +43,7 @@ export function Orders() {
       <section className="h-full w-full">
         <div className="w-full">
           <h1 className="text-2xl sm:text-3xl font-bold">Orders</h1>
-          <p className="text-[#7e859b] text-sm sm:text-base mt-1">View the delivery status for items and your order history</p>
+          <p className="text-[#374151] text-sm sm:text-base mt-1">View the delivery status for items and your order history</p>
         </div>
         <div className="mt-5 flex w-full items-center justify-center">
           <p className="text-red-500">Failed to load orders. Please try again.</p>
@@ -116,9 +116,9 @@ export function Orders() {
             onChange={(e) => setSearchTerm(e.target.value)}
             input={{
               className:
-                'focus:border-[#3866DF] min-h-[48px] rounded-[5px] bg-white hover:border-[#9BA0B1] transition-colors',
+                'focus:border-[#3866DF] min-h-[48px] rounded-[5px] bg-white hover:border-[#374151] transition-colors',
             }}
-            icon={<Search color="#9BA0B2" size={18} />}
+            icon={<Search color="#6B7280" size={18} />}
             placeholder="Find items"
             iconDirection="left"
           />
@@ -130,7 +130,7 @@ export function Orders() {
               { label: 'Last 6 months', value: 'last_6_months' },
               { label: '2025', value: '2025' },
             ]}
-            className="min-h-[48px] w-[170px] rounded-[5px] px-5 text-[16px] transition-colors hover:border-[#9BA0B1]"
+            className="min-h-[48px] w-[170px] rounded-[5px] px-5 text-[16px] transition-colors hover:border-[#374151]"
           />
         </div>
       </div>
@@ -145,7 +145,7 @@ export function Orders() {
               <Link to='/orders/track/order/$orderId' params={{ orderId: order.id }}>
                 <div
                   key={order.id}
-                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full cursor-pointer overflow-hidden rounded-[8px] border border-[#dadce3] bg-white p-4 sm:p-6 lg:px-8 lg:py-10 transition-colors hover:border-[#9ba0b1]"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between w/full cursor-pointer overflow-hidden rounded-[8px] border border-[#dadce3] bg-white p-4 sm:p-6 lg:px-8 lg:py-10 transition-colors hover:border-[#374151]"
                 >
                   <div className="z-[2] flex-1 min-w-0">
                     <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 mb-3">
@@ -179,7 +179,7 @@ export function Orders() {
 
                   <div className="z-[2] flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 sm:mt-0 sm:min-h-[115px]">
                     <div className="text-center sm:text-right">
-                      <div className="text-[#9ba0b1] text-[12px] mb-2">
+                      <div className="text-[#374151] text-[12px] mb-2">
                         <div>
                           <span>Order ID</span> <strong className="font-mono">{order.id}</strong>
                         </div>

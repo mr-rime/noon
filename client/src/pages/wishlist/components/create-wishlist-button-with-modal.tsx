@@ -80,7 +80,7 @@ export function CreateWishlistButtonWithModal() {
               <Input
                 placeholder="Enter  wishlist name..."
                 className="w-full"
-                input={{ className: 'focus:border-[#9ba0b1]' }}
+                input={{ className: 'focus:border-[#6B7280]' }}
                 ref={wishlistNameInputRef}
               />
               <div className="mt-5">

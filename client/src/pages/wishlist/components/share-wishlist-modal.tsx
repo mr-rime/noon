@@ -35,7 +35,7 @@ export function ShareWishlistModal({
             header={
                 <>
                     <h3 className="font-bold text-[22px]">Want others to see your wishlist?</h3>
-                    <p className="text-[#7e859b] text-[13px]">Your list privacy status is set to "{wishlist?.is_private ? 'Private' : 'Public'}"</p>
+                    <p className="text-[#374151] text-[13px]">Your list privacy status is set to "{wishlist?.is_private ? 'Private' : 'Public'}"</p>
                     <Separator className="my-3" />
                 </>
             }
@@ -45,7 +45,7 @@ export function ShareWishlistModal({
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="font-semibold text-[16px]">{wishlist?.name}</p>
-                                <p className="text-xs text-[#7e859b]">{(wishlist?.item_count || 0)} items</p>
+                                <p className="text-xs text-[#374151]">{(wishlist?.item_count || 0)} items</p>
                             </div>
                             <div className="flex items-center gap-2">
                                 {wishlist?.is_default && (
@@ -58,7 +58,7 @@ export function ShareWishlistModal({
 
                     <button
                         onClick={handleCopy}
-                        className="mt-5 flex w-full cursor-pointer items-center gap-3 rounded border bg-[#fafbfc] px-4 py-4 text-[#535871] hover:bg-[#f1f1f2]">
+                        className="mt-5 flex w-full cursor-pointer items-center gap-3 rounded border bg-[#fafbfc] px-4 py-4 text-[#374151] hover:bg-[#f1f1f2]">
                         <span className="inline-block h-8 w-8 shrink-0 rounded-full border bg-white" />
                         <span className="font-medium">Copy link</span>
                     </button>
