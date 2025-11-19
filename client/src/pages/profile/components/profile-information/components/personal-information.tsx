@@ -18,7 +18,7 @@ export function PersonalInformation({ loading, editable = true }: { loading: boo
               id="first_name"
               {...register('first_name')}
               labelContent="First name"
-              icon={<Pencil size={14} color="#7E859B" />}
+              icon={<Pencil size={14} color="#626A81" />}
               iconDirection="right"
               disabled={!editable}
               placeholder="First Name"
@@ -35,7 +35,7 @@ export function PersonalInformation({ loading, editable = true }: { loading: boo
               id="last_name"
               {...register('last_name')}
               labelContent="Last name"
-              icon={<Pencil size={14} color="#7E859B" />}
+              icon={<Pencil size={14} color="#626A81" />}
               iconDirection="right"
               disabled={!editable}
               placeholder="Last Name"

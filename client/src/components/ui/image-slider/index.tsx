@@ -102,7 +102,7 @@ export function ImageSlider({
       const clamped = Math.max(0, Math.min(displayImages.length - 1, activeIndex))
       goToSlide(clamped + 1)
     }
-     
+
   }, [activeIndex, displayImages.length])
 
   const goToSlide = useCallback(
@@ -448,6 +448,7 @@ export function ImageSlider({
                       layout="constrained"
                       width={490}
                       height={330}
+                      fetchPriority='high'
                       loading={lazyImage ? 'lazy' : 'eager'}
                       draggable={false}
                       className={cn(

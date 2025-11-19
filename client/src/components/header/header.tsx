@@ -101,18 +101,23 @@ export function Header() {
                       <button
                         className="relative mr-3 h-fit w-fit cursor-pointer text-[#404553] transition-colors hover:text-[#8C8832]"
                         onClick={open}
-                        aria-expanded={isOpen}>
+                        aria-expanded={isOpen}
+                        aria-label="Open wishlist"
+                      >
                         {header_icons.heartIcon}
                       </button>
+
                     )}
                   </LoginButtonWithModalDialog>
                 )}
               </>
             )}
             <Link
-              to={'/cart'}
+              to="/cart"
               preload="render"
-              className="relative mx-1 text-[#404553] transition-colors hover:text-[#8C8832]">
+              aria-label="Shopping cart"
+              className="relative mx-1 text-[#404553] transition-colors hover:text-[#8C8832]"
+            >
               {cartCount > 0 && (
                 <div className="-right-[8px] -top-2 absolute flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[#3866DF] font-semibold text-[10px] text-white">
                   {cartCount}
@@ -120,6 +125,7 @@ export function Header() {
               )}
               {header_icons.cartIcon}
             </Link>
+
           </div>
 
           <button

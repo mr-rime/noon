@@ -125,6 +125,8 @@ export function ProductWishlistButton({
         <button
           onClick={handleRemoveWishlistItem}
           disabled={isLoading}
+          aria-label='Add to wishlist'
+          name='wishlist'
           className={cn(
             'flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-[6px] bg-white shadow-md transition-opacity hover:bg-white/90',
             isLoading && 'cursor-not-allowed opacity-50',
@@ -135,6 +137,8 @@ export function ProductWishlistButton({
         <button
           onClick={handleAddWishlistItem}
           disabled={isLoading}
+          aria-label='Add to wishlist'
+          name='wishlist'
           className={cn(
             'flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-[6px] bg-white shadow-md transition-opacity hover:bg-white/90',
             isLoading && 'cursor-not-allowed opacity-50',
