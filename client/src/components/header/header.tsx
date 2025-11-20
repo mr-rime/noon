@@ -49,12 +49,23 @@ export function Header() {
   const memoizedSearchInput = useMemo(() => <SearchInput />, [])
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
+    let ticking = false
+
+    const updateScrollState = () => {
+      const next = window.scrollY > 20
+      setIsScrolled((prev) => (prev === next ? prev : next))
+      ticking = false
     }
 
-    handleScroll()
-    window.addEventListener('scroll', handleScroll)
+    const handleScroll = () => {
+      if (!ticking) {
+        ticking = true
+        window.requestAnimationFrame(updateScrollState)
+      }
+    }
+
+    updateScrollState()
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 

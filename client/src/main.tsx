@@ -7,7 +7,7 @@ function getSubdomainFromHost() {
     const host = window.location.hostname;
     if (!host) return null;
 
-    if (host === 'noon-dashboard.vercel.app'  || host === 'dashboard.localhost') {
+    if (host === 'noon-dashboard.vercel.app' || host === 'dashboard.localhost') {
         return 'dashboard';
     }
 
@@ -25,3 +25,13 @@ createRoot(
         <App subdomain={subdomain} />
     </StrictMode>,
 )
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker
+            .register('/service-worker.js')
+            .catch((error) => {
+                console.error('Service worker registration failed:', error)
+            })
+    })
+}

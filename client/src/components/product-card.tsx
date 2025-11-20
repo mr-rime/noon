@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { Star } from 'lucide-react'
 import { formatNumber } from '@/utils/format-number'
+import { memo } from 'react'
 
 interface Product {
   id: string
@@ -26,7 +27,7 @@ interface ProductCardProps {
   product: Product
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+function ProductCard({ product }: ProductCardProps) {
   const primaryImage = product.images?.find(img => img.is_primary)?.image_url ||
     product.images?.[0]?.image_url ||
     '/placeholder.jpg'
@@ -102,3 +103,5 @@ export default function ProductCard({ product }: ProductCardProps) {
     </Link>
   )
 }
+
+export default memo(ProductCard)
