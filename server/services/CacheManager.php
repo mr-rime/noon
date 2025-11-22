@@ -12,7 +12,7 @@ class CacheManager
     }
 
 
-    public function getProduct(string $productId, callable $callback, ?string $scope = null): array
+    public function getProduct(string $productId, callable $callback, ?string $scope = null): ?array
     {
         $cacheKey = $scope ? "product:{$productId}:{$scope}" : "product:{$productId}";
         return $this->redis->remember($cacheKey, 3600, $callback);
@@ -37,7 +37,7 @@ class CacheManager
     }
 
 
-    public function getCategory(string $categoryId, callable $callback): array
+    public function getCategory(string $categoryId, callable $callback): ?array
     {
         $cacheKey = "category:{$categoryId}";
         return $this->redis->remember($cacheKey, 3600, $callback);
@@ -57,7 +57,7 @@ class CacheManager
     }
 
 
-    public function getCart(string $cartId, callable $callback): array
+    public function getCart(string $cartId, callable $callback): ?array
     {
         $cacheKey = "cart:{$cartId}";
         return $this->redis->remember($cacheKey, 600, $callback);
@@ -69,7 +69,7 @@ class CacheManager
     }
 
 
-    public function getUser(int $userId, callable $callback): array
+    public function getUser(int $userId, callable $callback): ?array
     {
         $cacheKey = "user:{$userId}";
         return $this->redis->remember($cacheKey, 1800, $callback);

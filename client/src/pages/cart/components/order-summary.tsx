@@ -1,16 +1,62 @@
 import { Input } from '@/components/ui/input'
 import type { CartItemType } from '../types'
 import { Separator } from '@/components/ui/separator'
-import { useMutation } from '@apollo/client'
+import { useMutation, useLazyQuery } from '@apollo/client'
 import { CREATE_CHECKOUT_SESSION } from '@/graphql/orders'
+import { VALIDATE_COUPON } from '@/graphql/coupon'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, X } from 'lucide-react'
+
+interface AppliedCoupon {
+  id: string
+  code: string
+  type: 'percentage' | 'fixed'
+  value: number
+}
 
 export function OrderSummary({ cartItems }: { cartItems: CartItemType[] }) {
   const [isProcessing, setIsProcessing] = useState(false)
+  const [couponCode, setCouponCode] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null)
 
   const [createCheckoutSession] = useMutation(CREATE_CHECKOUT_SESSION)
+  const [validateCoupon, { loading: validatingCoupon }] = useLazyQuery(VALIDATE_COUPON)
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast.error('Please enter a coupon code')
+      return
+    }
+
+    try {
+      const { data } = await validateCoupon({
+        variables: { code: couponCode.trim() }
+      })
+
+      if (data?.validateCoupon?.success && data?.validateCoupon?.coupon) {
+        const coupon = data.validateCoupon.coupon
+        setAppliedCoupon({
+          id: coupon.id,
+          code: coupon.code,
+          type: coupon.type,
+          value: coupon.value
+        })
+        toast.success(data.validateCoupon.message || 'Coupon applied successfully')
+        setCouponCode('')
+      } else {
+        toast.error(data?.validateCoupon?.message || 'Invalid coupon code')
+      }
+    } catch (error: any) {
+      console.error('Coupon validation error:', error)
+      toast.error('Failed to validate coupon')
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    toast.success('Coupon removed')
+  }
 
   const handleCheckout = async () => {
     if (cartItems.length === 0) {
@@ -46,7 +92,17 @@ export function OrderSummary({ cartItems }: { cartItems: CartItemType[] }) {
     return total + price * item.quantity
   }, 0)
 
-  const total = subtotal
+  // Calculate discount
+  let discount = 0
+  if (appliedCoupon) {
+    if (appliedCoupon.type === 'percentage') {
+      discount = (subtotal * appliedCoupon.value) / 100
+    } else if (appliedCoupon.type === 'fixed') {
+      discount = appliedCoupon.value
+    }
+  }
+
+  const total = Math.max(0, subtotal - discount)
 
   return (
     <section className="w-full rounded-2xl border border-[#EAECF0] bg-white p-4 shadow-sm sm:p-5">
@@ -63,13 +119,34 @@ export function OrderSummary({ cartItems }: { cartItems: CartItemType[] }) {
         </div>
       </div>
 
-      <Input
-        placeholder="Coupon Code"
-        className="mt-4 w-full"
-        input={{ className: 'bg-white' }}
-        button
-        buttonDirection="right"
-      />
+      {!appliedCoupon ? (
+        <Input
+          placeholder="Coupon Code"
+          className="mt-4 w-full"
+          input={{ className: 'bg-white' }}
+          button={{ content: 'APPLY' }}
+          buttonDirection="right"
+          value={couponCode}
+          onChange={(e) => setCouponCode(e.target.value)}
+          onButtonClick={handleApplyCoupon}
+          disabled={validatingCoupon}
+        />
+      ) : (
+        <div className="mt-4 flex items-center justify-between rounded-xl border border-[#38ae04] bg-[#38ae04]/5 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-[#38ae04]">{appliedCoupon.code}</span>
+            <span className="text-xs text-[#404553]">
+              ({appliedCoupon.type === 'percentage' ? `${appliedCoupon.value}%` : `EGP ${appliedCoupon.value}`} off)
+            </span>
+          </div>
+          <button
+            onClick={handleRemoveCoupon}
+            className="text-[#7e859b] hover:text-[#404553] transition-colors"
+          >
+            <X size={18} />
+          </button>
+        </div>
+      )}
 
       <button
         type="button"
@@ -85,6 +162,14 @@ export function OrderSummary({ cartItems }: { cartItems: CartItemType[] }) {
             EGP {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
         </div>
+        {appliedCoupon && discount > 0 && (
+          <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between text-[#38ae04]">
+            <span className="w-full sm:w-auto">Discount ({appliedCoupon.code})</span>
+            <span className="w-full sm:w-auto font-semibold text-right sm:text-right">
+              -EGP {discount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+          </div>
+        )}
         <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between text-[#404553]">
           <span className="w-full sm:w-auto">Shipping</span>
           <span className="w-full sm:w-auto font-semibold uppercase text-[#38ae04] text-right sm:text-right">Free</span>

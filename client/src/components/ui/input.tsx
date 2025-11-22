@@ -8,6 +8,7 @@ export function Input({
   iconDirection = 'left',
   buttonDirection = 'right',
   labelContent,
+  onButtonClick,
   ...rest
 }: InputProps) {
   const hasIcon = !!icon
@@ -26,6 +27,8 @@ export function Input({
       <div className={cn('flex w-full items-center', buttonDirection === 'right' ? 'flex-row-reverse' : 'flex-row')}>
         {isButton && (
           <button
+            type="button"
+            onClick={onButtonClick}
             className={cn(
               'h-[40px] min-w-[64px] cursor-pointer bg-[#3866df] px-[12px] font-bold text-[14px] text-white uppercase',
               buttonDirection === 'right' ? 'rounded-r-[6px]' : 'rounded-l-[6px]',
