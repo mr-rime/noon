@@ -34,9 +34,8 @@ const navigation = [
         icon: Megaphone,
         items: [
             { title: "Advertisement Banners", url: "/d/banners" },
-            { title: "Coupons", url: "/coupons" },
+            { title: "Coupons", url: "/d/coupons" },
             { title: "Discounts", url: "/d/discounts" },
-            { title: "Product Offers", url: "/offers" },
         ],
     },
     {

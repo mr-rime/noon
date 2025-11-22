@@ -74,6 +74,7 @@ export type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'clas
     icon?: React.ReactElement | React.ReactNode
     labelContent?: string
     ref?: InputRef
+    onButtonClick?: () => void
 }
 
 

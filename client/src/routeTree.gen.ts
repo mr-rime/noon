@@ -22,6 +22,7 @@ import { Route as mainHomeLayoutCategorySplatImport } from './routes/(main)/_hom
 import { Route as mainHomeLayoutprofileProfileLayoutImport } from './routes/(main)/_homeLayout/(profile)/_profileLayout'
 import { Route as dashboardDDashboardLayoutProductsIndexImport } from './routes/(dashboard)/d/_dashboardLayout/products/index'
 import { Route as dashboardDDashboardLayoutDiscountsIndexImport } from './routes/(dashboard)/d/_dashboardLayout/discounts/index'
+import { Route as dashboardDDashboardLayoutCouponsIndexImport } from './routes/(dashboard)/d/_dashboardLayout/coupons/index'
 import { Route as dashboardDDashboardLayoutCategoriesIndexImport } from './routes/(dashboard)/d/_dashboardLayout/categories/index'
 import { Route as dashboardDDashboardLayoutBrandsIndexImport } from './routes/(dashboard)/d/_dashboardLayout/brands/index'
 import { Route as dashboardDDashboardLayoutBannersIndexImport } from './routes/(dashboard)/d/_dashboardLayout/banners/index'
@@ -248,6 +249,13 @@ const dashboardDDashboardLayoutDiscountsIndexRoute =
   dashboardDDashboardLayoutDiscountsIndexImport.update({
     id: '/discounts/',
     path: '/discounts/',
+    getParentRoute: () => dashboardDDashboardLayoutRoute,
+  } as any)
+
+const dashboardDDashboardLayoutCouponsIndexRoute =
+  dashboardDDashboardLayoutCouponsIndexImport.update({
+    id: '/coupons/',
+    path: '/coupons/',
     getParentRoute: () => dashboardDDashboardLayoutRoute,
   } as any)
 
@@ -537,6 +545,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof dashboardDDashboardLayoutCategoriesIndexImport
       parentRoute: typeof dashboardDDashboardLayoutImport
     }
+    '/(dashboard)/d/_dashboardLayout/coupons/': {
+      id: '/(dashboard)/d/_dashboardLayout/coupons/'
+      path: '/coupons'
+      fullPath: '/d/coupons'
+      preLoaderRoute: typeof dashboardDDashboardLayoutCouponsIndexImport
+      parentRoute: typeof dashboardDDashboardLayoutImport
+    }
     '/(dashboard)/d/_dashboardLayout/discounts/': {
       id: '/(dashboard)/d/_dashboardLayout/discounts/'
       path: '/discounts'
@@ -771,6 +786,7 @@ interface dashboardDDashboardLayoutRouteChildren {
   dashboardDDashboardLayoutBannersIndexRoute: typeof dashboardDDashboardLayoutBannersIndexRoute
   dashboardDDashboardLayoutBrandsIndexRoute: typeof dashboardDDashboardLayoutBrandsIndexRoute
   dashboardDDashboardLayoutCategoriesIndexRoute: typeof dashboardDDashboardLayoutCategoriesIndexRoute
+  dashboardDDashboardLayoutCouponsIndexRoute: typeof dashboardDDashboardLayoutCouponsIndexRoute
   dashboardDDashboardLayoutDiscountsIndexRoute: typeof dashboardDDashboardLayoutDiscountsIndexRoute
   dashboardDDashboardLayoutProductsIndexRoute: typeof dashboardDDashboardLayoutProductsIndexRoute
   dashboardDDashboardLayoutOrdersIndexLazyRoute: typeof dashboardDDashboardLayoutOrdersIndexLazyRoute
@@ -789,6 +805,8 @@ const dashboardDDashboardLayoutRouteChildren: dashboardDDashboardLayoutRouteChil
       dashboardDDashboardLayoutBrandsIndexRoute,
     dashboardDDashboardLayoutCategoriesIndexRoute:
       dashboardDDashboardLayoutCategoriesIndexRoute,
+    dashboardDDashboardLayoutCouponsIndexRoute:
+      dashboardDDashboardLayoutCouponsIndexRoute,
     dashboardDDashboardLayoutDiscountsIndexRoute:
       dashboardDDashboardLayoutDiscountsIndexRoute,
     dashboardDDashboardLayoutProductsIndexRoute:
@@ -837,6 +855,7 @@ export interface FileRoutesByFullPath {
   '/d/banners': typeof dashboardDDashboardLayoutBannersIndexRoute
   '/d/brands': typeof dashboardDDashboardLayoutBrandsIndexRoute
   '/d/categories': typeof dashboardDDashboardLayoutCategoriesIndexRoute
+  '/d/coupons': typeof dashboardDDashboardLayoutCouponsIndexRoute
   '/d/discounts': typeof dashboardDDashboardLayoutDiscountsIndexRoute
   '/d/products': typeof dashboardDDashboardLayoutProductsIndexRoute
   '/d/orders': typeof dashboardDDashboardLayoutOrdersIndexLazyRoute
@@ -869,6 +888,7 @@ export interface FileRoutesByTo {
   '/d/banners': typeof dashboardDDashboardLayoutBannersIndexRoute
   '/d/brands': typeof dashboardDDashboardLayoutBrandsIndexRoute
   '/d/categories': typeof dashboardDDashboardLayoutCategoriesIndexRoute
+  '/d/coupons': typeof dashboardDDashboardLayoutCouponsIndexRoute
   '/d/discounts': typeof dashboardDDashboardLayoutDiscountsIndexRoute
   '/d/products': typeof dashboardDDashboardLayoutProductsIndexRoute
   '/d/orders': typeof dashboardDDashboardLayoutOrdersIndexLazyRoute
@@ -907,6 +927,7 @@ export interface FileRoutesById {
   '/(dashboard)/d/_dashboardLayout/banners/': typeof dashboardDDashboardLayoutBannersIndexRoute
   '/(dashboard)/d/_dashboardLayout/brands/': typeof dashboardDDashboardLayoutBrandsIndexRoute
   '/(dashboard)/d/_dashboardLayout/categories/': typeof dashboardDDashboardLayoutCategoriesIndexRoute
+  '/(dashboard)/d/_dashboardLayout/coupons/': typeof dashboardDDashboardLayoutCouponsIndexRoute
   '/(dashboard)/d/_dashboardLayout/discounts/': typeof dashboardDDashboardLayoutDiscountsIndexRoute
   '/(dashboard)/d/_dashboardLayout/products/': typeof dashboardDDashboardLayoutProductsIndexRoute
   '/(dashboard)/d/_dashboardLayout/orders/': typeof dashboardDDashboardLayoutOrdersIndexLazyRoute
@@ -941,6 +962,7 @@ export interface FileRouteTypes {
     | '/d/banners'
     | '/d/brands'
     | '/d/categories'
+    | '/d/coupons'
     | '/d/discounts'
     | '/d/products'
     | '/d/orders'
@@ -972,6 +994,7 @@ export interface FileRouteTypes {
     | '/d/banners'
     | '/d/brands'
     | '/d/categories'
+    | '/d/coupons'
     | '/d/discounts'
     | '/d/products'
     | '/d/orders'
@@ -1008,6 +1031,7 @@ export interface FileRouteTypes {
     | '/(dashboard)/d/_dashboardLayout/banners/'
     | '/(dashboard)/d/_dashboardLayout/brands/'
     | '/(dashboard)/d/_dashboardLayout/categories/'
+    | '/(dashboard)/d/_dashboardLayout/coupons/'
     | '/(dashboard)/d/_dashboardLayout/discounts/'
     | '/(dashboard)/d/_dashboardLayout/products/'
     | '/(dashboard)/d/_dashboardLayout/orders/'
@@ -1088,6 +1112,7 @@ export const routeTree = rootRoute
         "/(dashboard)/d/_dashboardLayout/banners/",
         "/(dashboard)/d/_dashboardLayout/brands/",
         "/(dashboard)/d/_dashboardLayout/categories/",
+        "/(dashboard)/d/_dashboardLayout/coupons/",
         "/(dashboard)/d/_dashboardLayout/discounts/",
         "/(dashboard)/d/_dashboardLayout/products/",
         "/(dashboard)/d/_dashboardLayout/orders/",
@@ -1154,6 +1179,10 @@ export const routeTree = rootRoute
     },
     "/(dashboard)/d/_dashboardLayout/categories/": {
       "filePath": "(dashboard)/d/_dashboardLayout/categories/index.tsx",
+      "parent": "/(dashboard)/d/_dashboardLayout"
+    },
+    "/(dashboard)/d/_dashboardLayout/coupons/": {
+      "filePath": "(dashboard)/d/_dashboardLayout/coupons/index.ts",
       "parent": "/(dashboard)/d/_dashboardLayout"
     },
     "/(dashboard)/d/_dashboardLayout/discounts/": {
