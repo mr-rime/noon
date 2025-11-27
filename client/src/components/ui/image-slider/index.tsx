@@ -25,6 +25,7 @@ interface ImageSliderProps {
   disableDragMobile?: boolean
   rounded?: boolean
   activeIndex?: number
+  onSlideClick?: (index: number) => void
 }
 
 export function ImageSlider({
@@ -42,7 +43,8 @@ export function ImageSlider({
   disableDragMobile = false,
   dotsTheme = 'theme1',
   rounded,
-  activeIndex
+  activeIndex,
+  onSlideClick
 }: ImageSliderProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number | null>(null)
@@ -54,6 +56,8 @@ export function ImageSlider({
   const logicalIndex = useRef(1)
   const isDragging = useRef(false)
   const startX = useRef(0)
+  const startY = useRef(0)
+  const hasMoved = useRef(false)
   const currentTranslate = useRef(0)
   const autoplayRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -241,6 +245,8 @@ export function ImageSlider({
       stopAutoplay()
       isDragging.current = true
       startX.current = e.clientX
+      startY.current = e.clientY
+      hasMoved.current = false
       if (containerRef.current) {
         containerRef.current.style.transition = 'none'
       }
@@ -253,6 +259,12 @@ export function ImageSlider({
       if (!isDragging.current || displayImages.length <= 1 || isDragDisabled) return
       stopEventPropagation(e)
       const delta = e.clientX - startX.current
+      const deltaY = e.clientY - startY.current
+
+      if (Math.abs(delta) > 5 || Math.abs(deltaY) > 5) {
+        hasMoved.current = true
+      }
+
       const nextTranslate = currentTranslate.current + delta
       setTranslate(nextTranslate, false)
     },
@@ -437,7 +449,16 @@ export function ImageSlider({
                         ? 'flex w-full items-center justify-center bg-[#F6F6F7]'
                         : 'h-full w-full overflow-hidden',
                       scaleOnHover && 'duration-300 ease-in-out hover:scale-[1.1]',
-                    )}>
+                      onSlideClick && 'cursor-pointer'
+                    )}
+                    onClick={() => {
+                      if (onSlideClick && !hasMoved.current) {
+                        let actualIndex = i - 1
+                        if (actualIndex < 0) actualIndex = displayImages.length - 1
+                        if (actualIndex >= displayImages.length) actualIndex = 0
+                        onSlideClick(actualIndex)
+                      }
+                    }}>
                     <Image
                       src={
                         showProductControls

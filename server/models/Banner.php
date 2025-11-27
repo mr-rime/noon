@@ -13,17 +13,17 @@ class Banner
         $this->db = $db;
     }
 
-    public function create($name, $placement, $description, $targetUrl, $imageUrl, $startDate, $endDate, $isActive = true)
+    public function create($name, $placement, $description, $targetUrl, $imageUrl, $startDate, $endDate, $isActive = true, $mobileImageUrl = null)
     {
         try {
             $id = $this->generateId();
             $startDateFmt = date('Y-m-d H:i:s', strtotime($startDate));
             $endDateFmt = date('Y-m-d H:i:s', strtotime($endDate));
-            $query = "INSERT INTO banners (id, name, placement, description, target_url, image_url, start_date, end_date, is_active, created_at)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+            $query = "INSERT INTO banners (id, name, placement, description, target_url, image_url, mobile_image_url, start_date, end_date, is_active, created_at)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
 
             $stmt = $this->db->prepare($query);
-            $stmt->bind_param('ssssssssi', $id, $name, $placement, $description, $targetUrl, $imageUrl, $startDateFmt, $endDateFmt, $isActive);
+            $stmt->bind_param('sssssssssi', $id, $name, $placement, $description, $targetUrl, $imageUrl, $mobileImageUrl, $startDateFmt, $endDateFmt, $isActive);
 
             if ($stmt->execute()) {
                 $stmt->close();
@@ -38,7 +38,7 @@ class Banner
         }
     }
 
-    public function update($id, $name, $placement, $description, $targetUrl, $imageUrl, $startDate, $endDate, $isActive)
+    public function update($id, $name, $placement, $description, $targetUrl, $imageUrl, $startDate, $endDate, $isActive, $mobileImageUrl = null)
     {
         try {
             $query = "UPDATE banners 
@@ -47,13 +47,14 @@ class Banner
                          description = ?,
                          target_url = ?,
                          image_url = ?,
+                         mobile_image_url = ?,
                          start_date = ?,
                          end_date = ?,
                          is_active = ?
                      WHERE id = ?";
 
             $stmt = $this->db->prepare($query);
-            $stmt->bind_param('sssssssis', $name, $placement, $description, $targetUrl, $imageUrl, $startDate, $endDate, $isActive, $id);
+            $stmt->bind_param('ssssssssis', $name, $placement, $description, $targetUrl, $imageUrl, $mobileImageUrl, $startDate, $endDate, $isActive, $id);
 
             if ($stmt->execute()) {
                 $stmt->close();
@@ -266,6 +267,7 @@ class Banner
             'description' => $banner['description'],
             'target_url' => $banner['target_url'],
             'image_url' => $banner['image_url'],
+            'mobile_image_url' => $banner['mobile_image_url'] ?? null,
             'start_date' => $banner['start_date'],
             'end_date' => $banner['end_date'],
             'is_active' => (bool) $banner['is_active'],

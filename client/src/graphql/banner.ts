@@ -10,6 +10,7 @@ export const GET_BANNERS = gql`
         description
         target_url
         image_url
+        mobile_image_url
         start_date
         end_date
         is_active
@@ -29,6 +30,7 @@ export const GET_BANNER = gql`
       description
       target_url
       image_url
+      mobile_image_url
       start_date
       end_date
       is_active
@@ -44,6 +46,7 @@ export const CREATE_BANNER = gql`
     $description: String
     $targetUrl: String
     $imageUrl: String
+    $mobileImageUrl: String
     $startDate: String!
     $endDate: String!
     $isActive: Boolean
@@ -54,6 +57,7 @@ export const CREATE_BANNER = gql`
       description: $description
       targetUrl: $targetUrl
       imageUrl: $imageUrl
+      mobileImageUrl: $mobileImageUrl
       startDate: $startDate
       endDate: $endDate
       isActive: $isActive
@@ -67,6 +71,7 @@ export const CREATE_BANNER = gql`
         description
         target_url
         image_url
+        mobile_image_url
         start_date
         end_date
         is_active
@@ -83,6 +88,7 @@ export const UPDATE_BANNER = gql`
     $description: String
     $targetUrl: String
     $imageUrl: String
+    $mobileImageUrl: String
     $startDate: String!
     $endDate: String!
     $isActive: Boolean
@@ -94,6 +100,7 @@ export const UPDATE_BANNER = gql`
       description: $description
       targetUrl: $targetUrl
       imageUrl: $imageUrl
+      mobileImageUrl: $mobileImageUrl
       startDate: $startDate
       endDate: $endDate
       isActive: $isActive
@@ -107,6 +114,7 @@ export const UPDATE_BANNER = gql`
         description
         target_url
         image_url
+        mobile_image_url
         start_date
         end_date
         is_active

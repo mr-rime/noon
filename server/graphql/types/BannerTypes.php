@@ -42,6 +42,10 @@ class BannerTypes
                         'type' => Type::string(),
                         'description' => 'The image URL of the banner'
                     ],
+                    'mobile_image_url' => [
+                        'type' => Type::string(),
+                        'description' => 'The mobile image URL of the banner'
+                    ],
                     'start_date' => [
                         'type' => Type::string(),
                         'description' => 'The start date of the banner campaign'

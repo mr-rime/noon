@@ -351,4 +351,70 @@ class Wishlist
 
         return (bool) $result->fetch_row();
     }
+
+    public function getPublicWishlist(string $wishlistId): ?array
+    {
+        $wishlistIdValidator = v::stringType()->notEmpty()->length(1, 21);
+        try {
+            $wishlistIdValidator->assert($wishlistId);
+        } catch (NestedValidationException $e) {
+            error_log("Validation failed in getPublicWishlist(): " . $e->getFullMessage());
+            return null;
+        }
+
+        // Fetch wishlist details
+        $stmt = $this->db->prepare("SELECT * FROM wishlists WHERE id = ? AND is_private = 0");
+        if (!$stmt) {
+            error_log("Prepare failed: " . $this->db->error);
+            return null;
+        }
+        $stmt->bind_param("s", $wishlistId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $wishlist = $result->fetch_assoc();
+        $stmt->close();
+
+        if (!$wishlist) {
+            return null;
+        }
+
+        // Fetch items
+        $stmt = $this->db->prepare("
+            SELECT wi.product_id, wi.added_at, p.*
+            FROM wishlist_items wi
+            JOIN products p ON wi.product_id = p.id
+            WHERE wi.wishlist_id = ?
+        ");
+
+        if (!$stmt) {
+            error_log("Prepare failed: " . $this->db->error);
+            return null;
+        }
+
+        $stmt->bind_param("s", $wishlistId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $items = [];
+        $imageModel = new ProductImage($this->db);
+        $productModel = new Product($this->db);
+
+        while ($row = $result->fetch_assoc()) {
+            $row['images'] = $imageModel->findByProductId($row['id']);
+            $productModel->attachDiscountData($row, $row['price']);
+            unset($row['discount']);
+
+            // Structure the item to match expected GraphQL output if needed, 
+            // but for now we return the product data as the item + added_at
+            $items[] = [
+                'id' => $row['product_id'], // WishlistItem ID (using product_id as unique identifier within wishlist context for now)
+                'added_at' => $row['added_at'],
+                'product' => $row
+            ];
+        }
+        $stmt->close();
+
+        $wishlist['items'] = $items;
+        return $wishlist;
+    }
 }

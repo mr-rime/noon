@@ -350,7 +350,6 @@ function deleteWishlist(mysqli $db, string $wishlistId): array
 
         $wishlistModel = new Wishlist($db);
         $deleted = $wishlistModel->delete((int) $userId, $wishlistId);
-
         if (!$deleted) {
             throw new Exception('Failed to delete wishlist');
         }
@@ -372,6 +371,40 @@ function deleteWishlist(mysqli $db, string $wishlistId): array
             'success' => false,
             'message' => $e->getMessage(),
             'data' => []
+        ];
+    }
+}
+
+function getPublicWishlist(mysqli $db, string $wishlistId): array
+{
+    try {
+        $wishlistIdValidator = v::stringType()->notEmpty()->length(1, 21);
+        $wishlistIdValidator->assert($wishlistId);
+
+        $wishlistModel = new Wishlist($db);
+        $data = $wishlistModel->getPublicWishlist($wishlistId);
+
+        if (!$data) {
+            throw new Exception('Wishlist not found or is private');
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Public wishlist retrieved successfully',
+            'data' => $data
+        ];
+    } catch (Respect\Validation\Exceptions\ValidationException $e) {
+        return [
+            'success' => false,
+            'message' => 'Validation error: ' . $e->getMessage(),
+            'data' => null
+        ];
+    } catch (Throwable $e) {
+        error_log("Error in getPublicWishlist: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => $e->getMessage(),
+            'data' => null
         ];
     }
 }

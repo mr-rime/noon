@@ -53,3 +53,31 @@ $WishlistItemsResponse = new ObjectType([
         'data' => Type::listOf($ProductType)
     ]
 ]);
+
+$PublicWishlistItem = new ObjectType([
+    'name' => 'PublicWishlistItem',
+    'fields' => [
+        'id' => Type::nonNull(Type::string()),
+        'added_at' => Type::string(),
+        'product' => $ProductType
+    ]
+]);
+
+$PublicWishlist = new ObjectType([
+    'name' => 'PublicWishlist',
+    'fields' => [
+        'id' => Type::nonNull(Type::ID()),
+        'name' => Type::nonNull(Type::string()),
+        'is_private' => Type::nonNull(Type::boolean()),
+        'items' => Type::listOf($PublicWishlistItem)
+    ]
+]);
+
+$PublicWishlistResponse = new ObjectType([
+    'name' => 'PublicWishlistResponse',
+    'fields' => [
+        'success' => Type::boolean(),
+        'message' => Type::string(),
+        'data' => $PublicWishlist
+    ]
+]);

@@ -7,6 +7,7 @@ import { VALIDATE_COUPON } from '@/graphql/coupon'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ChevronRight, X } from 'lucide-react'
+import { BouncingLoading } from '@/components/ui/bouncing-loading'
 
 interface AppliedCoupon {
   id: string
@@ -31,7 +32,8 @@ export function OrderSummary({ cartItems }: { cartItems: CartItemType[] }) {
 
     try {
       const { data } = await validateCoupon({
-        variables: { code: couponCode.trim() }
+        variables: { code: couponCode.trim() },
+        fetchPolicy: 'network-only'
       })
 
       if (data?.validateCoupon?.success && data?.validateCoupon?.coupon) {
@@ -124,7 +126,13 @@ export function OrderSummary({ cartItems }: { cartItems: CartItemType[] }) {
           placeholder="Coupon Code"
           className="mt-4 w-full"
           input={{ className: 'bg-white' }}
-          button={{ content: 'APPLY' }}
+          button={{
+            content: validatingCoupon ? (
+              <div className="flex items-center gap-2">
+                <BouncingLoading />
+              </div>
+            ) : 'APPLY'
+          }}
           buttonDirection="right"
           value={couponCode}
           onChange={(e) => setCouponCode(e.target.value)}

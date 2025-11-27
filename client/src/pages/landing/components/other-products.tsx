@@ -92,7 +92,7 @@ export default function OtherProducts({ excludedIds }: OtherProductsProps) {
                 <h3 className="my-2 select-none text-center font-extrabold text-xl sm:text-2xl md:text-3xl lg:text-4xl uppercase">
                     <span className="text-black">Products</span> <span className="text-[#E4041B]">you'll like</span>
                 </h3>
-                <div className="p-4">
+                <div className="px-2 py-4 md:px-4">
                     <ProductsListSkeleton />
                 </div>
             </div>
@@ -108,13 +108,13 @@ export default function OtherProducts({ excludedIds }: OtherProductsProps) {
             <h3 className="my-2 select-none text-center font-extrabold text-xl sm:text-2xl md:text-3xl lg:text-4xl uppercase">
                 <span className="text-black">Products</span> <span className="text-[#E4041B]">you'll like</span>
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4 px-2 py-4 md:px-4">
                 {products.map((product) => (
                     <Product key={product.id} {...product} />
                 ))}
             </div>
             {hasMore && (loading || isLoadingMore) && (
-                <div ref={loadMoreRef} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
+                <div ref={loadMoreRef} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4 px-2 py-4 md:px-4">
                     {Array.from({ length: 5 }).map((_, index) => (
                         <div key={`skeleton-${index}`} className="animate-pulse">
                             <div className="bg-gray-200 rounded-lg h-48 mb-2"></div>

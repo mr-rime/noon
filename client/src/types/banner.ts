@@ -5,6 +5,7 @@ export interface Banner {
   description?: string
   target_url?: string
   image_url?: string
+  mobile_image_url?: string
   start_date: string
   end_date: string
   is_active: boolean
@@ -32,6 +33,7 @@ export const BANNER_PLACEMENTS = [
   { value: 'checkout_top', label: 'Checkout Top' },
   { value: 'footer_banner', label: 'Footer Banner' },
   { value: 'popup', label: 'Popup Banner' },
+  { value: 'image_slider', label: 'Image Slider' },
   { value: 'mobile_home', label: 'Mobile Home Banner' },
   { value: 'mobile_category', label: 'Mobile Category Banner' }
 ]

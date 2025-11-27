@@ -38,6 +38,7 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
     description: "",
     targetUrl: "",
     imageUrl: "",
+    mobileImageUrl: "",
     startDate: "",
     endDate: "",
     isActive: true
@@ -45,6 +46,7 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
   const [isUploading, setIsUploading] = useState(false)
   const [uploadError, setUploadError] = useState("")
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
+  const [selectedMobileImageFile, setSelectedMobileImageFile] = useState<File | null>(null)
 
   const [createBanner, { loading: creating }] = useMutation(CREATE_BANNER)
   const [updateBanner, { loading: updating }] = useMutation(UPDATE_BANNER)
@@ -66,6 +68,7 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
         description: banner.description || "",
         targetUrl: banner.target_url || "",
         imageUrl: banner.image_url || "",
+        mobileImageUrl: banner.mobile_image_url || "",
         startDate: formatDate(banner.start_date),
         endDate: formatDate(banner.end_date),
         isActive: banner.is_active !== undefined ? banner.is_active : true
@@ -81,6 +84,7 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
         description: "",
         targetUrl: "",
         imageUrl: "",
+        mobileImageUrl: "",
         startDate: now.toISOString().slice(0, 16),
         endDate: nextMonth.toISOString().slice(0, 16),
         isActive: true
@@ -103,6 +107,8 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
 
     setUploadError("")
     let imageUrlToSave = formData.imageUrl
+    let mobileImageUrlToSave = formData.mobileImageUrl
+
     if (selectedImageFile) {
       setIsUploading(true)
       try {
@@ -116,21 +122,48 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
         if (data?.uploadImage?.success && data?.uploadImage?.url) {
           imageUrlToSave = data.uploadImage.url
         } else {
-          setUploadError(data?.uploadImage?.message || 'Failed to upload image')
+          setUploadError(data?.uploadImage?.message || 'Failed to upload desktop image')
           setIsUploading(false)
           return
         }
       } catch {
-        setUploadError('Image upload failed.')
+        setUploadError('Desktop image upload failed.')
         setIsUploading(false)
         return
       }
-      setIsUploading(false)
     }
+
+    if (selectedMobileImageFile) {
+      setIsUploading(true)
+      try {
+        const content = await fileToBase64(selectedMobileImageFile)
+        const fileInput = {
+          name: selectedMobileImageFile.name,
+          type: selectedMobileImageFile.type,
+          content,
+        }
+        const { data } = await uploadFile({ variables: { file: fileInput } })
+        if (data?.uploadImage?.success && data?.uploadImage?.url) {
+          mobileImageUrlToSave = data.uploadImage.url
+        } else {
+          setUploadError(data?.uploadImage?.message || 'Failed to upload mobile image')
+          setIsUploading(false)
+          return
+        }
+      } catch {
+        setUploadError('Mobile image upload failed.')
+        setIsUploading(false)
+        return
+      }
+    }
+
+    setIsUploading(false)
+
     try {
       const variables = {
         ...formData,
         imageUrl: imageUrlToSave,
+        mobileImageUrl: mobileImageUrlToSave,
         startDate: new Date(formData.startDate).toISOString(),
         endDate: new Date(formData.endDate).toISOString()
       }
@@ -232,7 +265,7 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
             <div className="space-y-2">
               <Label htmlFor="imageUpload" className="flex items-center gap-2">
                 <Image className="h-4 w-4" />
-                Banner Image
+                Desktop Banner Image
               </Label>
               <Dropzone
                 onFilesDrop={(files) => {
@@ -250,21 +283,58 @@ export function BannerForm({ banner, isOpen, onClose, onSuccess }: BannerFormPro
                   ) : selectedImageFile ? (
                     <img
                       src={URL.createObjectURL(selectedImageFile)}
-                      alt="Banner preview"
+                      alt="Desktop banner preview"
                       className="w-full h-32 object-cover rounded-lg border"
                     />
                   ) : formData.imageUrl ? (
                     <img
                       src={formData.imageUrl}
-                      alt="Banner preview"
+                      alt="Desktop banner preview"
                       className="w-full h-32 object-cover rounded-lg border"
                     />
                   ) : (
-                    <span className="text-gray-400">Drag and drop or click to upload</span>
+                    <span className="text-gray-400">Drag and drop or click to upload desktop image</span>
                   )}
                 </div>
               </Dropzone>
               {uploadError && <p className="text-red-500 text-xs mt-1">{uploadError}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="mobileImageUpload" className="flex items-center gap-2">
+                <Image className="h-4 w-4" />
+                Mobile Banner Image (Optional)
+              </Label>
+              <Dropzone
+                onFilesDrop={(files) => {
+                  setSelectedMobileImageFile(files && files[0] ? files[0] : null)
+                  setFormData((prev) => ({ ...prev, mobileImageUrl: "" }))
+                  setUploadError("")
+                }}
+                multiple={false}
+                accept="image/*"
+                disabled={isUploading}
+              >
+                <div className="w-full flex flex-col items-center gap-2 py-4">
+                  {isUploading ? (
+                    <span>Uploading...</span>
+                  ) : selectedMobileImageFile ? (
+                    <img
+                      src={URL.createObjectURL(selectedMobileImageFile)}
+                      alt="Mobile banner preview"
+                      className="w-full h-32 object-cover rounded-lg border"
+                    />
+                  ) : formData.mobileImageUrl ? (
+                    <img
+                      src={formData.mobileImageUrl}
+                      alt="Mobile banner preview"
+                      className="w-full h-32 object-cover rounded-lg border"
+                    />
+                  ) : (
+                    <span className="text-gray-400">Drag and drop or click to upload mobile image</span>
+                  )}
+                </div>
+              </Dropzone>
             </div>
 
             <div className="space-y-2">

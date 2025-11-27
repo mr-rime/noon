@@ -15,7 +15,7 @@ export function ShareWishlistModal({
     onClose: () => void
 }) {
     const shareUrl = typeof window !== 'undefined' && wishlist
-        ? `${window.location.origin}/wishlist?wishlistCode=${wishlist.id}`
+        ? `${window.location.origin}/share/wishlist/${wishlist.id}`
         : ''
 
     const handleCopy = async () => {

@@ -123,34 +123,3 @@ export function isRetryable(error: unknown): boolean {
     return false
 }
 
-
-export async function retryWithBackoff<T>(
-    fn: () => Promise<T>,
-    maxRetries = 3,
-    initialDelay = 1000
-): Promise<T> {
-    let lastError: unknown
-
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-            return await fn()
-        } catch (error) {
-            lastError = error
-
-
-            if (!isRetryable(error)) {
-                throw error
-            }
-
-
-            const delay = initialDelay * Math.pow(2, attempt)
-
-
-            if (attempt < maxRetries - 1) {
-                await new Promise(resolve => setTimeout(resolve, delay))
-            }
-        }
-    }
-
-    throw lastError
-}

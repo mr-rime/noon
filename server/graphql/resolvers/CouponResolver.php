@@ -125,8 +125,11 @@ class CouponResolver
             ];
         }
 
-        $now = new DateTime();
-        $startsAt = new DateTime($coupon['starts_at']);
+        date_default_timezone_set('Africa/Cairo');
+
+        $now = time();
+        $startsAt = strtotime($coupon['starts_at']);
+
         if ($now < $startsAt) {
             return [
                 'success' => false,
@@ -135,7 +138,7 @@ class CouponResolver
             ];
         }
 
-        $endsAt = new DateTime($coupon['ends_at']);
+        $endsAt = strtotime($coupon['ends_at']);
         if ($now > $endsAt) {
             return [
                 'success' => false,

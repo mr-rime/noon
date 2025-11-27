@@ -102,3 +102,31 @@ export const DELETE_WISHLIST = gql`
         }
     }
 `
+export const GET_PUBLIC_WISHLIST = gql`
+  query getPublicWishlist($wishlist_id: String!) {
+    getPublicWishlist(wishlist_id: $wishlist_id) {
+      success
+      message
+      data {
+        id
+        name
+        is_private
+        items {
+          id
+          added_at
+          product {
+            id
+            name
+            price
+            final_price
+            discount_percentage
+            images {
+              id
+              image_url
+            }
+          }
+        }
+      }
+    }
+  }
+`;

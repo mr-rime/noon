@@ -6,7 +6,7 @@ import { header_icons } from '../constants/icons'
 import { LoginButtonWithModalDialog } from '@/components/login-modal'
 import { cn } from '@/utils/cn'
 import type { GetUserResponse } from '@/types'
-import { Sparkles, User } from 'lucide-react'
+import { User } from 'lucide-react'
 
 interface MobileBottomNavProps {
     cartCount: number
@@ -31,12 +31,10 @@ export function MobileBottomNav({ cartCount, isVisible, onCategoriesClick, user 
     if (!isVisible || !portalTarget) return null
 
     const goHome = () => navigate({ to: '/' })
-    const goEarlyBird = () => navigate({ to: '/', hash: 'early-bird' })
     const goCart = () => navigate({ to: '/cart' })
     const goProfile = () => navigate({ to: '/profile' })
 
     const isActive = (path: string) => location.pathname === path
-    const isEarlyBirdActive = location.pathname === '/' && location.hash === '#early-bird'
 
     const renderAccountTab = (content: ReactNode) =>
         user ? (
@@ -69,14 +67,6 @@ export function MobileBottomNav({ cartCount, isVisible, onCategoriesClick, user 
                 <button type="button" className={tabClasses} onClick={onCategoriesClick}>
                     {header_icons.categoriesIcon}
                     <span>Categories</span>
-                </button>
-
-                <button
-                    type="button"
-                    className={cn(tabClasses, isEarlyBirdActive && 'text-[#343741] font-semibold')}
-                    onClick={goEarlyBird}>
-                    <Sparkles size={24} />
-                    <span>Early Bird</span>
                 </button>
 
                 {renderAccountTab(<User size={24} />)}

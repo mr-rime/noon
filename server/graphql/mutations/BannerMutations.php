@@ -11,6 +11,7 @@ return [
             'description' => Type::string(),
             'targetUrl' => Type::string(),
             'imageUrl' => Type::string(),
+            'mobileImageUrl' => Type::string(),
             'startDate' => Type::nonNull(Type::string()),
             'endDate' => Type::nonNull(Type::string()),
             'isActive' => Type::boolean()
@@ -27,6 +28,7 @@ return [
             'description' => Type::string(),
             'targetUrl' => Type::string(),
             'imageUrl' => Type::string(),
+            'mobileImageUrl' => Type::string(),
             'startDate' => Type::nonNull(Type::string()),
             'endDate' => Type::nonNull(Type::string()),
             'isActive' => Type::boolean()

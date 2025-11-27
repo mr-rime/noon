@@ -64,7 +64,8 @@ function createBanner(mysqli $db, $args)
             $args['imageUrl'] ?? '',
             $args['startDate'],
             $args['endDate'],
-            $args['isActive'] ?? true
+            $args['isActive'] ?? true,
+            $args['mobileImageUrl'] ?? null
         );
 
         if ($banner) {
@@ -104,7 +105,8 @@ function updateBanner(mysqli $db, $args)
             $args['imageUrl'] ?? '',
             $args['startDate'],
             $args['endDate'],
-            $args['isActive'] ?? true
+            $args['isActive'] ?? true,
+            $args['mobileImageUrl'] ?? null
         );
 
         if ($banner) {

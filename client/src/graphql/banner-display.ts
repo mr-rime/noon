@@ -9,6 +9,7 @@ export const GET_ACTIVE_BANNERS_BY_PLACEMENT = gql`
       description
       target_url
       image_url
+      mobile_image_url
       start_date
       end_date
       is_active
@@ -27,6 +28,7 @@ export const GET_ALL_ACTIVE_BANNERS = gql`
         description
         target_url
         image_url
+        mobile_image_url
         start_date
         end_date
         is_active
