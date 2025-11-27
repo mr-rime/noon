@@ -10,10 +10,6 @@
 # Symfony specific
 /var/
 
-# Laravel environment file
-# .env
-# .env.*.php
-
 # PHPUnit
 .phpunit.result.cache
 
@@ -53,10 +49,10 @@ coverage/
 /build/
 /dist/
 
-<<<<<<< HEAD
-server/.env
-=======
-.env 
-.env.*.php 
+# Environment files
+.env
+.env.*.php
 /.env
->>>>>>> 4255722 (chore: update .gitignore and add example environment file)
+
+# Database initialization flag
+.db_initialized

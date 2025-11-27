@@ -12,6 +12,25 @@ require_once __DIR__ . '/../config/session.php';
 $db = new Database();
 $conn = $db->getConnection();
 
+$initFlagFile = __DIR__ . '/../.db_initialized';
+if (!file_exists($initFlagFile)) {
+    $initTablesFile = __DIR__ . '/../scripts/init-tables.php';
+    if (file_exists($initTablesFile)) {
+        ob_start();
+        include $initTablesFile;
+        $initOutput = ob_get_clean();
+
+        if (!empty($initOutput)) {
+            error_log("Database Initialization:\n" . $initOutput);
+        }
+
+        file_put_contents($initFlagFile, date('Y-m-d H:i:s'));
+
+        $db = new Database();
+        $conn = $db->getConnection();
+    }
+}
+
 $schema = require_once __DIR__ . '/../graphql/schema.php';
 
 $request = Request::createFromGlobals();
