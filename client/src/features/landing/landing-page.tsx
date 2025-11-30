@@ -6,7 +6,6 @@ import { PreviouslyBrowsedProducts, BestDeals, DiscountedProducts, OtherProducts
 import { ProductsListSkeleton } from '@/shared/components/ui/products-list-skeleton'
 import { HeroBanner, SecondaryBanner, MobileBanner } from '@/features/landing/components/banners/banner-display'
 import CategoryCarousel from '@/shared/components/category/category-carousel'
-import Footer from '@/features/landing/components/footer'
 import { GET_HOME } from '@/features/landing/api/home'
 import type { ProductType } from '@/shared/types'
 
@@ -93,7 +92,6 @@ export function Landing() {
         <DiscountedProducts products={discounted} loading={loading} />
         <OtherProducts excludedIds={excludedIds} />
       </div>
-      <Footer />
     </div>
   )
 }
