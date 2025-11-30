@@ -1,7 +1,7 @@
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
 import * as React from 'react'
 import { Toaster } from 'sonner'
-import { RouteErrorBoundary } from '@/components/route-errors'
+import { RouteErrorBoundary } from '@/shared/components/route-errors'
 
 type RootContextType = {
   subdomain: string | null

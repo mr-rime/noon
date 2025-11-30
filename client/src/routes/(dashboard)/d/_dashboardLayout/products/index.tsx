@@ -1,4 +1,4 @@
-import Products from "@/pages/dashboard/pages/products";
+import Products from "@/features/dashboard/components/pages/products";
 import { createFileRoute } from "@tanstack/react-router";
 
 type ProductsSearch = {

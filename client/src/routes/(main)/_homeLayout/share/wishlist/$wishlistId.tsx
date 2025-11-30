@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
-import { GET_PUBLIC_WISHLIST } from '@/graphql/wishlist';
-import { Skeleton } from '@/components/ui/skeleton';
-import ProductCard from '@/components/product-card';
+import { GET_PUBLIC_WISHLIST } from '@/features/wishlist/api/wishlist';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import ProductCard from '@/shared/components/product-card';
 import { createFileRoute } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import { Heart } from 'lucide-react';

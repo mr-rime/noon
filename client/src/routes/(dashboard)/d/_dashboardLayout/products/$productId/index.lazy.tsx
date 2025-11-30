@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
-import { ProductDetailsPage } from "@/pages/dashboard/components/products/product-details-page";
+import { ProductDetailsPage } from "@/features/dashboard/components/components/products/product-details-page";
 
 function ProductDetailsPageRoute() {
   return <ProductDetailsPage />

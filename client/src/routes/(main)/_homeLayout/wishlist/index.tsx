@@ -1,4 +1,4 @@
-import { WishlistPage } from "@/pages/wishlist";
+import { WishlistPage } from "@/features/wishlist";
 import { createFileRoute } from "@tanstack/react-router";
 
 type WishlistSearch = {

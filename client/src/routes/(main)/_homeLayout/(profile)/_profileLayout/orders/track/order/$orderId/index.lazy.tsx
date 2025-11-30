@@ -1,4 +1,4 @@
-import { TrackingDetails } from "@/pages/profile";
+import { TrackingDetails } from "@/features/profile";
 import { createLazyFileRoute } from "@tanstack/react-router";
 
 export const Route = createLazyFileRoute("/(main)/_homeLayout/(profile)/_profileLayout/orders/track/order/$orderId/")({

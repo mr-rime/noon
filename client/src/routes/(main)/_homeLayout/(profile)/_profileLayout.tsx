@@ -1,7 +1,7 @@
 import { client } from "@/config/apollo";
-import { GET_USER } from "@/graphql/user";
-import { ProfilePageLayout } from "@/pages/profile";
-import type { GetUserResponse } from "@/types";
+import { GET_USER } from "@/shared/api/user";
+import { ProfilePageLayout } from "@/features/profile";
+import type { GetUserResponse } from "@/shared/types";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import Cookies from "js-cookie";
 

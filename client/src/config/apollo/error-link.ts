@@ -1,7 +1,7 @@
 import { onError } from '@apollo/client/link/error'
 import { GraphQLError } from 'graphql'
 import { toast } from 'sonner'
-import { handleGraphQLError, logError } from '@/utils/error-handler'
+import { handleGraphQLError, logError } from '@/shared/utils/error-handler'
 
 export const errorLink = onError(({ graphQLErrors, networkError }) => {
 

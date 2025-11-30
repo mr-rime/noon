@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { DiscountType, ProductImage, ProductSpecification, ProductType } from '@/types'
+import type { DiscountType, ProductImage, ProductSpecification, ProductType } from '@/shared/types'
 
 type ProductStore = {
   product: ProductType

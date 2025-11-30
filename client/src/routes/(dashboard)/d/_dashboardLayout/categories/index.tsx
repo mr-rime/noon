@@ -1,4 +1,4 @@
-import Categories from '@/pages/dashboard/pages/categories'
+import Categories from '@/features/dashboard/components/pages/categories'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute(

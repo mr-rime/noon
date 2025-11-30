@@ -1,6 +1,6 @@
-import { DashboardLayout } from '@/pages/dashboard'
+import { DashboardLayout } from '@/features/dashboard/components/dashboard-layout'
 import { client } from '@/config/apollo'
-import { CHECK_STORE_AUTH } from '@/graphql/store'
+import { CHECK_STORE_AUTH } from '@/shared/api/store'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/(dashboard)/d/_dashboardLayout')({

@@ -2,7 +2,7 @@ import { ApolloProvider } from '@apollo/client'
 import { RouterProvider } from '@tanstack/react-router'
 import { router } from './router'
 import { client } from './config/apollo'
-import { ErrorBoundary } from './components/error-boundary'
+import { ErrorBoundary } from '@/shared/components/error-boundary'
 
 declare module '@tanstack/react-router' {
   interface Register {

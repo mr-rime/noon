@@ -1,4 +1,4 @@
-import Brands from '@/pages/dashboard/pages/brands'
+import Brands from '@/features/dashboard/components/pages/brands'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute(

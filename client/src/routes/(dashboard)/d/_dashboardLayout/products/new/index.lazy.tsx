@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
-import { ProductCreationWizard } from "@/pages/dashboard/components/products/product-creation-wizard";
+import { ProductCreationWizard } from "@/features/dashboard/components/components/products/product-creation-wizard";
 
 function NewProductPage() {
 	return <ProductCreationWizard onClose={() => window.history.back()} />
