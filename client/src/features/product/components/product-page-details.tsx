@@ -79,11 +79,11 @@ export function ProductPageDetails({
             layout="constrained"
           />
           <div>
-            <Link to={'/seller/$sellerId'} params={{ sellerId: '1' }}>
+            {/* <Link to={'/seller/$sellerId'} params={{ sellerId: '1' }}>
               <div className="flex cursor-pointer items-center text-[14px] transition-colors hover:text-[#3866DF]">
                 Sold by <strong className="ml-1">noon</strong> <ChevronRight size={20} />
               </div>
-            </Link>
+            </Link> */}
             <div className="flex items-center justify-start space-x-1">
               <Star fill="#008000" color="#008000" size={16} />{' '}
               <span className="font-bold text-[#008000] text-[14px]">{product?.rating?.toFixed(1) || '0.0'}</span>
@@ -161,7 +161,7 @@ export function ProductPageDetails({
       </div>
     </div>
   ) : (
-    <div className="flex w-full flex-col rounded-[8px] border border-[#f3f4f8] bg-white p-[10px] shadow-[0_2px_8px_0_rgba(0,0,0,.05)]">
+    <div className="flex w-full flex-col rounded-[8px] border border-[#f3f4f8] bg-white p-[10px] shadow-[0_2px_8px_0_rgba(0,0,0,.05)] max-md:hidden ">
       <button className="flex items-center gap-3">
         <Link
           className="flex w-full items-center justify-between gap-3"
@@ -172,9 +172,9 @@ export function ProductPageDetails({
               {product_page_icon.coloredSellerIcon}
             </div>
             <div>
-              <div className="flex cursor-pointer items-center text-[12px] transition-colors hover:text-[#3866df]">
+              {/* <div className="flex cursor-pointer items-center text-[12px] transition-colors hover:text-[#3866df]">
                 Sold by <strong className="ml-1 text-[#3866df] text-[14px] underline">noon</strong>
-              </div>
+              </div> */}
               <div className="mt-2 flex items-center gap-[8px]">
                 <div className="flex h-[17px] w-fit items-center justify-center gap-[2px] rounded-full bg-[#38AE04] px-[4px] py-[2px] text-[14px] text-white">
                   <span>{product?.rating?.toFixed(1) || '0.0'}</span>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { ImageSlider } from '@/shared/components/ui/image-slider'
 import { ProductPageGallery } from './product-page-gallery'
 
@@ -8,6 +9,7 @@ type ProductPageImageProps = {
 
 export function ProductPageImage({ images }: ProductPageImageProps) {
   const [activeIndex, setActiveIndex] = useState(0)
+  const isMobile = useIsMobile()
   return (
     <div className="w-full md:w-[calc(300/1200*100%)] ">
       <ImageSlider
@@ -15,7 +17,7 @@ export function ProductPageImage({ images }: ProductPageImageProps) {
         mobileImages={images}
         autoPlay={false}
         showControls={false}
-        height={500}
+        height={isMobile ? 350 : 500}
         showDots={true}
         showProductControls
         dotsTheme="theme3"

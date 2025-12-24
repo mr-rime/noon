@@ -16,7 +16,6 @@ export function CartItem({
   final_price,
   discount_percentage,
   stock,
-  brand_name,
 }: CartItemType) {
   const [removeCartItem, { loading }] = useMutation(REMOVE_CART_ITEM, {
     refetchQueries: [GET_CART_ITEMS],
@@ -35,7 +34,7 @@ export function CartItem({
   }
 
   const primaryImage = images?.[0]?.image_url
-  const sellerName = brand_name || 'noon market'
+  // const sellerName = brand_name || 'noon market'
   const itemPrice = Number(final_price ?? price ?? 0)
   const originalPrice = Number(price ?? 0)
   const hasDiscount = Boolean(discount_percentage && discount_percentage > 0)
@@ -75,9 +74,9 @@ export function CartItem({
               <Truck size={16} className="text-[#38ae04]" />
               Free Delivery
             </span>
-            <span>
+            {/* <span>
               Sold by <strong className="font-semibold text-[#20232a]">{sellerName}</strong>
-            </span>
+            </span> */}
           </div>
         </div>
 
