@@ -30,12 +30,6 @@ A modern full-stack e-commerce platform inspired by Noon.com, built as a persona
 - Husky for pre-commit hooks (linting, formatting, type checks)
 - Docker Compose for local development
 - pnpm
-
-### Deployment
-- **Render** for server-side deployment
-- **Vercel** for client-side deployment
-- **Railway** for database hosting
-
 ---
 
 ## Features
