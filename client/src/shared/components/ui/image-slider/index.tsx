@@ -422,7 +422,7 @@ export function ImageSlider({
             ref={containerRef}
             className={cn('flex h-full will-change-transform', !showProductControls && isMobile && 'gap-3')}
             style={{
-              width: `${showProductControls || !isMobile ? extendedImages.length * 100 : 490}%`,
+              width: `${extendedImages.length * 100}%`,
             }}>
             {extendedImages.map((src, i) => {
               const isLoaded = loadedImages[i]
@@ -460,21 +460,13 @@ export function ImageSlider({
                       }
                     }}>
                     <Image
-                      src={
-                        showProductControls
-                          ? ((i === 0 ? images[displayImages.length - 1] : images[(i - 1) % displayImages.length]) ??
-                            product_icons.noonIcon)
-                          : src
-                      }
-                      layout="constrained"
-                      width={490}
-                      height={330}
+                      src={src || product_icons.noonIcon}
+                      layout="fullWidth"
                       fetchPriority='high'
                       loading={lazyImage ? 'lazy' : 'eager'}
                       draggable={false}
                       className={cn(
-                        'pointer-events-none h-full w-full object-cover mix-blend-multiply transition-opacity duration-500',
-                        isLoaded ? 'opacity-100' : 'opacity-0',
+                        'pointer-events-none h-full w-full object-contain mix-blend-multiply',
                       )}
                       alt={`Slide ${i}`}
                       onLoad={() => handleImageLoad(i)}

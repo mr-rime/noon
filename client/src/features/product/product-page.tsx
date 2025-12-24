@@ -273,7 +273,7 @@ export function ProductPage() {
       <section
         aria-labelledby="product-main-section"
         className="site-container relative flex w-full flex-col items-start justify-start space-y-10 px-5 pt-10 lg:flex-row lg:space-x-10 lg:space-y-0">
-        <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-[#EAECF0] bg-white px-3 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:hidden">
+        <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-[#EAECF0] bg-white px-3 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:hidden max-md:translate-y-[-23px]">
           <div className="flex items-center gap-3">
             <div className="flex min-w-[70px] flex-col text-xs font-semibold text-[#6f7285]">
               <span>Qty</span>

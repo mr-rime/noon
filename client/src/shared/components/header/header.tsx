@@ -155,38 +155,47 @@ export function Header() {
         </div>
 
         {isMobileMenuOpen && (
-          <div data-mobile-menu="true" className="lg:hidden absolute top-[64px] left-0 right-0 z-50 border-t border-gray-200 bg-white shadow-lg">
-            <div className="site-container relative space-y-4 px-4 py-4 max-h-[70vh] overflow-y-auto">
-              <div className="rounded-md border border-gray-200 p-2 shadow-sm">
-                {memoizedSearchInput}
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3 text-sm text-[#404553]">
-              </div>
-
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  {loading ? (
-                    <Skeleton className="h-[20px] w-[100px] rounded-[2px] bg-[#d4d4d46b]" />
-                  ) : isOnAccountRoutes ? (
-                    <button className="cursor-pointer" onClick={() => {
-                      navigate({ to: '/' })
-                      setIsMobileMenuOpen(false)
-                    }}>
-                      {header_icons.homeIcon}
-                    </button>
-                  ) : user ? (
-                    // user menu trigger moved to bottom-right; keep placeholder/greeting here
-                    <div className="font-medium text-sm text-[#1f2024]">Hello {user.first_name}</div>
-                  ) : (
-                    <LoginButtonWithModalDialog />
-                  )}
+          <>
+            <div
+              className="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            <div data-mobile-menu="true" className="lg:hidden absolute top-[64px] left-0 right-0 z-50 border-t border-gray-200 bg-white shadow-lg animate-in slide-in-from-top-2">
+              <div className="site-container relative flex flex-col gap-6 px-4 py-6 max-h-[80vh] overflow-y-auto">
+                <div className="rounded-md border border-gray-200 p-2 shadow-sm focus-within:ring-2 focus-within:ring-[#FEEE00]">
+                  {memoizedSearchInput}
                 </div>
 
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+                    {loading ? (
+                      <Skeleton className="h-[20px] w-[100px] rounded-[2px] bg-[#d4d4d46b]" />
+                    ) : isOnAccountRoutes ? (
+                      <button className="flex items-center gap-2 cursor-pointer font-medium" onClick={() => {
+                        navigate({ to: '/' })
+                        setIsMobileMenuOpen(false)
+                      }}>
+                        {header_icons.homeIcon}
+                        <span>Home</span>
+                      </button>
+                    ) : user ? (
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-full bg-[#FEEE00] flex items-center justify-center font-bold text-sm">
+                          {user.first_name?.[0]?.toUpperCase()}
+                        </div>
+                        <div className="font-medium text-sm text-[#1f2024]">Hello, {user.first_name}</div>
+                      </div>
+                    ) : (
+                      <div className="w-full">
+                        <LoginButtonWithModalDialog />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-3">
                     {!isOnAccountRoutes && (
-                      <>
+                      <div className="flex items-center justify-between py-2">
+                        <span className="text-sm font-medium text-gray-700">Wishlist</span>
                         {user ? (
                           <WishlistLink />
                         ) : (
@@ -201,20 +210,19 @@ export function Header() {
                             )}
                           </LoginButtonWithModalDialog>
                         )}
-                      </>
+                      </div>
                     )}
                   </div>
-                  {/* cart link intentionally omitted in mobile menu */}
+
+                  {user && (
+                    <div className="pt-2 border-t border-gray-100">
+                      <UserMenu user={user} loading={isLoading} />
+                    </div>
+                  )}
                 </div>
               </div>
-              {/* user menu trigger anchored to bottom-right of the mobile drawer */}
-              {user && (
-                <div className="absolute right-4 bottom-4 z-50">
-                  <UserMenu user={user} loading={isLoading} />
-                </div>
-              )}
             </div>
-          </div>
+          </>
         )}
       </header>
 
